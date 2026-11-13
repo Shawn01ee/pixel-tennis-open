@@ -157,12 +157,13 @@ class Match{
     while(!k){yield* this.wait(.35);
       let bd=1e9;for(const q of this.kids){if(q.busy)continue;const d=hyp(q.x-b.x,q.z-b.z);if(d<bd){bd=d;k=q;}}
       if(!b.rolling&&Math.hypot(b.vx,b.vz)>4)k=null;}
-    k.busy=true;yield* this.wait(.25);
-    yield* this.goW(k,b.x,b.z,4.2);
-    k.pose='pick';yield* this.wait(.3);
+    // ball kids sprint: out to the ball and straight back, so the court is clear before the next serve
+    k.busy=true;yield* this.wait(.1);
+    yield* this.goW(k,b.x,b.z,6.8);
+    k.pose='pick';yield* this.wait(.2);
     const i=this.loose.indexOf(b);if(i>=0)this.loose.splice(i,1);
     k.pose='stand';
-    yield* this.goW(k,k.hx,k.hz,2.4);
+    yield* this.goW(k,k.hx,k.hz,6.4);
     k.rest();
   }
   // a one-bounce feed: gravity and the court's restitution, nothing else
@@ -186,7 +187,10 @@ class Match{
     yield* this.wait(.35);
   }
   serveBox(Sv){const sx=sgn(-this.serveX),zs=-Sv.s;return{x0:Math.min(0,sx*CT.SW),x1:Math.max(0,sx*CT.SW),z0:Math.min(0,zs*CT.SVC),z1:Math.max(0,zs*CT.SVC)};}
+  // nobody serves while a ball kid is still on the move
+  *kidsSettled(){const e=this.t+8;while(this.t<e&&this.kids.some(k=>k.busy))yield;}
   *servePoint(no){
+    yield* this.kidsSettled();
     const sc=this.score,Sv=sc.srv,Rc=sc.rcv,b=this.ball,st=Sv.st,C=this.control;
     const F=-Sv.s;
     this.cue={who:Sv.idx,no,tag:true,side:sgn(-this.serveX),court:this.serveX*Sv.s>0?'deuce':'ad',box:this.serveBox(Sv)};
