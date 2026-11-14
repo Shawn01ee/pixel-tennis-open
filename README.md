@@ -1,5 +1,7 @@
 # Pixel Tennis Open
 
+**[▶ Play in your browser](https://shawn01ee.github.io/pixel-tennis-open/)**
+
 A pixel-art tennis match in a 45° isometric stadium, running in the browser. You don't steer the player: you choose
 the shot and where it goes, and the player moves, times the swing and recovers on their own. An Auto mode plays the
 whole match for you.
@@ -9,7 +11,7 @@ one match on a blue hard court.
 
 ## Play
 
-Open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
+Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
 
 | Key | Action |
