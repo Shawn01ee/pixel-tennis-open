@@ -11,6 +11,10 @@ one match on a blue hard court.
 
 ## Play
 
+Two modes: a **Tournament** (eight players, quarter-final to final, with an on-court interview after each of your
+matches) or a single **Exhibition match** against the opponent of your choice. The opponent level decides how much
+of what the computer players have learned is used against you.
+
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
 
@@ -59,6 +63,7 @@ One class per file, grouped by what it is about. `src/manifest.json` sets the bu
 | `src/physics` | ball flight (drag, Magnus), bounce, net, shot solver |
 | `src/rules` | match formats and scoring |
 | `src/players` | profiles and roster, movement, shot planning, learned tactics, the person's controls |
+| `src/career` | the tournament draw and the post-match interview |
 | `src/match` | the match itself, umpire, ball kids, crowd mood, commentary |
 | `src/render` | renderer, camera, figures (skeleton, body mesh, footwork), ball, effects |
 | `src/stadium` | court surface, stands, crowd, LED boards, big screen |

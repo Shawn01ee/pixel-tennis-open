@@ -143,6 +143,28 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .resf{float:right;display:flex;align-items:flex-end;gap:8px;margin:0 0 8px 12px}.resf .face.big{width:78px;height:90px;border:2px solid var(--deep)}
 .resf .win{position:relative}.resf .win .face.big{width:104px;height:120px;border-color:var(--ball);box-shadow:3px 3px 0 #0008}.resf .win span{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font:700 11px var(--display);letter-spacing:.08em;background:var(--ball);color:var(--navy);padding:2px 0 1px}
 .resf .lose .face{filter:grayscale(.7) brightness(.75)}
+.seg.mode{margin-bottom:10px;max-width:420px}
+.tinfo{grid-column:2/4}.tinfo p{margin:0 0 10px;color:var(--mute);font-size:18px;line-height:1.2}
+.tfield{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.tf{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--deep);border:2px solid var(--ink);padding:4px 2px 3px;font-size:15px;position:relative}
+.tf .face{width:39px;height:45px}.tf .seed{position:absolute;left:3px;top:2px;color:var(--ball);font-size:14px}.tf.me{box-shadow:inset 0 0 0 2px var(--ball)}
+.bcols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:center}
+.bcol{display:flex;flex-direction:column;gap:10px;justify-content:space-around;height:100%}.bcol h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0}
+.bm{background:var(--ink);border:2px solid var(--deep)}.bm.next{border-color:var(--ball);box-shadow:3px 3px 0 #0008}
+.bp{display:flex;align-items:center;gap:5px;padding:2px 6px 2px 3px;min-height:28px;font-size:18px;color:var(--chalk)}.bp+.bp{border-top:2px solid var(--deep)}
+.bp .face{width:19px;height:22px}.bp .seed{color:var(--mute);font-size:15px}.bp .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bp .sc{color:var(--ball);font-size:16px;white-space:nowrap}
+.bp .you{font:700 10px/1 var(--display);background:var(--ball);color:var(--navy);padding:2px 3px 1px}.bp.lost{color:var(--mute)}.bp.lost .face{filter:grayscale(.8) brightness(.7)}.bp.won .nm{color:var(--ball)}.bp.tbd{color:var(--mute)}
+.bnote{margin-top:14px;padding-top:12px;border-top:2px solid var(--deep)}.bnote .next,.bnote .champ{display:flex;align-items:center;gap:12px}
+.bnote .face.big{width:78px;height:90px;border:2px solid var(--deep)}.bnote .next>b{font:700 20px var(--display);color:var(--ball)}
+.bnote div div b{display:block;font:700 22px/1.1 var(--display)}.bnote div div span{display:block;color:var(--mute);font-size:18px;margin-top:3px}
+.bnote .champ .face.big{width:104px;height:120px;border-color:var(--ball)}.bnote .champ div b{color:var(--ball);font-size:28px}
+.card.iv{width:min(680px,100%)}.ivwho{display:flex;gap:12px;align-items:center;margin-bottom:12px}.ivwho .face.big{width:78px;height:90px;border:2px solid var(--deep)}
+.ivwho b{display:block;font:700 22px/1.1 var(--display)}.ivwho span{color:var(--sky);font:500 12px var(--display);letter-spacing:.08em}
+.ivq{margin:0 0 12px;font-size:22px;line-height:1.2;color:var(--chalk);background:var(--ink);border-left:4px solid var(--ball);padding:8px 10px}
+.iva{display:grid;gap:6px}.iva button{white-space:normal;text-align:left;padding:7px 10px 8px;font-size:19px;line-height:1.15;min-height:0}
+.iva button small{display:block;font:500 11px var(--display);letter-spacing:.08em;color:var(--sky);margin-bottom:2px}.iva button[aria-pressed="true"] small{color:var(--deep)}.iva button:disabled{cursor:default;opacity:.55}.iva button[aria-pressed="true"]:disabled{opacity:1}
+.ivr{margin:10px 0 0;color:var(--ball);font-size:19px}.iv .acts{display:flex;justify-content:flex-end;margin-top:12px;min-height:44px}
+.bcol:not(:last-child) .bm{position:relative}.bcol:not(:last-child) .bm::after{content:"";position:absolute;left:100%;top:50%;width:14px;border-top:2px solid var(--deep)}
+.br .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .res h1{font:700 15px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 6px}
 .res h2{font:700 30px/1.05 var(--display);margin:0 0 4px}
 .res .line{font-size:26px;color:var(--ball);margin-bottom:10px}
@@ -212,10 +234,12 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="overlay" id="setup">
   <div class="card">
     <div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p>Summer hard-court major · Centre Court</p></div>
+    <div class="seg mode"><button id="md-tour" aria-pressed="true">Tournament</button><button id="md-exh" aria-pressed="false">Exhibition match</button></div>
     <div class="versus">
       <section class="side" id="sideA"></section>
       <div class="vs">VS</div>
       <section class="side" id="sideB"></section>
+      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players, three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
     </div>
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
@@ -227,6 +251,15 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
       <button class="cta" id="walkOut">Walk out ▶</button>
     </div>
   </div>
+</div>
+<div class="overlay" id="bracket" hidden>
+  <div class="card br"><div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p id="brHead">QUARTER-FINALS</p></div>
+    <div id="brCols" class="bcols"></div><div id="brNote" class="bnote"></div>
+    <div class="acts"><button id="brQuit">Leave the tournament</button><button class="cta" id="brGo">Play ▶</button></div></div>
+</div>
+<div class="overlay" id="interview" hidden>
+  <div class="card iv"><div id="ivWho" class="ivwho"></div><p id="ivQ" class="ivq"></p><div id="ivA" class="iva"></div><p id="ivR" class="ivr" hidden></p>
+    <div class="acts"><button class="cta" id="ivNext" hidden>Next ▶</button></div></div>
 </div>
 <div class="overlay" id="result" hidden>
   <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
@@ -1421,6 +1454,78 @@ class Match{
     this.go(L,CHAIR.x,L.s*CHAIR.z,1.5);
     yield* this.goW(W,0,W.s*4,1.5);
     W.yaw=W.s>0?0:PI;
+  }
+}
+
+// Tournament — an eight-player knockout: quarter-finals, semi-finals, final
+// The draw is seeded so the top two can only meet in the final. The person plays their own matches; every other
+// match is played out by the same simulation, point by point, so its score is a real one.
+class Tournament{
+  static ROUNDS=['Quarter-finals','Semi-finals','Final'];
+  static ORDER=[0,7,3,4,2,5,1,6];   // seed positions down the draw: 1 v 8, 4 v 5, 3 v 6, 2 v 7
+  constructor(me,format,level,roster=ROSTER){
+    const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);
+    this.me=me.id;this.format=format;this.level=level;this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
+    const slot=(a=null,b=null)=>({a,b,w:null,line:''});
+    this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
+  }
+  player(id){return this.roster.find(p=>p.id===id);}
+  get over(){return this.champion!=null;}
+  get name(){return Tournament.ROUNDS[Math.min(this.round,2)];}
+  // the person's next match, or null once they are out or it is over
+  get mine(){if(this.out||this.over)return null;return this.rounds[this.round].find(m=>m.a===this.me||m.b===this.me)||null;}
+  get opponent(){const m=this.mine;return m?this.player(m.a===this.me?m.b:m.a):null;}
+  // the match configuration for the person's next match
+  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true};}
+  // the person's match is over
+  record(won,line){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);m.line=line;if(!won)this.out=true;}
+  // play out one unplayed match of this round between computer players; false when none is left
+  simulateOne(){
+    const m=this.rounds[this.round].find(q=>q.w==null&&q.a!=null&&q.b!=null);if(!m)return false;
+    const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:MatchFormat.get('short')});let n=0;
+    while(!(sim.stage==='over'&&sim.result)&&n<120*60*90){sim.tick();n++;sim.events.length=0;}
+    m.w=sim.result?sim.result.winner.st.id:m.a;m.line=sim.result?sim.result.line:'';return true;
+  }
+  // when every match of the round is decided, fill the next round (or crown the champion)
+  advance(){
+    const cur=this.rounds[this.round];if(cur.some(m=>m.w==null))return false;
+    if(this.round===2){this.champion=cur[0].w;return true;}
+    const next=this.rounds[this.round+1];next.forEach((m,i)=>{m.a=cur[i*2].w;m.b=cur[i*2+1].w;});this.round++;return true;
+  }
+  // everything that does not need the person: the rest of this round, and — once they are out — the rest of the draw
+  settle(){for(;;){while(this.simulateOne());if(!this.advance()||this.over)break;if(this.mine)break;}}
+}
+
+// Interview — the on-court interview after the person's match
+// Two questions drawn from what happened (the round, the score, the opponent, the numbers), each with three ways to
+// answer: gracious, confident or playful. The crowd reacts, and the player's following grows with every answer.
+class Interview{
+  // m: the finished match; t: the tournament (or null); returns [{q, options:[{text, tone, fans, react}]}]
+  static build(m,t){
+    const H=m.human,O=m.other(H),won=m.result.winner===H,ms=H.ms,name=O.st.short,round=t?['quarter-final','semi-final','final'][Math.min(t.round,2)]:'match';
+    const close=/5–3|7–6|6–7|3–5|7–5|5–7/.test(m.result.line),aces=ms.aces,long=m.result.longest||0;
+    const opt=(text,tone,fans,react)=>({text,tone,fans,react});
+    const Q=[];
+    if(won){
+      Q.push({q:t&&t.round===2?`You are the champion! How does it feel to lift the trophy here?`:close?`That was tight all the way. What made the difference at the end against ${name}?`:`A convincing win in the ${round}. Did it feel as good as it looked?`,options:[
+        opt(`${name} pushed me all the way. I just tried to stay calm on the big points.`,'gracious',3,'Warm applause all around the stadium.'),
+        opt(`Honestly? I was hitting it great today. When I play like this, I am hard to beat.`,'confident',2,'A few whistles — and a big cheer from your corner.'),
+        opt(`I have no idea. I closed my eyes on a couple of those and they went in.`,'playful',4,'The crowd bursts out laughing.')]});
+      Q.push({q:aces>=4?`${aces} aces today. Is the serve the best it has ever been?`:long>=10?`That ${long}-shot rally had everyone on their feet. What goes through your mind in a rally like that?`:t&&t.round<2?`Next up is a bigger match. What do you need to do better?`:`What would you say to the fans who stayed until the last point?`,options:[
+        opt(`I have worked hard on it with my team. The credit goes to them.`,'gracious',3,'Your coach gets a round of applause.'),
+        opt(`It is getting there. There is more to come, trust me.`,'confident',2,'An excited murmur runs around the stands.'),
+        opt(`My legs are asking me the same question. I need an ice bath and a pizza.`,'playful',4,'Laughter, and someone shouts "Pizza!" from the top tier.')]});
+    }else{
+      Q.push({q:`Tough luck today. What did ${name} do that made it so difficult?`,options:[
+        opt(`${name} was simply better today. All credit to a great player.`,'gracious',3,'A generous round of applause for a classy answer.'),
+        opt(`I gave that one away. It will not happen again.`,'confident',1,'A hush, then some supportive clapping.'),
+        opt(`I think the ball and I had a disagreement. We will talk it over tonight.`,'playful',3,'The crowd laughs with you.')]});
+      Q.push({q:`What do you take away from this tournament?`,options:[
+        opt(`The support here was unbelievable. Thank you, I will be back.`,'gracious',4,'The whole stadium stands to applaud you off.'),
+        opt(`I know my level is there. Next time I am going all the way.`,'confident',2,'A cheer from the fans behind your chair.'),
+        opt(`Mostly a sunburn. But also a lot of confidence.`,'playful',3,'Laughter and applause.')]});
+    }
+    return Q;
   }
 }
 
@@ -3051,14 +3156,15 @@ class Portrait{
 // pick both players, the format and the session, then walk out
 class SetupScreen{
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.phase=game.R.phaseKey;
+    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.mode='tour';this.phase=game.R.phaseKey;
     $('fmtRow').innerHTML=MatchFormat.ALL.map(f=>`<button id="fm-${f.key}" aria-pressed="false">${f.name}</button>`).join('');
     $('sesRow').innerHTML=Object.keys(PHASES).map(k=>`<button id="se-${k}" aria-pressed="false">${PHASES[k].name}</button>`).join('');
     $('lvlRow').innerHTML=Difficulty.ALL.map(d=>`<button id="lv-${d.key}" aria-pressed="false">${d.name}</button>`).join('');
     for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
     for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
     for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level):game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    for(const k of['tour','exh'])$('md-'+k).onclick=()=>{this.mode=k;this.render();};
     this.render();
   }
   side(id,title,sel,other){
@@ -3074,7 +3180,13 @@ class SetupScreen{
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
   render(){
-    this.side('sideA','YOU',this.a,this.b);this.side('sideB','OPPONENT',this.b,this.a);
+    const tour=this.mode==='tour';
+    this.side('sideA','YOU',this.a,tour?-1:this.b);this.side('sideB','OPPONENT',this.b,this.a);
+    // a tournament decides the opponents: only the person's own player is chosen
+    $('sideB').hidden=tour;document.querySelector('#setup .vs').hidden=tour;$('tourInfo').hidden=!tour;
+    for(const k of['tour','exh'])$('md-'+k).setAttribute('aria-pressed',String(this.mode===k));
+    $('walkOut').textContent=tour?'Enter the draw ▶':'Walk out ▶';
+    if(tour){const seeds=[...ROSTER].sort((a,b)=>a.rank-b.rank);$('tourField').innerHTML=seeds.map(q=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${q.rank}</span><span>${q.short}</span></div>`).join('');}
     for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
     for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
     $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;
@@ -3086,16 +3198,66 @@ class SetupScreen{
 
 // ResultScreen — the end-of-match card
 class ResultScreen{
-  constructor(game){this.g=game;$('resAgain').onclick=()=>game.rematch();$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.close();}
+  constructor(game){this.g=game;$('resAgain').onclick=()=>game.tour?game.continueTour():game.rematch();$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.close();}
   open(m,rows){
     const r=m.result,H=m.human,won=H&&r.winner===H;
     $('resH').textContent=H?(won?'YOU WIN · GAME, SET AND MATCH':'GAME, SET AND MATCH'):'GAME, SET AND MATCH';
     $('resW').textContent=`${r.winner.st.name} d. ${r.loser.st.name}`;
     $('resF').innerHTML=`<div class="win">${Portrait.img(r.winner.st,'face big')}<span>WINNER</span></div><div class="lose">${Portrait.img(r.loser.st,'face big')}</div>`;$('resL').textContent=r.line+(r.longest>=8?`  ·  longest rally ${r.longest}`:'');
     const[a,b]=m.players;$('resT').innerHTML=`<tr><th>${a.st.name}</th><th></th><th>${b.st.name}</th></tr>`+rows.map(q=>`<tr><td>${q[0]}</td><td>${q[1]}</td><td>${q[2]}</td></tr>`).join('');
+    // in a tournament the only way on is through the draw
+    const tour=!!this.g.tour;$('resNew').hidden=tour;$('resAgain').textContent=tour?'Continue ▶':'Rematch';
     $('result').hidden=false;
   }
   close(){$('result').hidden=true;}
+}
+
+// BracketScreen — the tournament draw between matches
+class BracketScreen{
+  constructor(game){this.g=game;$('brGo').onclick=()=>this.go();$('brQuit').onclick=()=>{this.close();game.endTour();};}
+  row(t,id,m,side){
+    if(id==null)return`<div class="bp tbd"><span class="nm">—</span></div>`;
+    const p=t.player(id),won=m.w===id,lost=m.w!=null&&!won;
+    return`<div class="bp${won?' won':''}${lost?' lost':''}${id===t.me?' me':''}">${Portrait.img(p)}<span class="seed">${p.rank}</span><span class="nm">${p.short}</span>${id===t.me?'<span class="you">YOU</span>':''}${won&&side===0?`<span class="sc">${m.line}</span>`:won?`<span class="sc">${m.line}</span>`:''}</div>`;
+  }
+  open(){
+    const t=this.g.tour;if(!t)return;
+    $('brCols').innerHTML=t.rounds.map((r,i)=>`<div class="bcol"><h3>${Tournament.ROUNDS[i].toUpperCase()}</h3>${r.map(m=>`<div class="bm${t.mine===m?' next':''}">${this.row(t,m.a,m,0)}${this.row(t,m.b,m,1)}</div>`).join('')}</div>`).join('');
+    const me=t.player(t.me),opp=t.opponent,champ=t.over?t.player(t.champion):null;
+    $('brHead').textContent=(t.over?'CHAMPION':t.name.toUpperCase())+(t.fans?`  ·  ${t.fans}k fans`:'');
+    $('brNote').innerHTML=champ?`<div class="champ">${Portrait.img(champ,'face big')}<div><b>${champ.name}</b><span>${champ.id===t.me?'You won the Pixel Tennis Open!':t.out?'wins the Pixel Tennis Open. You went out in the '+this.lostIn(t)+'.':'wins the Pixel Tennis Open.'}</span></div></div>`
+      :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${opp.rank} · ${opp.style}</span></div></div>`;
+    $('brGo').textContent=t.over?'New tournament ▶':`Play the ${t.round===2?'final':t.round===1?'semi-final':'quarter-final'} ▶`;
+    $('bracket').hidden=false;
+  }
+  lostIn(t){for(let i=0;i<3;i++)if(t.rounds[i].some(m=>(m.a===t.me||m.b===t.me)&&m.w!=null&&m.w!==t.me))return['quarter-finals','semi-finals','final'][i];return'draw';}
+  go(){const t=this.g.tour;if(!t)return;this.close();if(t.over)this.g.endTour();else this.g.playTour();}
+  close(){$('bracket').hidden=true;}
+}
+
+// InterviewScreen — asks the interview's questions one at a time and shows how the crowd takes each answer
+class InterviewScreen{
+  constructor(game){this.g=game;this.q=[];this.i=0;this.done=null;$('ivNext').onclick=()=>this.next();}
+  // done(fans): called when the last answer has been given
+  open(m,t,done){
+    this.q=Interview.build(m,t);this.i=0;this.fans=0;this.done=done;
+    $('ivWho').innerHTML=`${Portrait.img(m.human.st,'face big')}<div><b>${m.human.st.name}</b><span>On-court interview</span></div>`;
+    this.show();$('interview').hidden=false;
+  }
+  show(){
+    const q=this.q[this.i];$('ivQ').textContent=q.q;$('ivR').hidden=true;$('ivNext').hidden=true;
+    $('ivA').innerHTML=q.options.map((o,k)=>`<button data-k="${k}"><small>${o.tone.toUpperCase()}</small>${o.text}</button>`).join('');
+    $('ivA').querySelectorAll('button').forEach(b=>b.onclick=()=>this.answer(+b.dataset.k));
+  }
+  answer(k){
+    const o=this.q[this.i].options[k];this.fans+=o.fans;
+    $('ivA').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;b.setAttribute('aria-pressed',String(j===k));});
+    $('ivR').textContent=`${o.react}  +${o.fans}k fans`;$('ivR').hidden=false;
+    if(this.g.sound.live&&this.g.sound.crowd.react)this.g.sound.crowd.react('applause',.5);
+    $('ivNext').textContent=this.i<this.q.length-1?'Next question ▶':'Thank you ▶';$('ivNext').hidden=false;$('ivNext').focus();
+  }
+  next(){if(this.i<this.q.length-1){this.i++;this.show();}else{this.close();if(this.done)this.done(this.fans);}}
+  close(){$('interview').hidden=true;}
 }
 
 // Input — keyboard, mouse and touch
@@ -3143,7 +3305,7 @@ class Game{
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();
-    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);
+    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();
@@ -3163,6 +3325,15 @@ class Game{
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say('Players walk out. Space toggles Auto.');
   }
+  // ──────── tournament ────────
+  startTour(a,fmt,phase,level){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
+  playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
+    this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
+  // the person's match is finished: record it, play out the others, show the draw
+  // (the interview comes first; the draw is settled behind it)
+  continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
+    this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});}
+  endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
   startMatch(cfg){

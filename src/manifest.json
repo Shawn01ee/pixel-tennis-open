@@ -31,6 +31,8 @@
  "match/BallKid.js",
  "match/CrowdMood.js",
  "match/Match.js",
+ "career/Tournament.js",
+ "career/Interview.js",
  "render/Palette.js",
  "render/Geo.js",
  "render/Boxes.js",
@@ -70,6 +72,8 @@
  "ui/Portrait.js",
  "ui/SetupScreen.js",
  "ui/ResultScreen.js",
+ "ui/BracketScreen.js",
+ "ui/InterviewScreen.js",
  "app/Input.js",
  "app/Game.js",
  "app/main.js"

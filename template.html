@@ -143,6 +143,28 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .resf{float:right;display:flex;align-items:flex-end;gap:8px;margin:0 0 8px 12px}.resf .face.big{width:78px;height:90px;border:2px solid var(--deep)}
 .resf .win{position:relative}.resf .win .face.big{width:104px;height:120px;border-color:var(--ball);box-shadow:3px 3px 0 #0008}.resf .win span{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font:700 11px var(--display);letter-spacing:.08em;background:var(--ball);color:var(--navy);padding:2px 0 1px}
 .resf .lose .face{filter:grayscale(.7) brightness(.75)}
+.seg.mode{margin-bottom:10px;max-width:420px}
+.tinfo{grid-column:2/4}.tinfo p{margin:0 0 10px;color:var(--mute);font-size:18px;line-height:1.2}
+.tfield{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.tf{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--deep);border:2px solid var(--ink);padding:4px 2px 3px;font-size:15px;position:relative}
+.tf .face{width:39px;height:45px}.tf .seed{position:absolute;left:3px;top:2px;color:var(--ball);font-size:14px}.tf.me{box-shadow:inset 0 0 0 2px var(--ball)}
+.bcols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:center}
+.bcol{display:flex;flex-direction:column;gap:10px;justify-content:space-around;height:100%}.bcol h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0}
+.bm{background:var(--ink);border:2px solid var(--deep)}.bm.next{border-color:var(--ball);box-shadow:3px 3px 0 #0008}
+.bp{display:flex;align-items:center;gap:5px;padding:2px 6px 2px 3px;min-height:28px;font-size:18px;color:var(--chalk)}.bp+.bp{border-top:2px solid var(--deep)}
+.bp .face{width:19px;height:22px}.bp .seed{color:var(--mute);font-size:15px}.bp .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bp .sc{color:var(--ball);font-size:16px;white-space:nowrap}
+.bp .you{font:700 10px/1 var(--display);background:var(--ball);color:var(--navy);padding:2px 3px 1px}.bp.lost{color:var(--mute)}.bp.lost .face{filter:grayscale(.8) brightness(.7)}.bp.won .nm{color:var(--ball)}.bp.tbd{color:var(--mute)}
+.bnote{margin-top:14px;padding-top:12px;border-top:2px solid var(--deep)}.bnote .next,.bnote .champ{display:flex;align-items:center;gap:12px}
+.bnote .face.big{width:78px;height:90px;border:2px solid var(--deep)}.bnote .next>b{font:700 20px var(--display);color:var(--ball)}
+.bnote div div b{display:block;font:700 22px/1.1 var(--display)}.bnote div div span{display:block;color:var(--mute);font-size:18px;margin-top:3px}
+.bnote .champ .face.big{width:104px;height:120px;border-color:var(--ball)}.bnote .champ div b{color:var(--ball);font-size:28px}
+.card.iv{width:min(680px,100%)}.ivwho{display:flex;gap:12px;align-items:center;margin-bottom:12px}.ivwho .face.big{width:78px;height:90px;border:2px solid var(--deep)}
+.ivwho b{display:block;font:700 22px/1.1 var(--display)}.ivwho span{color:var(--sky);font:500 12px var(--display);letter-spacing:.08em}
+.ivq{margin:0 0 12px;font-size:22px;line-height:1.2;color:var(--chalk);background:var(--ink);border-left:4px solid var(--ball);padding:8px 10px}
+.iva{display:grid;gap:6px}.iva button{white-space:normal;text-align:left;padding:7px 10px 8px;font-size:19px;line-height:1.15;min-height:0}
+.iva button small{display:block;font:500 11px var(--display);letter-spacing:.08em;color:var(--sky);margin-bottom:2px}.iva button[aria-pressed="true"] small{color:var(--deep)}.iva button:disabled{cursor:default;opacity:.55}.iva button[aria-pressed="true"]:disabled{opacity:1}
+.ivr{margin:10px 0 0;color:var(--ball);font-size:19px}.iv .acts{display:flex;justify-content:flex-end;margin-top:12px;min-height:44px}
+.bcol:not(:last-child) .bm{position:relative}.bcol:not(:last-child) .bm::after{content:"";position:absolute;left:100%;top:50%;width:14px;border-top:2px solid var(--deep)}
+.br .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 .res h1{font:700 15px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 6px}
 .res h2{font:700 30px/1.05 var(--display);margin:0 0 4px}
 .res .line{font-size:26px;color:var(--ball);margin-bottom:10px}
@@ -212,10 +234,12 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="overlay" id="setup">
   <div class="card">
     <div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p>Summer hard-court major · Centre Court</p></div>
+    <div class="seg mode"><button id="md-tour" aria-pressed="true">Tournament</button><button id="md-exh" aria-pressed="false">Exhibition match</button></div>
     <div class="versus">
       <section class="side" id="sideA"></section>
       <div class="vs">VS</div>
       <section class="side" id="sideB"></section>
+      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players, three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
     </div>
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
@@ -227,6 +251,15 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
       <button class="cta" id="walkOut">Walk out ▶</button>
     </div>
   </div>
+</div>
+<div class="overlay" id="bracket" hidden>
+  <div class="card br"><div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p id="brHead">QUARTER-FINALS</p></div>
+    <div id="brCols" class="bcols"></div><div id="brNote" class="bnote"></div>
+    <div class="acts"><button id="brQuit">Leave the tournament</button><button class="cta" id="brGo">Play ▶</button></div></div>
+</div>
+<div class="overlay" id="interview" hidden>
+  <div class="card iv"><div id="ivWho" class="ivwho"></div><p id="ivQ" class="ivq"></p><div id="ivA" class="iva"></div><p id="ivR" class="ivr" hidden></p>
+    <div class="acts"><button class="cta" id="ivNext" hidden>Next ▶</button></div></div>
 </div>
 <div class="overlay" id="result" hidden>
   <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
