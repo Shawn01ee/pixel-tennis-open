@@ -19,7 +19,7 @@ const TRAITS={
   cleanStrike:  {name:'Clean striker',   text:'Hits flat out without the errors that swinging that hard costs everyone else.',
     overhitK:0,error:c=>['drive','flat','cross','line'].includes(c.tac)?.88:1,speed:c=>['drive','flat','cross','line'].includes(c.tac)?1.06:1},
   octopus:      {name:'Octopus',         text:'At full stretch, far behind the baseline, the ball still comes back deep.',
-    stretchK:.1,error:c=>c.stretch>.3?.85:1},
+    stretchK:.1,error:c=>c.stretch>.3?.7:.9},
   bigServe:     {name:'Serve cannon',    text:'A first serve that rarely misses its spot — and a second that wobbles on the big points.',
     serveErr:(no,pressure)=>no===1?.6:pressure?1.35:1,serveSpeed:no=>no===1?1.06:1},
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',

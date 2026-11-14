@@ -16,5 +16,10 @@ class DecisionPrompt{
     el.classList.toggle('serve',serve);
     const k=title+sub;if(k!==this.key){this.key=k;$('promptT').textContent=title;$('promptS').textContent=sub;}
     $('promptBar').style.transform=`scaleX(${frac.toFixed(3)})`;
+    // the timing zones: the bar's end is the time left before contact; press the shot key while it is in the
+    // bright zone for Perfect, the pale one for Good
+    const z=$('promptZone'),g=$('promptGood'),timing=show&&!serve&&!C.shot;z.hidden=g.hidden=!timing;
+    if(timing){const d=C.decide,T=Math.max(.2,d.tc-d.t0),pc=v=>(clamp(v/T,0,1)*100).toFixed(1)+'%';
+      z.style.left=pc(.05);z.style.width=pc(.3);g.style.left=pc(.35);g.style.width=pc(Math.min(.35,Math.max(0,T-.35)));}
   }
 }

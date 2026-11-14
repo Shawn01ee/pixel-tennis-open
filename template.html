@@ -69,7 +69,9 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .prompt{min-width:min(420px,100%);max-width:100%;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--sky),3px 3px 0 #0009;padding:6px 10px 7px}
 .pt-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 #promptT{font:700 16px var(--display);color:var(--sky);letter-spacing:.06em}#promptS{color:var(--chalk);font-size:18px;text-align:right}
-.prompt .bar{height:6px;margin-top:5px;background:var(--deep)}.prompt .bar i{display:block;height:100%;width:100%;background:var(--ball);transform-origin:left}
+.prompt .bar{height:10px;margin-top:5px;background:var(--deep);position:relative}.prompt .bar i{display:block;height:100%;width:100%;background:var(--ball);transform-origin:left}
+.prompt .bar u{position:absolute;top:-2px;bottom:-2px;box-sizing:border-box;pointer-events:none}
+#promptGood{background:#7bd88f55;border:1px solid #7bd88f}#promptZone{background:#3ddc6caa;border:2px solid #eafff0}
 .prompt.serve{box-shadow:inset 0 0 0 2px var(--ball),3px 3px 0 #0009}.prompt.serve #promptT{color:var(--ball)}
 #slowfx{position:fixed;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 0 6px #7bb8ea55,inset 0 0 90px #101a3acc}
 
@@ -178,7 +180,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     </div>
   </div>
   <div class="mid">
-    <div id="prompt" class="prompt" hidden aria-live="polite"><div class="pt-h"><b id="promptT">YOUR SHOT</b><span id="promptS"></span></div><div class="bar"><i id="promptBar"></i></div></div>
+    <div id="prompt" class="prompt" hidden aria-live="polite"><div class="pt-h"><b id="promptT">YOUR SHOT</b><span id="promptS"></span></div><div class="bar"><i id="promptBar"></i><u id="promptGood" hidden></u><u id="promptZone" hidden></u></div></div>
   </div>
   <div class="bottom">
     <div class="caption" id="line" aria-live="polite"></div>
