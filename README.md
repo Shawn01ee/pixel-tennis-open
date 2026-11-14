@@ -34,6 +34,7 @@ node tests/physics-realism.test.js    # ball flight and bounce against real-worl
 node tools/train.js 6                 # self-play: the computer players learn which tactics win, saved to src/players/learned.js
 node tools/train.js eval              # each trained player against an untrained twin
 node tools/accuracy.js                # where each player's aimed shots land
+node tools/balance.js                 # aces, double faults, serve percentages and rally length over many sets
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.

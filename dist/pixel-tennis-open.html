@@ -274,6 +274,7 @@ const KA=.5*AIR*PI*BALL.R*BALL.R/BALL.M, TAPE_R=.015;
 const HIT=Object.freeze({BOUNCE:1,TAPE:2,MESH:4});
 
 // Surface — court surfaces: restitution, friction, roughness, wear
+// Hard is set by the ITF drop test (254 cm drop → 135–147 cm rebound); clay bounces higher, grass lower.
 // e: coefficient of restitution at low speed, ev: its loss per m/s of impact, mu: sliding friction
 class Surface{
   constructor(key,o){this.key=key;Object.assign(this,o);}
@@ -284,9 +285,9 @@ class Surface{
   }
 }
 const SURFACES={
-  hard :new Surface('hard', {name:'Hard', e:.76,ev:.0045,mu:.62,rough:0,  worn:0,   slide:false,roll:1.0}),
-  clay :new Surface('clay', {name:'Clay', e:.80,ev:.0045,mu:.80,rough:0,  worn:0,   slide:true, roll:1.6}),
-  grass:new Surface('grass',{name:'Grass',e:.67,ev:.0050,mu:.42,rough:.03,worn:.035,slide:false,roll:1.0}),
+  hard :new Surface('hard', {name:'Hard', e:.79,ev:.0045,mu:.62,rough:0,  worn:0,   slide:false,roll:1.0}),
+  clay :new Surface('clay', {name:'Clay', e:.83,ev:.0045,mu:.80,rough:0,  worn:0,   slide:true, roll:1.6}),
+  grass:new Surface('grass',{name:'Grass',e:.70,ev:.0050,mu:.42,rough:.03,worn:.035,slide:false,roll:1.0}),
 };
 
 // Ball — a tennis ball: position, velocity, spin, bounce bookkeeping
@@ -305,13 +306,14 @@ class Ball{
 Ball.FIELDS=['x','y','z','vx','vy','vz','wx','wy','wz','bc','net','net4','rolling','lbx','lbz','lvx','lvz'];
 
 // Aero — drag and Magnus lift on a spinning ball
-// drag and lift for a spinning tennis ball (Štěpánek's fits): Cd and Cl depend on v/(ωr)
+// drag and lift for a spinning tennis ball, Štěpánek's wind-tunnel fits (1988) with q = v/(ωr):
+//   Cd = 0.508 + 1/(22.503 + 4.196 q^2.5)^0.4      Cl = 1/(2.202 + 0.981 q)
 class Aero{
   static accel(b,vx,vy,vz,out){
     const v=Math.sqrt(vx*vx+vy*vy+vz*vz);let ax=0,ay=-G,az=0;
     if(v>.02){
       const wm=Math.sqrt(b.wx*b.wx+b.wy*b.wy+b.wz*b.wz),vs=wm*BALL.R,q=vs>.01?v/vs:1e3;
-      const Cd=.508+1/Math.pow(22.053+4.196*Math.pow(q,2.5),.4),Cl=vs>.01?1/(2+q):0;
+      const Cd=.508+1/Math.pow(22.503+4.196*Math.pow(q,2.5),.4),Cl=vs>.01?1/(2.202+.981*q):0;
       const kd=KA*Cd*v;ax-=kd*vx;ay-=kd*vy;az-=kd*vz;
       if(vs>.01){const k=KA*Cl*v/wm;ax+=k*(b.wy*vz-b.wz*vy);ay+=k*(b.wz*vx-b.wx*vz);az+=k*(b.wx*vy-b.wy*vx);}
     }
@@ -334,13 +336,22 @@ class BallPhysics{
     Aero.accel(b,b.vx,b.vy,b.vz,a);
     const hx=b.vx+a[0]*dt/2,hy=b.vy+a[1]*dt/2,hz=b.vz+a[2]*dt/2;
     Aero.accel(b,hx,hy,hz,a);
-    const pz=b.z;
+    const px=b.x,py=b.y,pz=b.z,ovx=b.vx,ovy=b.vy,ovz=b.vz;
     b.x+=hx*dt;b.y+=hy*dt;b.z+=hz*dt;
     b.vx+=a[0]*dt;b.vy+=a[1]*dt;b.vz+=a[2]*dt;
     if(useNet&&Math.abs(b.x)<CT.POST&&!b.net4)ev|=this.net(b,pz);
     if(b.y<BALL.R&&b.vy<0){
       if(b.vy>-.45){b.y=BALL.R;b.vy=0;b.rolling=true;}
-      else{this.bounce(b);b.bc++;ev|=HIT.BOUNCE;}
+      else{
+        // the ball met the court part-way through this step: go back to that instant, bounce there, then fly out the
+        // rest of the step — so the mark it leaves is where it truly landed, not up to a step's travel beyond
+        const f=py>BALL.R?clamp((py-BALL.R)/(py-b.y),0,1):0,rem=dt*(1-f);
+        b.x=px+(b.x-px)*f;b.z=pz+(b.z-pz)*f;b.y=BALL.R;
+        b.vx=ovx+(b.vx-ovx)*f;b.vy=ovy+(b.vy-ovy)*f;b.vz=ovz+(b.vz-ovz)*f;
+        this.bounce(b);b.bc++;ev|=HIT.BOUNCE;
+        if(rem>0){Aero.accel(b,b.vx,b.vy,b.vz,a);b.x+=(b.vx+a[0]*rem/2)*rem;b.y+=(b.vy+a[1]*rem/2)*rem;b.z+=(b.vz+a[2]*rem/2)*rem;b.vx+=a[0]*rem;b.vy+=a[1]*rem;b.vz+=a[2]*rem;
+          if(b.y<BALL.R){b.y=BALL.R;if(b.vy<0)b.vy=0;}}
+      }
     }
     if(b.rolling){const f=Math.exp(-this.surface.roll*dt);b.vx*=f;b.vz*=f;b.y=BALL.R;b.vy=0;}
     const dec=Math.exp(-dt/14);b.wx*=dec;b.wy*=dec;b.wz*=dec;
@@ -412,6 +423,24 @@ class ShotSolver{
       break;
     }
     return res||{v,el:.25,az,clear:0};
+  }
+}
+
+// RacketImpact — what a swing can do to a ball
+// A ball leaves the strings at  v = e·v_in + (1+e)·V_n,  where e is the racket's apparent coefficient of restitution
+// (about 0.35 at the sweet spot), v_in the speed of the incoming ball and V_n the racket-head speed straight through
+// it. Brushing up or under the ball for spin takes its share of the swing: V_n² + V_t² = V², with V_t ≈ ωr.
+// So pace comes easier off a fast ball than a dead one, heavy spin costs speed, and a stretched player — no time, no
+// balance, off the sweet spot — cannot hit hard at all.
+class RacketImpact{
+  static E=.35;
+  // racket-head speed at contact (m/s) for a player of power 1.0
+  static HEAD={fh:28,bh:26,slice:21,volley:12,smash:36};
+  static headSpeed(st,type,stretch=0){return(RacketImpact.HEAD[type]||26)*st.power*(1-.45*stretch);}
+  // the fastest this player can send this ball with this much spin
+  static maxSpeed(st,type,vin,rpm=0,stretch=0){
+    const V=RacketImpact.headSpeed(st,type,stretch),vt=Math.abs(rpm)*RPM*BALL.R*.8,vn=Math.sqrt(Math.max(V*V-vt*vt,V*V*.12)),e=RacketImpact.E*(1-.3*stretch);
+    return e*vin+(1+e)*vn;
   }
 }
 
@@ -665,7 +694,7 @@ class Player extends Agent{
 }
 
 // learned — tactic values from self-play; written by tools/train.js, do not edit by hand
-const LEARNED={"Nadal":{"serve1r":{"t":0.439,"wide":0.552,"body":0.285},"serve1l":{"t":0.539,"body":0.313,"wide":0.545},"rallyfh":{"cross":0.654,"drop":-0.171,"line":-0.314,"angle":0.358,"slice":0.032},"rallybh":{"line":0.218,"cross":0.622,"drop":-0.096,"angle":0.163,"slice":0.18},"stretch":{"safe":-0.623,"slice":-0.439,"lob":-0.572},"pass":{"passcross":0.824,"lob":0.135,"passline":0.433},"return1":{"cross":-0.214,"safe":0.493,"line":0.016,"lob":0.028,"slice":-0.019},"return2":{"safe":0.413,"cross":0.08,"line":-0.089,"slice":-0.155,"lob":-0.034},"short":{"cross":0.525,"approach":-0.115,"line":-0.034,"angle":0.736,"drop":0.247},"serve2l":{"t":0.338,"wide":-0.127,"body":0.143},"serve2r":{"t":0.552,"wide":0.225,"body":0.065}},"Djokovic":{"stretch":{"slice":-0.417,"safe":-0.428,"lob":-0.685},"return1":{"safe":0.038,"line":-0.127,"cross":-0.144,"lob":-0.018,"slice":-0.047},"pass":{"passline":0.085,"passcross":0.986,"lob":0.202},"rallybh":{"angle":-0.048,"line":-0.205,"cross":0.734,"drop":-0.181,"slice":-0.154},"short":{"angle":0.757,"line":0.026,"cross":0.579,"approach":-0.055,"drop":0.181},"rallyfh":{"line":-0.269,"cross":0.611,"drop":-0.392,"angle":0.349,"slice":0},"serve1r":{"body":-0.051,"wide":0.486,"t":0.266},"serve2l":{"t":-0.177,"wide":0.142,"body":-0.016},"serve1l":{"t":0.182,"wide":0.586,"body":0.157},"serve2r":{"body":0.069,"t":0.016,"wide":0.326},"return2":{"cross":-0.275,"safe":0.205,"slice":-0.025,"line":-0.288,"lob":0.02}},"Alcaraz":{"serve1r":{"t":0.338,"wide":0.447,"body":0.472},"rallybh":{"cross":0.891,"drop":-0.139,"line":-0.111,"angle":0.545,"slice":0.023},"serve2l":{"wide":0.065,"body":0.022,"t":-0.143},"serve1l":{"t":0.224,"body":0.089,"wide":0.428},"stretch":{"slice":-0.63,"safe":-0.533,"lob":-0.488},"short":{"line":0.216,"drop":0.198,"approach":-0.139,"angle":0.427,"cross":0.098},"rallyfh":{"line":-0.115,"cross":0.615,"angle":0.54,"drop":-0.393,"slice":0.025},"serve2r":{"t":-0.246,"wide":0.406,"body":0.475},"pass":{"passline":0.365,"lob":-0.041,"passcross":0.48},"return2":{"line":-0.155,"safe":0.367,"cross":0.026,"lob":-0.059,"slice":-0.095},"return1":{"line":-0.155,"safe":0.101,"cross":-0.042,"slice":0.071,"lob":-0.02}},"Federer":{"stretch":{"slice":-0.604,"safe":-0.373,"lob":-0.683},"rallyfh":{"cross":0.859,"line":-0.122,"drop":-0.235,"angle":0.413,"slice":-0.051},"rallybh":{"slice":-0.115,"angle":0.162,"cross":0.797,"line":-0.301,"drop":-0.291},"serve1l":{"wide":0.461,"t":0.11,"body":0.348},"serve1r":{"t":0.177,"body":-0.003,"wide":0.541},"serve2l":{"t":-0.163,"wide":0.025,"body":0.184},"return2":{"safe":0.006,"line":-0.191,"cross":-0.347,"slice":-0.278},"serve2r":{"wide":0.081,"t":-0.191,"body":0.469},"short":{"drop":0.073,"line":0.168,"cross":0.333,"approach":-0.111,"angle":0.487},"return1":{"safe":-0.039,"cross":-0.232,"line":-0.151,"slice":-0.024,"lob":0.017},"pass":{"passcross":0.578,"lob":-0.079,"passline":0.502}},"Sinner":{"rallyfh":{"cross":0.943,"line":0.004,"angle":0.199,"slice":0.097,"drop":-0.089},"serve1r":{"wide":0.814,"t":0.324,"body":0.466},"serve1l":{"wide":0.876,"t":0.366,"body":0.523},"rallybh":{"slice":0.049,"cross":0.615,"angle":0.66,"line":0.053,"drop":-0.108},"stretch":{"lob":-0.386,"safe":-0.224,"slice":-0.727},"return2":{"cross":0.167,"safe":0.18,"lob":-0.059,"line":-0.028,"slice":-0.088},"return1":{"cross":-0.026,"line":-0.112,"safe":0.091,"lob":0.08,"slice":0.004},"serve2l":{"t":0.458,"wide":0.56,"body":0.135},"pass":{"passline":0.603,"passcross":0.654,"lob":0.046},"serve2r":{"body":0.148,"wide":0.317,"t":0.459},"short":{"drop":0.058,"approach":-0.116,"angle":0.512,"cross":0.449,"line":0.258}},"Medvedev":{"stretch":{"safe":-0.392,"slice":-0.422,"lob":-0.744},"rallyfh":{"cross":-0.237,"line":-0.399,"angle":-0.291,"slice":-0.222,"drop":-0.148},"rallybh":{"line":-0.398,"cross":0.216,"slice":-0.463,"angle":-0.183,"drop":-0.192},"return2":{"cross":-0.253,"safe":-0.008,"line":-0.303,"lob":-0.04,"slice":0.004},"serve1l":{"t":0.117,"wide":0.616,"body":0.007},"serve1r":{"wide":0.689,"t":-0.166,"body":-0.091},"serve2r":{"wide":-0.151,"body":-0.17,"t":-0.107},"pass":{"passcross":0.605,"passline":0.561,"lob":0.016},"return1":{"cross":-0.187,"safe":-0.302,"line":-0.36,"slice":0.01,"lob":-0.03},"serve2l":{"t":-0.179,"body":-0.153,"wide":-0.064},"short":{"cross":0.698,"angle":0.192,"approach":0.103,"drop":0.05,"line":-0.091}},"Zverev":{"rallyfh":{"line":-0.645,"cross":0.348,"angle":-0.238,"slice":-0.003,"drop":-0.13},"serve1r":{"body":-0.334,"wide":0.481,"t":0.055},"serve1l":{"t":-0.295,"wide":0.149,"body":0.186},"serve2r":{"body":-0.12,"t":-0.222,"wide":-0.146},"rallybh":{"cross":0.375,"line":-0.296,"slice":-0.144,"angle":-0.194,"drop":-0.115},"stretch":{"slice":-0.754,"safe":-0.718,"lob":-0.769},"serve2l":{"body":0.096,"wide":-0.191,"t":-0.231},"pass":{"lob":-0.333,"passcross":0.186,"passline":-0.223},"short":{"approach":-0.083,"drop":0.098,"angle":0.259,"line":-0.002,"cross":0.305},"return2":{"safe":-0.236,"cross":-0.544,"slice":-0.131,"line":-0.298,"lob":0.034},"return1":{"cross":-0.447,"line":-0.444,"safe":-0.054,"slice":-0.078,"lob":-0.087}},"de Minaur":{"pass":{"passcross":0.517,"lob":0.225,"passline":0.277},"stretch":{"safe":-0.719,"slice":-0.73,"lob":-0.498},"rallyfh":{"line":-0.443,"cross":-0.374,"angle":-0.119,"drop":-0.294,"slice":-0.112},"serve1r":{"body":-0.126,"t":-0.439,"wide":0.309},"serve1l":{"t":-0.201,"body":-0.382,"wide":0.384},"rallybh":{"drop":-0.258,"cross":-0.355,"angle":-0.52,"line":-0.367,"slice":-0.31},"serve2r":{"t":0.025,"wide":-0.474,"body":0.009},"return1":{"safe":-0.134,"line":-0.578,"cross":-0.328,"lob":-0.05,"slice":-0.059},"serve2l":{"wide":-0.343,"t":-0.214,"body":0.005},"short":{"approach":-0.336,"line":-0.041,"cross":0.248,"angle":0.432,"drop":0.109},"return2":{"cross":-0.231,"safe":0.033,"line":-0.233,"slice":-0.212,"lob":-0.04}}};
+const LEARNED={"Nadal":{"serve1r":{"t":0.069,"wide":0.287,"body":-0.119},"serve1l":{"t":-0.154,"body":-0.164,"wide":0.258},"rallyfh":{"cross":0.831,"drop":-0.308,"line":-0.315,"angle":0.55,"slice":-0.065},"rallybh":{"line":0.209,"cross":0.5,"drop":-0.279,"angle":-0.031,"slice":0.038},"stretch":{"safe":-0.416,"slice":-0.478,"lob":-0.59},"pass":{"passcross":0.944,"lob":0.395,"passline":0.611},"return1":{"cross":-0.188,"safe":0.439,"line":-0.091,"lob":0.027,"slice":0.019},"return2":{"safe":0.421,"cross":-0.197,"line":0.068,"slice":-0.203,"lob":-0.098},"short":{"cross":0.502,"approach":-0.207,"line":-0.003,"angle":0.93,"drop":0.32},"serve2l":{"t":0.069,"wide":-0.042,"body":0.375},"serve2r":{"t":0.042,"wide":-0.15,"body":0.163}},"Djokovic":{"stretch":{"slice":-0.387,"safe":-0.168,"lob":-0.362},"return1":{"safe":0.372,"line":-0.166,"cross":-0.153,"lob":0.025,"slice":-0.05},"pass":{"passline":0.936,"passcross":0.681,"lob":0.295},"rallybh":{"angle":0.23,"line":-0.243,"cross":0.751,"drop":-0.357,"slice":-0.216},"short":{"angle":0.929,"line":-0.025,"cross":0.868,"approach":-0.09,"drop":0.267},"rallyfh":{"line":0.028,"cross":0.63,"drop":-0.404,"angle":0.134,"slice":-0.001},"serve1r":{"body":-0.186,"wide":0.326,"t":-0.097},"serve2l":{"t":-0.123,"wide":0.011,"body":-0.197},"serve1l":{"t":0.072,"wide":0.556,"body":-0.144},"serve2r":{"body":-0.16,"t":-0.158,"wide":-0.199},"return2":{"cross":-0.168,"safe":0.392,"slice":-0.096,"line":-0.219,"lob":0.002}},"Alcaraz":{"serve1r":{"t":0.075,"wide":0.164,"body":0.068},"rallybh":{"cross":0.708,"drop":-0.224,"line":-0.036,"angle":0.532,"slice":0.132},"serve2l":{"wide":-0.103,"body":0.025,"t":0.072},"serve1l":{"t":0.064,"body":-0.138,"wide":0.272},"stretch":{"slice":-0.523,"safe":-0.347,"lob":-0.184},"short":{"line":0.316,"drop":0.187,"approach":-0.334,"angle":0.674,"cross":0.18},"rallyfh":{"line":-0.083,"cross":0.321,"angle":0.48,"drop":-0.578,"slice":0.043},"serve2r":{"t":0.005,"wide":-0.147,"body":0.367},"pass":{"passline":0.504,"lob":0.096,"passcross":0.688},"return2":{"line":-0.177,"safe":0.214,"cross":-0.118,"lob":-0.104,"slice":-0.153},"return1":{"line":-0.299,"safe":0.202,"cross":-0.128,"slice":0.027,"lob":0.033}},"Federer":{"stretch":{"slice":-0.293,"safe":-0.142,"lob":-0.697},"rallyfh":{"cross":0.725,"line":-0.149,"drop":-0.417,"angle":0.333,"slice":-0.028},"rallybh":{"slice":-0.298,"angle":0.031,"cross":0.718,"line":-0.146,"drop":-0.32},"serve1l":{"wide":0.085,"t":-0.029,"body":-0.225},"serve1r":{"t":-0.128,"body":-0.214,"wide":-0.06},"serve2l":{"t":-0.507,"wide":-0.187,"body":-0.15},"return2":{"safe":0.387,"line":-0.114,"cross":-0.183,"slice":-0.378,"lob":0.003},"serve2r":{"wide":-0.209,"t":-0.325,"body":-0.182},"short":{"drop":0.003,"line":0.175,"cross":0.515,"approach":-0.282,"angle":0.888},"return1":{"safe":0.305,"cross":-0.122,"line":-0.351,"slice":-0.133,"lob":0.023},"pass":{"passcross":0.886,"lob":-0.027,"passline":0.607}},"Sinner":{"rallyfh":{"cross":0.648,"line":0.174,"angle":0.765,"slice":0.076,"drop":-0.176},"serve1r":{"wide":0.388,"t":0.124,"body":0.107},"serve1l":{"wide":0.362,"t":0.34,"body":0.191},"rallybh":{"slice":0.121,"cross":0.702,"angle":0.609,"line":0.251,"drop":-0.186},"stretch":{"lob":-0.441,"safe":-0.02,"slice":-0.378},"return2":{"cross":0.086,"safe":0.462,"lob":-0.05,"line":0.095,"slice":-0.084},"return1":{"cross":-0.161,"line":0.189,"safe":0.247,"lob":0.1,"slice":-0.138},"serve2l":{"t":-0.078,"wide":0.107,"body":0.128},"pass":{"passline":0.611,"passcross":0.742,"lob":0.222},"serve2r":{"body":0.239,"wide":0.196,"t":0.07},"short":{"drop":0.054,"approach":0.064,"angle":0.592,"cross":0.557,"line":0.257}},"Medvedev":{"stretch":{"safe":-0.379,"slice":-0.356,"lob":-0.648},"rallyfh":{"cross":0.375,"line":-0.263,"angle":-0.361,"slice":-0.259,"drop":-0.272},"rallybh":{"line":0.098,"cross":0.503,"slice":-0.582,"angle":-0.466,"drop":-0.275},"return2":{"cross":-0.313,"safe":0.196,"line":-0.387,"lob":-0.04,"slice":-0.08},"serve1l":{"t":-0.418,"wide":0.302,"body":-0.374},"serve1r":{"wide":0.518,"t":-0.321,"body":0.111},"serve2r":{"wide":-0.166,"body":-0.121,"t":-0.389},"pass":{"passcross":0.764,"passline":0.485,"lob":0.326},"return1":{"cross":-0.294,"safe":0.162,"line":-0.545,"slice":0.035,"lob":0.021},"serve2l":{"t":-0.553,"body":-0.237,"wide":-0.42},"short":{"cross":0.694,"angle":0.367,"approach":-0.067,"drop":0.098,"line":-0.098}},"Zverev":{"rallyfh":{"line":-0.752,"cross":0.044,"angle":-0.118,"slice":-0.095,"drop":-0.312},"serve1r":{"body":-0.265,"wide":-0.005,"t":-0.368},"serve1l":{"t":-0.163,"wide":0.079,"body":-0.351},"serve2r":{"body":-0.207,"t":-0.517,"wide":-0.336},"rallybh":{"cross":0.219,"line":-0.507,"slice":-0.331,"angle":-0.119,"drop":-0.209},"stretch":{"slice":-0.624,"safe":-0.912,"lob":-0.91},"serve2l":{"body":-0.32,"wide":-0.468,"t":-0.545},"pass":{"lob":-0.35,"passcross":-0.015,"passline":-0.056},"short":{"approach":-0.105,"drop":0.098,"angle":0.365,"line":-0.1,"cross":0.581},"return2":{"safe":-0.134,"cross":-0.682,"slice":-0.238,"line":-0.528,"lob":-0.098},"return1":{"cross":-0.439,"line":-0.499,"safe":-0.382,"slice":-0.187,"lob":-0.085}},"de Minaur":{"pass":{"passcross":0.759,"lob":0.077,"passline":0.192},"stretch":{"safe":-0.338,"slice":-0.807,"lob":-0.645},"rallyfh":{"line":-0.34,"cross":-0.276,"angle":-0.386,"drop":-0.447,"slice":-0.153},"serve1r":{"body":-0.275,"t":-0.643,"wide":0.268},"serve1l":{"t":-0.507,"body":-0.39,"wide":0.009},"rallybh":{"drop":-0.38,"cross":-0.352,"angle":-0.412,"line":-0.35,"slice":-0.421},"serve2r":{"t":-0.577,"wide":-0.645,"body":-0.195},"return1":{"safe":-0.01,"line":-0.691,"cross":-0.143,"lob":-0.081,"slice":-0.133},"serve2l":{"wide":-0.533,"t":-0.646,"body":-0.374},"short":{"approach":-0.459,"line":-0.058,"cross":0.557,"angle":0.616,"drop":0.22},"return2":{"cross":0.086,"safe":0.406,"line":-0.405,"slice":-0.246,"lob":-0.056}}};
 
 // Tactics — what each player has learned about which choices win points
 // Every time a computer player chooses between tactics (cross or line, slice or lob, where to serve…) the choice is
@@ -895,7 +924,9 @@ class CrowdMood{
 // Match — one match: the director coroutines, rallies, line calls, changeovers
 class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
-  static RETURN={react:.17,jitter:.05,x:2.9,deep:.1};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1};
+  // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
+  static SERVE_ERR=1.4;
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -1129,7 +1160,7 @@ class Match{
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
-    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const es=Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side);
     if(C.is(Sv))C.clear();
@@ -1233,7 +1264,8 @@ class Match{
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
     if(human){C.target=null;C.shot=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
-    const v0=(srv?S.v*.78:S.v)*(1-.24*p.stretch);
+    // the shot wanted, held to what this swing can physically give this ball
+    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,S.rpm,p.stretch));
     const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
     const lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,stretch=p.stretch;
     const e=st.err*S.risk*(1+1.25*stretch*stretch+.5*pace+lowB+(srv?.25:0)+(sol.v/(38*st.power))**3*.35)*(aimed?.9:1);
@@ -2652,13 +2684,26 @@ class Announcer{
   }
   // "Fifteen–Love." reads better as "Fifteen, Love."
   static spoken(text){return text.replace(/–/g,', ').replace(/\s+/g,' ').trim();}
+  // iPad and iPhone only let speech start from a tap: say one silent word inside the tap that turns the sound on,
+  // and every later call is then allowed
+  prime(){
+    if(!this.ok||this.primed)return;this.primed=true;
+    try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-AU';speechSynthesis.speak(u);}catch(e){}
+  }
   say(text,kind='ump'){
     if(!this.on||!this.ok)return;
-    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line';
+    if(!this.ump)this.pick();
+    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=line?this.line:this.ump;
     // without a man's voice installed, a lower pitch stands in
-    u.voice=line?this.line:this.ump;u.rate=line?1.12:.98;u.pitch=line?.7:(this.male?.95:.62);u.volume=line?1:.9;
-    if(line)speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang='en-AU';
+    u.rate=line?1.12:.98;u.pitch=line?.7:(this.male?.95:.62);u.volume=line?1:.9;
+    // Safari drops an utterance that is collected before it is spoken, or spoken in the same breath as a cancel
+    this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;};
+    try{
+      if(speechSynthesis.paused)speechSynthesis.resume();
+      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();setTimeout(()=>speechSynthesis.speak(u),80);}
+      else speechSynthesis.speak(u);
+    }catch(e){}
   }
   stop(){if(this.ok)speechSynthesis.cancel();}
 }
@@ -2668,8 +2713,8 @@ class Announcer{
 class SoundSystem{
   constructor(){this.A=new AudioEngine();this.sfx=new TennisSfx(this.A);this.crowd=new CrowdAudio(this.A);this.voice=new Announcer();this.on=false;}
   get live(){return this.on&&this.A.ready;}
-  start(){if(this.on)return;this.A.start();this.crowd.init();this.on=true;this.voice.on=true;this.A.setMuted(false);}
-  toggle(){if(!this.A.ready){this.start();return this.on;}this.on=!this.on;this.A.setMuted(!this.on);this.A.resume();this.voice.on=this.on;if(!this.on)this.voice.stop();return this.on;}
+  start(){this.voice.prime();if(this.on)return;this.A.start();this.crowd.init();this.on=true;this.voice.on=true;this.A.setMuted(false);}
+  toggle(){this.voice.prime();if(!this.A.ready){this.start();return this.on;}this.on=!this.on;this.A.setMuted(!this.on);this.A.resume();this.voice.on=this.on;if(!this.on)this.voice.stop();return this.on;}
   // pan: −1 (left of screen) .. 1 (right)
   event(e,pan){
     if(!this.live)return;const S=this.sfx,C=this.crowd;
@@ -3063,7 +3108,14 @@ class Game{
     const m=this.match,B=this.B,t=this.tc,C=m.control;
     if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.72+Math.sin(t*7)*.05,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a;
       for(const[a,b]of[[1,1],[1,-1],[-1,1],[-1,-1]]){B.box(P.x+a*r-a*.13,.06,P.z+b*r,.3,.04,.1,0,c);B.box(P.x+a*r,.06,P.z+b*r-b*.13,.1,.04,.3,0,c);}}
-    if(C.target){const a=C.target,p=.3+Math.sin(t*8)*.07;for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]])B.box(a.x+x,.06,a.z+z,x?.26:.1,.03,z?.26:.1,0,0x7bb8ea);B.box(a.x,.06,a.z,.1,.03,.1,0,0xf4f3ec);}
+    // where the person is sending the ball: a bright ring on the court with a pin standing in it, kept until the
+    // ball has landed so the shot can be judged against it
+    if(C.target)this.aim={x:C.target.x,z:C.target.z,hold:1.6};
+    else if(this.aim){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.aim.hold=Math.min(this.aim.hold,.25);this.aim.hold-=1/60;if(this.aim.hold<=0)this.aim=null;}
+    if(this.aim){const a=this.aim,live=!!C.target,r=.52+(live?Math.sin(t*8)*.06:0),col=live?0xf4d44a:0xf4f3ec,n=14;
+      for(let i=0;i<n;i++){const q=i/n*TAU+t*(live?1.2:0);B.box(a.x+Math.cos(q)*r,.05,a.z+Math.sin(q)*r,.2,.04,.09,-q+PI/2,i%2?col:0x1c1f2e);}
+      for(const[x,z]of[[1,0],[-1,0],[0,1],[0,-1]])B.box(a.x+x*.2,.05,a.z+z*.2,x?.2:.06,.04,z?.2:.06,0,0xf4f3ec);
+      B.box(a.x,.5,a.z,.05,.9,.05,0,0xf4f3ec);B.box(a.x,1.02,a.z,.2,.2,.2,PI/4,0xf0664a);}
     // over the person's own player, a small marker while the camera is wide
     const H=m.human;if(H&&this.cam.mode===CameraRig.STADIUM){const y=H.h+.55+Math.sin(t*4)*.05;B.box(H.x,y,H.z,.22,.1,.22,PI/4,0x7bb8ea);}
   }

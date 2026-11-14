@@ -3,8 +3,8 @@
 class SoundSystem{
   constructor(){this.A=new AudioEngine();this.sfx=new TennisSfx(this.A);this.crowd=new CrowdAudio(this.A);this.voice=new Announcer();this.on=false;}
   get live(){return this.on&&this.A.ready;}
-  start(){if(this.on)return;this.A.start();this.crowd.init();this.on=true;this.voice.on=true;this.A.setMuted(false);}
-  toggle(){if(!this.A.ready){this.start();return this.on;}this.on=!this.on;this.A.setMuted(!this.on);this.A.resume();this.voice.on=this.on;if(!this.on)this.voice.stop();return this.on;}
+  start(){this.voice.prime();if(this.on)return;this.A.start();this.crowd.init();this.on=true;this.voice.on=true;this.A.setMuted(false);}
+  toggle(){this.voice.prime();if(!this.A.ready){this.start();return this.on;}this.on=!this.on;this.A.setMuted(!this.on);this.A.resume();this.voice.on=this.on;if(!this.on)this.voice.stop();return this.on;}
   // pan: −1 (left of screen) .. 1 (right)
   event(e,pan){
     if(!this.live)return;const S=this.sfx,C=this.crowd;
