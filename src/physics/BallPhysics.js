@@ -13,13 +13,22 @@ class BallPhysics{
     Aero.accel(b,b.vx,b.vy,b.vz,a);
     const hx=b.vx+a[0]*dt/2,hy=b.vy+a[1]*dt/2,hz=b.vz+a[2]*dt/2;
     Aero.accel(b,hx,hy,hz,a);
-    const pz=b.z;
+    const px=b.x,py=b.y,pz=b.z,ovx=b.vx,ovy=b.vy,ovz=b.vz;
     b.x+=hx*dt;b.y+=hy*dt;b.z+=hz*dt;
     b.vx+=a[0]*dt;b.vy+=a[1]*dt;b.vz+=a[2]*dt;
     if(useNet&&Math.abs(b.x)<CT.POST&&!b.net4)ev|=this.net(b,pz);
     if(b.y<BALL.R&&b.vy<0){
       if(b.vy>-.45){b.y=BALL.R;b.vy=0;b.rolling=true;}
-      else{this.bounce(b);b.bc++;ev|=HIT.BOUNCE;}
+      else{
+        // the ball met the court part-way through this step: go back to that instant, bounce there, then fly out the
+        // rest of the step — so the mark it leaves is where it truly landed, not up to a step's travel beyond
+        const f=py>BALL.R?clamp((py-BALL.R)/(py-b.y),0,1):0,rem=dt*(1-f);
+        b.x=px+(b.x-px)*f;b.z=pz+(b.z-pz)*f;b.y=BALL.R;
+        b.vx=ovx+(b.vx-ovx)*f;b.vy=ovy+(b.vy-ovy)*f;b.vz=ovz+(b.vz-ovz)*f;
+        this.bounce(b);b.bc++;ev|=HIT.BOUNCE;
+        if(rem>0){Aero.accel(b,b.vx,b.vy,b.vz,a);b.x+=(b.vx+a[0]*rem/2)*rem;b.y+=(b.vy+a[1]*rem/2)*rem;b.z+=(b.vz+a[2]*rem/2)*rem;b.vx+=a[0]*rem;b.vy+=a[1]*rem;b.vz+=a[2]*rem;
+          if(b.y<BALL.R){b.y=BALL.R;if(b.vy<0)b.vy=0;}}
+      }
     }
     if(b.rolling){const f=Math.exp(-this.surface.roll*dt);b.vx*=f;b.vz*=f;b.y=BALL.R;b.vy=0;}
     const dec=Math.exp(-dt/14);b.wx*=dec;b.wy*=dec;b.wz*=dec;

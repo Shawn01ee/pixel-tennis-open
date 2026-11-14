@@ -15,13 +15,26 @@ class Announcer{
   }
   // "Fifteen–Love." reads better as "Fifteen, Love."
   static spoken(text){return text.replace(/–/g,', ').replace(/\s+/g,' ').trim();}
+  // iPad and iPhone only let speech start from a tap: say one silent word inside the tap that turns the sound on,
+  // and every later call is then allowed
+  prime(){
+    if(!this.ok||this.primed)return;this.primed=true;
+    try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-AU';speechSynthesis.speak(u);}catch(e){}
+  }
   say(text,kind='ump'){
     if(!this.on||!this.ok)return;
-    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line';
+    if(!this.ump)this.pick();
+    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=line?this.line:this.ump;
     // without a man's voice installed, a lower pitch stands in
-    u.voice=line?this.line:this.ump;u.rate=line?1.12:.98;u.pitch=line?.7:(this.male?.95:.62);u.volume=line?1:.9;
-    if(line)speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang='en-AU';
+    u.rate=line?1.12:.98;u.pitch=line?.7:(this.male?.95:.62);u.volume=line?1:.9;
+    // Safari drops an utterance that is collected before it is spoken, or spoken in the same breath as a cancel
+    this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;};
+    try{
+      if(speechSynthesis.paused)speechSynthesis.resume();
+      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();setTimeout(()=>speechSynthesis.speak(u),80);}
+      else speechSynthesis.speak(u);
+    }catch(e){}
   }
   stop(){if(this.ok)speechSynthesis.cancel();}
 }

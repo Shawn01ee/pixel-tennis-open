@@ -1,7 +1,7 @@
 // The ball must behave like a real tennis ball: checked against published figures, not against our own code.
 // Run: node tests/physics-realism.test.js
 const{loadSim}=require('./load');
-const{Ball,BallPhysics,SURFACES,HIT,DT,BALL}=loadSim(['Ball','BallPhysics','SURFACES','HIT','DT','BALL']);
+const{Ball,BallPhysics,SURFACES,HIT,DT,BALL,RacketImpact}=loadSim(['Ball','BallPhysics','SURFACES','HIT','DT','BALL','RacketImpact']);
 let fails=0;const check=(ok,msg)=>{console.log(`${ok?'PASS':'FAIL'}  ${msg}`);if(!ok)fails++;};
 const hard=new BallPhysics(SURFACES.hard);
 // fly a ball until its first bounce; report the state just before and just after
@@ -11,10 +11,9 @@ function shot(ph,v,elDeg,rpm,h=1,z0=-11.885){
   for(let i=0;i<120*8;i++){const p={vy:b.vy,vh:Math.hypot(b.vx,b.vz),v:b.speed,E:E()};const ev=ph.step(b,DT,false);t+=DT;if(ev&HIT.BOUNCE){pre=p;break;}}
   return{t,dist:b.z-z0,pre,post:{vy:b.vy,vh:Math.hypot(b.vx,b.vz),v:b.speed,E:E()}};
 }
-// 1. ITF rule: dropped from 254 cm onto concrete, a ball rebounds 135–147 cm; an acrylic court over a cushion
-//    gives a little less, so 125–147 cm is accepted here
+// 1. ITF rule: dropped from 254 cm onto a hard surface, a ball rebounds 135–147 cm
 {const b=new Ball(0,2.54+BALL.R,0);let top=0,hit=false;for(let i=0;i<120*4;i++){const ev=hard.step(b,DT,false);if(ev&HIT.BOUNCE)hit=true;else if(hit){top=Math.max(top,b.y-BALL.R);if(b.vy<0)break;}}
- check(top>1.25&&top<1.47,`drop test: 254 cm drop rebounds ${(top*100).toFixed(0)} cm (ITF on concrete: 135–147 cm; cushioned hard court: from 125)`);}
+ check(top>1.35&&top<1.47,`drop test: 254 cm drop rebounds ${(top*100).toFixed(0)} cm (ITF: 135–147 cm)`);}
 // 2. terminal velocity: m 57 g, r 3.3 cm, drag coefficient 0.5–0.6 in air gives 21–23 m/s
 {const b=new Ball(0,5000,0);for(let i=0;i<120*30;i++)hard.stepOnce(b,DT,false);
  check(-b.vy>20.5&&-b.vy<23.5,`terminal velocity ${(-b.vy).toFixed(1)} m/s (expected 21–23 m/s)`);}
@@ -39,4 +38,15 @@ function shot(ph,v,elDeg,rpm,h=1,z0=-11.885){
 // 6. a bounce never creates energy (motion + spin together; spin may turn into speed, but the total cannot grow)
 {let worst=0,at='';for(const v of[10,20,30,45,60])for(const el of[-12,-5,3,12,30])for(const rpm of[-3000,0,3000,5000]){const s=shot(hard,v,el,rpm,1.2);if(s.pre){const r=s.post.E/s.pre.E;if(r>worst){worst=r;at=`${v} m/s, ${el}°, ${rpm} rpm`;}}}
  check(worst<=1.001,`no bounce creates energy (largest total-energy ratio across 100 shots: ${worst.toFixed(3)} at ${at})`);}
+// 7. numerical accuracy: the landing spot must not depend on the step size (line calls are made to the centimetre)
+{let worst=0,at='';const land=(v,el,rpm,h,dt)=>{const b=new Ball(.3,h,-11.885);b.launch(v,el*Math.PI/180,.05,rpm,0);for(let i=0;i<4/dt;i++){if(hard.stepOnce(b,dt,false)&HIT.BOUNCE)break;}return[b.lbx,b.lbz];};
+ for(const[v,el,rpm,h]of[[58,-6.5,300,2.85],[45,-4,2500,2.8],[36,6,3000,1],[30,10,-2500,1],[41,4,800,.9],[20,35,2500,1]]){
+   const a=land(v,el,rpm,h,DT),r=land(v,el,rpm,h,DT/32),d=Math.hypot(a[0]-r[0],a[1]-r[1]);if(d>worst){worst=d;at=`${v} m/s, ${el}°, ${rpm} rpm`;}}
+ check(worst<.02,`landing spot at the game's step vs a 32× finer step: within ${(worst*100).toFixed(1)} cm (worst: ${at})`);}
+// 8. racket and ball: pace comes off a fast ball, spin and a stretch cost speed, a volley is a block not a swing
+{const st={power:1},k=v=>(v*3.6).toFixed(0),M=RacketImpact.maxSpeed;
+ const flat=M(st,'fh',15,800),dead=M(st,'fh',4,800),heavy=M(st,'fh',15,3600),str=M(st,'fh',15,800,.8),bh=M(st,'bh',15,800),vol=M(st,'volley',22,-1200);
+ check(flat*3.6>135&&flat*3.6<175,`hardest flat forehand off a 54 km/h ball: ${k(flat)} km/h (tour forehands top out around 150–170)`);
+ check(dead<flat-2&&heavy<flat-2&&str<flat*.75&&bh<flat,`off a dead ball ${k(dead)}, with 3600 rpm ${k(heavy)}, at full stretch ${k(str)}, backhand ${k(bh)} km/h — all slower`);
+ check(vol*3.6>70&&vol*3.6<110,`a volley off a 79 km/h pass comes back at up to ${k(vol)} km/h`);}
 console.log(fails?`\n${fails} FAILED`:'\nall realism checks passed');process.exit(fails?1:0);

@@ -1,7 +1,9 @@
 // Match — one match: the director coroutines, rallies, line calls, changeovers
 class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
-  static RETURN={react:.17,jitter:.05,x:2.9,deep:.1};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1};
+  // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
+  static SERVE_ERR=1.4;
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -235,7 +237,7 @@ class Match{
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
-    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const es=Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side);
     if(C.is(Sv))C.clear();
@@ -339,7 +341,8 @@ class Match{
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
     if(human){C.target=null;C.shot=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
-    const v0=(srv?S.v*.78:S.v)*(1-.24*p.stretch);
+    // the shot wanted, held to what this swing can physically give this ball
+    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,S.rpm,p.stretch));
     const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
     const lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,stretch=p.stretch;
     const e=st.err*S.risk*(1+1.25*stretch*stretch+.5*pace+lowB+(srv?.25:0)+(sol.v/(38*st.power))**3*.35)*(aimed?.9:1);

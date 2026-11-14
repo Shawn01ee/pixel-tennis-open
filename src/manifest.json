@@ -9,6 +9,7 @@
  "physics/Aero.js",
  "physics/BallPhysics.js",
  "physics/ShotSolver.js",
+ "physics/RacketImpact.js",
  "physics/Trajectory.js",
  "rules/MatchFormat.js",
  "rules/Score.js",
