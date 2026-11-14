@@ -15,7 +15,7 @@ class SetupScreen{
     $(id).innerHTML=`<h2>${title}</h2><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
       <div class="meta">${p.cc} · No. ${p.rank} · ${p.hand<0?'Left':'Right'}-handed</div>
       <div class="meta">${p.style}</div>
-      <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Touch',r.touch)}</div>
+      <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
       <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''}><b style="background:${hexs(q.look.shirt)}"></b><span>${q.short}</span></button>`).join('')}</div>`;
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }

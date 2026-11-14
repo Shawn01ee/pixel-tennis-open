@@ -535,35 +535,36 @@ class PlayerProfile{
   get ratings(){
     const k=(v,a,b)=>Math.round(45+55*clamp((v-a)/(b-a),0,1));
     return{serve:k(this.s1,40,60),power:k(this.power,.75,1.2),speed:k(this.v+this.a*.08,6.6,8.4),spin:k(this.spin,1200,3300),
-      control:k(1.12-this.err,0,.45),touch:k(this.drop*.4+this.slice*.3+this.net*.3,0,.6)};
+      control:k(1.12-this.err,0,.45),accuracy:k(1.25-(this.acc??1),0,.65),touch:k(this.drop*.4+this.slice*.3+this.net*.3,0,.6)};
   }
-  get overall(){const r=this.ratings;return Math.round((r.serve*1.2+r.power*1.1+r.speed+r.spin*.8+r.control*1.3+r.touch*.6)/6);}
+  get overall(){const r=this.ratings;return Math.round((r.serve*1.2+r.power*1.1+r.speed+r.spin*.8+r.control*1.3+r.accuracy*1.2+r.touch*.6)/7.2);}
 }
 
 // roster — the eight players in the field, scaled from the real players' measurable game
 // h: height in metres (the figure is drawn to it); hand: 1 right, −1 left
 // v m/s top speed, a m/s² acceleration; s1/s2: average first and second serve in m/s (54 m/s ≈ 195 km/h)
 // power: ball speed off the ground; spin: forehand topspin in rpm; err: error scale (lower is steadier); aggr: risk taking
+// acc: placement spread (lower lands closer to where it was aimed; 1 is tour average)
 // net/drop/lob/slice: how often they choose it; deep: how far back they stand to return; sv: serve-and-volley rate
 // ohb: one-handed backhand
 // look: kit colours; sleeve: null → sleeveless
 const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf4f3ec,INK=0x1c1f2e;
 const ROSTER=[
- {name:'Novak Djokovic',short:'Djokovic',cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
+ {name:'Novak Djokovic',short:'Djokovic',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
- {name:'Rafael Nadal',short:'Nadal',cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.06,spin:3250,err:.78,aggr:.48,net:.22,drop:.3,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
+ {name:'Rafael Nadal',short:'Nadal',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.06,spin:3250,err:.78,aggr:.48,net:.22,drop:.3,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
   look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xf4d44a},style:'Lefty, the heaviest topspin forehand'},
- {name:'Carlos Alcaraz',short:'Alcaraz',cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
+ {name:'Carlos Alcaraz',short:'Alcaraz',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
- {name:'Roger Federer',short:'Federer',cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
+ {name:'Roger Federer',short:'Federer',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
   look:{shirt:WHITE,shorts:INK,skin:SKIN.tan,hair:0x4a3020,band:WHITE,racket:INK},style:'Attacks early, slice and net play'},
- {name:'Jannik Sinner',short:'Sinner',cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
+ {name:'Jannik Sinner',short:'Sinner',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
   look:{shirt:0xf4d44a,shorts:INK,skin:SKIN.fair,hair:0xc8602a,band:null,racket:WHITE},style:'Hardest clean hitting off both wings'},
- {name:'Daniil Medvedev',short:'Medvedev',cc:'RUS',rank:7,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
+ {name:'Daniil Medvedev',short:'Medvedev',acc:0.82,cc:'RUS',rank:7,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
   look:{shirt:0x2a8088,shorts:WHITE,skin:SKIN.fair,hair:0x9a7a54,band:null,racket:0x3166b4},style:'Flat wall from far behind the baseline'},
- {name:'Alexander Zverev',short:'Zverev',cc:'GER',rank:6,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
+ {name:'Alexander Zverev',short:'Zverev',acc:1.1,cc:'GER',rank:6,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
   look:{shirt:0xdc4a3c,shorts:INK,skin:SKIN.olive,hair:0xd8b060,band:WHITE,racket:INK},style:'Huge first serve, rock-solid backhand'},
- {name:'Alex de Minaur',short:'de Minaur',cc:'AUS',rank:8,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
+ {name:'Alex de Minaur',short:'de Minaur',acc:0.95,cc:'AUS',rank:8,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
   look:{shirt:0x7bb8ea,shorts:0x101a3a,skin:SKIN.olive,hair:0x3a2418,band:null,racket:0xf0664a},style:'Home favourite, fastest man on tour'},
 ].map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
 
@@ -663,6 +664,49 @@ class Player extends Agent{
   }
 }
 
+// learned — tactic values from self-play; written by tools/train.js, do not edit by hand
+const LEARNED={"Nadal":{"serve1r":{"t":0.439,"wide":0.552,"body":0.285},"serve1l":{"t":0.539,"body":0.313,"wide":0.545},"rallyfh":{"cross":0.654,"drop":-0.171,"line":-0.314,"angle":0.358,"slice":0.032},"rallybh":{"line":0.218,"cross":0.622,"drop":-0.096,"angle":0.163,"slice":0.18},"stretch":{"safe":-0.623,"slice":-0.439,"lob":-0.572},"pass":{"passcross":0.824,"lob":0.135,"passline":0.433},"return1":{"cross":-0.214,"safe":0.493,"line":0.016,"lob":0.028,"slice":-0.019},"return2":{"safe":0.413,"cross":0.08,"line":-0.089,"slice":-0.155,"lob":-0.034},"short":{"cross":0.525,"approach":-0.115,"line":-0.034,"angle":0.736,"drop":0.247},"serve2l":{"t":0.338,"wide":-0.127,"body":0.143},"serve2r":{"t":0.552,"wide":0.225,"body":0.065}},"Djokovic":{"stretch":{"slice":-0.417,"safe":-0.428,"lob":-0.685},"return1":{"safe":0.038,"line":-0.127,"cross":-0.144,"lob":-0.018,"slice":-0.047},"pass":{"passline":0.085,"passcross":0.986,"lob":0.202},"rallybh":{"angle":-0.048,"line":-0.205,"cross":0.734,"drop":-0.181,"slice":-0.154},"short":{"angle":0.757,"line":0.026,"cross":0.579,"approach":-0.055,"drop":0.181},"rallyfh":{"line":-0.269,"cross":0.611,"drop":-0.392,"angle":0.349,"slice":0},"serve1r":{"body":-0.051,"wide":0.486,"t":0.266},"serve2l":{"t":-0.177,"wide":0.142,"body":-0.016},"serve1l":{"t":0.182,"wide":0.586,"body":0.157},"serve2r":{"body":0.069,"t":0.016,"wide":0.326},"return2":{"cross":-0.275,"safe":0.205,"slice":-0.025,"line":-0.288,"lob":0.02}},"Alcaraz":{"serve1r":{"t":0.338,"wide":0.447,"body":0.472},"rallybh":{"cross":0.891,"drop":-0.139,"line":-0.111,"angle":0.545,"slice":0.023},"serve2l":{"wide":0.065,"body":0.022,"t":-0.143},"serve1l":{"t":0.224,"body":0.089,"wide":0.428},"stretch":{"slice":-0.63,"safe":-0.533,"lob":-0.488},"short":{"line":0.216,"drop":0.198,"approach":-0.139,"angle":0.427,"cross":0.098},"rallyfh":{"line":-0.115,"cross":0.615,"angle":0.54,"drop":-0.393,"slice":0.025},"serve2r":{"t":-0.246,"wide":0.406,"body":0.475},"pass":{"passline":0.365,"lob":-0.041,"passcross":0.48},"return2":{"line":-0.155,"safe":0.367,"cross":0.026,"lob":-0.059,"slice":-0.095},"return1":{"line":-0.155,"safe":0.101,"cross":-0.042,"slice":0.071,"lob":-0.02}},"Federer":{"stretch":{"slice":-0.604,"safe":-0.373,"lob":-0.683},"rallyfh":{"cross":0.859,"line":-0.122,"drop":-0.235,"angle":0.413,"slice":-0.051},"rallybh":{"slice":-0.115,"angle":0.162,"cross":0.797,"line":-0.301,"drop":-0.291},"serve1l":{"wide":0.461,"t":0.11,"body":0.348},"serve1r":{"t":0.177,"body":-0.003,"wide":0.541},"serve2l":{"t":-0.163,"wide":0.025,"body":0.184},"return2":{"safe":0.006,"line":-0.191,"cross":-0.347,"slice":-0.278},"serve2r":{"wide":0.081,"t":-0.191,"body":0.469},"short":{"drop":0.073,"line":0.168,"cross":0.333,"approach":-0.111,"angle":0.487},"return1":{"safe":-0.039,"cross":-0.232,"line":-0.151,"slice":-0.024,"lob":0.017},"pass":{"passcross":0.578,"lob":-0.079,"passline":0.502}},"Sinner":{"rallyfh":{"cross":0.943,"line":0.004,"angle":0.199,"slice":0.097,"drop":-0.089},"serve1r":{"wide":0.814,"t":0.324,"body":0.466},"serve1l":{"wide":0.876,"t":0.366,"body":0.523},"rallybh":{"slice":0.049,"cross":0.615,"angle":0.66,"line":0.053,"drop":-0.108},"stretch":{"lob":-0.386,"safe":-0.224,"slice":-0.727},"return2":{"cross":0.167,"safe":0.18,"lob":-0.059,"line":-0.028,"slice":-0.088},"return1":{"cross":-0.026,"line":-0.112,"safe":0.091,"lob":0.08,"slice":0.004},"serve2l":{"t":0.458,"wide":0.56,"body":0.135},"pass":{"passline":0.603,"passcross":0.654,"lob":0.046},"serve2r":{"body":0.148,"wide":0.317,"t":0.459},"short":{"drop":0.058,"approach":-0.116,"angle":0.512,"cross":0.449,"line":0.258}},"Medvedev":{"stretch":{"safe":-0.392,"slice":-0.422,"lob":-0.744},"rallyfh":{"cross":-0.237,"line":-0.399,"angle":-0.291,"slice":-0.222,"drop":-0.148},"rallybh":{"line":-0.398,"cross":0.216,"slice":-0.463,"angle":-0.183,"drop":-0.192},"return2":{"cross":-0.253,"safe":-0.008,"line":-0.303,"lob":-0.04,"slice":0.004},"serve1l":{"t":0.117,"wide":0.616,"body":0.007},"serve1r":{"wide":0.689,"t":-0.166,"body":-0.091},"serve2r":{"wide":-0.151,"body":-0.17,"t":-0.107},"pass":{"passcross":0.605,"passline":0.561,"lob":0.016},"return1":{"cross":-0.187,"safe":-0.302,"line":-0.36,"slice":0.01,"lob":-0.03},"serve2l":{"t":-0.179,"body":-0.153,"wide":-0.064},"short":{"cross":0.698,"angle":0.192,"approach":0.103,"drop":0.05,"line":-0.091}},"Zverev":{"rallyfh":{"line":-0.645,"cross":0.348,"angle":-0.238,"slice":-0.003,"drop":-0.13},"serve1r":{"body":-0.334,"wide":0.481,"t":0.055},"serve1l":{"t":-0.295,"wide":0.149,"body":0.186},"serve2r":{"body":-0.12,"t":-0.222,"wide":-0.146},"rallybh":{"cross":0.375,"line":-0.296,"slice":-0.144,"angle":-0.194,"drop":-0.115},"stretch":{"slice":-0.754,"safe":-0.718,"lob":-0.769},"serve2l":{"body":0.096,"wide":-0.191,"t":-0.231},"pass":{"lob":-0.333,"passcross":0.186,"passline":-0.223},"short":{"approach":-0.083,"drop":0.098,"angle":0.259,"line":-0.002,"cross":0.305},"return2":{"safe":-0.236,"cross":-0.544,"slice":-0.131,"line":-0.298,"lob":0.034},"return1":{"cross":-0.447,"line":-0.444,"safe":-0.054,"slice":-0.078,"lob":-0.087}},"de Minaur":{"pass":{"passcross":0.517,"lob":0.225,"passline":0.277},"stretch":{"safe":-0.719,"slice":-0.73,"lob":-0.498},"rallyfh":{"line":-0.443,"cross":-0.374,"angle":-0.119,"drop":-0.294,"slice":-0.112},"serve1r":{"body":-0.126,"t":-0.439,"wide":0.309},"serve1l":{"t":-0.201,"body":-0.382,"wide":0.384},"rallybh":{"drop":-0.258,"cross":-0.355,"angle":-0.52,"line":-0.367,"slice":-0.31},"serve2r":{"t":0.025,"wide":-0.474,"body":0.009},"return1":{"safe":-0.134,"line":-0.578,"cross":-0.328,"lob":-0.05,"slice":-0.059},"serve2l":{"wide":-0.343,"t":-0.214,"body":0.005},"short":{"approach":-0.336,"line":-0.041,"cross":0.248,"angle":0.432,"drop":0.109},"return2":{"cross":-0.231,"safe":0.033,"line":-0.233,"slice":-0.212,"lob":-0.04}}};
+
+// Tactics — what each player has learned about which choices win points
+// Every time a computer player chooses between tactics (cross or line, slice or lob, where to serve…) the choice is
+// remembered for the point. When the point ends, the winner's choices are credited and the loser's blamed, the most
+// recent ones most. A choice's learned value q ∈ [−1,1] multiplies its base weight by exp(BETA·q), so habits that win
+// are played more and habits that lose fade — but never vanish, so the player keeps exploring.
+// Values start from LEARNED (self-play, see tools/train.js) and keep changing with every point played here;
+// in a browser they are kept in localStorage, so the players go on learning from match to match.
+class Tactics{
+  static ALPHA=.05;   // how fast a value moves toward the latest result
+  static GAMMA=.6;    // how much less each earlier choice in the point is credited
+  static BETA=1.8;    // how strongly a learned value bends the choice
+  static KEY='pto.tactics.v1';
+  constructor(q=null){this.q=q||Tactics.load();this.trail=[[],[]];}
+  static load(){
+    const q=typeof LEARNED!=='undefined'?JSON.parse(JSON.stringify(LEARNED)):{};
+    try{if(typeof localStorage!=='undefined'){const s=localStorage.getItem(Tactics.KEY);if(s)Object.assign(q,JSON.parse(s));}}catch(e){}
+    return q;
+  }
+  save(){try{if(typeof localStorage!=='undefined')localStorage.setItem(Tactics.KEY,JSON.stringify(this.q));}catch(e){}}
+  static forget(){try{if(typeof localStorage!=='undefined')localStorage.removeItem(Tactics.KEY);}catch(e){}}
+  key(P){return P.st.tkey||P.st.short;}
+  table(P){const k=this.key(P);return this.q[k]||(this.q[k]={});}
+  // choose from [[tactic,weight],…] in a situation, bent by what has been learned
+  pick(P,sit,list){
+    if(P.st.noLearn)return rng.weighted(list);
+    const q=this.table(P)[sit];
+    const tac=rng.weighted(q?list.map(([t,w])=>[t,w*Math.exp(Tactics.BETA*(q[t]||0))]):list);
+    this.trail[P.idx].push(sit,tac);return tac;
+  }
+  begin(){this.trail=[[],[]];}
+  // the point went to player w: credit and blame, latest choice first
+  reward(w,players){
+    for(const P of players){if(P.st.noLearn)continue;
+      const tr=this.trail[P.idx],r=P.idx===w?1:-1,T=this.table(P);let g=1;
+      for(let k=tr.length-2;k>=0;k-=2){const s=T[tr[k]]||(T[tr[k]]={}),t=tr[k+1],v=s[t]||0;s[t]=clamp(v+Tactics.ALPHA*g*(r-v),-1,1);g*=Tactics.GAMMA;}
+    }
+    this.begin();
+  }
+}
+
 // ShotPlanner — reads the ball, picks where to meet it, and chooses the shot
 // how far from the ball each stroke is played: r to the side, f in front
 const SWING={fh:{r:.93,f:.42},bh:{r:.58,f:.52},slice:{r:.62,f:.5},volley:{r:.76,f:.62},smash:{r:.24,f:.26},serve:{r:.14,f:.34}};
@@ -724,16 +768,16 @@ class ShotPlanner{
     const oppNet=Math.abs(O.z)<7.4||O.rush,oppDeep=Math.abs(O.z)>12.3,openX=-sgn(O.x||(R()-.5));
     const mg=lerp(1.05,.52,st.aggr),P0=st.power,SW=CT.SW;
     const T=(x,d)=>({x:clamp(x,-SW+.25,SW-.25),d:clamp(d,1.2,CT.L-.35)});
-    const pick=l=>rng.weighted(l),w=this.want(P);
+    const pick=(sit,l)=>m.tactics.pick(P,sit,l),w=this.want(P);
     let tac;
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
     else if(c.kind==='volley')tac=oppDeep&&c.y<1.0&&R()<.3+st.drop*.4?'dropvolley':'volley';
-    else if(c.stretch>.55)tac=pick([['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
-    else if(oppNet)tac=pick([['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
-    else if(dep<9.2&&c.y>.62)tac=pick([['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
-    else if(m.isServe)tac=pick([['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
-    else tac=pick([['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
+    else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
+    else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
+    else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
+    else if(m.isServe)tac=pick('return'+m.serveNo,[['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
+    else tac=pick(c.wing==='fh'?'rallyfh':'rallybh',[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
     switch(tac){
       case'safe':     t=T(-side*1.6,CT.L-1.9);v=26*P0;rpm=st.spin*.9;clear=.75;risk=.9;break;
@@ -857,7 +901,7 @@ class Match{
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
     this.t=0;this.events=[];this.tasks=[];
     this.physics=new BallPhysics(SURFACES[this.cfg.surface]);this.solver=new ShotSolver(this.physics);this.tr=new Trajectory();
-    this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);
+    this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);this.tactics=this.cfg.tactics||new Tactics();
     this.players=[new Player(this.cfg.a,0),new Player(this.cfg.b,1)];
     this.ump=new Umpire();this.kids=KID_POS.map(([x,z],i)=>new BallKid(x,z,i));this.movers=[...this.players,...this.kids,this.ump];
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
@@ -956,7 +1000,7 @@ class Match{
     yield* this.wait(.6);
   }
   *point(){
-    let no=1,w=-1;const sc=this.score;
+    let no=1,w=-1;const sc=this.score;this.tactics.begin();
     this.big=sc.bigPoint();if(this.big)this.ev('bigPoint',this.big);
     for(;;){
       yield* this.ready(no);
@@ -972,7 +1016,7 @@ class Match{
       }
       w=r.w;break;
     }
-    this.stats.points++;
+    this.stats.points++;this.tactics.reward(w,this.players);if(this.stats.points%8===0)this.tactics.save();
     const winner=sc.p[w],loser=sc.p[1-w],Sv=sc.srv;
     winner.ms.pts++;if(w===sc.server){if(no===1)Sv.ms.won1++;else Sv.ms.won2++;}
     if(no===2)Sv.ms.sv2++;
@@ -1083,8 +1127,10 @@ class Match{
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1);
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
-    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1);
-    const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es);
+    // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
+    // percentages stay human; off the ground it narrows direction and depth
+    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side);
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
@@ -1107,7 +1153,7 @@ class Match{
       if(a&&a.z*Sv.s<0&&Math.abs(a.z)<=CT.SVC&&a.x*side>0&&Math.abs(a.x)<=CT.SW)return{x:a.x,y:0,z:a.z};
       if(C.zone)return{x:side*ZONES[C.zone],y:0,z:-Sv.s*d,mod:C.zone==='body'?.92:1};
     }
-    const r=R(),lat=r<.42?ZONES.t:r<.84?ZONES.wide:ZONES.body;
+    const lat=ZONES[this.tactics.pick(Sv,'serve'+no+(side>0?'r':'l'),[['t',.42],['wide',.42],['body',.16]])];
     return{x:side*lat,y:0,z:-Sv.s*d,mod:lat===ZONES.body?.92:1};
   }
   serveType(Sv,no){
@@ -1191,7 +1237,8 @@ class Match{
     const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
     const lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,stretch=p.stretch;
     const e=st.err*S.risk*(1+1.25*stretch*stretch+.5*pace+lowB+(srv?.25:0)+(sol.v/(38*st.power))**3*.35)*(aimed?.9:1);
-    const v=sol.v*(1+N(.02*e)),el=sol.el+N(.021*e)-.0085*e,az=sol.az+N(.0165*e);
+    const ac=st.acc??1;
+    const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
     b.launch(v,el,az,S.rpm,0);
     this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:S.rpm/3000,stroke:P.swing?P.swing.type:'fh'});
@@ -2810,7 +2857,7 @@ class SetupScreen{
     $(id).innerHTML=`<h2>${title}</h2><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
       <div class="meta">${p.cc} · No. ${p.rank} · ${p.hand<0?'Left':'Right'}-handed</div>
       <div class="meta">${p.style}</div>
-      <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Touch',r.touch)}</div>
+      <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
       <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''}><b style="background:${hexs(q.look.shirt)}"></b><span>${q.short}</span></button>`).join('')}</div>`;
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
