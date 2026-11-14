@@ -45,6 +45,9 @@ Every choice a computer player makes (cross-court or down the line, slice or lob
 the point is won and blamed when it is lost. The game ships with what the players learned in self-play and keeps
 learning in your browser as you play; the values are stored in `localStorage`.
 
+Each player also has one signature trait on top of the ratings (`src/players/Traits.js`); `node tools/traits.js`
+measures what each is worth.
+
 ## Layout
 
 One class per file, grouped by what it is about. `src/manifest.json` sets the build order.

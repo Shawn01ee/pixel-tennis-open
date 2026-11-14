@@ -20,6 +20,7 @@
  "players/Player.js",
  "players/learned.js",
  "players/Tactics.js",
+ "players/Traits.js",
  "players/ShotPlanner.js",
  "players/HumanControl.js",
  "match/venue.js",
