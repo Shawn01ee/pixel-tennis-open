@@ -29,9 +29,20 @@ python3 build.py                      # src/ + template.html -> dist/pixel-tenni
 node tests/locomotion.test.js         # movement and footwork
 node tests/match-simulation.test.js   # whole matches, computer and scripted human
 node tests/crowd.test.js              # crowd reactions (statistical; can fail on an unlucky seed)
+node tests/physics-realism.test.js    # ball flight and bounce against real-world figures
+
+node tools/train.js 6                 # self-play: the computer players learn which tactics win, saved to src/players/learned.js
+node tools/train.js eval              # each trained player against an untrained twin
+node tools/accuracy.js                # where each player's aimed shots land
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.
+
+## Computer players learn
+
+Every choice a computer player makes (cross-court or down the line, slice or lob, where to serve) is credited when
+the point is won and blamed when it is lost. The game ships with what the players learned in self-play and keeps
+learning in your browser as you play; the values are stored in `localStorage`.
 
 ## Layout
 
@@ -42,7 +53,7 @@ One class per file, grouped by what it is about. `src/manifest.json` sets the bu
 | `src/core` | constants, maths, random numbers, court dimensions |
 | `src/physics` | ball flight (drag, Magnus), bounce, net, shot solver |
 | `src/rules` | match formats and scoring |
-| `src/players` | profiles and roster, movement, shot planning, the person's controls |
+| `src/players` | profiles and roster, movement, shot planning, learned tactics, the person's controls |
 | `src/match` | the match itself, umpire, ball kids, crowd mood, commentary |
 | `src/render` | renderer, camera, figures (skeleton, body mesh, footwork), ball, effects |
 | `src/stadium` | court surface, stands, crowd, LED boards, big screen |

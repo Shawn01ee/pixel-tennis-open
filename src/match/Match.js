@@ -7,7 +7,7 @@ class Match{
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
     this.t=0;this.events=[];this.tasks=[];
     this.physics=new BallPhysics(SURFACES[this.cfg.surface]);this.solver=new ShotSolver(this.physics);this.tr=new Trajectory();
-    this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);
+    this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);this.tactics=this.cfg.tactics||new Tactics();
     this.players=[new Player(this.cfg.a,0),new Player(this.cfg.b,1)];
     this.ump=new Umpire();this.kids=KID_POS.map(([x,z],i)=>new BallKid(x,z,i));this.movers=[...this.players,...this.kids,this.ump];
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
@@ -106,7 +106,7 @@ class Match{
     yield* this.wait(.6);
   }
   *point(){
-    let no=1,w=-1;const sc=this.score;
+    let no=1,w=-1;const sc=this.score;this.tactics.begin();
     this.big=sc.bigPoint();if(this.big)this.ev('bigPoint',this.big);
     for(;;){
       yield* this.ready(no);
@@ -122,7 +122,7 @@ class Match{
       }
       w=r.w;break;
     }
-    this.stats.points++;
+    this.stats.points++;this.tactics.reward(w,this.players);if(this.stats.points%8===0)this.tactics.save();
     const winner=sc.p[w],loser=sc.p[1-w],Sv=sc.srv;
     winner.ms.pts++;if(w===sc.server){if(no===1)Sv.ms.won1++;else Sv.ms.won2++;}
     if(no===2)Sv.ms.sv2++;
@@ -233,8 +233,10 @@ class Match{
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1);
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
-    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1);
-    const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es);
+    // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
+    // percentages stay human; off the ground it narrows direction and depth
+    const es=S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side);
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
@@ -257,7 +259,7 @@ class Match{
       if(a&&a.z*Sv.s<0&&Math.abs(a.z)<=CT.SVC&&a.x*side>0&&Math.abs(a.x)<=CT.SW)return{x:a.x,y:0,z:a.z};
       if(C.zone)return{x:side*ZONES[C.zone],y:0,z:-Sv.s*d,mod:C.zone==='body'?.92:1};
     }
-    const r=R(),lat=r<.42?ZONES.t:r<.84?ZONES.wide:ZONES.body;
+    const lat=ZONES[this.tactics.pick(Sv,'serve'+no+(side>0?'r':'l'),[['t',.42],['wide',.42],['body',.16]])];
     return{x:side*lat,y:0,z:-Sv.s*d,mod:lat===ZONES.body?.92:1};
   }
   serveType(Sv,no){
@@ -341,7 +343,8 @@ class Match{
     const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
     const lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,stretch=p.stretch;
     const e=st.err*S.risk*(1+1.25*stretch*stretch+.5*pace+lowB+(srv?.25:0)+(sol.v/(38*st.power))**3*.35)*(aimed?.9:1);
-    const v=sol.v*(1+N(.02*e)),el=sol.el+N(.021*e)-.0085*e,az=sol.az+N(.0165*e);
+    const ac=st.acc??1;
+    const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
     b.launch(v,el,az,S.rpm,0);
     this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:S.rpm/3000,stroke:P.swing?P.swing.type:'fh'});

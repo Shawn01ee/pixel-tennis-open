@@ -59,16 +59,16 @@ class ShotPlanner{
     const oppNet=Math.abs(O.z)<7.4||O.rush,oppDeep=Math.abs(O.z)>12.3,openX=-sgn(O.x||(R()-.5));
     const mg=lerp(1.05,.52,st.aggr),P0=st.power,SW=CT.SW;
     const T=(x,d)=>({x:clamp(x,-SW+.25,SW-.25),d:clamp(d,1.2,CT.L-.35)});
-    const pick=l=>rng.weighted(l),w=this.want(P);
+    const pick=(sit,l)=>m.tactics.pick(P,sit,l),w=this.want(P);
     let tac;
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
     else if(c.kind==='volley')tac=oppDeep&&c.y<1.0&&R()<.3+st.drop*.4?'dropvolley':'volley';
-    else if(c.stretch>.55)tac=pick([['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
-    else if(oppNet)tac=pick([['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
-    else if(dep<9.2&&c.y>.62)tac=pick([['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
-    else if(m.isServe)tac=pick([['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
-    else tac=pick([['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
+    else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
+    else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
+    else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
+    else if(m.isServe)tac=pick('return'+m.serveNo,[['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
+    else tac=pick(c.wing==='fh'?'rallyfh':'rallybh',[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
     switch(tac){
       case'safe':     t=T(-side*1.6,CT.L-1.9);v=26*P0;rpm=st.spin*.9;clear=.75;risk=.9;break;

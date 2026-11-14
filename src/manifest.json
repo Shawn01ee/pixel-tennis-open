@@ -17,6 +17,8 @@
  "players/Locomotion.js",
  "players/Agent.js",
  "players/Player.js",
+ "players/learned.js",
+ "players/Tactics.js",
  "players/ShotPlanner.js",
  "players/HumanControl.js",
  "match/venue.js",
