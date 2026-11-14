@@ -233,11 +233,12 @@ class Match{
     while(this.t<tc-DT/2){this.physics.stepOnce(b,DT,false);const q=(this.t-tossAt)/(tc-tossAt);Sv.z=lerp(Sv.s*(CT.L+.12),rz,sstep(.2,1,q));yield;}
     // contact
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
-    const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1);
+    const TS=Traits.of(Sv),pressure=!!this.big&&this.big.w!==Sv.idx;
+    const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
-    const es=Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side);
     if(C.is(Sv))C.clear();
@@ -251,7 +252,7 @@ class Match{
     if(Sv.rush){Sv.gz=Sv.s*5.6;Sv.gx=tgt.x*.25;}
     Sv.home={x:Sv.gx,z:Sv.gz};
     Rc.mode='play';Rc.vx=Rc.vz=0;Rc.gx=Rc.x;Rc.gz=Rc.z;Rc.home={x:0,z:Rc.s*(12.5+Rc.st.deep*.5)};Rc.rush=false;Rc.plan=null;Rc.split=this.t;
-    Rc.planAt=this.t+Match.RETURN.react+R()*Match.RETURN.jitter;
+    Rc.planAt=this.t+Match.RETURN.react+(Traits.of(Rc).react||0)+R()*Match.RETURN.jitter;
     return yield* this.rally();
   }
   serveTarget(Sv,no){
@@ -331,11 +332,13 @@ class Match{
     if(this.isServe)this.ace();else this.won(H);
     this.rec();return{w:hi};
   }
+  // the situation a shot is played in, as the players' traits see it
+  shotContext(P,p,S){const b=this.ball;return{ret:this.isServe,server:!!this.score&&this.score.srv===P,n:this.rallyLen,wing:p.wing,tac:S.tac,stretch:p.stretch,pace:b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,big:this.big};}
   // how wild a planned shot is: the player's steadiness and the tactic's risk, made worse by a stretch, a fast
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
-    const b=this.ball,st=P.st,pace=b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0;
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch+.5*pace+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35)*(aimed?.9:1);
+    const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -355,19 +358,20 @@ class Match{
     if(human){C.target=null;C.shot=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
-    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,S.rpm,p.stretch));
-    const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
+    const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
+    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch));
+    const sol=this.solver.solve(b,tgt,{v:v0,rpm,clear:S.clear,maxEl:S.maxEl});
     const e=this.shotError(P,p,S,sol.v,aimed);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
-    b.launch(v,el,az,S.rpm,0);
-    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:S.rpm/3000,stroke:P.swing?P.swing.type:'fh'});
+    b.launch(v,el,az,rpm,0);
+    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:rpm/3000,stroke:P.swing?P.swing.type:'fh'});
     const tac=S.tac;this.stats.tac[tac]=(this.stats.tac[tac]||0)+1;this.stats.shots++;this.lastTac=tac;
     if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]});
     this.rallyLen++;this.hitter=P;this.isServe=false;this.mood.shot(this.rallyLen,p.stretch);
     const O=this.other(P);this.recv=O;O.plan=null;O.split=this.t;O.leaving=false;
-    O.planAt=this.t+.15+R()*.06;
+    O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
     if(tac==='approach'||tac==='volley'||tac==='dropvolley'||tac==='smash')P.rush=true;
