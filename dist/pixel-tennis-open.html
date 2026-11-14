@@ -42,6 +42,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 #sbT .sv{width:18px;padding-left:7px}#sbT .sv i{display:block;width:8px;height:8px;background:var(--ball);box-shadow:0 0 0 1px var(--ink)}
 #sbT .nm{white-space:nowrap;overflow:hidden;max-width:0;width:100%}
 #sbT .nm b{display:inline-block;width:5px;height:16px;margin-right:6px;vertical-align:-2px}
+#sbT .nm .face{display:inline-block;width:19px;height:22px;margin-right:4px;vertical-align:-5px}
 #sbT .seed{color:var(--mute);font-size:16px;margin-right:4px}#sbT .cc{color:var(--sky);font-size:15px;margin-left:6px}
 #sbT .you{font:700 11px/1 var(--display);background:var(--ball);color:var(--navy);padding:2px 3px 1px;margin-left:6px;vertical-align:2px}
 #sbT .set{width:22px;text-align:center;color:var(--mute)}#sbT .set.won{color:var(--chalk)}#sbT .set sup{font-size:12px;color:var(--sky);vertical-align:6px}
@@ -108,7 +109,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 
 /* ── overlays: setup, result, pause ── */
 .overlay{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:16px;background:#0e0f1a99;overflow:auto}
-.card{width:min(860px,100%);padding:16px 18px 18px;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--blue),6px 6px 0 #000a}
+.card{width:min(940px,100%);padding:16px 18px 18px;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--blue),6px 6px 0 #000a}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--deep);padding-bottom:8px;margin-bottom:12px}
 .brand h1{font:700 34px/1 var(--display);margin:0;letter-spacing:.04em;color:var(--chalk)}.brand h1 em{font-style:normal;color:var(--sky)}
 .brand p{margin:0;color:var(--mute);font-size:19px}
@@ -116,16 +117,22 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .vs{align-self:center;font:700 22px var(--display);color:var(--ball)}
 .side{background:var(--ink);border:2px solid var(--deep);padding:10px;min-width:0}
 .side h2{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0 0 6px}
+.face{image-rendering:pixelated;display:block;flex:none}
+.hero{display:flex;gap:10px;margin-bottom:9px}.hero .face.big{width:104px;height:120px;border:2px solid var(--deep);box-shadow:3px 3px 0 #0008}
+.hero .id{min-width:0;flex:1;display:flex;flex-direction:column}
+.style{color:var(--chalk);font-size:17px;line-height:1.15;margin-bottom:6px}
+.ovr{margin-top:auto;display:flex;align-items:baseline;gap:6px}.ovr b{font:700 30px/1 var(--display);color:var(--ball)}.ovr span{font:500 11px var(--display);letter-spacing:.08em;color:var(--mute)}
 .who{display:flex;align-items:center;gap:8px;margin-bottom:2px}.who b{width:8px;height:24px;flex:none}
 .who strong{font:700 20px/1 var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meta{color:var(--mute);font-size:17px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{color:var(--ball)}
 .bars{display:grid;grid-template-columns:62px 1fr 26px;gap:3px 6px;align-items:center;font-size:16px;color:var(--mute);margin-bottom:9px}
 .bars i{display:block;height:8px;background:var(--deep)}.bars i u{display:block;height:100%;background:var(--sky)}.bars em{font-style:normal;color:var(--chalk);text-align:right}
 .picks{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.picks button{min-height:34px;padding:0 4px;display:flex;align-items:center;gap:5px;font-size:17px;overflow:hidden}
+.picks button{min-height:34px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;overflow:hidden}
+.picks .face{width:39px;height:45px}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
 .picks button b{width:6px;height:16px;flex:none}.picks button span{overflow:hidden;text-overflow:ellipsis}
 .picks button:disabled{opacity:.35;cursor:not-allowed}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
 .opts h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0 0 5px}
 .seg{display:flex}.seg button{flex:1;margin-left:-2px;min-height:34px}.seg button:first-child{margin-left:0}
 .seg small{display:block;color:var(--mute);font-size:15px;margin-top:4px}
@@ -133,6 +140,9 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .how{color:var(--mute);font-size:17px;max-width:520px}.how b{color:var(--chalk);font-weight:400}
 .cta{font:700 20px var(--display);background:var(--ball);color:var(--navy);min-height:44px;padding:0 20px;letter-spacing:.04em}
 .cta:hover{background:var(--chalk)}
+.resf{float:right;display:flex;align-items:flex-end;gap:8px;margin:0 0 8px 12px}.resf .face.big{width:78px;height:90px;border:2px solid var(--deep)}
+.resf .win{position:relative}.resf .win .face.big{width:104px;height:120px;border-color:var(--ball);box-shadow:3px 3px 0 #0008}.resf .win span{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font:700 11px var(--display);letter-spacing:.08em;background:var(--ball);color:var(--navy);padding:2px 0 1px}
+.resf .lose .face{filter:grayscale(.7) brightness(.75)}
 .res h1{font:700 15px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 6px}
 .res h2{font:700 30px/1.05 var(--display);margin:0 0 4px}
 .res .line{font-size:26px;color:var(--ball);margin-bottom:10px}
@@ -210,6 +220,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
       <div><h3>SESSION</h3><div class="seg" id="sesRow"></div></div>
+      <div><h3>OPPONENT LEVEL</h3><div class="seg" id="lvlRow"></div><small class="seg" id="lvlDesc"></small></div>
     </div>
     <div class="go">
       <p class="how"><b>You pick the shot and the spot.</b> Your player runs and times the swing. When the ball comes to you the game slows down: press a shot key (A–G), then click the far court. Turn on <b>Auto</b> to let your player decide.</p>
@@ -218,7 +229,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   </div>
 </div>
 <div class="overlay" id="result" hidden>
-  <div class="card res"><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
+  <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
 <div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>
@@ -586,26 +597,41 @@ class PlayerProfile{
 // net/drop/lob/slice: how often they choose it; deep: how far back they stand to return; sv: serve-and-volley rate
 // trait: the player's signature (see Traits.js) — not shown among the ratings
 // ohb: one-handed backhand
+// face: what the portrait is assembled from (see ui/Portrait.js)
 // look: kit colours; sleeve: null → sleeveless
 const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf4f3ec,INK=0x1c1f2e;
 const ROSTER=[
- {name:'Novak Djokovic',short:'Djokovic',trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
+ {name:'Novak Djokovic',short:'Djokovic',face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
- {name:'Rafael Nadal',short:'Nadal',trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.06,spin:3250,err:.78,aggr:.48,net:.22,drop:.3,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
+ {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.06,spin:3250,err:.78,aggr:.48,net:.22,drop:.3,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
   look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xf4d44a},style:'Lefty, the heaviest topspin forehand'},
- {name:'Carlos Alcaraz',short:'Alcaraz',trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
+ {name:'Carlos Alcaraz',short:'Alcaraz',face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
- {name:'Roger Federer',short:'Federer',trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
+ {name:'Roger Federer',short:'Federer',face:{hair:'wavy',brow:1,shape:'oval',beard:'none'},trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
   look:{shirt:WHITE,shorts:INK,skin:SKIN.tan,hair:0x4a3020,band:WHITE,racket:INK},style:'Attacks early, slice and net play'},
- {name:'Jannik Sinner',short:'Sinner',trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
+ {name:'Jannik Sinner',short:'Sinner',face:{hair:'curly',brow:1,shape:'long',beard:'none',freckles:true,eye:0x5a7a8a},trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
   look:{shirt:0xf4d44a,shorts:INK,skin:SKIN.fair,hair:0xc8602a,band:null,racket:WHITE},style:'Hardest clean hitting off both wings'},
- {name:'Daniil Medvedev',short:'Medvedev',trait:'octopus',acc:0.82,cc:'RUS',rank:7,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
+ {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.82,cc:'RUS',rank:7,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
   look:{shirt:0x2a8088,shorts:WHITE,skin:SKIN.fair,hair:0x9a7a54,band:null,racket:0x3166b4},style:'Flat wall from far behind the baseline'},
- {name:'Alexander Zverev',short:'Zverev',trait:'bigServe',acc:1.1,cc:'GER',rank:6,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
+ {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:1.1,cc:'GER',rank:6,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
   look:{shirt:0xdc4a3c,shorts:INK,skin:SKIN.olive,hair:0xd8b060,band:WHITE,racket:INK},style:'Huge first serve, rock-solid backhand'},
- {name:'Alex de Minaur',short:'de Minaur',trait:'counterpunch',acc:0.95,cc:'AUS',rank:8,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
+ {name:'Alex de Minaur',short:'de Minaur',face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:8,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
   look:{shirt:0x7bb8ea,shorts:0x101a3a,skin:SKIN.olive,hair:0x3a2418,band:null,racket:0xf0664a},style:'Home favourite, fastest man on tour'},
 ].map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
+
+// Difficulty — how well the opponent uses what the computer players have learned
+// Rookie plays on instinct alone: none of the learned tactics, and looser strokes. Pro plays the tactics learned in
+// self-play and goes on learning during the match. Legend plays them with a steadier, more accurate hand.
+class Difficulty{
+  static ALL=[
+    {key:'rookie',name:'Rookie',desc:'Plays on instinct: no learned tactics, more loose shots.',err:1.3,acc:1.2,noLearn:true},
+    {key:'pro',   name:'Pro',   desc:'Plays the tactics learned in self-play, and keeps learning from you.',err:1,acc:1,noLearn:false},
+    {key:'legend',name:'Legend',desc:'Learned tactics with a steadier, sharper hand.',err:.82,acc:.82,noLearn:false},
+  ];
+  static get(key){return Difficulty.ALL.find(d=>d.key===key)||Difficulty.ALL[1];}
+  // the opponent's profile at a level: the same player, with the level's hand and head
+  static apply(p,key){const d=Difficulty.get(key);return Object.assign(Object.create(Object.getPrototypeOf(p)),p,{err:p.err*d.err,acc:(p.acc??1)*d.acc,noLearn:d.noLearn,level:d.key});}
+}
 
 // Locomotion — how a person moves, as a character controller: a sprint curve, braking, cutting, arrival and turning
 // The push a runner can make falls as speed rises (force–velocity), so from rest v(t) = vmax·(1 − e^(−t/τ)).
@@ -2830,7 +2856,7 @@ class Scoreboard{
       const sets=sc?sc.done.map(d=>{const won=d.g[i]>d.g[1-i];return`<td class="set ${won?'won':''}">${d.g[i]}${d.tb!=null&&!won?`<sup>${d.tb}</sup>`:''}</td>`;}).join(''):'';
       const cur=sc&&!sc.over?`<td class="cur">${sc.games[i]}</td>`:'';
       const pt=!sc?'':sc.over?(sc.winner===i?'✓':''):sc.label(i),hot=big&&big.w===i?'hot':'';
-      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm"><b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
+      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm">${Portrait.img(st)}<b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
     }).join('');
   }
 }
@@ -2859,7 +2885,7 @@ class WorldLabels{
   update(m,R){
     for(const q of this.tags){if(m.t>q.until){q.el.hidden=true;continue;}const P=m.players[q.who];this.place(q.el,R,P.x,2.35,P.z,50);}
     const c=m.cue,el=$('tagS');
-    if(c&&c.tag){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · ${c.court}`;
+    if(c&&c.tag){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · from the ${c.court==='deuce'?'right':'left'}`;
       if(el.textContent!==t)el.textContent=t;el.classList.toggle('second',c.no===2);el.hidden=false;this.place(el,R,P.x,2.5,P.z,90);}
     else el.hidden=true;
     const b=m.bubble,bu=$('bub');
@@ -2959,25 +2985,92 @@ class SettingsMenu{
   }
 }
 
+// Portrait — a pixel-art head-and-shoulders of a player, drawn from the roster's description of their face
+// 26 × 30 pixels, shown enlarged with hard edges. Each face is assembled from a few parts — head shape, hair style,
+// brows, beard — in the player's own colours, so a new player needs a description, not a drawing.
+class Portrait{
+  static W=26;static H=30;static cache=new Map();
+  static mix(a,b,t){const ch=s=>[(s>>16)&255,(s>>8)&255,s&255],A=ch(a),B=ch(b);return(Math.round(lerp(A[0],B[0],t))<<16)|(Math.round(lerp(A[1],B[1],t))<<8)|Math.round(lerp(A[2],B[2],t));}
+  // a data URL, drawn once per player
+  static url(p){let u=Portrait.cache.get(p.id);if(!u){u=Portrait.draw(p).toDataURL();Portrait.cache.set(p.id,u);}return u;}
+  static img(p,cls='face'){return`<img class="${cls}" src="${Portrait.url(p)}" alt="" width="${Portrait.W}" height="${Portrait.H}">`;}
+  static draw(p){
+    const W=Portrait.W,H=Portrait.H,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+    const f=Object.assign({hair:'short',beard:'none',brow:1,shape:'oval',eye:0x3a2a20},p.face||{}),L=p.look,mix=Portrait.mix;
+    const px=(x,y,c,w=1,h=1)=>{g.fillStyle=hexs(c);g.fillRect(x,y,w,h);};
+    const skin=L.skin,skD=mix(skin,0x5a2a1a,.28),skL=mix(skin,0xffffff,.18),hair=L.hair,hD=mix(hair,0x000000,.35),hL=mix(hair,0xffffff,.22),INK=0x0e0f1a;
+    const long=f.shape==='long',x0=long?9:8,x1=long?16:17,y0=long?6:7,y1=long?22:21,ey=y0+6,sq=f.shape==='square';
+    // backdrop: the court, with the kit colour as a band behind the shoulders
+    px(0,0,0x1a2c5c,W,H);for(let y=0;y<H;y++)for(let x=0;x<W;x++)if((x+y*2)%7===0)px(x,y,0x25468a);
+    px(0,H-8,mix(L.shirt,0x101a3a,.72),W,8);
+    // shoulders, shirt and neck
+    const sleeveless=('sleeve'in L)&&L.sleeve==null,shirt=L.shirt,shD=mix(shirt,0x000000,.28);
+    for(let y=25;y<H;y++){const a=y===25?6:y===26?4:3,b=W-1-a;for(let x=a;x<=b;x++){const edge=x<a+3||x>b-3;px(x,y,sleeveless&&edge?(x>b-2?skD:skin):(x>b-4?shD:shirt));}}
+    for(let y=y1-1;y<=25;y++)for(let x=10;x<=15;x++)px(x,y,y<=y1+1?skD:x>=14?skD:skin);
+    px(11,25,skin,4,1);px(12,26,skin,2,1);px(10,25,shD);px(15,25,shD);px(11,26,shD);px(14,26,shD);
+    if(f.chain){px(11,24,0xf4d44a);px(12,25,0xf4d44a,2,1);px(14,24,0xf4d44a);}
+    // head
+    const inset=y=>y===y0?2:y===y0+1?1:y===y1?(sq?2:3):y===y1-1?(sq?1:2):y===y1-2?(sq?0:1):0;
+    const face=(x,y)=>y>=y0&&y<=y1&&x>=x0+inset(y)&&x<=x1-inset(y);
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(face(x,y))px(x,y,x>=x1-1-inset(y)+1&&x===x1-inset(y)?skD:x===x0+inset(y)&&y<y0+8?skL:skin);
+    for(let y=ey-1;y<=ey+1;y++){px(x0-1,y,skin);px(x1+1,y,skD);}
+    // eyes, brows, nose, mouth
+    const bc=mix(hair,INK,f.brow>1?.55:.3);
+    px(x0+2,ey,0xf4f3ec);px(x0+3,ey,f.eye);px(x1-3,ey,f.eye);px(x1-2,ey,0xf4f3ec);
+    px(x0+1,ey-2,bc,3,1);px(x1-3,ey-2,bc,3,1);if(f.brow>1){px(x0+2,ey-3,bc,2,1);px(x1-3,ey-3,bc,2,1);}
+    const cx=(x0+x1)>>1;px(cx+1,ey+1,skD,1,3);px(cx,ey+3,skD);
+    px(cx-1,ey+5,0x8a4338,4,1);px(cx,ey+6,skD,2,1);
+    // beard: stubble is a dither of hair colour over the jaw; a moustache is a solid bar
+    const beardC=mix(skin,hair,.3);
+    if(f.beard==='stubble'||f.beard==='beard')for(let y=ey+3;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!face(x,y))continue;const mouth=y===ey+5&&x>=cx-1&&x<=cx+2,nose=y===ey+3&&(x===cx||x===cx+1);
+      if(mouth||nose)continue;if(f.beard==='beard'||(x+y)%2===0)if(y>ey+3||x<cx-1||x>cx+2)px(x,y,f.beard==='beard'?mix(skin,hair,.72):beardC);}
+    if(f.beard==='moustache'||f.beard==='beard')px(cx-2,ey+4,mix(hair,INK,.2),6,1);
+    if(f.freckles){px(x0+2,ey+2,skD);px(x0+4,ey+3,skD);px(x1-2,ey+2,skD);px(x1-4,ey+3,skD);}
+    // hair
+    const band=L.band,H_=(x,y,c=hair)=>px(x,y,c),tex=(x,y)=>hash2(x*3+p.id,y*5)>.7?hL:hash2(x+7,y*3+p.id)>.75?hD:hair;
+    const cap=(top,l,r,rows)=>{for(let y=top;y<top+rows;y++){const k=y-top,ins=k===0?2:k===1?1:0;for(let x=l+ins;x<=r-ins;x++)H_(x,y,k===0?hL:tex(x,y));}};
+    switch(f.hair){
+      case'short': cap(y0-3,x0-1,x1+1,4);for(let y=y0+1;y<=y0+3;y++){H_(x0-1,y);H_(x1+1,y,hD);}H_(x0,y0+1);H_(x1,y0+1,hD);break;
+      case'crop':  cap(y0-2,x0-1,x1+1,3);for(let x=x0;x<=x1;x+=2)H_(x,y0-3,hL);for(let y=y0+1;y<=y0+2;y++){H_(x0-1,y);H_(x1+1,y,hD);}break;
+      case'fade':  cap(y0-3,x0,x1,4);for(let y=y0;y<=y0+3;y++){H_(x0-1,y,mix(skin,hair,.55));H_(x1+1,y,mix(skD,hair,.55));}H_(x0,y0,hair);H_(x1,y0,hD);break;
+      case'wavy':  cap(y0-4,x0-2,x1+2,5);for(let x=x0-1;x<=x1+1;x+=3)H_(x,y0-5,hL);for(let y=y0+1;y<=y0+4;y++){H_(x0-2,y);H_(x0-1,y);H_(x1+1,y,hD);H_(x1+2,y,hD);}break;
+      case'bandana':cap(y0-3,x0-1,x1+1,3);for(let y=y0+1;y<=y0+10;y++){H_(x0-2,y,tex(x0-2,y));H_(x0-1,y);H_(x1+1,y,hD);H_(x1+2,y,tex(x1+2,y));}break;
+      case'long':  cap(y0-4,x0-2,x1+2,5);for(let y=y0+1;y<=y0+11;y++){H_(x0-2,y,tex(x0-2,y));H_(x0-1,y);H_(x1+1,y,hD);H_(x1+2,y,tex(x1+2,y));}if(y0+12<H)H_(x0-2,y0+12,hD),H_(x1+2,y0+12,hD);break;
+      case'curly': for(let y=y0-5;y<=y0+1;y++)for(let x=x0-3;x<=x1+3;x++){const e=x===x0-3||x===x1+3||y===y0-5;if(e&&hash2(x*7,y*11+p.id)<.45)continue;if(y>=y0&&x>x0&&x<x1)continue;H_(x,y,tex(x,y));}
+                   for(let y=y0+2;y<=y0+5;y++)for(const x of[x0-3,x0-2,x0-1,x1+1,x1+2,x1+3]){if((x===x0-3||x===x1+3)&&hash2(x*5,y*9)<.5)continue;H_(x,y,tex(x,y));}break;
+      case'thin':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x===x0+1?skL:skin);
+                   for(let x=x0+2;x<=x1-2;x+=2)H_(x,y0-2,mix(skin,hair,.6));for(let y=y0-1;y<=y0+4;y++){H_(x0-1,y,y<y0+1?hL:hair);H_(x1+1,y,hD);}H_(x0,y0-1);H_(x1,y0-1,hD);H_(x0,y0);H_(x1,y0,hD);break;
+    }
+    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
+      if(f.hair==='bandana'){px(x1+2,by+1,band,2,1);px(x1+3,by+2,band,1,2);px(x1+2,by+3,mix(band,0x000000,.18));}}
+    return cv;
+  }
+}
+
 // SetupScreen — pick both players, the format and the session
 // pick both players, the format and the session, then walk out
 class SetupScreen{
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='short';this.phase=game.R.phaseKey;
+    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.phase=game.R.phaseKey;
     $('fmtRow').innerHTML=MatchFormat.ALL.map(f=>`<button id="fm-${f.key}" aria-pressed="false">${f.name}</button>`).join('');
     $('sesRow').innerHTML=Object.keys(PHASES).map(k=>`<button id="se-${k}" aria-pressed="false">${PHASES[k].name}</button>`).join('');
+    $('lvlRow').innerHTML=Difficulty.ALL.map(d=>`<button id="lv-${d.key}" aria-pressed="false">${d.name}</button>`).join('');
+    for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
     for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
     for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>game.play(this.a,this.b,this.fmt,this.phase);
+    $('walkOut').onclick=()=>game.play(this.a,this.b,this.fmt,this.phase,this.level);
     this.render();
   }
   side(id,title,sel,other){
     const p=ROSTER[sel],r=p.ratings,bar=(n,v)=>`<span>${n}</span><i><u style="width:${v}%"></u></i><em>${v}</em>`;
-    $(id).innerHTML=`<h2>${title}</h2><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
-      <div class="meta">${p.cc} · No. ${p.rank} · ${p.hand<0?'Left':'Right'}-handed</div>
-      <div class="meta">${p.style}</div>
+    $(id).innerHTML=`<h2>${title}</h2>
+      <div class="hero">${Portrait.img(p,'face big')}
+        <div class="id"><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
+          <div class="meta"><span>${p.cc}</span> · Seed ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
+          <div class="style">${p.style}</div>
+          <div class="ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
       <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
-      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''}><b style="background:${hexs(q.look.shirt)}"></b><span>${q.short}</span></button>`).join('')}</div>`;
+      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
   render(){
@@ -2985,6 +3078,7 @@ class SetupScreen{
     for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
     for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
     $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;
+    for(const d of Difficulty.ALL)$('lv-'+d.key).setAttribute('aria-pressed',String(this.level===d.key));$('lvlDesc').textContent=Difficulty.get(this.level).desc;
   }
   open(){this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
   close(){$('setup').hidden=true;}
@@ -2996,7 +3090,8 @@ class ResultScreen{
   open(m,rows){
     const r=m.result,H=m.human,won=H&&r.winner===H;
     $('resH').textContent=H?(won?'YOU WIN · GAME, SET AND MATCH':'GAME, SET AND MATCH'):'GAME, SET AND MATCH';
-    $('resW').textContent=`${r.winner.st.name} d. ${r.loser.st.name}`;$('resL').textContent=r.line+(r.longest>=8?`  ·  longest rally ${r.longest}`:'');
+    $('resW').textContent=`${r.winner.st.name} d. ${r.loser.st.name}`;
+    $('resF').innerHTML=`<div class="win">${Portrait.img(r.winner.st,'face big')}<span>WINNER</span></div><div class="lose">${Portrait.img(r.loser.st,'face big')}</div>`;$('resL').textContent=r.line+(r.longest>=8?`  ·  longest rally ${r.longest}`:'');
     const[a,b]=m.players;$('resT').innerHTML=`<tr><th>${a.st.name}</th><th></th><th>${b.st.name}</th></tr>`+rows.map(q=>`<tr><td>${q[0]}</td><td>${q[1]}</td><td>${q[2]}</td></tr>`).join('');
     $('result').hidden=false;
   }
@@ -3062,9 +3157,9 @@ class Game{
   // two computer players behind the setup screen, on a loop
   demo(){const a=Math.floor(R()*ROSTER.length);let b=Math.floor(R()*ROSTER.length);if(b===a)b=(a+3)%ROSTER.length;
     this.startMatch({a:ROSTER[a],b:ROSTER[b],human:-1,format:MatchFormat.get('short'),loop:true});this.cam.setMode(CameraRig.STADIUM);}
-  play(a,b,fmt,phase){
+  play(a,b,fmt,phase,level='pro'){
     this.sound.start();
-    this.last_={a:ROSTER[a],b:ROSTER[b],human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
+    this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say('Players walk out. Space toggles Auto.');
   }
