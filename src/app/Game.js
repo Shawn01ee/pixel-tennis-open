@@ -148,8 +148,10 @@ class Game{
     // the ball has landed, so the shot can be judged against them.
     if(C.target){const sp=m.aimSpread();this.aim={x:C.target.x,z:C.target.z,hold:1.6,sp:sp||(this.aim&&this.aim.sp)||null};}
     else if(this.aim){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.aim.hold=Math.min(this.aim.hold,.25);this.aim.hold-=1/60;if(this.aim.hold<=0)this.aim=null;}
-    if(this.aim){const a=this.aim,p=.3+(C.target?Math.sin(t*8)*.07:0);
-      for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]])B.box(a.x+x,.06,a.z+z,x?.26:.1,.03,z?.26:.1,0,0x7bb8ea);B.box(a.x,.06,a.z,.1,.03,.1,0,0xf4f3ec);
+    if(this.aim){const a=this.aim,p=.42+(C.target?Math.sin(t*8)*.09:0);
+      // a yellow cross with a dark edge so it reads against the blue court
+      for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]]){B.box(a.x+x,.05,a.z+z,x?.5:.24,.03,z?.5:.24,0,0x1c1f2e);B.box(a.x+x,.07,a.z+z,x?.4:.14,.03,z?.4:.14,0,0xf4d44a);}
+      B.box(a.x,.07,a.z,.14,.03,.14,0,0xf4f3ec);
       if(a.sp){const{across,along,dx,dz}=a.sp,A=along*2,W=across*2,n=clamp(Math.round((A+W)*4)*2,16,48);
         for(let i=0;i<n;i+=2){const q=i/n*TAU,u=Math.cos(q)*A,w=Math.sin(q)*W,tu=-Math.sin(q)*A,tw=Math.cos(q)*W;
           B.box(a.x+dx*u-dz*w,.05,a.z+dz*u+dx*w,.2,.03,.11,-Math.atan2(dz*tu+dx*tw,dx*tu-dz*tw),0xf4f3ec);}}}
