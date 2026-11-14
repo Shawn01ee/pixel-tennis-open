@@ -2,14 +2,15 @@
 // pick both players, the format and the session, then walk out
 class SetupScreen{
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.phase=game.R.phaseKey;
+    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.mode='tour';this.phase=game.R.phaseKey;
     $('fmtRow').innerHTML=MatchFormat.ALL.map(f=>`<button id="fm-${f.key}" aria-pressed="false">${f.name}</button>`).join('');
     $('sesRow').innerHTML=Object.keys(PHASES).map(k=>`<button id="se-${k}" aria-pressed="false">${PHASES[k].name}</button>`).join('');
     $('lvlRow').innerHTML=Difficulty.ALL.map(d=>`<button id="lv-${d.key}" aria-pressed="false">${d.name}</button>`).join('');
     for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
     for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
     for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level):game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    for(const k of['tour','exh'])$('md-'+k).onclick=()=>{this.mode=k;this.render();};
     this.render();
   }
   side(id,title,sel,other){
@@ -25,7 +26,13 @@ class SetupScreen{
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
   render(){
-    this.side('sideA','YOU',this.a,this.b);this.side('sideB','OPPONENT',this.b,this.a);
+    const tour=this.mode==='tour';
+    this.side('sideA','YOU',this.a,tour?-1:this.b);this.side('sideB','OPPONENT',this.b,this.a);
+    // a tournament decides the opponents: only the person's own player is chosen
+    $('sideB').hidden=tour;document.querySelector('#setup .vs').hidden=tour;$('tourInfo').hidden=!tour;
+    for(const k of['tour','exh'])$('md-'+k).setAttribute('aria-pressed',String(this.mode===k));
+    $('walkOut').textContent=tour?'Enter the draw ▶':'Walk out ▶';
+    if(tour){const seeds=[...ROSTER].sort((a,b)=>a.rank-b.rank);$('tourField').innerHTML=seeds.map(q=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${q.rank}</span><span>${q.short}</span></div>`).join('');}
     for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
     for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
     $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;

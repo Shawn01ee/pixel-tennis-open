@@ -9,7 +9,7 @@ class Game{
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();
-    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);
+    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();
@@ -29,6 +29,15 @@ class Game{
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say('Players walk out. Space toggles Auto.');
   }
+  // ──────── tournament ────────
+  startTour(a,fmt,phase,level){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
+  playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
+    this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
+  // the person's match is finished: record it, play out the others, show the draw
+  // (the interview comes first; the draw is settled behind it)
+  continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
+    this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});}
+  endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
   startMatch(cfg){
