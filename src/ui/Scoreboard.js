@@ -18,7 +18,7 @@ class Scoreboard{
       const sets=sc?sc.done.map(d=>{const won=d.g[i]>d.g[1-i];return`<td class="set ${won?'won':''}">${d.g[i]}${d.tb!=null&&!won?`<sup>${d.tb}</sup>`:''}</td>`;}).join(''):'';
       const cur=sc&&!sc.over?`<td class="cur">${sc.games[i]}</td>`:'';
       const pt=!sc?'':sc.over?(sc.winner===i?'✓':''):sc.label(i),hot=big&&big.w===i?'hot':'';
-      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm"><b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
+      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm">${Portrait.img(st)}<b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
     }).join('');
   }
 }

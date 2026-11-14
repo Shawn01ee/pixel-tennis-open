@@ -42,6 +42,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 #sbT .sv{width:18px;padding-left:7px}#sbT .sv i{display:block;width:8px;height:8px;background:var(--ball);box-shadow:0 0 0 1px var(--ink)}
 #sbT .nm{white-space:nowrap;overflow:hidden;max-width:0;width:100%}
 #sbT .nm b{display:inline-block;width:5px;height:16px;margin-right:6px;vertical-align:-2px}
+#sbT .nm .face{display:inline-block;width:19px;height:22px;margin-right:4px;vertical-align:-5px}
 #sbT .seed{color:var(--mute);font-size:16px;margin-right:4px}#sbT .cc{color:var(--sky);font-size:15px;margin-left:6px}
 #sbT .you{font:700 11px/1 var(--display);background:var(--ball);color:var(--navy);padding:2px 3px 1px;margin-left:6px;vertical-align:2px}
 #sbT .set{width:22px;text-align:center;color:var(--mute)}#sbT .set.won{color:var(--chalk)}#sbT .set sup{font-size:12px;color:var(--sky);vertical-align:6px}
@@ -108,7 +109,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 
 /* ── overlays: setup, result, pause ── */
 .overlay{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:16px;background:#0e0f1a99;overflow:auto}
-.card{width:min(860px,100%);padding:16px 18px 18px;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--blue),6px 6px 0 #000a}
+.card{width:min(940px,100%);padding:16px 18px 18px;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--blue),6px 6px 0 #000a}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--deep);padding-bottom:8px;margin-bottom:12px}
 .brand h1{font:700 34px/1 var(--display);margin:0;letter-spacing:.04em;color:var(--chalk)}.brand h1 em{font-style:normal;color:var(--sky)}
 .brand p{margin:0;color:var(--mute);font-size:19px}
@@ -116,16 +117,22 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .vs{align-self:center;font:700 22px var(--display);color:var(--ball)}
 .side{background:var(--ink);border:2px solid var(--deep);padding:10px;min-width:0}
 .side h2{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0 0 6px}
+.face{image-rendering:pixelated;display:block;flex:none}
+.hero{display:flex;gap:10px;margin-bottom:9px}.hero .face.big{width:104px;height:120px;border:2px solid var(--deep);box-shadow:3px 3px 0 #0008}
+.hero .id{min-width:0;flex:1;display:flex;flex-direction:column}
+.style{color:var(--chalk);font-size:17px;line-height:1.15;margin-bottom:6px}
+.ovr{margin-top:auto;display:flex;align-items:baseline;gap:6px}.ovr b{font:700 30px/1 var(--display);color:var(--ball)}.ovr span{font:500 11px var(--display);letter-spacing:.08em;color:var(--mute)}
 .who{display:flex;align-items:center;gap:8px;margin-bottom:2px}.who b{width:8px;height:24px;flex:none}
 .who strong{font:700 20px/1 var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meta{color:var(--mute);font-size:17px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{color:var(--ball)}
 .bars{display:grid;grid-template-columns:62px 1fr 26px;gap:3px 6px;align-items:center;font-size:16px;color:var(--mute);margin-bottom:9px}
 .bars i{display:block;height:8px;background:var(--deep)}.bars i u{display:block;height:100%;background:var(--sky)}.bars em{font-style:normal;color:var(--chalk);text-align:right}
 .picks{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.picks button{min-height:34px;padding:0 4px;display:flex;align-items:center;gap:5px;font-size:17px;overflow:hidden}
+.picks button{min-height:34px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;overflow:hidden}
+.picks .face{width:39px;height:45px}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
 .picks button b{width:6px;height:16px;flex:none}.picks button span{overflow:hidden;text-overflow:ellipsis}
 .picks button:disabled{opacity:.35;cursor:not-allowed}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
 .opts h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0 0 5px}
 .seg{display:flex}.seg button{flex:1;margin-left:-2px;min-height:34px}.seg button:first-child{margin-left:0}
 .seg small{display:block;color:var(--mute);font-size:15px;margin-top:4px}
@@ -133,6 +140,9 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .how{color:var(--mute);font-size:17px;max-width:520px}.how b{color:var(--chalk);font-weight:400}
 .cta{font:700 20px var(--display);background:var(--ball);color:var(--navy);min-height:44px;padding:0 20px;letter-spacing:.04em}
 .cta:hover{background:var(--chalk)}
+.resf{float:right;display:flex;align-items:flex-end;gap:8px;margin:0 0 8px 12px}.resf .face.big{width:78px;height:90px;border:2px solid var(--deep)}
+.resf .win{position:relative}.resf .win .face.big{width:104px;height:120px;border-color:var(--ball);box-shadow:3px 3px 0 #0008}.resf .win span{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font:700 11px var(--display);letter-spacing:.08em;background:var(--ball);color:var(--navy);padding:2px 0 1px}
+.resf .lose .face{filter:grayscale(.7) brightness(.75)}
 .res h1{font:700 15px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 6px}
 .res h2{font:700 30px/1.05 var(--display);margin:0 0 4px}
 .res .line{font-size:26px;color:var(--ball);margin-bottom:10px}
@@ -210,6 +220,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
       <div><h3>SESSION</h3><div class="seg" id="sesRow"></div></div>
+      <div><h3>OPPONENT LEVEL</h3><div class="seg" id="lvlRow"></div><small class="seg" id="lvlDesc"></small></div>
     </div>
     <div class="go">
       <p class="how"><b>You pick the shot and the spot.</b> Your player runs and times the swing. When the ball comes to you the game slows down: press a shot key (A–G), then click the far court. Turn on <b>Auto</b> to let your player decide.</p>
@@ -218,7 +229,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   </div>
 </div>
 <div class="overlay" id="result" hidden>
-  <div class="card res"><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
+  <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
 <div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>

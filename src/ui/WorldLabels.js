@@ -8,7 +8,7 @@ class WorldLabels{
   update(m,R){
     for(const q of this.tags){if(m.t>q.until){q.el.hidden=true;continue;}const P=m.players[q.who];this.place(q.el,R,P.x,2.35,P.z,50);}
     const c=m.cue,el=$('tagS');
-    if(c&&c.tag){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · ${c.court}`;
+    if(c&&c.tag){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · from the ${c.court==='deuce'?'right':'left'}`;
       if(el.textContent!==t)el.textContent=t;el.classList.toggle('second',c.no===2);el.hidden=false;this.place(el,R,P.x,2.5,P.z,90);}
     else el.hidden=true;
     const b=m.bubble,bu=$('bub');
