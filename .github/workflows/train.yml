@@ -1,0 +1,38 @@
+# The computer players keep learning: every day they play each other, and what they learned is committed
+# back with a fresh build, so the published game always starts from the latest values.
+name: Train players
+on:
+  schedule:
+    - cron: '0 18 * * *'   # daily, 18:00 UTC
+  workflow_dispatch:
+    inputs:
+      rounds:
+        description: Rounds of self-play (56 sets each)
+        default: '4'
+permissions:
+  contents: write
+concurrency: train
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Self-play
+        run: node tools/train.js ${{ github.event.inputs.rounds || '4' }}
+      - name: Tests
+        run: |
+          node tests/match-simulation.test.js | tail -1
+          node tests/physics-realism.test.js | tail -1
+      - name: Build
+        run: python3 build.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/players/learned.js dist/pixel-tennis-open.html
+          git diff --cached --quiet || git commit -m "Players trained: $(date -u +%F)"
+          git push
