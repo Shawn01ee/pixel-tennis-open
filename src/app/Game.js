@@ -143,14 +143,16 @@ class Game{
     const m=this.match,B=this.B,t=this.tc,C=m.control;
     if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.72+Math.sin(t*7)*.05,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a;
       for(const[a,b]of[[1,1],[1,-1],[-1,1],[-1,-1]]){B.box(P.x+a*r-a*.13,.06,P.z+b*r,.3,.04,.1,0,c);B.box(P.x+a*r,.06,P.z+b*r-b*.13,.1,.04,.3,0,c);}}
-    // where the person is sending the ball: a bright ring on the court with a pin standing in it, kept until the
-    // ball has landed so the shot can be judged against it
-    if(C.target)this.aim={x:C.target.x,z:C.target.z,hold:1.6};
+    // where the person is sending the ball: a pulsing cross on the spot, inside a dashed oval that most such shots
+    // land in (two standard deviations — smaller for an accurate player, larger on the stretch). Both stay until
+    // the ball has landed, so the shot can be judged against them.
+    if(C.target){const sp=m.aimSpread();this.aim={x:C.target.x,z:C.target.z,hold:1.6,sp:sp||(this.aim&&this.aim.sp)||null};}
     else if(this.aim){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.aim.hold=Math.min(this.aim.hold,.25);this.aim.hold-=1/60;if(this.aim.hold<=0)this.aim=null;}
-    if(this.aim){const a=this.aim,live=!!C.target,r=.52+(live?Math.sin(t*8)*.06:0),col=live?0xf4d44a:0xf4f3ec,n=14;
-      for(let i=0;i<n;i++){const q=i/n*TAU+t*(live?1.2:0);B.box(a.x+Math.cos(q)*r,.05,a.z+Math.sin(q)*r,.2,.04,.09,-q+PI/2,i%2?col:0x1c1f2e);}
-      for(const[x,z]of[[1,0],[-1,0],[0,1],[0,-1]])B.box(a.x+x*.2,.05,a.z+z*.2,x?.2:.06,.04,z?.2:.06,0,0xf4f3ec);
-      B.box(a.x,.5,a.z,.05,.9,.05,0,0xf4f3ec);B.box(a.x,1.02,a.z,.2,.2,.2,PI/4,0xf0664a);}
+    if(this.aim){const a=this.aim,p=.3+(C.target?Math.sin(t*8)*.07:0);
+      for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]])B.box(a.x+x,.06,a.z+z,x?.26:.1,.03,z?.26:.1,0,0x7bb8ea);B.box(a.x,.06,a.z,.1,.03,.1,0,0xf4f3ec);
+      if(a.sp){const{across,along,dx,dz}=a.sp,A=along*2,W=across*2,n=clamp(Math.round((A+W)*4)*2,16,48);
+        for(let i=0;i<n;i+=2){const q=i/n*TAU,u=Math.cos(q)*A,w=Math.sin(q)*W,tu=-Math.sin(q)*A,tw=Math.cos(q)*W;
+          B.box(a.x+dx*u-dz*w,.05,a.z+dz*u+dx*w,.2,.03,.11,-Math.atan2(dz*tu+dx*tw,dx*tu-dz*tw),0xf4f3ec);}}}
     // over the person's own player, a small marker while the camera is wide
     const H=m.human;if(H&&this.cam.mode===CameraRig.STADIUM){const y=H.h+.55+Math.sin(t*4)*.05;B.box(H.x,y,H.z,.22,.1,.22,PI/4,0x7bb8ea);}
   }

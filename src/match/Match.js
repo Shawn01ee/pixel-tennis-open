@@ -331,6 +331,19 @@ class Match{
     if(this.isServe)this.ace();else this.won(H);
     this.rec();return{w:hi};
   }
+  // how wild a planned shot is: the player's steadiness and the tactic's risk, made worse by a stretch, a fast
+  // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
+  shotError(P,p,S,v,aimed){
+    const b=this.ball,st=P.st,pace=b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0;
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch+.5*pace+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35)*(aimed?.9:1);
+  }
+  // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
+  // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
+  aimSpread(){
+    const H=this.human,C=this.control;if(!H||!H.plan||!H.plan.shot||!C.target)return null;
+    const p=H.plan,S=p.shot,d=hyp(C.target.x-p.x,C.target.z-p.z)||1,across=d*.0165*this.shotError(H,p,S,S.v,true)*(H.st.acc??1);
+    return{across,along:across*2.9,dx:(C.target.x-p.x)/d,dz:(C.target.z-p.z)/d};
+  }
   contact(P){
     const p=P.plan,b=this.ball,st=P.st,C=this.control,human=C.is(P);P.plan=null;
     if(human)C.decide=null;
@@ -344,8 +357,7 @@ class Match{
     // the shot wanted, held to what this swing can physically give this ball
     const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,S.rpm,p.stretch));
     const sol=this.solver.solve(b,tgt,{v:v0,rpm:S.rpm,clear:S.clear,maxEl:S.maxEl});
-    const lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,stretch=p.stretch;
-    const e=st.err*S.risk*(1+1.25*stretch*stretch+.5*pace+lowB+(srv?.25:0)+(sol.v/(38*st.power))**3*.35)*(aimed?.9:1);
+    const e=this.shotError(P,p,S,sol.v,aimed);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
