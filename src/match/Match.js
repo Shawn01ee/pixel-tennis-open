@@ -95,11 +95,12 @@ class Match{
   }
   *walkOn(){
     const A=this.A,B=this.B;this.stage='walkon';this.status='Players walk out';
-    B.x=TUNNEL.x-.3;B.z=-CT.FZ-1.4;A.x=TUNNEL.x+.3;A.z=-CT.FZ-2.6;A.yaw=B.yaw=0;
+    // the player bound for the far end is already well along the side of the court, so nobody waits for a long walk
+    B.x=TUNNEL.x-.3;B.z=-CT.FZ+.6;A.x=TUNNEL.x+.3;A.z=-7.5;A.yaw=B.yaw=0;
     this.mood.walkOn();
     this.say('Please welcome the players.','ump',2.8);
-    // they jog out: the walk from the tunnel is long and nobody came to watch it
-    this.go(B,-.6,B.s*12.2,3.4);yield* this.wait(.5);this.go(A,.8,A.s*12.4,3.6);
+    // a brisk walk, arms loose
+    this.go(A,.8,A.s*12.4,2.4);this.go(B,-.6,B.s*12.2,2.2);
     yield* this.allOf([()=>A.path.length,()=>B.path.length]);
     A.yaw=A.facing;B.yaw=B.facing;this.status='';
     yield* this.wait(.6);
