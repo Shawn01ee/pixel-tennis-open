@@ -18,6 +18,7 @@ needs a network connection. Pick your player and opponent, then press **Walk out
 |---|---|
 | A / S / D / F / G | Drive (topspin) / Flat / Slice / Lob / Drop shot |
 | Click on the court | Where the shot goes |
+| Timing | Press the shot key as the ball arrives: *Perfect* and *Good* timing are more accurate and a little faster; too late is a mishit |
 | Space | Auto on or off |
 | X | Game speed |
 | V | Next camera view (Follow, Court, Behind, Stadium) |

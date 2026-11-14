@@ -49,4 +49,11 @@ function shot(ph,v,elDeg,rpm,h=1,z0=-11.885){
  check(flat*3.6>135&&flat*3.6<175,`hardest flat forehand off a 54 km/h ball: ${k(flat)} km/h (tour forehands top out around 150–170)`);
  check(dead<flat-2&&heavy<flat-2&&str<flat*.75&&bh<flat,`off a dead ball ${k(dead)}, with 3600 rpm ${k(heavy)}, at full stretch ${k(str)}, backhand ${k(bh)} km/h — all slower`);
  check(vol*3.6>70&&vol*3.6<110,`a volley off a 79 km/h pass comes back at up to ${k(vol)} km/h`);}
+// 9. side spin curves the ball in the air; gyro spin does nothing in the air and kicks it sideways off the court
+{const fly=(rpm,side,gyro)=>{const b=new Ball(0,2.8,-11.885);b.launch(42,-5*Math.PI/180,0,rpm,side,gyro);let land=null,n=0;
+   while(n++<120*3){const ev=hard.step(b,DT,false);if(ev&HIT.BOUNCE&&!land)land={x:b.lbx,z:b.lbz};if(land&&b.z-land.z>5)break;}return{land,x:b.x};};
+ const plain=fly(2400,0,0),sl=fly(1100,1700,0),kick=fly(2400,0,1500);
+ check(Math.abs(plain.land.x)<.02&&Math.abs(plain.x)<.03,`no side or gyro spin: the serve flies and bounces straight (${(plain.x*100).toFixed(0)} cm off line)`);
+ check(sl.land.x>.25,`a right-hander's 1700 rpm slice curves the serve ${(sl.land.x*100).toFixed(0)} cm to the server's left before it lands`);
+ check(Math.abs(kick.land.x)<.1&&kick.x-kick.land.x<-.25,`1500 rpm of gyro spin: nearly straight in the air (${(kick.land.x*100).toFixed(0)} cm), then ${(-(kick.x-kick.land.x)*100).toFixed(0)} cm to the server's right in the 5 m after the bounce`);}
 console.log(fails?`\n${fails} FAILED`:'\nall realism checks passed');process.exit(fails?1:0);

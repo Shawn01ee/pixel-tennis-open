@@ -3,8 +3,8 @@
 class ShotSolver{
   constructor(physics){this.ph=physics;this.f=new Ball();}
   // first landing point of a launch from P, and the height it cleared the net by
-  flight(P,vx,vy,vz,rpm,side){
-    const f=this.f;f.x=P.x;f.y=P.y;f.z=P.z;f.vx=vx;f.vy=vy;f.vz=vz;f.setSpin(rpm,side);f.bc=0;f.rolling=false;
+  flight(P,vx,vy,vz,rpm,side,gyro=0){
+    const f=this.f;f.x=P.x;f.y=P.y;f.z=P.z;f.vx=vx;f.vy=vy;f.vz=vz;f.setSpin(rpm,side,gyro);f.bc=0;f.rolling=false;
     let clear=9,pz=f.z;
     for(let i=0;i<700;i++){
       this.ph.stepOnce(f,DT,false);
@@ -21,7 +21,7 @@ class ShotSolver{
     let res=null;
     for(let at=0;at<16;at++){
       const dx=Math.sin(az),dz=Math.cos(az);
-      const rng_=el=>{const c=Math.cos(el),s=Math.sin(el),r=this.flight(P,v*c*dx,v*s,v*c*dz,rpm,side);r.r=(r.x-P.x)*dx+(r.z-P.z)*dz;return r;};
+      const rng_=el=>{const c=Math.cos(el),s=Math.sin(el),r=this.flight(P,v*c*dx,v*s,v*c*dz,rpm,side,o.gyro||0);r.r=(r.x-P.x)*dx+(r.z-P.z)*dz;return r;};
       let lo=-.55,hi=top;const rlo=rng_(lo),rhi=rng_(hi);
       if(rhi.r<R0){v*=1.07;continue;}          // cannot reach: hit harder
       if(rlo.r>R0){v*=.93;continue;}           // cannot keep it short: hit softer

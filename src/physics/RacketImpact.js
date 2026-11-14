@@ -10,8 +10,10 @@ class RacketImpact{
   static HEAD={fh:28,bh:26,slice:21,volley:12,smash:36};
   static headSpeed(st,type,stretch=0){return(RacketImpact.HEAD[type]||26)*st.power*(1-.45*stretch);}
   // the fastest this player can send this ball with this much spin
-  static maxSpeed(st,type,vin,rpm=0,stretch=0){
-    const V=RacketImpact.headSpeed(st,type,stretch),vt=Math.abs(rpm)*RPM*BALL.R*.8,vn=Math.sqrt(Math.max(V*V-vt*vt,V*V*.12)),e=RacketImpact.E*(1-.3*stretch);
+  // spinIn: the incoming ball's topspin (rpm). Topspin against topspin means reversing the ball's rotation, which
+  // takes more of the swing; a slice goes with the rotation and takes less
+  static maxSpeed(st,type,vin,rpm=0,stretch=0,spinIn=0){
+    const V=RacketImpact.headSpeed(st,type,stretch),vt=Math.max(0,Math.abs(rpm)+(rpm>=0?.25:-.25)*spinIn)*RPM*BALL.R*.8,vn=Math.sqrt(Math.max(V*V-vt*vt,V*V*.12)),e=RacketImpact.E*(1-.3*stretch);
     return e*vin+(1+e)*vn;
   }
 }

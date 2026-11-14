@@ -4,6 +4,10 @@ class Match{
   static RETURN={react:.14,jitter:.05,x:2.9,deep:.1};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
+  // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
+  // rewarded, committing long before is neutral, leaving it to the last instant is a mishit
+  static TIMING={late:{text:'Late',err:1.2,v:.97},perfect:{text:'Perfect',err:.65,v:1.04},good:{text:'Good',err:.85,v:1.02},early:{text:'',err:1,v:1}};
+  static timing(d){const T=Match.TIMING;return d<.05?T.late:d<=.35?T.perfect:d<=.7?T.good:T.early;}
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -71,7 +75,7 @@ class Match{
     return true;
   }
   setShot(k){
-    const C=this.control;C.shot=C.shot===k?null:k;
+    const C=this.control;C.shot=C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
     const P=this.human;if(P&&P.plan&&P.swing&&C.decide){P.plan.shot=this.planner.chooseShot(P,P.plan);const sw=this.planner.swingFor(P,P.plan);P.swing.type=sw.type;P.swing.two=sw.two;}
   }
   setServe(k){const C=this.control;C.serveType=C.serveType===k?null:k;}
@@ -234,13 +238,14 @@ class Match{
     // contact
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const TS=Traits.of(Sv),pressure=!!this.big&&this.big.w!==Sv.idx;
-    const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
-    const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
+    // side spin is counter-clockwise from above when positive: a right-hander's slice, curving to the server's left
+    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
+    const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,gyro,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
     const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
-    b.launch(v,el,az,rpm,side);
+    b.launch(v,el,az,rpm,side,gyro);
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
     this.kmh=Math.round(v*3.6);this.serveLabel=no===1?'1st':'2nd';this.serveKind=S.name;
@@ -333,12 +338,12 @@ class Match{
     this.rec();return{w:hi};
   }
   // the situation a shot is played in, as the players' traits see it
-  shotContext(P,p,S){const b=this.ball;return{ret:this.isServe,server:!!this.score&&this.score.srv===P,n:this.rallyLen,wing:p.wing,tac:S.tac,stretch:p.stretch,pace:b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,big:this.big};}
+  shotContext(P,p,S){const b=this.ball;return{ret:this.isServe,server:!!this.score&&this.score.srv===P,n:this.rallyLen,wing:p.wing,tac:S.tac,stretch:p.stretch,pace:b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,spinIn:b?b.topspin:0,big:this.big};}
   // how wild a planned shot is: the player's steadiness and the tactic's risk, made worse by a stretch, a fast
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -355,20 +360,21 @@ class Match{
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
-    if(human){C.target=null;C.shot=null;}
+    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;
+    if(human){C.target=null;C.shot=null;C.shotAt=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch));
-    const sol=this.solver.solve(b,tgt,{v:v0,rpm,clear:S.clear,maxEl:S.maxEl});
-    const e=this.shotError(P,p,S,sol.v,aimed);
+    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
+    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
-    b.launch(v,el,az,rpm,0);
-    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:rpm/3000,stroke:P.swing?P.swing.type:'fh'});
+    b.launch(v,el,az,rpm,side);
+    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,timing:tq?tq.text:'',spinIn:Math.round(cx.spinIn),spin:rpm/3000,stroke:P.swing?P.swing.type:'fh'});
     const tac=S.tac;this.stats.tac[tac]=(this.stats.tac[tac]||0)+1;this.stats.shots++;this.lastTac=tac;
-    if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]});
+    if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]+(tq&&tq.text?' · '+tq.text:''),strong:tq===Match.TIMING.perfect});
     this.rallyLen++;this.hitter=P;this.isServe=false;this.mood.shot(this.rallyLen,p.stretch);
     const O=this.other(P);this.recv=O;O.plan=null;O.split=this.t;O.leaving=false;
     O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);

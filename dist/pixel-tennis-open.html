@@ -298,10 +298,14 @@ class Ball{
   // remember this tick's position so the view can draw between ticks
   keep(){this.ox=this.x;this.oy=this.y;this.oz=this.z;}
   get speed(){return Math.sqrt(this.vx*this.vx+this.vy*this.vy+this.vz*this.vz);}
-  // topspin (rpm > 0) about the horizontal axis across the flight; side spin (rpm) about y
-  setSpin(rpm,side=0){const h=Math.hypot(this.vx,this.vz)||1,w=rpm*RPM;this.wx=w*this.vz/h;this.wy=side*RPM;this.wz=-w*this.vx/h;}
-  launch(v,el,az,rpm,side=0){const c=Math.cos(el);this.vx=v*c*Math.sin(az);this.vy=v*Math.sin(el);this.vz=v*c*Math.cos(az);
-    this.setSpin(rpm,side);this.bc=0;this.net=0;this.net4=false;this.rolling=false;}
+  // topspin (rpm > 0) about the horizontal axis across the flight; side spin (rpm) about y;
+  // gyro spin (rpm) about the line of flight — it does nothing in the air, but at the bounce it throws the ball
+  // sideways (to the hitter's right when positive): the kick of a kick serve
+  setSpin(rpm,side=0,gyro=0){const h=Math.hypot(this.vx,this.vz)||1,w=rpm*RPM,g=gyro*RPM;this.wx=w*this.vz/h+g*this.vx/h;this.wy=side*RPM;this.wz=-w*this.vx/h+g*this.vz/h;}
+  // topspin of a ball in flight, rpm (negative: backspin)
+  get topspin(){const h=Math.hypot(this.vx,this.vz)||1;return(this.wx*this.vz-this.wz*this.vx)/h/RPM;}
+  launch(v,el,az,rpm,side=0,gyro=0){const c=Math.cos(el);this.vx=v*c*Math.sin(az);this.vy=v*Math.sin(el);this.vz=v*c*Math.cos(az);
+    this.setSpin(rpm,side,gyro);this.bc=0;this.net=0;this.net4=false;this.rolling=false;}
 }
 Ball.FIELDS=['x','y','z','vx','vy','vz','wx','wy','wz','bc','net','net4','rolling','lbx','lbz','lvx','lvz'];
 
@@ -393,8 +397,8 @@ class BallPhysics{
 class ShotSolver{
   constructor(physics){this.ph=physics;this.f=new Ball();}
   // first landing point of a launch from P, and the height it cleared the net by
-  flight(P,vx,vy,vz,rpm,side){
-    const f=this.f;f.x=P.x;f.y=P.y;f.z=P.z;f.vx=vx;f.vy=vy;f.vz=vz;f.setSpin(rpm,side);f.bc=0;f.rolling=false;
+  flight(P,vx,vy,vz,rpm,side,gyro=0){
+    const f=this.f;f.x=P.x;f.y=P.y;f.z=P.z;f.vx=vx;f.vy=vy;f.vz=vz;f.setSpin(rpm,side,gyro);f.bc=0;f.rolling=false;
     let clear=9,pz=f.z;
     for(let i=0;i<700;i++){
       this.ph.stepOnce(f,DT,false);
@@ -411,7 +415,7 @@ class ShotSolver{
     let res=null;
     for(let at=0;at<16;at++){
       const dx=Math.sin(az),dz=Math.cos(az);
-      const rng_=el=>{const c=Math.cos(el),s=Math.sin(el),r=this.flight(P,v*c*dx,v*s,v*c*dz,rpm,side);r.r=(r.x-P.x)*dx+(r.z-P.z)*dz;return r;};
+      const rng_=el=>{const c=Math.cos(el),s=Math.sin(el),r=this.flight(P,v*c*dx,v*s,v*c*dz,rpm,side,o.gyro||0);r.r=(r.x-P.x)*dx+(r.z-P.z)*dz;return r;};
       let lo=-.55,hi=top;const rlo=rng_(lo),rhi=rng_(hi);
       if(rhi.r<R0){v*=1.07;continue;}          // cannot reach: hit harder
       if(rlo.r>R0){v*=.93;continue;}           // cannot keep it short: hit softer
@@ -438,8 +442,10 @@ class RacketImpact{
   static HEAD={fh:28,bh:26,slice:21,volley:12,smash:36};
   static headSpeed(st,type,stretch=0){return(RacketImpact.HEAD[type]||26)*st.power*(1-.45*stretch);}
   // the fastest this player can send this ball with this much spin
-  static maxSpeed(st,type,vin,rpm=0,stretch=0){
-    const V=RacketImpact.headSpeed(st,type,stretch),vt=Math.abs(rpm)*RPM*BALL.R*.8,vn=Math.sqrt(Math.max(V*V-vt*vt,V*V*.12)),e=RacketImpact.E*(1-.3*stretch);
+  // spinIn: the incoming ball's topspin (rpm). Topspin against topspin means reversing the ball's rotation, which
+  // takes more of the swing; a slice goes with the rotation and takes less
+  static maxSpeed(st,type,vin,rpm=0,stretch=0,spinIn=0){
+    const V=RacketImpact.headSpeed(st,type,stretch),vt=Math.max(0,Math.abs(rpm)+(rpm>=0?.25:-.25)*spinIn)*RPM*BALL.R*.8,vn=Math.sqrt(Math.max(V*V-vt*vt,V*V*.12)),e=RacketImpact.E*(1-.3*stretch);
     return e*vin+(1+e)*vn;
   }
 }
@@ -696,7 +702,7 @@ class Player extends Agent{
 }
 
 // learned — tactic values from self-play; written by tools/train.js, do not edit by hand
-const LEARNED={"Nadal":{"serve1r":{"t":0.069,"wide":0.287,"body":-0.119},"serve1l":{"t":-0.154,"body":-0.164,"wide":0.258},"rallyfh":{"cross":0.831,"drop":-0.308,"line":-0.315,"angle":0.55,"slice":-0.065},"rallybh":{"line":0.209,"cross":0.5,"drop":-0.279,"angle":-0.031,"slice":0.038},"stretch":{"safe":-0.416,"slice":-0.478,"lob":-0.59},"pass":{"passcross":0.944,"lob":0.395,"passline":0.611},"return1":{"cross":-0.188,"safe":0.439,"line":-0.091,"lob":0.027,"slice":0.019},"return2":{"safe":0.421,"cross":-0.197,"line":0.068,"slice":-0.203,"lob":-0.098},"short":{"cross":0.502,"approach":-0.207,"line":-0.003,"angle":0.93,"drop":0.32},"serve2l":{"t":0.069,"wide":-0.042,"body":0.375},"serve2r":{"t":0.042,"wide":-0.15,"body":0.163}},"Djokovic":{"stretch":{"slice":-0.387,"safe":-0.168,"lob":-0.362},"return1":{"safe":0.372,"line":-0.166,"cross":-0.153,"lob":0.025,"slice":-0.05},"pass":{"passline":0.936,"passcross":0.681,"lob":0.295},"rallybh":{"angle":0.23,"line":-0.243,"cross":0.751,"drop":-0.357,"slice":-0.216},"short":{"angle":0.929,"line":-0.025,"cross":0.868,"approach":-0.09,"drop":0.267},"rallyfh":{"line":0.028,"cross":0.63,"drop":-0.404,"angle":0.134,"slice":-0.001},"serve1r":{"body":-0.186,"wide":0.326,"t":-0.097},"serve2l":{"t":-0.123,"wide":0.011,"body":-0.197},"serve1l":{"t":0.072,"wide":0.556,"body":-0.144},"serve2r":{"body":-0.16,"t":-0.158,"wide":-0.199},"return2":{"cross":-0.168,"safe":0.392,"slice":-0.096,"line":-0.219,"lob":0.002}},"Alcaraz":{"serve1r":{"t":0.075,"wide":0.164,"body":0.068},"rallybh":{"cross":0.708,"drop":-0.224,"line":-0.036,"angle":0.532,"slice":0.132},"serve2l":{"wide":-0.103,"body":0.025,"t":0.072},"serve1l":{"t":0.064,"body":-0.138,"wide":0.272},"stretch":{"slice":-0.523,"safe":-0.347,"lob":-0.184},"short":{"line":0.316,"drop":0.187,"approach":-0.334,"angle":0.674,"cross":0.18},"rallyfh":{"line":-0.083,"cross":0.321,"angle":0.48,"drop":-0.578,"slice":0.043},"serve2r":{"t":0.005,"wide":-0.147,"body":0.367},"pass":{"passline":0.504,"lob":0.096,"passcross":0.688},"return2":{"line":-0.177,"safe":0.214,"cross":-0.118,"lob":-0.104,"slice":-0.153},"return1":{"line":-0.299,"safe":0.202,"cross":-0.128,"slice":0.027,"lob":0.033}},"Federer":{"stretch":{"slice":-0.293,"safe":-0.142,"lob":-0.697},"rallyfh":{"cross":0.725,"line":-0.149,"drop":-0.417,"angle":0.333,"slice":-0.028},"rallybh":{"slice":-0.298,"angle":0.031,"cross":0.718,"line":-0.146,"drop":-0.32},"serve1l":{"wide":0.085,"t":-0.029,"body":-0.225},"serve1r":{"t":-0.128,"body":-0.214,"wide":-0.06},"serve2l":{"t":-0.507,"wide":-0.187,"body":-0.15},"return2":{"safe":0.387,"line":-0.114,"cross":-0.183,"slice":-0.378,"lob":0.003},"serve2r":{"wide":-0.209,"t":-0.325,"body":-0.182},"short":{"drop":0.003,"line":0.175,"cross":0.515,"approach":-0.282,"angle":0.888},"return1":{"safe":0.305,"cross":-0.122,"line":-0.351,"slice":-0.133,"lob":0.023},"pass":{"passcross":0.886,"lob":-0.027,"passline":0.607}},"Sinner":{"rallyfh":{"cross":0.648,"line":0.174,"angle":0.765,"slice":0.076,"drop":-0.176},"serve1r":{"wide":0.388,"t":0.124,"body":0.107},"serve1l":{"wide":0.362,"t":0.34,"body":0.191},"rallybh":{"slice":0.121,"cross":0.702,"angle":0.609,"line":0.251,"drop":-0.186},"stretch":{"lob":-0.441,"safe":-0.02,"slice":-0.378},"return2":{"cross":0.086,"safe":0.462,"lob":-0.05,"line":0.095,"slice":-0.084},"return1":{"cross":-0.161,"line":0.189,"safe":0.247,"lob":0.1,"slice":-0.138},"serve2l":{"t":-0.078,"wide":0.107,"body":0.128},"pass":{"passline":0.611,"passcross":0.742,"lob":0.222},"serve2r":{"body":0.239,"wide":0.196,"t":0.07},"short":{"drop":0.054,"approach":0.064,"angle":0.592,"cross":0.557,"line":0.257}},"Medvedev":{"stretch":{"safe":-0.379,"slice":-0.356,"lob":-0.648},"rallyfh":{"cross":0.375,"line":-0.263,"angle":-0.361,"slice":-0.259,"drop":-0.272},"rallybh":{"line":0.098,"cross":0.503,"slice":-0.582,"angle":-0.466,"drop":-0.275},"return2":{"cross":-0.313,"safe":0.196,"line":-0.387,"lob":-0.04,"slice":-0.08},"serve1l":{"t":-0.418,"wide":0.302,"body":-0.374},"serve1r":{"wide":0.518,"t":-0.321,"body":0.111},"serve2r":{"wide":-0.166,"body":-0.121,"t":-0.389},"pass":{"passcross":0.764,"passline":0.485,"lob":0.326},"return1":{"cross":-0.294,"safe":0.162,"line":-0.545,"slice":0.035,"lob":0.021},"serve2l":{"t":-0.553,"body":-0.237,"wide":-0.42},"short":{"cross":0.694,"angle":0.367,"approach":-0.067,"drop":0.098,"line":-0.098}},"Zverev":{"rallyfh":{"line":-0.752,"cross":0.044,"angle":-0.118,"slice":-0.095,"drop":-0.312},"serve1r":{"body":-0.265,"wide":-0.005,"t":-0.368},"serve1l":{"t":-0.163,"wide":0.079,"body":-0.351},"serve2r":{"body":-0.207,"t":-0.517,"wide":-0.336},"rallybh":{"cross":0.219,"line":-0.507,"slice":-0.331,"angle":-0.119,"drop":-0.209},"stretch":{"slice":-0.624,"safe":-0.912,"lob":-0.91},"serve2l":{"body":-0.32,"wide":-0.468,"t":-0.545},"pass":{"lob":-0.35,"passcross":-0.015,"passline":-0.056},"short":{"approach":-0.105,"drop":0.098,"angle":0.365,"line":-0.1,"cross":0.581},"return2":{"safe":-0.134,"cross":-0.682,"slice":-0.238,"line":-0.528,"lob":-0.098},"return1":{"cross":-0.439,"line":-0.499,"safe":-0.382,"slice":-0.187,"lob":-0.085}},"de Minaur":{"pass":{"passcross":0.759,"lob":0.077,"passline":0.192},"stretch":{"safe":-0.338,"slice":-0.807,"lob":-0.645},"rallyfh":{"line":-0.34,"cross":-0.276,"angle":-0.386,"drop":-0.447,"slice":-0.153},"serve1r":{"body":-0.275,"t":-0.643,"wide":0.268},"serve1l":{"t":-0.507,"body":-0.39,"wide":0.009},"rallybh":{"drop":-0.38,"cross":-0.352,"angle":-0.412,"line":-0.35,"slice":-0.421},"serve2r":{"t":-0.577,"wide":-0.645,"body":-0.195},"return1":{"safe":-0.01,"line":-0.691,"cross":-0.143,"lob":-0.081,"slice":-0.133},"serve2l":{"wide":-0.533,"t":-0.646,"body":-0.374},"short":{"approach":-0.459,"line":-0.058,"cross":0.557,"angle":0.616,"drop":0.22},"return2":{"cross":0.086,"safe":0.406,"line":-0.405,"slice":-0.246,"lob":-0.056}}};
+const LEARNED={"Nadal":{"serve1r":{"t":-0.107,"wide":0.16,"body":0.028},"serve1l":{"t":0.123,"body":0.233,"wide":0.157},"rallyfh":{"cross":0.896,"drop":-0.6,"line":-0.169,"angle":0.662,"slice":-0.177},"rallybh":{"line":0.208,"cross":0.541,"drop":-0.528,"angle":-0.004,"slice":-0.26},"stretch":{"safe":-0.274,"slice":-0.491,"lob":-0.581},"pass":{"passcross":0.894,"lob":0.232,"passline":0.804},"return1":{"cross":-0.168,"safe":0.355,"line":-0.309,"lob":0.043,"slice":-0.168},"return2":{"safe":0.591,"cross":-0.406,"line":-0.238,"slice":-0.359,"lob":-0.076},"short":{"cross":0.787,"approach":-0.192,"line":-0.137,"angle":0.906,"drop":0.428},"serve2l":{"t":0.096,"wide":0.03,"body":0.115},"serve2r":{"t":0.036,"wide":-0.129,"body":0.296}},"Djokovic":{"stretch":{"slice":-0.624,"safe":-0.477,"lob":-0.618},"return1":{"safe":-0.106,"line":-0.192,"cross":-0.377,"lob":-0.082,"slice":-0.338},"pass":{"passline":0.951,"passcross":0.891,"lob":0.377},"rallybh":{"angle":0.415,"line":0.094,"cross":0.835,"drop":-0.529,"slice":-0.119},"short":{"angle":0.951,"line":0.022,"cross":0.908,"approach":-0.16,"drop":0.231},"rallyfh":{"line":-0.224,"cross":0.755,"drop":-0.479,"angle":0.279,"slice":-0.17},"serve1r":{"body":-0.203,"wide":0.217,"t":0.018},"serve2l":{"t":-0.016,"wide":-0.087,"body":-0.127},"serve1l":{"t":-0.073,"wide":0.289,"body":0.008},"serve2r":{"body":0.02,"t":0.107,"wide":-0.026},"return2":{"cross":-0.493,"safe":-0.284,"slice":-0.453,"line":-0.182,"lob":0.037}},"Alcaraz":{"serve1r":{"t":0.236,"wide":0.567,"body":0.443},"rallybh":{"cross":0.733,"drop":0.235,"line":0.158,"angle":0.918,"slice":-0.125},"serve2l":{"wide":-0.004,"body":0.392,"t":0.184},"serve1l":{"t":0.213,"body":0.359,"wide":0.361},"stretch":{"slice":-0.456,"safe":-0.354,"lob":-0.614},"short":{"line":0.377,"drop":0.809,"approach":-0.287,"angle":0.908,"cross":0.499},"rallyfh":{"line":0.31,"cross":0.576,"angle":0.997,"drop":0.373,"slice":0.107},"serve2r":{"t":0.225,"wide":0.121,"body":0.316},"pass":{"passline":0.603,"lob":-0.274,"passcross":0.319},"return2":{"line":-0.248,"safe":0.047,"cross":-0.176,"lob":-0.177,"slice":-0.282},"return1":{"line":-0.263,"safe":-0.037,"cross":-0.313,"slice":-0.208,"lob":0.044}},"Federer":{"stretch":{"slice":-0.621,"safe":-0.079,"lob":-0.631},"rallyfh":{"cross":0.549,"line":-0.045,"drop":-0.618,"angle":0.27,"slice":-0.066},"rallybh":{"slice":-0.427,"angle":0.427,"cross":0.725,"line":-0.083,"drop":-0.402},"serve1l":{"wide":0.258,"t":0.196,"body":0.116},"serve1r":{"t":0.191,"body":0.16,"wide":0.426},"serve2l":{"t":-0.335,"wide":0.429,"body":0.61},"return2":{"safe":0.195,"line":-0.237,"cross":-0.31,"slice":-0.36,"lob":0.042},"serve2r":{"wide":0.065,"t":-0.247,"body":0.327},"short":{"drop":0.16,"line":0.35,"cross":0.894,"approach":-0.052,"angle":0.984},"return1":{"safe":0.155,"cross":-0.582,"line":-0.524,"slice":-0.241,"lob":0.014},"pass":{"passcross":0.859,"lob":0.145,"passline":0.703}},"Sinner":{"rallyfh":{"cross":0.942,"line":0.42,"angle":0.772,"slice":0.173,"drop":-0.355},"serve1r":{"wide":0.754,"t":0.376,"body":0.193},"serve1l":{"wide":0.795,"t":0.373,"body":0.456},"rallybh":{"slice":0.238,"cross":0.983,"angle":0.915,"line":0.285,"drop":-0.265},"stretch":{"lob":-0.718,"safe":-0.365,"slice":-0.303},"return2":{"cross":0.05,"safe":0.058,"lob":-0.038,"line":-0.066,"slice":-0.102},"return1":{"cross":-0.263,"line":-0.068,"safe":-0.115,"lob":0.099,"slice":-0.064},"serve2l":{"t":0.377,"wide":0.229,"body":0.438},"pass":{"passline":0.72,"passcross":0.79,"lob":-0.036},"serve2r":{"body":0.158,"wide":0.459,"t":0.272},"short":{"drop":0.126,"approach":0.221,"angle":0.899,"cross":0.889,"line":0.354}},"Medvedev":{"stretch":{"safe":-0.486,"slice":-0.497,"lob":-0.698},"rallyfh":{"cross":-0.132,"line":-0.224,"angle":-0.144,"slice":-0.117,"drop":-0.269},"rallybh":{"line":-0.328,"cross":-0.035,"slice":-0.353,"angle":-0.23,"drop":-0.646},"return2":{"cross":-0.484,"safe":-0.099,"line":-0.557,"lob":-0.126,"slice":-0.134},"serve1l":{"t":-0.182,"wide":0.28,"body":-0.447},"serve1r":{"wide":0.399,"t":-0.295,"body":-0.203},"serve2r":{"wide":-0.331,"body":-0.242,"t":-0.416},"pass":{"passcross":0.92,"passline":0.518,"lob":0.111},"return1":{"cross":-0.664,"safe":0.012,"line":-0.468,"slice":-0.052,"lob":-0.009},"serve2l":{"t":-0.2,"body":-0.36,"wide":-0.276},"short":{"cross":0.827,"angle":0.745,"approach":-0.278,"drop":0.266,"line":0.007}},"Zverev":{"rallyfh":{"line":-0.556,"cross":-0.006,"angle":-0.267,"slice":-0.184,"drop":-0.481},"serve1r":{"body":-0.258,"wide":0.207,"t":-0.209},"serve1l":{"t":-0.009,"wide":0.429,"body":-0.341},"serve2r":{"body":-0.235,"t":-0.47,"wide":-0.43},"rallybh":{"cross":-0.066,"line":-0.688,"slice":-0.725,"angle":-0.109,"drop":-0.321},"stretch":{"slice":-0.913,"safe":-0.704,"lob":-0.902},"serve2l":{"body":-0.295,"wide":-0.357,"t":-0.254},"pass":{"lob":-0.4,"passcross":0.144,"passline":-0.139},"short":{"approach":-0.161,"drop":0.112,"angle":0.469,"line":-0.245,"cross":0.515},"return2":{"safe":-0.648,"cross":-0.786,"slice":-0.493,"line":-0.654,"lob":-0.131},"return1":{"cross":-0.636,"line":-0.703,"safe":-0.323,"slice":-0.409,"lob":-0.181}},"de Minaur":{"pass":{"passcross":0.749,"lob":-0.058,"passline":0.563},"stretch":{"safe":-0.693,"slice":-0.638,"lob":-0.494},"rallyfh":{"line":-0.068,"cross":0.368,"angle":0.008,"drop":-0.753,"slice":-0.269},"serve1r":{"body":-0.355,"t":-0.469,"wide":-0.128},"serve1l":{"t":-0.326,"body":-0.547,"wide":0.061},"rallybh":{"drop":-0.594,"cross":0.144,"angle":-0.033,"line":-0.567,"slice":-0.233},"serve2r":{"t":-0.394,"wide":-0.413,"body":-0.389},"return1":{"safe":0.352,"line":-0.605,"cross":-0.611,"lob":-0.1,"slice":-0.162},"serve2l":{"wide":-0.484,"t":-0.471,"body":-0.356},"short":{"approach":-0.522,"line":-0.168,"cross":0.792,"angle":0.676,"drop":0.372},"return2":{"cross":-0.459,"safe":0.153,"line":-0.523,"slice":-0.24,"lob":-0.161}}};
 
 // Tactics — what each player has learned about which choices win points
 // Every time a computer player chooses between tactics (cross or line, slice or lob, where to serve…) the choice is
@@ -748,22 +754,22 @@ class Tactics{
 //   disguise(c)   seconds later the opponent reads this shot      react: seconds added to this player's read of a serve
 //   serveErr(no,pressure), serveSpeed(no)                         pressure: a big point this server could lose
 const TRAITS={
-  returnWall:   {name:'Return wall',     text:'Reads the serve early and almost never misses a return.',
-    react:-.05,error:c=>c.ret?.55:1},
+  returnWall:   {name:'Return wall',     text:'Reads the serve early, sends it back hard, and after that simply does not miss.',
+    react:-.07,error:c=>c.ret?.4:.82,speed:c=>c.ret?1.12:1},
   heavyForehand:{name:'Heavy forehand',  text:'The forehand carries extra topspin and holds up under any pressure.',
-    spin:c=>c.wing==='fh'&&!['slice','drop','lob'].includes(c.tac)?1.15:1,error:c=>c.wing==='fh'?.88:1},
-  disguise:     {name:'Disguised drop',  text:'The drop shot looks like a drive until it is too late to run.',
-    error:c=>c.tac==='drop'||c.tac==='dropvolley'?.5:1,disguise:c=>c.tac==='drop'?.3:0},
+    spin:c=>c.wing==='fh'&&!['slice','drop','lob'].includes(c.tac)?1.25:1,error:c=>c.wing==='fh'?.72:1},
+  disguise:     {name:'Disguised drop',  text:'Every shot looks the same until it is hit: the drop and the angle are read too late to run down.',
+    error:c=>['drop','dropvolley','angle','volley'].includes(c.tac)?.35:.95,disguise:c=>c.tac==='drop'?.5:c.tac==='angle'?.2:.015},
   firstStrike:  {name:'First strike',    text:'The first ball after his own serve is struck early, hard and clean.',
-    error:c=>c.server&&c.n===2?.7:1,speed:c=>c.server&&c.n===2?1.06:1},
+    error:c=>c.server&&c.n===2?.45:1,speed:c=>c.server&&c.n===2?1.1:1},
   cleanStrike:  {name:'Clean striker',   text:'Hits flat out without the errors that swinging that hard costs everyone else.',
-    overhitK:0,speed:c=>['drive','flat','cross','line'].includes(c.tac)?1.04:1},
+    overhitK:0,error:c=>['drive','flat','cross','line'].includes(c.tac)?.88:1,speed:c=>['drive','flat','cross','line'].includes(c.tac)?1.06:1},
   octopus:      {name:'Octopus',         text:'At full stretch, far behind the baseline, the ball still comes back deep.',
-    stretchK:.35},
+    stretchK:.1,error:c=>c.stretch>.3?.85:1},
   bigServe:     {name:'Serve cannon',    text:'A first serve that rarely misses its spot — and a second that wobbles on the big points.',
-    serveErr:(no,pressure)=>no===1?.88:pressure?1.35:1,serveSpeed:no=>no===1?1.02:1},
+    serveErr:(no,pressure)=>no===1?.6:pressure?1.35:1,serveSpeed:no=>no===1?1.06:1},
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',
-    paceK:0,stretchK:.7,speed:c=>1+.06*c.pace},
+    paceK:0,stretchK:.2,error:c=>c.stretch>.2||c.pace>.3?.72:.92,speed:c=>1+.12*c.pace},
 };
 class Traits{
   static NONE={name:'',text:''};
@@ -842,25 +848,27 @@ class ShotPlanner{
     else if(m.isServe)tac=pick('return'+m.serveNo,[['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
     else tac=pick(c.wing==='fh'?'rallyfh':'rallybh',[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
+    // side spin from the way the stroke is swung: topspin strokes curl toward the hitter's off side, cut strokes away
+    const curl=k=>c.hs*k;let sidespin=curl(200+st.spin*.08);
     switch(tac){
       case'safe':     t=T(-side*1.6,CT.L-1.9);v=26*P0;rpm=st.spin*.9;clear=.75;risk=.9;break;
       case'cross':    t=T(-side*(SW-mg),CT.L-mg-.35);v=33*P0;break;
       case'line':     t=T(side*(SW-mg-.1),CT.L-mg-.35);v=33*P0;risk=1.2;break;
-      case'angle':    t=T(-side*(SW-.6),5.9+R()*1.2);v=25*P0;rpm=st.spin*1.25;risk=1.2;break;
-      case'slice':    t=T(-side*(SW-mg-.3),CT.L-mg-.7);v=24*P0;rpm=-2300;clear=.32;sw='slice';break;
-      case'drop':     t=T(openX*(1.2+R()*1.6),1.9+R()*1.3);v=11.5;rpm=-2800;clear=.2;sw='slice';risk=1.25;break;
+      case'angle':    t=T(-side*(SW-.6),5.9+R()*1.2);v=25*P0;rpm=st.spin*1.25;risk=1.2;sidespin=curl(650);break;
+      case'slice':    t=T(-side*(SW-mg-.3),CT.L-mg-.7);v=24*P0;rpm=-2300;clear=.32;sw='slice';sidespin=-curl(800);break;
+      case'drop':     t=T(openX*(1.2+R()*1.6),1.9+R()*1.3);v=11.5;rpm=-2800;clear=.2;sw='slice';risk=1.25;sidespin=-curl(500);break;
       case'drive':    t=T(openX*(SW-mg-.2),CT.L-mg-.5);v=37*P0;rpm=st.spin*.85;clear=.16;risk=c.wing==='fh'?.72:.95;break;
-      case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;break;
-      case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;break;
+      case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;sidespin=curl(100);break;
+      case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;sidespin=0;break;
       case'passline': t=T(side*(SW-.65),CT.L-1.6);v=35*P0;risk=1.25;break;
       case'passcross':t=T(-side*(SW-.55),7.2);v=31*P0;rpm=st.spin*1.15;risk=1.2;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
-      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;break;
-      case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;break;
-      case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;break;
+      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;sidespin=-curl(300);break;
+      case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;sidespin=-curl(300);break;
+      case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;sidespin=0;break;
       default:t=T(0,9);v=26;
     }
-    return{tac,t,v,rpm,clear,sw,risk,maxEl};
+    return{tac,t,v,rpm,side:sidespin,clear,sw,risk,maxEl};
   }
 }
 
@@ -868,7 +876,7 @@ class ShotPlanner{
 // what the person at the screen wants from their player. Movement and timing stay automatic.
 const SLOWMO=.25;
 class HumanControl{
-  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.target=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;}
+  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.shotAt=null;this.target=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;}
   is(P){return!!P&&P.idx===this.idx;}
   manual(P){return this.is(P)&&!this.auto;}
   clear(){this.shot=null;this.target=null;this.zone=null;this.serveType=null;}
@@ -886,11 +894,12 @@ const NAME={drive:'drive',flat:'flat drive',cross:'cross-court drive',line:'driv
 const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passing shot',passcross:'Passing shot',smash:'Smash',dropvolley:'Drop volley',angle:'Sharp angle',approach:'Approach',slice:'Slice',volley:'Volley'};
 
 // serves — serve types and the three serve targets
-// serves: pace from the profile, spin, side spin and how far over the tape to aim
+// serves: pace from the profile, topspin, side spin (curve in the air), gyro spin (sideways kick off the court)
+// and how far over the tape to aim
 const SERVES={
-  flat :{name:'Flat', v:st=>st.s1,             rpm:st=>900+st.spin*.15, side:300, clear:.07,err:1},
-  slice:{name:'Slice',v:st=>st.s1*.6+st.s2*.4, rpm:st=>1100+st.spin*.1, side:1700,clear:.14,err:.86},
-  kick :{name:'Kick', v:st=>st.s2,             rpm:st=>2300+st.spin*.3, side:1100,clear:.40,err:.72},
+  flat :{name:'Flat', v:st=>st.s1,             rpm:st=>900+st.spin*.15, side:300, gyro:0,   clear:.07,err:1},
+  slice:{name:'Slice',v:st=>st.s1*.6+st.s2*.4, rpm:st=>1100+st.spin*.1, side:1700,gyro:0,   clear:.14,err:.86},
+  kick :{name:'Kick', v:st=>st.s2,             rpm:st=>2300+st.spin*.3, side:1100,gyro:1500,clear:.40,err:.72},
 };
 const ZONES={wide:3.72,body:1.9,t:.32};
 
@@ -961,6 +970,10 @@ class Match{
   static RETURN={react:.14,jitter:.05,x:2.9,deep:.1};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
+  // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
+  // rewarded, committing long before is neutral, leaving it to the last instant is a mishit
+  static TIMING={late:{text:'Late',err:1.2,v:.97},perfect:{text:'Perfect',err:.65,v:1.04},good:{text:'Good',err:.85,v:1.02},early:{text:'',err:1,v:1}};
+  static timing(d){const T=Match.TIMING;return d<.05?T.late:d<=.35?T.perfect:d<=.7?T.good:T.early;}
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -1028,7 +1041,7 @@ class Match{
     return true;
   }
   setShot(k){
-    const C=this.control;C.shot=C.shot===k?null:k;
+    const C=this.control;C.shot=C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
     const P=this.human;if(P&&P.plan&&P.swing&&C.decide){P.plan.shot=this.planner.chooseShot(P,P.plan);const sw=this.planner.swingFor(P,P.plan);P.swing.type=sw.type;P.swing.two=sw.two;}
   }
   setServe(k){const C=this.control;C.serveType=C.serveType===k?null:k;}
@@ -1191,13 +1204,14 @@ class Match{
     // contact
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const TS=Traits.of(Sv),pressure=!!this.big&&this.big.w!==Sv.idx;
-    const rpm=S.rpm(st),side=S.side*st.hand*-1,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
-    const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:.5});
+    // side spin is counter-clockwise from above when positive: a right-hander's slice, curving to the server's left
+    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
+    const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,gyro,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
     const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
-    b.launch(v,el,az,rpm,side);
+    b.launch(v,el,az,rpm,side,gyro);
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
     this.kmh=Math.round(v*3.6);this.serveLabel=no===1?'1st':'2nd';this.serveKind=S.name;
@@ -1290,12 +1304,12 @@ class Match{
     this.rec();return{w:hi};
   }
   // the situation a shot is played in, as the players' traits see it
-  shotContext(P,p,S){const b=this.ball;return{ret:this.isServe,server:!!this.score&&this.score.srv===P,n:this.rallyLen,wing:p.wing,tac:S.tac,stretch:p.stretch,pace:b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,big:this.big};}
+  shotContext(P,p,S){const b=this.ball;return{ret:this.isServe,server:!!this.score&&this.score.srv===P,n:this.rallyLen,wing:p.wing,tac:S.tac,stretch:p.stretch,pace:b?clamp((hyp(b.vx,b.vz)-14)/24,0,1):0,spinIn:b?b.topspin:0,big:this.big};}
   // how wild a planned shot is: the player's steadiness and the tactic's risk, made worse by a stretch, a fast
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?.25:0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -1312,20 +1326,21 @@ class Match{
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
-    if(human){C.target=null;C.shot=null;}
+    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;
+    if(human){C.target=null;C.shot=null;C.shotAt=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch));
-    const sol=this.solver.solve(b,tgt,{v:v0,rpm,clear:S.clear,maxEl:S.maxEl});
-    const e=this.shotError(P,p,S,sol.v,aimed);
+    const v0=Math.min((srv?S.v*.78:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
+    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
-    b.launch(v,el,az,rpm,0);
-    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,spin:rpm/3000,stroke:P.swing?P.swing.type:'fh'});
+    b.launch(v,el,az,rpm,side);
+    this.ev('hit',{x:b.x,y:b.y,z:b.z,v,kind:S.tac,who:P.idx,aimed,timing:tq?tq.text:'',spinIn:Math.round(cx.spinIn),spin:rpm/3000,stroke:P.swing?P.swing.type:'fh'});
     const tac=S.tac;this.stats.tac[tac]=(this.stats.tac[tac]||0)+1;this.stats.shots++;this.lastTac=tac;
-    if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]});
+    if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]+(tq&&tq.text?' · '+tq.text:''),strong:tq===Match.TIMING.perfect});
     this.rallyLen++;this.hitter=P;this.isServe=false;this.mood.shot(this.rallyLen,p.stretch);
     const O=this.other(P);this.recv=O;O.plan=null;O.split=this.t;O.leaving=false;
     O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
@@ -2879,7 +2894,7 @@ class DecisionPrompt{
       sub=`${tp} · press 1 Wide · 2 Body · 3 T, or click the box`;frac=1-(m.t-C.serveWait.t0)/15;}
     else if(H&&C.decide&&!C.auto){show=true;const d=C.decide;title=`YOUR SHOT · ${(WING[d.kind==='ground'?d.wing:d.kind]||'').toUpperCase()}`;
       const sh=C.shot?SHOT_KEYS.find(s=>s[0]===C.shot)[1]:null;
-      sub=C.target?`${sh||'Auto shot'} · aimed`:sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
+      sub=C.target?(sh?`${sh} · aimed`:'Aimed · press the shot key as the ball arrives'):sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
       frac=clamp((d.tc-m.t)/Math.max(.2,d.tc-d.t0),0,1);}
     el.hidden=!show;$('slowfx').hidden=!(show&&!serve&&!C.target);
     if(!show)return;

@@ -9,7 +9,7 @@ class DecisionPrompt{
       sub=`${tp} · press 1 Wide · 2 Body · 3 T, or click the box`;frac=1-(m.t-C.serveWait.t0)/15;}
     else if(H&&C.decide&&!C.auto){show=true;const d=C.decide;title=`YOUR SHOT · ${(WING[d.kind==='ground'?d.wing:d.kind]||'').toUpperCase()}`;
       const sh=C.shot?SHOT_KEYS.find(s=>s[0]===C.shot)[1]:null;
-      sub=C.target?`${sh||'Auto shot'} · aimed`:sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
+      sub=C.target?(sh?`${sh} · aimed`:'Aimed · press the shot key as the ball arrives'):sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
       frac=clamp((d.tc-m.t)/Math.max(.2,d.tc-d.t0),0,1);}
     el.hidden=!show;$('slowfx').hidden=!(show&&!serve&&!C.target);
     if(!show)return;

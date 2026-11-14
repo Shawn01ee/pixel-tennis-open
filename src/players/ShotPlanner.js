@@ -70,24 +70,26 @@ class ShotPlanner{
     else if(m.isServe)tac=pick('return'+m.serveNo,[['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
     else tac=pick(c.wing==='fh'?'rallyfh':'rallybh',[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
+    // side spin from the way the stroke is swung: topspin strokes curl toward the hitter's off side, cut strokes away
+    const curl=k=>c.hs*k;let sidespin=curl(200+st.spin*.08);
     switch(tac){
       case'safe':     t=T(-side*1.6,CT.L-1.9);v=26*P0;rpm=st.spin*.9;clear=.75;risk=.9;break;
       case'cross':    t=T(-side*(SW-mg),CT.L-mg-.35);v=33*P0;break;
       case'line':     t=T(side*(SW-mg-.1),CT.L-mg-.35);v=33*P0;risk=1.2;break;
-      case'angle':    t=T(-side*(SW-.6),5.9+R()*1.2);v=25*P0;rpm=st.spin*1.25;risk=1.2;break;
-      case'slice':    t=T(-side*(SW-mg-.3),CT.L-mg-.7);v=24*P0;rpm=-2300;clear=.32;sw='slice';break;
-      case'drop':     t=T(openX*(1.2+R()*1.6),1.9+R()*1.3);v=11.5;rpm=-2800;clear=.2;sw='slice';risk=1.25;break;
+      case'angle':    t=T(-side*(SW-.6),5.9+R()*1.2);v=25*P0;rpm=st.spin*1.25;risk=1.2;sidespin=curl(650);break;
+      case'slice':    t=T(-side*(SW-mg-.3),CT.L-mg-.7);v=24*P0;rpm=-2300;clear=.32;sw='slice';sidespin=-curl(800);break;
+      case'drop':     t=T(openX*(1.2+R()*1.6),1.9+R()*1.3);v=11.5;rpm=-2800;clear=.2;sw='slice';risk=1.25;sidespin=-curl(500);break;
       case'drive':    t=T(openX*(SW-mg-.2),CT.L-mg-.5);v=37*P0;rpm=st.spin*.85;clear=.16;risk=c.wing==='fh'?.72:.95;break;
-      case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;break;
-      case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;break;
+      case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;sidespin=curl(100);break;
+      case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;sidespin=0;break;
       case'passline': t=T(side*(SW-.65),CT.L-1.6);v=35*P0;risk=1.25;break;
       case'passcross':t=T(-side*(SW-.55),7.2);v=31*P0;rpm=st.spin*1.15;risk=1.2;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
-      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;break;
-      case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;break;
-      case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;break;
+      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;sidespin=-curl(300);break;
+      case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;sidespin=-curl(300);break;
+      case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;sidespin=0;break;
       default:t=T(0,9);v=26;
     }
-    return{tac,t,v,rpm,clear,sw,risk,maxEl};
+    return{tac,t,v,rpm,side:sidespin,clear,sw,risk,maxEl};
   }
 }
