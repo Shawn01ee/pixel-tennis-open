@@ -24,14 +24,14 @@ class CrowdMood{
   netCord(){this.emit('ooh',.6+this.tension*.3);}
   // how: {kind: ace|winner|error|net|df, by}, rally length, big point label if any
   point(W,L,how,n,big){
-    const b=this.bias(W),t=this.tension,bp=big&&big.w===W.idx?big.label:null;
+    const b=this.bias(W),t=this.tension,bp=big&&big.w===W.idx?big.kind:null;
     let cheer=0,clap=.35+Math.min(.4,n*.04),stand=0,arms=0;
     if(how.kind==='ace'){cheer=.55;clap=.55;if(this.m.kmh>=205)this.emit('ooh',.5);}
     else if(how.kind==='winner'){cheer=.45+t*.4;clap=.5+t*.4;}
     else if(how.kind==='df'){this.emit('groan',.55*this.bias(L));clap=.2;}
     else if(how.kind==='net'||how.kind==='error'){if(n>=8)cheer=.25+t*.3;if(this.bias(L)>1)this.emit('groan',.45);}
     if(n>=12){cheer=Math.max(cheer,.8);clap=1;stand=.7;arms=.4;}
-    if(bp){cheer=Math.max(cheer,bp==='Match point'?1:bp==='Set point'?.85:.75);clap=1;stand=Math.max(stand,bp==='Break point'?.5:.9);arms=Math.max(arms,.6);}
+    if(bp){cheer=Math.max(cheer,bp==='match'?1:bp==='set'?.85:.75);clap=1;stand=Math.max(stand,bp==='break'?.5:.9);arms=Math.max(arms,.6);}
     cheer=Math.min(1,cheer*b);clap=Math.min(1,clap*b);
     if(cheer>.05)this.emit(bp||cheer>.75?'roar':'cheer',cheer,{who:W.idx});
     this.emit('applause',clap);

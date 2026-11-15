@@ -2,11 +2,12 @@
 // A large card for the highlighted player beside the field as a grid of portraits. Arrow keys move through the
 // grid, Enter goes on, Esc goes back; the settings step with ◀ ▶.
 class SetupScreen{
+  static SESSION={day:'Midday sun, sharp shadows.',twilight:'Low sun, long shadows, the lights coming on.',night:'Under the floodlights.'};
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.mode='tour';this.step=0;this.phase=game.R.phaseKey;
+    this.g=game;this.a=2;this.b=1;this.fmt='one';this.level='pro';this.mode='tour';this.step=0;this.phase=game.R.phaseKey;
     $('sBack').onclick=()=>this.back();$('walkOut').onclick=()=>this.go();
-    this.opts=[{k:'fmt',name:'FORMAT',list:()=>MatchFormat.ALL.map(f=>[f.key,f.name,f.desc])},
-      {k:'phase',name:'SESSION',list:()=>Object.keys(PHASES).map(k=>[k,PHASES[k].name,''])},
+    this.opts=[{k:'fmt',name:'FORMAT',list:()=>MatchFormat.MENU.map(f=>[f.key,f.name,f.desc])},
+      {k:'phase',name:'SESSION',list:()=>Object.keys(PHASES).map(k=>[k,PHASES[k].name,SetupScreen.SESSION[k]||''])},
       {k:'level',name:'OPPONENTS',list:()=>Difficulty.ALL.map(d=>[d.key,d.name,d.desc])}];
     $('sOpts').innerHTML=this.opts.map((o,i)=>`<div class="s-opt"><span>${o.name}</span><div class="s-cyc"><button data-o="${i}" data-d="-1" aria-label="Previous ${o.name.toLowerCase()}">◀</button><b id="so-${o.k}"></b><button data-o="${i}" data-d="1" aria-label="Next ${o.name.toLowerCase()}">▶</button></div><small id="sd-${o.k}"></small></div>`).join('');
     $('sOpts').querySelectorAll('button').forEach(b=>b.onclick=()=>this.cycle(+b.dataset.o,+b.dataset.d));

@@ -28,7 +28,7 @@ function run(label,cfg,bot,auto=false){
 const F=MatchFormat.get;
 run('computer vs computer · short set',{a:ROSTER[0],b:ROSTER[1],format:F('short')});
 run('computer vs computer · best of three',{a:ROSTER[2],b:ROSTER[6],format:F('bo3')});
-run('human (scripted), manual · full set · walk-on',{a:ROSTER[4],b:ROSTER[3],human:0,format:F('set'),walkOn:true},true);
+run('human (scripted), manual · one set · walk-on',{a:ROSTER[4],b:ROSTER[3],human:0,format:F('one'),walkOn:true},true);
 run('human in Auto · short set',{a:ROSTER[5],b:ROSTER[7],human:0,format:F('short')},false,true);
 console.log(failed?`\nFAIL: ${failed} match(es) did not finish`:'\nPASS: every match finished');
 process.exitCode=failed?1:0;

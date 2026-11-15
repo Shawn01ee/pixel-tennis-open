@@ -12,7 +12,9 @@ class Tournament{
   constructor(me,format,level,roster=Tournament.field(me)){
     const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);this.seeds=seeds.map(p=>p.id);
     this.me=me.id;this.format=format;this.level=level;this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
-    const slot=(a=null,b=null)=>({a,b,w:null,line:''});
+    // a slot: its two players, the winner, the score as a line and per set (from a's side), and while it is being
+    // played in the background, the match itself (live)
+    const slot=(a=null,b=null)=>({a,b,w:null,line:'',sets:null,live:null});this.version=0;
     this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
   }
   seed(id){return this.seeds.indexOf(id)+1;}
@@ -23,15 +25,30 @@ class Tournament{
   get mine(){if(this.out||this.over)return null;return this.rounds[this.round].find(m=>m.a===this.me||m.b===this.me)||null;}
   get opponent(){const m=this.mine;return m?this.player(m.a===this.me?m.b:m.a):null;}
   // the match configuration for the person's next match
-  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true};}
-  // the person's match is over
-  record(won,line){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);m.line=line;if(!won)this.out=true;}
-  // play out one unplayed match of this round between computer players; false when none is left
+  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2};}
+  // the person's match is over. match: the finished Match, whose first player is the person
+  record(won,match){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);this.score(m,match,m.a===this.me?0:1);if(!won)this.out=true;}
+  // the score of a finished match into its slot, set by set from the slot's first player's side (ia: that player's
+  // index in the match)
+  score(m,match,ia=0){const sc=match.score,r=match.result;m.live=null;m.line=r?r.line:'';
+    m.sets=sc?sc.done.map(d=>({a:d.g[ia],b:d.g[1-ia],tb:d.tb,pa:d.pts?d.pts[ia]:null,pb:d.pts?d.pts[1-ia]:null})):null;this.version++;}
+  // the other matches, played in the format of the event a slice at a time (a generator, stepped by the game while it
+  // runs): the rest of this round, and — once the person is out — the rest of the draw, round by round
+  *run(){
+    for(;;){
+      for(const m of this.rounds[this.round]){
+        if(m.w!=null||m.a==null||m.b==null||m.a===this.me||m.b===this.me)continue;
+        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format});m.live=sim;this.version++;let n=0;
+        while(!(sim.stage==='over'&&sim.result)&&n<120*60*240){sim.tick();n++;sim.events.length=0;if(n%40===0)yield m;}
+        m.w=sim.result?sim.result.winner.st.id:m.a;this.score(m,sim);yield m;
+      }
+      if(!this.out||this.over||!this.advance())return;
+    }
+  }
+  // the same, all at once: what is left of the round (normally nothing: it was played during the person's match)
   simulateOne(){
-    const m=this.rounds[this.round].find(q=>q.w==null&&q.a!=null&&q.b!=null);if(!m)return false;
-    const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:MatchFormat.get('short')});let n=0;
-    while(!(sim.stage==='over'&&sim.result)&&n<120*60*90){sim.tick();n++;sim.events.length=0;}
-    m.w=sim.result?sim.result.winner.st.id:m.a;m.line=sim.result?sim.result.line:'';return true;
+    const m=this.rounds[this.round].find(q=>q.w==null&&q.a!=null&&q.b!=null&&q.a!==this.me&&q.b!==this.me);if(!m)return false;
+    const g=this.run();while(m.w==null&&!g.next().done);return true;
   }
   // when every match of the round is decided, fill the next round (or crown the champion)
   advance(){

@@ -15,6 +15,11 @@ Two modes: a **Tournament** (eight players, quarter-final to final, with an on-c
 matches) or a single **Exhibition match** against the opponent of your choice. The opponent level decides how much
 of what the computer players have learned is used against you.
 
+Matches are played to the Grand Slam rules, as at the Australian Open: sets of six games won by two, a 7-point
+tiebreak at 6–6, and a 10-point tiebreak at 6–6 in the deciding set. Choose **1 set**, **best of 3 sets**, or a single
+**10-point match tiebreak**. In a tournament the other matches are played out in full, in the same format, while you
+play yours; the draw shows them live.
+
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
 

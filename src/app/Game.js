@@ -20,6 +20,13 @@ class Game{
     window.__PTO=this;
     requestAnimationFrame(t=>this.frame(t));
   }
+  // the tournament's other matches, a few milliseconds of them each frame (more when the person asks to hurry);
+  // the draw on screen follows them
+  runTour(now){
+    const g=this.tourRun;if(!g)return;const t=this.tour,v=t.version,end=performance.now()+(this.tourFast?40:4);
+    while(performance.now()<end)if(g.next().done){this.tourRun=null;break;}
+    if(!$('bracket').hidden&&(t.version!==v||!this.tourRun||now-(this.brAt||0)>500)){this.brAt=now;this.bracket.open();}
+  }
   // ──────── the front end ────────
   // menu sounds, once sound is on (the title screen's key or tap turns it on)
   sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
@@ -31,7 +38,7 @@ class Game{
   demo(){const a=Math.floor(R()*ROSTER.length);let b=Math.floor(R()*ROSTER.length);if(b===a)b=(a+3)%ROSTER.length;
     this.startMatch({a:ROSTER[a],b:ROSTER[b],human:-1,format:MatchFormat.get('short'),loop:true});this.cam.setMode(CameraRig.STADIUM);}
   play(a,b,fmt,phase,level='pro'){
-    this.sound.start();
+    this.sound.start();$('title').hidden=true;this.mainMenu.close();
     this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say('Players walk out. Space toggles Auto.');
@@ -41,12 +48,15 @@ class Game{
   playTour(){const t=this.tour;if(!t||!t.mine)return;
     const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
     this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
-  startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
+  startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.tourRun=t.run();this.tourFast=false;this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
   continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
-    const talk=()=>this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});
+    // after the interview: the result goes in the draw. Still in: the rest of the round is finished (it was played
+    // during the match) and the draw moves on. Out: the rest of the draw is played in the background, live on the draw
+    const talk=()=>this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m);
+      if(t.out){this.tourRun=t.run();this.tourFast=false;}else{this.tourRun=null;t.settle();}this.demo();this.bracket.open();});
     if(t.round===2)this.ceremony(talk);else talk();}
   // the trophy ceremony on court after a final the person played; Enter or the button skips to what comes next
   ceremony(done){
@@ -59,7 +69,7 @@ class Game{
     if(!this.cerDone)return;const done=this.cerDone;this.cerDone=null;$('cerBar').hidden=true;this.cam.stage=null;this.cam.setMode(this.cerCam??CameraRig.FOLLOW);
     this.match.tasks.length=0;this.sound.voice.stop();done();
   }
-  endTour(){this.tour=null;this.openSetup();}
+  endTour(){this.tour=null;this.tourRun=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
   openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.mainMenu.open();}
@@ -102,7 +112,7 @@ class Game{
     this.ts+=(goal-this.ts)*Math.min(1,dt*12);if(Math.abs(goal-this.ts)<.01)this.ts=goal;
     this.acc+=dt*this.ts;let n=0;while(this.acc>=DT&&n<60){m.tick();this.acc-=DT;n++;if(m.events.length>200)this.drain();}if(n===60)this.acc=0;
     this.alpha=clamp(this.acc/DT,0,1);
-    this.watchPerf(now);
+    this.watchPerf(now);this.runTour(now);
     {const fe=this.frontEnd;document.body.classList.toggle('fe-on',fe);if(fe&&this.cam.mode===CameraRig.STADIUM){this.feTurn+=dt;if(this.feTurn>7){this.feTurn=0;this.cam.turn(1);}}}
     this.drain();
     this.net.update(dt);this.fx.update(dt);
@@ -153,8 +163,8 @@ class Game{
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
     const s={title:!sc?'CENTRE COURT':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
-      rows:m.players.map((P,i)=>({name:P.short,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
+      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'CENTRE COURT',
+      rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
   }

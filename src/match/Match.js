@@ -117,7 +117,8 @@ class Match{
   }
   *point(){
     let no=1,w=-1;const sc=this.score;this.tactics.begin();
-    this.big=sc.bigPoint();if(this.big)this.ev('bigPoint',this.big);
+    // in a final, the point that would win the title is a championship point
+    this.big=sc.bigPoint();if(this.big&&this.big.kind==='match'&&this.cfg.final)this.big.label='Championship point';if(this.big)this.ev('bigPoint',this.big);
     for(;;){
       yield* this.ready(no);
       const r0=yield* this.servePoint(no);
@@ -139,7 +140,7 @@ class Match{
     const winner=sc.p[w],loser=sc.p[1-w],Sv=sc.srv;
     winner.ms.pts++;if(w===sc.server){if(no===1)Sv.ms.won1++;else Sv.ms.won2++;}
     if(no===2)Sv.ms.sv2++;
-    if(this.big&&this.big.label==='Break point'){sc.rcv.ms.bpT++;if(w===this.big.w)sc.rcv.ms.bpW++;}
+    if(this.big&&this.big.kind==='break'){sc.rcv.ms.bpT++;if(w===this.big.w)sc.rcv.ms.bpW++;}
     const n=this.rallyLen||0,long=n>=5||sc.mode!=='game'||!!this.big;
     if(long){winner.cheer=this.t+1.1;loser.sulk=this.t+1.3;}
     this.longest=Math.max(this.longest,n);

@@ -7,7 +7,7 @@ let fails=0;const check=(ok,msg)=>{console.log(`${ok?'PASS':'FAIL'}  ${msg}`);if
 const home=ROSTER.find(p=>p.cc==='AUS'),
 // the visitor is the home player's twin from elsewhere, so only the crowd's bias differs
 away=Object.assign(Object.create(Object.getPrototypeOf(home)),home,{cc:'ESP',id:99,short:'Visitor'});
-const m=new Match({a:home,b:away,format:MatchFormat.get('set')});
+const m=new Match({a:home,b:away,format:MatchFormat.get('one')});
 const kinds={},after={};let points=0,serves=0,quietServes=0,lastKind=null,dfGroans=0,dfs=0,bigRoars=0,bigWins=0,homeCheer=0,awayCheer=0,homeN=0,awayN=0,n=0;
 while(!(m.stage==='over'&&m.result&&m.tasks.length===0)&&n<120*60*90){
   m.tick();n++;

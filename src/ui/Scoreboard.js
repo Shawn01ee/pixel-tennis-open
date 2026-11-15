@@ -9,7 +9,7 @@ class Scoreboard{
     if(key===this.key)return;this.key=key;
     $('sbT').innerHTML=this.rows(m,sc,big);
     $('sbMode').textContent=sc.over?'Final':sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
-    const b=$('sbBadge');b.hidden=!big;if(big){b.textContent=big.label.toUpperCase();b.className='badge'+(big.label==='Set point'?' set':big.label==='Match point'?' match':'');}
+    const b=$('sbBadge');b.hidden=!big;if(big){b.textContent=big.label.toUpperCase();b.className='badge'+(big.kind==='set'?' set':big.kind==='match'?' match':'');}
     $('sbSpeed').innerHTML=m.kmh?`<b>${m.kmh}</b> km/h · ${m.serveKind} ${m.serveLabel}`:'';
   }
   rows(m,sc,big){

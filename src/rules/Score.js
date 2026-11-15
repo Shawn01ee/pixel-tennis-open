@@ -4,13 +4,14 @@ class Score{
   static ORD=['first','second','third'];
   constructor(a,b,first,format=MatchFormat.ALL[0]){
     this.f=format;this.p=[a,b];this.pts=[0,0];this.games=[0,0];this.sets=[0,0];this.done=[];
-    this.mode='game';this.server=first;this.tbFirst=first;this.over=false;this.winner=null;
+    this.mode=this.f.tbOnly?'tb':'game';this.server=first;this.tbFirst=first;this.over=false;this.winner=null;
   }
   get srv(){return this.p[this.server];} get rcv(){return this.p[1-this.server];}
   get total(){return this.pts[0]+this.pts[1];}
   get setNo(){return this.done.length+1;}
   get finalSet(){return this.sets[0]===this.f.sets-1&&this.sets[1]===this.f.sets-1;}
-  get tbTarget(){return this.f.sets>1&&this.finalSet?10:7;}
+  // 7 points, or 10 in the deciding set (and in a match tiebreak)
+  get tbTarget(){return this.f.tbOnly||this.finalSet?this.f.decider:this.f.tb;}
   get deuceCourt(){return this.total%2===0;}
   label(i){
     if(this.mode!=='game')return String(this.pts[i]);
@@ -23,9 +24,9 @@ class Score{
   bigPoint(){
     for(const w of[0,1]){
       const t=this.clone().point(w).type;
-      if(t==='match')return{w,label:'Match point'};
-      if(t==='set')return{w,label:'Set point'};
-      if(t==='game'&&w!==this.server)return{w,label:'Break point'};
+      if(t==='match')return{w,kind:'match',label:'Match point'};
+      if(t==='set')return{w,kind:'set',label:'Set point'};
+      if(t==='game'&&w!==this.server)return{w,kind:'break',label:'Break point'};
     }
     return null;
   }
@@ -57,7 +58,7 @@ class Score{
   }
   endSet(w,ev,tb){
     const P=this.p,g=this.games.slice();
-    this.done.push({g,tb:tb?Math.min(tb[0],tb[1]):null});this.sets[w]++;
+    this.done.push({g,tb:tb?Math.min(tb[0],tb[1]):null,pts:tb||null});this.sets[w]++;
     ev.setOver=true;ev.type='set';ev.changeEnds=(g[0]+g[1])%2===1;ev.sit=true;
     if(this.sets[w]===this.f.sets){this.over=true;this.winner=w;ev.type='match';ev.call=`Game, set and match, ${P[w].short}.`;return ev;}
     ev.call=`Game and ${Score.ORD[this.done.length-1]} set, ${P[w].short}, ${Math.max(...g)}–${Math.min(...g)}.`;
@@ -79,5 +80,7 @@ class Score{
     return`${Score.PTNAME[a]}–${Score.PTNAME[b]}.`;
   }
   // "6–4 7–6(5)" from the winner's side or a fixed side
-  line(side=0){return this.done.map(d=>`${d.g[side]}–${d.g[1-side]}${d.tb!=null?`(${d.tb})`:''}`).join(' ');}
+  // a match tiebreak is written as its points: 10–8
+  line(side=0){if(this.f.tbOnly)return this.done.map(d=>`${d.pts[side]}–${d.pts[1-side]}`).join(' ');
+    return this.done.map(d=>`${d.g[side]}–${d.g[1-side]}${d.tb!=null?`(${d.tb})`:''}`).join(' ');}
 }
