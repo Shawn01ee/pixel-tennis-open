@@ -66,6 +66,8 @@ default), after which `python3 build.py` and a commit publish it to everyone.
 Each player also has one signature trait on top of the ratings (`src/players/Traits.js`); `node tools/traits.js`
 measures what each is worth.
 
+How the strokes are built, each player's form and before/after pose sheets: **[docs/motion](docs/motion/README.md)**.
+
 ## Layout
 
 One class per file, grouped by what it is about. `src/manifest.json` sets the build order.
