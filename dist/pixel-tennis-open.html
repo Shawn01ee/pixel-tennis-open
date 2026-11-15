@@ -73,6 +73,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .prompt .bar{height:10px;margin-top:5px;background:var(--deep);position:relative}.prompt .bar i{display:block;height:100%;width:100%;background:var(--ball);transform-origin:left}
 .prompt .bar u{position:absolute;top:-2px;bottom:-2px;box-sizing:border-box;pointer-events:none}
 #promptGood{background:#7bd88f55;border:1px solid #7bd88f}#promptZone{background:#3ddc6caa;border:2px solid #eafff0}
+.prompt.chal{pointer-events:auto;cursor:pointer;box-shadow:inset 0 0 0 2px var(--coral),3px 3px 0 #0009}.prompt.chal #promptT{color:var(--coral)}
 .prompt.serve{box-shadow:inset 0 0 0 2px var(--ball),3px 3px 0 #0009}.prompt.serve #promptT{color:var(--ball)}
 #slowfx{position:fixed;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 0 6px #7bb8ea55,inset 0 0 90px #101a3acc}
 
@@ -229,7 +230,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div id="bub" class="bub" hidden></div>
 <div class="tagf" id="tag0" hidden></div><div class="tagf" id="tag1" hidden></div><div class="tagf cue" id="tagS" hidden></div>
 <div class="call" id="call" hidden></div>
-<section id="elc" class="panel elc" hidden aria-live="polite"><h2>BALL TRACKING</h2><canvas id="elcC" width="216" height="110"></canvas><div id="elcV"></div></section>
+<section id="elc" class="panel elc" hidden aria-live="polite"><h2>CHALLENGE · BALL MARK</h2><canvas id="elcC" width="216" height="110"></canvas><div id="elcV"></div></section>
 
 <div class="overlay" id="setup">
   <div class="card">
@@ -937,7 +938,7 @@ class ShotPlanner{
 // what the person at the screen wants from their player. Movement and timing stay automatic.
 const SLOWMO=.25;
 class HumanControl{
-  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.shotAt=null;this.target=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;}
+  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.shotAt=null;this.target=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;this.challenge=null;}
   is(P){return!!P&&P.idx===this.idx;}
   manual(P){return this.is(P)&&!this.auto;}
   clear(){this.shot=null;this.target=null;this.zone=null;this.serveType=null;}
@@ -1048,7 +1049,8 @@ class Match{
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
     this.rallyLen=0;this.lastTac='';this.kmh=0;this.serveLabel='';this.bubble=null;this.cue=null;this.status='';this.stage='walkon';
     this.mood=new CrowdMood(this);this.how=null;this.wave=-99;this.score=null;this.big=null;this.result=null;this.longest=0;this.matchNo=0;
-    this.stats={shots:0,rallies:0,rallyShots:0,whiff:0,lets:0,points:0,cords:0,tac:{}};
+    this.stats={shots:0,rallies:0,rallyShots:0,whiff:0,lets:0,points:0,cords:0,wrongCalls:0,challenges:0,overturned:0,tac:{}};
+    this.lastCall=null;for(const P of this.players)P.chal=Match.LINE.challenges;
     this.spawn(this.director());
   }
   get surface(){return this.physics.surface;}
@@ -1145,14 +1147,16 @@ class Match{
     this.big=sc.bigPoint();if(this.big)this.ev('bigPoint',this.big);
     for(;;){
       yield* this.ready(no);
-      const r=yield* this.servePoint(no);
+      const r0=yield* this.servePoint(no);
       this.live=false;this.cue=null;this.control.decide=null;
-      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?'Fault':'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:'Let',strong:true});}
       if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.spawn(this.fetch(this.ball));this.ball=null;}
       for(const P of this.players)P.resetRally();
-      if(r.replay){this.stats.lets++;yield* this.wait(1.2);continue;}
+      const r=yield* this.review(r0);
+      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?(r.net?'Net':'Fault'):'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':'Let',strong:true});}
+      // the line call ("Fault!", "Net!", "Let!") has been made; the chair only says which serve comes next
+      if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.say(no===1?'First serve.':'Second serve.','ump',1.6);}yield* this.wait(1.2);continue;}
       if(r.fault){
-        if(no===1){this.say(r.call||'Fault.');no=2;yield* this.wait(1.1);continue;}
+        if(no===1){this.say('Second serve.','ump',1.6);no=2;yield* this.wait(1.1);continue;}
         sc.srv.ms.df++;this.how={kind:'df',by:sc.srv.idx};this.say('Double fault.');this.note(`Double fault from ${sc.srv.short}.`);w=1-sc.server;yield* this.wait(1.0);break;
       }
       w=r.w;break;
@@ -1167,6 +1171,7 @@ class Match{
     this.longest=Math.max(this.longest,n);
     this.mood.point(winner,loser,this.how||{kind:'error',by:loser.idx},n,this.big);
     const bp=this.big,ev=sc.point(w);
+    if(ev.setOver)for(const P of this.players)P.chal=Match.LINE.challenges;
     this.ev('scored',{w,result:ev.type,was:bp});
     yield* this.wait(.9);
     if(ev.call)this.say(ev.call,'ump',3.2);
@@ -1274,7 +1279,7 @@ class Match{
     // percentages stay human; off the ground it narrows direction and depth
     const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
-    b.launch(v,el,az,rpm,side,gyro);
+    b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
     this.kmh=Math.round(v*3.6);this.serveLabel=no===1?'1st':'2nd';this.serveKind=S.name;
@@ -1339,25 +1344,72 @@ class Match{
     if(b.bc>=1&&sgn(b.lbz)!==H.s){if(this.isServe)this.ace();else this.won(H);this.rec();return{w:hi};}
     this.lost(H);this.rec();return{w:1-hi};
   }
-  // electronic line calling: every bounce is measured; the close ones are shown
+  // Line calls. A ball that fails to cross is called "Net", one that lands outside "Out" (or "Fault" on serve).
+  // The line judges are human: within a few centimetres of a line they sometimes get it wrong, and the player the
+  // call went against may challenge it. The ball mark then settles it.
+  static LINE={near:.04,miss:.45,ask:.15,time:3.2,eye:.02,sure:.008,challenges:3};
+  *wantsReview(P,c){
+    const C=this.control,J=Match.LINE;
+    if(Math.abs(c.m)>J.ask)return false;
+    if(C.manual(P)){
+      C.challenge={t0:this.t,until:this.t+J.time,out:c.out,left:P.chal,go:false};this.ev('serveWait',{});
+      while(this.t<C.challenge.until&&!C.challenge.go)yield;
+      const go=C.challenge.go;C.challenge=null;return go;
+    }
+    // the others go by what they think they saw
+    const seen=c.m+N(J.eye);return(c.out?seen>J.sure:seen<-J.sure)&&R()<.85;
+  }
+  *review(r){
+    const c=this.lastCall;this.lastCall=null;
+    if(!c||r.replay||r.net)return r;
+    if(c.out?!(r.fault||r.w===1-c.by):r.w!==c.by)return r;
+    const P=this.players[c.out?c.by:1-c.by],H=this.players[c.by];
+    if(P.chal<=0||!(yield* this.wantsReview(P,c)))return r;
+    this.stats.challenges++;this.ev('tag',{who:P.idx,text:'Challenge',strong:true});
+    this.say(`${P.short} challenges the call. The ball was called ${c.out?'out':'in'}.`,'ump',3.4);
+    this.note(`${P.short} challenges the ${c.out?'out':'in'} call.`);
+    yield* this.wait(3.2);
+    this.ev('replay',c);this.mood.emit('ooh',.6);
+    yield* this.wait(2.0);
+    if((c.m<0)===c.out){
+      P.chal--;this.say(`The call stands. ${P.short} has ${P.chal} challenge${P.chal===1?'':'s'} remaining.`,'ump',3.4);
+      this.note(`The call stands: ${c.out?'out':'in'}.`);yield* this.wait(3.0);return r;
+    }
+    this.stats.overturned++;
+    if(c.out){                // called out, but it caught the line
+      if(!c.serve){H.ms.ue--;this.stats.rallies--;this.stats.rallyShots-=this.rallyLen;}
+      this.say('The ball was in. Replay the point. First serve.','ump',3.2);this.note('Overturned: the ball was in. Replay the point.');
+      yield* this.wait(2.8);return{replay:true,first:true};
+    }
+    this.stats.rallies--;this.stats.rallyShots-=this.rallyLen;
+    if(c.serve){             // an ace that was long or wide after all
+      H.ms.aces--;if(this.serveNo===1)H.ms.sv1in--;
+      this.say('The ball was out.','ump',2);this.note('Overturned: the serve was out.');yield* this.wait(1.8);return{fault:true};
+    }
+    H.ms.win--;H.ms.ue++;this.rec();this.how={kind:'error',by:H.idx};
+    this.say(`The ball was out. Point, ${P.short}.`,'ump',2.6);this.note(`Overturned: the ball was out. Point to ${P.short}.`);
+    yield* this.wait(2.2);return{w:P.idx};
+  }
   judge(b){
     const H=this.hitter,hi=H.idx;
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        if(this.isServe)return{fault:true,call:'Net.'};this.rec();this.lost(H,true);return{w:1-hi};
+        this.ev('call',{text:'NET',x:b.lbx,z:0});
+        if(this.isServe)return{fault:true,net:true};this.rec();this.lost(H,true);return{w:1-hi};
       }
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
       if(Math.abs(m)<.045)this.mood.closeCall(m);
-      if(Math.abs(m)<.045)this.ev('replay',{x:b.lbx,z:b.lbz,m,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)});
-      if(m<0){
+      const J=Match.LINE,wrong=Math.abs(m)<J.near&&R()<J.miss*(1-Math.abs(m)/J.near),out=(m<0)!==wrong;if(wrong)this.stats.wrongCalls++;
+      this.lastCall={m,out,by:hi,x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)};
+      if(out){
         this.ev('call',{text:this.isServe?'FAULT':'OUT',x:b.lbx,z:b.lbz});
         if(this.isServe)return{fault:true};
         this.lost(H);this.rec();return{w:1-hi};
       }
       if(this.isServe){
-        if(b.net){this.say('Let.','ump',1.4);this.ev('call',{text:'LET',x:b.lbx,z:b.lbz});return{replay:true};}
+        if(b.net){this.lastCall=null;this.ev('call',{text:'LET',x:b.lbx,z:b.lbz});return{replay:true};}
         if(this.serveNo===1)H.ms.sv1in++;
       }
       return null;
@@ -1386,6 +1438,7 @@ class Match{
     if(human)C.decide=null;
     const off=hyp(P.x-p.rx,P.z-p.rz),miss=hyp(b.x-p.x,b.y-p.y,b.z-p.z);
     if(off>.62||miss>.6){this.stats.whiff++;return;}
+    this.lastCall=null;       // played on: the call on the ball before can no longer be questioned
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
@@ -2901,7 +2954,10 @@ class Announcer{
     this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;};
     try{
       if(speechSynthesis.paused)speechSynthesis.resume();
-      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();setTimeout(()=>speechSynthesis.speak(u),80);}
+      // a line call cuts in over whatever is being said; anything said in the same moment waits its turn behind it
+      const now=Date.now();let d=Math.max(0,(this.hold||0)-now);
+      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();d=Math.max(d,80);}
+      if(d>0){this.hold=now+d+20;setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){}},d);}
       else speechSynthesis.speak(u);
     }catch(e){}
   }
@@ -3013,7 +3069,7 @@ class ReplayInset{
     g.fillStyle='#dcae2c';g.beginPath();g.ellipse(mx,h/2,hw*.55,hw*1.6,.1,0,TAU);g.fill();
     const mm=Math.max(1,Math.round(Math.abs(e.m)*1000));
     $('elcV').textContent=e.m>=0?(e.m<.012?'IN · touches the line':`IN · ${mm} mm inside`):`OUT · ${mm} mm`;$('elcV').className=e.m>=0?'good':'bad';
-    $('elc').hidden=false;this.until=t+2.8;
+    $('elc').hidden=false;this.until=t+4.2;
   }
   update(t){if(t>this.until)$('elc').hidden=true;}
 }
@@ -3023,17 +3079,19 @@ class ReplayInset{
 class DecisionPrompt{
   constructor(){this.key='';}
   update(m){
-    const C=m.control,el=$('prompt'),H=m.human;let show=false,title='',sub='',frac=1,serve=false;
+    const C=m.control,el=$('prompt'),H=m.human;let show=false,title='',sub='',frac=1,serve=false,chal=false;
     if(H&&C.serveWait&&!C.auto){show=true;serve=true;title='YOUR SERVE';
       const tp=C.serveType?SERVES[C.serveType].name:(C.serveWait.no===1?'Flat':'Kick');
       sub=`${tp} · press 1 Wide · 2 Body · 3 T, or click the box`;frac=1-(m.t-C.serveWait.t0)/15;}
+    else if(H&&C.challenge){show=true;serve=true;chal=true;const q=C.challenge;title='CHALLENGE?';
+      sub=`Called ${q.out?'OUT':'IN'} · press C or tap here · ${q.left} left`;frac=clamp((q.until-m.t)/(q.until-q.t0),0,1);}
     else if(H&&C.decide&&!C.auto){show=true;const d=C.decide;title=`YOUR SHOT · ${(WING[d.kind==='ground'?d.wing:d.kind]||'').toUpperCase()}`;
       const sh=C.shot?SHOT_KEYS.find(s=>s[0]===C.shot)[1]:null;
       sub=C.target?(sh?`${sh} · aimed`:'Aimed · press the shot key as the ball arrives'):sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
       frac=clamp((d.tc-m.t)/Math.max(.2,d.tc-d.t0),0,1);}
     el.hidden=!show;$('slowfx').hidden=!(show&&!serve&&!C.target);
     if(!show)return;
-    el.classList.toggle('serve',serve);
+    el.classList.toggle('serve',serve);el.classList.toggle('chal',chal);
     const k=title+sub;if(k!==this.key){this.key=k;$('promptT').textContent=title;$('promptS').textContent=sub;}
     $('promptBar').style.transform=`scaleX(${frac.toFixed(3)})`;
     // the timing zones: the bar's end is the time left before contact; press the shot key while it is in the
@@ -3272,6 +3330,7 @@ class Input{
       const m=g.match,serving=g.dock.serving(m);
       const shot=SHOT_KEYS.find(s=>s[3]===c),srv=SERVE_KEYS.find(s=>s[3]===c),zn=ZONE_KEYS.find(s=>s[2]===c||'Numpad'+s[3]===c);
       if(c==='Space')g.toggleAuto();
+      else if(c==='KeyC')g.challenge();
       else if(c==='KeyX')g.toggleFast();
       else if(c==='KeyP'||c==='Escape')g.togglePause();
       else if(c==='KeyM')g.toggleSound();
@@ -3304,7 +3363,7 @@ class Game{
     this.B=new Parts(R.mats.lit);R.root.add(this.B.group);
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
-    this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();
+    this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
@@ -3348,6 +3407,7 @@ class Game{
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
     if(m.aimAt(p.x,p.z)){if(this.sound.live)this.sound.sfx.click();this.dock.update(m);}
     else if(m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
+  challenge(){const q=this.match.control.challenge;if(q)q.go=true;}
   toggleAuto(){const m=this.match;if(!m.human)return;m.setAuto(!m.control.auto);this.say(m.control.auto?'Auto on: your player picks every shot.':'Auto off: you pick the shot and the spot.');this.dock.update(m);}
   toggleFast(){this.speed=this.speed===3?1:3;this.dock.update(this.match);}
   togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}

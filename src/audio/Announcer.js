@@ -32,7 +32,10 @@ class Announcer{
     this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;};
     try{
       if(speechSynthesis.paused)speechSynthesis.resume();
-      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();setTimeout(()=>speechSynthesis.speak(u),80);}
+      // a line call cuts in over whatever is being said; anything said in the same moment waits its turn behind it
+      const now=Date.now();let d=Math.max(0,(this.hold||0)-now);
+      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();d=Math.max(d,80);}
+      if(d>0){this.hold=now+d+20;setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){}},d);}
       else speechSynthesis.speak(u);
     }catch(e){}
   }

@@ -8,7 +8,7 @@ class Game{
     this.B=new Parts(R.mats.lit);R.root.add(this.B.group);
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
-    this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();
+    this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
@@ -52,6 +52,7 @@ class Game{
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
     if(m.aimAt(p.x,p.z)){if(this.sound.live)this.sound.sfx.click();this.dock.update(m);}
     else if(m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
+  challenge(){const q=this.match.control.challenge;if(q)q.go=true;}
   toggleAuto(){const m=this.match;if(!m.human)return;m.setAuto(!m.control.auto);this.say(m.control.auto?'Auto on: your player picks every shot.':'Auto off: you pick the shot and the spot.');this.dock.update(m);}
   toggleFast(){this.speed=this.speed===3?1:3;this.dock.update(this.match);}
   togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}

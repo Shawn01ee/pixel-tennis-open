@@ -24,6 +24,7 @@ needs a network connection. Pick your player and opponent, then press **Walk out
 | Click on the court | Where the shot goes |
 | Timing | Press the shot key as the ball arrives: *Perfect* and *Good* timing are more accurate and a little faster; too late is a mishit |
 | Space | Auto on or off |
+| C | Challenge a close line call (3 wrong challenges per set) |
 | X | Game speed |
 | V | Next camera view (Follow, Court, Behind, Stadium) |
 

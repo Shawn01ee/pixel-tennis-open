@@ -12,7 +12,7 @@ class ReplayInset{
     g.fillStyle='#dcae2c';g.beginPath();g.ellipse(mx,h/2,hw*.55,hw*1.6,.1,0,TAU);g.fill();
     const mm=Math.max(1,Math.round(Math.abs(e.m)*1000));
     $('elcV').textContent=e.m>=0?(e.m<.012?'IN · touches the line':`IN · ${mm} mm inside`):`OUT · ${mm} mm`;$('elcV').className=e.m>=0?'good':'bad';
-    $('elc').hidden=false;this.until=t+2.8;
+    $('elc').hidden=false;this.until=t+4.2;
   }
   update(t){if(t>this.until)$('elc').hidden=true;}
 }

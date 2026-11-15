@@ -21,7 +21,8 @@ class Match{
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
     this.rallyLen=0;this.lastTac='';this.kmh=0;this.serveLabel='';this.bubble=null;this.cue=null;this.status='';this.stage='walkon';
     this.mood=new CrowdMood(this);this.how=null;this.wave=-99;this.score=null;this.big=null;this.result=null;this.longest=0;this.matchNo=0;
-    this.stats={shots:0,rallies:0,rallyShots:0,whiff:0,lets:0,points:0,cords:0,tac:{}};
+    this.stats={shots:0,rallies:0,rallyShots:0,whiff:0,lets:0,points:0,cords:0,wrongCalls:0,challenges:0,overturned:0,tac:{}};
+    this.lastCall=null;for(const P of this.players)P.chal=Match.LINE.challenges;
     this.spawn(this.director());
   }
   get surface(){return this.physics.surface;}
@@ -118,14 +119,16 @@ class Match{
     this.big=sc.bigPoint();if(this.big)this.ev('bigPoint',this.big);
     for(;;){
       yield* this.ready(no);
-      const r=yield* this.servePoint(no);
+      const r0=yield* this.servePoint(no);
       this.live=false;this.cue=null;this.control.decide=null;
-      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?'Fault':'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:'Let',strong:true});}
       if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.spawn(this.fetch(this.ball));this.ball=null;}
       for(const P of this.players)P.resetRally();
-      if(r.replay){this.stats.lets++;yield* this.wait(1.2);continue;}
+      const r=yield* this.review(r0);
+      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?(r.net?'Net':'Fault'):'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':'Let',strong:true});}
+      // the line call ("Fault!", "Net!", "Let!") has been made; the chair only says which serve comes next
+      if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.say(no===1?'First serve.':'Second serve.','ump',1.6);}yield* this.wait(1.2);continue;}
       if(r.fault){
-        if(no===1){this.say(r.call||'Fault.');no=2;yield* this.wait(1.1);continue;}
+        if(no===1){this.say('Second serve.','ump',1.6);no=2;yield* this.wait(1.1);continue;}
         sc.srv.ms.df++;this.how={kind:'df',by:sc.srv.idx};this.say('Double fault.');this.note(`Double fault from ${sc.srv.short}.`);w=1-sc.server;yield* this.wait(1.0);break;
       }
       w=r.w;break;
@@ -140,6 +143,7 @@ class Match{
     this.longest=Math.max(this.longest,n);
     this.mood.point(winner,loser,this.how||{kind:'error',by:loser.idx},n,this.big);
     const bp=this.big,ev=sc.point(w);
+    if(ev.setOver)for(const P of this.players)P.chal=Match.LINE.challenges;
     this.ev('scored',{w,result:ev.type,was:bp});
     yield* this.wait(.9);
     if(ev.call)this.say(ev.call,'ump',3.2);
@@ -247,7 +251,7 @@ class Match{
     // percentages stay human; off the ground it narrows direction and depth
     const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
-    b.launch(v,el,az,rpm,side,gyro);
+    b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
     this.kmh=Math.round(v*3.6);this.serveLabel=no===1?'1st':'2nd';this.serveKind=S.name;
@@ -312,25 +316,72 @@ class Match{
     if(b.bc>=1&&sgn(b.lbz)!==H.s){if(this.isServe)this.ace();else this.won(H);this.rec();return{w:hi};}
     this.lost(H);this.rec();return{w:1-hi};
   }
-  // electronic line calling: every bounce is measured; the close ones are shown
+  // Line calls. A ball that fails to cross is called "Net", one that lands outside "Out" (or "Fault" on serve).
+  // The line judges are human: within a few centimetres of a line they sometimes get it wrong, and the player the
+  // call went against may challenge it. The ball mark then settles it.
+  static LINE={near:.04,miss:.45,ask:.15,time:3.2,eye:.02,sure:.008,challenges:3};
+  *wantsReview(P,c){
+    const C=this.control,J=Match.LINE;
+    if(Math.abs(c.m)>J.ask)return false;
+    if(C.manual(P)){
+      C.challenge={t0:this.t,until:this.t+J.time,out:c.out,left:P.chal,go:false};this.ev('serveWait',{});
+      while(this.t<C.challenge.until&&!C.challenge.go)yield;
+      const go=C.challenge.go;C.challenge=null;return go;
+    }
+    // the others go by what they think they saw
+    const seen=c.m+N(J.eye);return(c.out?seen>J.sure:seen<-J.sure)&&R()<.85;
+  }
+  *review(r){
+    const c=this.lastCall;this.lastCall=null;
+    if(!c||r.replay||r.net)return r;
+    if(c.out?!(r.fault||r.w===1-c.by):r.w!==c.by)return r;
+    const P=this.players[c.out?c.by:1-c.by],H=this.players[c.by];
+    if(P.chal<=0||!(yield* this.wantsReview(P,c)))return r;
+    this.stats.challenges++;this.ev('tag',{who:P.idx,text:'Challenge',strong:true});
+    this.say(`${P.short} challenges the call. The ball was called ${c.out?'out':'in'}.`,'ump',3.4);
+    this.note(`${P.short} challenges the ${c.out?'out':'in'} call.`);
+    yield* this.wait(3.2);
+    this.ev('replay',c);this.mood.emit('ooh',.6);
+    yield* this.wait(2.0);
+    if((c.m<0)===c.out){
+      P.chal--;this.say(`The call stands. ${P.short} has ${P.chal} challenge${P.chal===1?'':'s'} remaining.`,'ump',3.4);
+      this.note(`The call stands: ${c.out?'out':'in'}.`);yield* this.wait(3.0);return r;
+    }
+    this.stats.overturned++;
+    if(c.out){                // called out, but it caught the line
+      if(!c.serve){H.ms.ue--;this.stats.rallies--;this.stats.rallyShots-=this.rallyLen;}
+      this.say('The ball was in. Replay the point. First serve.','ump',3.2);this.note('Overturned: the ball was in. Replay the point.');
+      yield* this.wait(2.8);return{replay:true,first:true};
+    }
+    this.stats.rallies--;this.stats.rallyShots-=this.rallyLen;
+    if(c.serve){             // an ace that was long or wide after all
+      H.ms.aces--;if(this.serveNo===1)H.ms.sv1in--;
+      this.say('The ball was out.','ump',2);this.note('Overturned: the serve was out.');yield* this.wait(1.8);return{fault:true};
+    }
+    H.ms.win--;H.ms.ue++;this.rec();this.how={kind:'error',by:H.idx};
+    this.say(`The ball was out. Point, ${P.short}.`,'ump',2.6);this.note(`Overturned: the ball was out. Point to ${P.short}.`);
+    yield* this.wait(2.2);return{w:P.idx};
+  }
   judge(b){
     const H=this.hitter,hi=H.idx;
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        if(this.isServe)return{fault:true,call:'Net.'};this.rec();this.lost(H,true);return{w:1-hi};
+        this.ev('call',{text:'NET',x:b.lbx,z:0});
+        if(this.isServe)return{fault:true,net:true};this.rec();this.lost(H,true);return{w:1-hi};
       }
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
       if(Math.abs(m)<.045)this.mood.closeCall(m);
-      if(Math.abs(m)<.045)this.ev('replay',{x:b.lbx,z:b.lbz,m,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)});
-      if(m<0){
+      const J=Match.LINE,wrong=Math.abs(m)<J.near&&R()<J.miss*(1-Math.abs(m)/J.near),out=(m<0)!==wrong;if(wrong)this.stats.wrongCalls++;
+      this.lastCall={m,out,by:hi,x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)};
+      if(out){
         this.ev('call',{text:this.isServe?'FAULT':'OUT',x:b.lbx,z:b.lbz});
         if(this.isServe)return{fault:true};
         this.lost(H);this.rec();return{w:1-hi};
       }
       if(this.isServe){
-        if(b.net){this.say('Let.','ump',1.4);this.ev('call',{text:'LET',x:b.lbx,z:b.lbz});return{replay:true};}
+        if(b.net){this.lastCall=null;this.ev('call',{text:'LET',x:b.lbx,z:b.lbz});return{replay:true};}
         if(this.serveNo===1)H.ms.sv1in++;
       }
       return null;
@@ -359,6 +410,7 @@ class Match{
     if(human)C.decide=null;
     const off=hyp(P.x-p.rx,P.z-p.rz),miss=hyp(b.x-p.x,b.y-p.y,b.z-p.z);
     if(off>.62||miss>.6){this.stats.whiff++;return;}
+    this.lastCall=null;       // played on: the call on the ball before can no longer be questioned
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}

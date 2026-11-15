@@ -73,6 +73,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .prompt .bar{height:10px;margin-top:5px;background:var(--deep);position:relative}.prompt .bar i{display:block;height:100%;width:100%;background:var(--ball);transform-origin:left}
 .prompt .bar u{position:absolute;top:-2px;bottom:-2px;box-sizing:border-box;pointer-events:none}
 #promptGood{background:#7bd88f55;border:1px solid #7bd88f}#promptZone{background:#3ddc6caa;border:2px solid #eafff0}
+.prompt.chal{pointer-events:auto;cursor:pointer;box-shadow:inset 0 0 0 2px var(--coral),3px 3px 0 #0009}.prompt.chal #promptT{color:var(--coral)}
 .prompt.serve{box-shadow:inset 0 0 0 2px var(--ball),3px 3px 0 #0009}.prompt.serve #promptT{color:var(--ball)}
 #slowfx{position:fixed;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 0 6px #7bb8ea55,inset 0 0 90px #101a3acc}
 
@@ -229,7 +230,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div id="bub" class="bub" hidden></div>
 <div class="tagf" id="tag0" hidden></div><div class="tagf" id="tag1" hidden></div><div class="tagf cue" id="tagS" hidden></div>
 <div class="call" id="call" hidden></div>
-<section id="elc" class="panel elc" hidden aria-live="polite"><h2>BALL TRACKING</h2><canvas id="elcC" width="216" height="110"></canvas><div id="elcV"></div></section>
+<section id="elc" class="panel elc" hidden aria-live="polite"><h2>CHALLENGE · BALL MARK</h2><canvas id="elcC" width="216" height="110"></canvas><div id="elcV"></div></section>
 
 <div class="overlay" id="setup">
   <div class="card">

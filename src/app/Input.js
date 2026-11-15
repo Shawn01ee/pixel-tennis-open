@@ -10,6 +10,7 @@ class Input{
       const m=g.match,serving=g.dock.serving(m);
       const shot=SHOT_KEYS.find(s=>s[3]===c),srv=SERVE_KEYS.find(s=>s[3]===c),zn=ZONE_KEYS.find(s=>s[2]===c||'Numpad'+s[3]===c);
       if(c==='Space')g.toggleAuto();
+      else if(c==='KeyC')g.challenge();
       else if(c==='KeyX')g.toggleFast();
       else if(c==='KeyP'||c==='Escape')g.togglePause();
       else if(c==='KeyM')g.toggleSound();
