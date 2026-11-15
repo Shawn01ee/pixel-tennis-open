@@ -128,9 +128,9 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .meta{color:var(--mute);font-size:17px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{color:var(--ball)}
 .bars{display:grid;grid-template-columns:62px 1fr 26px;gap:3px 6px;align-items:center;font-size:16px;color:var(--mute);margin-bottom:9px}
 .bars i{display:block;height:8px;background:var(--deep)}.bars i u{display:block;height:100%;background:var(--sky)}.bars em{font-style:normal;color:var(--chalk);text-align:right}
-.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.picks{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .picks button{min-height:34px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;overflow:hidden}
-.picks .face{width:39px;height:45px}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
+.picks .face{width:33px;height:38px}.picks button.lg{border-bottom-color:var(--ball)}.picks button.lg span{color:var(--ball)}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
 .picks button b{width:6px;height:16px;flex:none}.picks button span{overflow:hidden;text-overflow:ellipsis}
 .picks button:disabled{opacity:.35;cursor:not-allowed}
 .opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
@@ -253,7 +253,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
       <section class="side" id="sideA"></section>
       <div class="vs">VS</div>
       <section class="side" id="sideB"></section>
-      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players, three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
+      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players — yours and seven drawn from the field, legends included. Three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
     </div>
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
@@ -636,12 +636,14 @@ class PlayerProfile{
   get overall(){const r=this.ratings;return Math.round((r.serve*1.2+r.power*1.1+r.speed+r.spin*.8+r.control*1.3+r.accuracy*1.2+r.touch*.6)/7.2);}
 }
 
-// roster — the eight players in the field, scaled from the real players' measurable game
+// roster — the players: eight of today's field and five legends, scaled from the real players' measurable game
+// rank: one ranking across both eras; a tournament seeds its eight players by it
 // h: height in metres (the figure is drawn to it); hand: 1 right, −1 left
 // v m/s top speed, a m/s² acceleration; s1/s2: average first and second serve in m/s (54 m/s ≈ 195 km/h)
 // power: ball speed off the ground; spin: forehand topspin in rpm; err: error scale (lower is steadier); aggr: risk taking
 // acc: placement spread (lower lands closer to where it was aimed; 1 is tour average)
 // net/drop/lob/slice: how often they choose it; deep: how far back they stand to return; sv: serve-and-volley rate
+// kick: topspin on the second serve in rpm, when it is not simply what the forehand spin implies
 // trait: the player's signature (see Traits.js) — not shown among the ratings
 // ohb: one-handed backhand
 // face: what the portrait is assembled from (see ui/Portrait.js)
@@ -658,12 +660,23 @@ const ROSTER=[
   look:{shirt:WHITE,shorts:INK,skin:SKIN.tan,hair:0x4a3020,band:WHITE,racket:INK},style:'Attacks early, slice and net play'},
  {name:'Jannik Sinner',short:'Sinner',face:{hair:'curly',brow:1,shape:'long',beard:'none',freckles:true,eye:0x5a7a8a},trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
   look:{shirt:0xf4d44a,shorts:INK,skin:SKIN.fair,hair:0xc8602a,band:null,racket:WHITE},style:'Hardest clean hitting off both wings'},
- {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.82,cc:'RUS',rank:7,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
+ {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.82,cc:'RUS',rank:11,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
   look:{shirt:0x2a8088,shorts:WHITE,skin:SKIN.fair,hair:0x9a7a54,band:null,racket:0x3166b4},style:'Flat wall from far behind the baseline'},
- {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:1.1,cc:'GER',rank:6,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
+ {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:1.1,cc:'GER',rank:10,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
   look:{shirt:0xdc4a3c,shorts:INK,skin:SKIN.olive,hair:0xd8b060,band:WHITE,racket:INK},style:'Huge first serve, rock-solid backhand'},
- {name:'Alex de Minaur',short:'de Minaur',face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:8,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
+ {name:'Alex de Minaur',short:'de Minaur',face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:13,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
   look:{shirt:0x7bb8ea,shorts:0x101a3a,skin:SKIN.olive,hair:0x3a2418,band:null,racket:0xf0664a},style:'Home favourite, fastest man on tour'},
+ // ── legends: each at the level of their best years ──
+ {name:'Pete Sampras',short:'Sampras',legend:true,face:{hair:'curly',brow:2,shape:'oval',beard:'none'},trait:'serveVolley',acc:0.78,cc:'USA',rank:6,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.08,spin:2300,err:.82,aggr:.7,net:.7,drop:.2,lob:.2,slice:.6,deep:.3,s1:56.5,s2:41.5,kick:3400,sv:.8,bounces:3,
+  look:{shirt:WHITE,shorts:WHITE,skin:SKIN.olive,hair:0x1c1410,band:null,racket:INK},style:'Serve and volley, the best second serve ever'},
+ {name:'Björn Borg',short:'Borg',legend:true,face:{hair:'long',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'iceman',acc:0.78,cc:'SWE',rank:8,hand:1,h:1.80,v:7.2,a:14.5,power:.98,spin:2900,err:.72,aggr:.35,net:.3,drop:.2,lob:.5,slice:.25,deep:.9,s1:51,s2:39.5,sv:.15,bounces:4,
+  look:{shirt:WHITE,shorts:0x24386e,skin:SKIN.tan,hair:0xd8b866,band:0xdc4a3c,racket:0x8a5a2c},style:'Ice-cool baseliner, topspin before its time'},
+ {name:'Andre Agassi',short:'Agassi',legend:true,face:{hair:'bald',brow:2,shape:'oval',beard:'stubble'},trait:'earlyBall',acc:0.68,cc:'USA',rank:7,hand:1,h:1.80,v:6.9,a:14,power:1.1,spin:2500,err:.8,aggr:.7,net:.15,drop:.25,lob:.3,slice:.15,deep:.1,s1:52,s2:40,sv:0,bounces:3,
+  look:{shirt:0x2b2f44,shorts:WHITE,skin:SKIN.tan,hair:0x5a4636,band:null,racket:0xdc4a3c},style:'Takes the ball early, punishing returns'},
+ {name:'Andy Murray',short:'Murray',legend:true,face:{hair:'wavy',brow:2,shape:'long',beard:'stubble'},trait:'lobAndPass',acc:0.74,cc:'GBR',rank:9,hand:1,h:1.91,v:7.1,a:14,power:1.02,spin:2500,err:.76,aggr:.38,net:.3,drop:.45,lob:.75,slice:.55,deep:.6,s1:54,s2:37.5,sv:.03,bounces:4,
+  look:{shirt:0x4a5a70,shorts:INK,skin:SKIN.fair,hair:0x4a3222,band:null,racket:INK},style:'Defends everything, lobs and passes at will'},
+ {name:'John McEnroe',short:'McEnroe',legend:true,face:{hair:'curly',brow:1,shape:'oval',beard:'none'},trait:'softHands',acc:0.66,cc:'USA',rank:12,hand:-1,h:1.80,v:7.0,a:14,power:.96,spin:1700,err:.82,aggr:.75,net:.85,drop:.6,lob:.3,slice:.7,deep:.2,s1:50,s2:39,kick:3100,sv:.85,bounces:2,
+  look:{shirt:0x1f2f6a,shorts:WHITE,skin:SKIN.fair,hair:0x5a3a22,band:0xdc4a3c,racket:0x8a5a2c},style:'Lefty serve-and-volley, the softest hands'},
 ].map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
 
 // Difficulty — how well the opponent uses what the computer players have learned
@@ -785,7 +798,7 @@ class Player extends Agent{
 }
 
 // learned — tactic values from self-play; written by tools/train.js, do not edit by hand
-const LEARNED={"Nadal":{"serve1r":{"t":0.288,"wide":0.357,"body":0.469},"serve1l":{"t":0.301,"body":0.539,"wide":0.496},"rallyfh":{"cross":0.769,"drop":-0.629,"line":-0.249,"angle":0.63,"slice":-0.168},"rallybh":{"line":0.074,"cross":0.458,"drop":-0.539,"angle":0.294,"slice":-0.318},"stretch":{"safe":-0.658,"slice":-0.672,"lob":-0.922},"pass":{"passcross":0.931,"lob":0.377,"passline":0.643},"return1":{"cross":-0.411,"safe":-0.091,"line":-0.755,"lob":-0.055,"slice":-0.303},"return2":{"safe":0.067,"cross":-0.212,"line":-0.654,"slice":-0.569,"lob":-0.183},"short":{"cross":0.822,"approach":-0.223,"line":0.337,"angle":0.921,"drop":0.258},"serve2l":{"t":0.184,"wide":0.22,"body":0.38},"serve2r":{"t":0.085,"wide":-0.166,"body":0.003}},"Djokovic":{"stretch":{"slice":-0.649,"safe":-0.451,"lob":-0.512},"return1":{"safe":0.193,"line":-0.578,"cross":0.079,"lob":-0.1,"slice":-0.371},"pass":{"passline":0.876,"passcross":0.999,"lob":0.383},"rallybh":{"angle":0.37,"line":-0.104,"cross":0.838,"drop":-0.59,"slice":-0.119},"short":{"angle":0.899,"line":0.548,"cross":0.946,"approach":-0.259,"drop":0.042},"rallyfh":{"line":-0.058,"cross":0.654,"drop":-0.627,"angle":0.322,"slice":-0.098},"serve1r":{"body":0.447,"wide":0.76,"t":0.223},"serve2l":{"t":-0.091,"wide":-0.06,"body":0.345},"serve1l":{"t":0.444,"wide":0.394,"body":0.371},"serve2r":{"body":0.144,"t":0.32,"wide":-0.053},"return2":{"cross":0.251,"safe":0.158,"slice":-0.483,"line":-0.397,"lob":-0.067}},"Alcaraz":{"serve1r":{"t":0.502,"wide":0.467,"body":0.096},"rallybh":{"cross":0.755,"drop":0.809,"line":-0.025,"angle":0.968,"slice":0.118},"serve2l":{"wide":0.311,"body":0.034,"t":-0.12},"serve1l":{"t":0.282,"body":0.349,"wide":0.453},"stretch":{"slice":-0.52,"safe":-0.484,"lob":-0.649},"short":{"line":0.749,"drop":0.998,"approach":-0.139,"angle":0.997,"cross":0.564},"rallyfh":{"line":0.224,"cross":0.689,"angle":0.835,"drop":0.368,"slice":0.24},"serve2r":{"t":-0.031,"wide":0.181,"body":0.418},"pass":{"passline":0.433,"lob":0.065,"passcross":0.523},"return2":{"line":-0.645,"safe":0.256,"cross":-0.322,"lob":-0.046,"slice":-0.408},"return1":{"line":-0.695,"safe":-0.284,"cross":-0.615,"slice":-0.385,"lob":-0.056}},"Federer":{"stretch":{"slice":-0.681,"safe":-0.377,"lob":-0.704},"rallyfh":{"cross":0.695,"line":-0.125,"drop":-0.539,"angle":0.602,"slice":-0.066},"rallybh":{"slice":-0.123,"angle":0.584,"cross":0.63,"line":0.074,"drop":-0.443},"serve1l":{"wide":0.31,"t":0.251,"body":0.349},"serve1r":{"t":0.297,"body":0.526,"wide":0.562},"serve2l":{"t":-0.069,"wide":0.035,"body":0.316},"return2":{"safe":-0.022,"line":-0.711,"cross":-0.302,"slice":-0.614,"lob":0.085},"serve2r":{"wide":0.627,"t":-0.154,"body":0.346},"short":{"drop":0.434,"line":0.793,"cross":0.96,"approach":0.271,"angle":0.98},"return1":{"safe":-0.427,"cross":-0.596,"line":-0.792,"slice":-0.652,"lob":-0.187},"pass":{"passcross":0.806,"lob":0.211,"passline":0.748}},"Sinner":{"rallyfh":{"cross":0.855,"line":0.264,"angle":0.694,"slice":0.203,"drop":-0.283},"serve1r":{"wide":0.851,"t":0.575,"body":0.334},"serve1l":{"wide":0.655,"t":0.531,"body":0.308},"rallybh":{"slice":0.238,"cross":0.737,"angle":0.826,"line":0.336,"drop":-0.287},"stretch":{"lob":-0.56,"safe":-0.438,"slice":-0.597},"return2":{"cross":-0.251,"safe":-0.012,"lob":-0.022,"line":-0.523,"slice":-0.25},"return1":{"cross":-0.517,"line":-0.704,"safe":-0.428,"lob":-0.041,"slice":-0.221},"serve2l":{"t":0.266,"wide":0.23,"body":0.369},"pass":{"passline":0.543,"passcross":0.773,"lob":0.056},"serve2r":{"body":0.295,"wide":0.365,"t":0.258},"short":{"drop":0.225,"approach":0.002,"angle":0.919,"cross":0.91,"line":0.75}},"Medvedev":{"stretch":{"safe":-0.246,"slice":-0.872,"lob":-0.772},"rallyfh":{"cross":0.133,"line":-0.265,"angle":-0.272,"slice":-0.06,"drop":-0.225},"rallybh":{"line":-0.366,"cross":-0.198,"slice":-0.006,"angle":-0.161,"drop":-0.692},"return2":{"cross":-0.263,"safe":0.047,"line":-0.804,"lob":-0.21,"slice":-0.515},"serve1l":{"t":0.03,"wide":0.56,"body":0.187},"serve1r":{"wide":0.611,"t":0.05,"body":0.231},"serve2r":{"wide":0.073,"body":-0.396,"t":-0.121},"pass":{"passcross":0.731,"passline":0.514,"lob":0.161},"return1":{"cross":-0.384,"safe":-0.295,"line":-0.827,"slice":-0.315,"lob":-0.202},"serve2l":{"t":-0.199,"body":-0.161,"wide":0.065},"short":{"cross":0.786,"angle":0.692,"approach":-0.277,"drop":0.27,"line":-0.103}},"Zverev":{"rallyfh":{"line":-0.538,"cross":-0.047,"angle":-0.354,"slice":-0.309,"drop":-0.463},"serve1r":{"body":-0.135,"wide":0.611,"t":0.011},"serve1l":{"t":0.1,"wide":0.477,"body":0.162},"serve2r":{"body":-0.098,"t":-0.485,"wide":-0.158},"rallybh":{"cross":0.323,"line":-0.67,"slice":-0.674,"angle":-0.016,"drop":-0.406},"stretch":{"slice":-0.947,"safe":-0.841,"lob":-0.893},"serve2l":{"body":0.152,"wide":-0.515,"t":-0.338},"pass":{"lob":-0.409,"passcross":-0.105,"passline":-0.067},"short":{"approach":-0.181,"drop":0.074,"angle":0.575,"line":-0.026,"cross":0.341},"return2":{"safe":-0.766,"cross":-0.537,"slice":-0.581,"line":-0.733,"lob":-0.208},"return1":{"cross":-0.788,"line":-0.913,"safe":-0.594,"slice":-0.706,"lob":-0.36}},"de Minaur":{"pass":{"passcross":0.791,"lob":0.041,"passline":0.606},"stretch":{"safe":-0.637,"slice":-0.828,"lob":-0.716},"rallyfh":{"line":-0.203,"cross":-0.058,"angle":-0.173,"drop":-0.633,"slice":-0.156},"serve1r":{"body":0.237,"t":0.183,"wide":0.208},"serve1l":{"t":0.151,"body":0.109,"wide":0.084},"rallybh":{"drop":-0.62,"cross":-0.257,"angle":-0.368,"line":-0.341,"slice":-0.538},"serve2r":{"t":-0.365,"wide":-0.193,"body":-0.01},"return1":{"safe":-0.431,"line":-0.717,"cross":-0.491,"lob":-0.332,"slice":-0.467},"serve2l":{"wide":-0.407,"t":-0.241,"body":-0.19},"short":{"approach":-0.485,"line":-0.278,"cross":0.673,"angle":0.665,"drop":0.453},"return2":{"cross":-0.416,"safe":-0.316,"line":-0.758,"slice":-0.358,"lob":-0.178}}};
+const LEARNED={"Nadal":{"serve1r":{"t":0.211,"wide":0.643,"body":0.513},"serve1l":{"t":0.498,"body":0.593,"wide":0.744},"rallyfh":{"cross":0.861,"drop":-0.614,"line":-0.056,"angle":0.904,"slice":-0.168},"rallybh":{"line":0.161,"cross":0.695,"drop":-0.599,"angle":0.695,"slice":-0.061},"stretch":{"safe":-0.43,"slice":-0.81,"lob":-0.665},"pass":{"passcross":0.028,"lob":-0.13,"passline":0.656},"return1":{"cross":-0.432,"safe":-0.156,"line":-0.63,"lob":-0.154,"slice":-0.413},"return2":{"safe":0.133,"cross":-0.395,"line":-0.804,"slice":-0.4,"lob":-0.182},"short":{"cross":0.953,"approach":-0.129,"line":0.548,"angle":0.994,"drop":0.049},"serve2l":{"t":0.493,"wide":0.377,"body":0.424},"serve2r":{"t":0.191,"wide":0.063,"body":0.526}},"Djokovic":{"stretch":{"slice":-0.71,"safe":-0.507,"lob":-0.647},"return1":{"safe":-0.186,"line":-0.512,"cross":-0.09,"lob":-0.215,"slice":-0.356},"pass":{"passline":0.687,"passcross":0.039,"lob":-0.127},"rallybh":{"angle":0.288,"line":-0.049,"cross":0.553,"drop":-0.629,"slice":-0.218},"short":{"angle":0.921,"line":0.348,"cross":0.975,"approach":-0.296,"drop":0.135},"rallyfh":{"line":-0.243,"cross":0.57,"drop":-0.684,"angle":0.234,"slice":-0.156},"serve1r":{"body":0.413,"wide":0.538,"t":0.638},"serve2l":{"t":0.383,"wide":0.301,"body":0.215},"serve1l":{"t":0.339,"wide":0.658,"body":0.243},"serve2r":{"body":0.192,"t":0.1,"wide":0.24},"return2":{"cross":0.626,"safe":-0.281,"slice":-0.476,"line":-0.658,"lob":-0.018}},"Alcaraz":{"serve1r":{"t":0.387,"wide":0.689,"body":0.659},"rallybh":{"cross":0.677,"drop":0.672,"line":0.04,"angle":0.851,"slice":-0.03},"serve2l":{"wide":0.081,"body":0.454,"t":0.218},"serve1l":{"t":0.292,"body":0.467,"wide":0.503},"stretch":{"slice":-0.744,"safe":-0.708,"lob":-0.848},"short":{"line":0.485,"drop":1,"approach":0.347,"angle":1,"cross":0.675},"rallyfh":{"line":-0.172,"cross":0.598,"angle":0.806,"drop":0.488,"slice":0.287},"serve2r":{"t":0.237,"wide":0.472,"body":0.247},"pass":{"passline":0.067,"lob":-0.563,"passcross":-0.015},"return2":{"line":-0.721,"safe":-0.155,"cross":-0.575,"lob":-0.035,"slice":-0.414},"return1":{"line":-0.85,"safe":-0.325,"cross":-0.517,"slice":-0.608,"lob":-0.244}},"Federer":{"stretch":{"slice":-0.868,"safe":-0.449,"lob":-0.778},"rallyfh":{"cross":0.402,"line":0.021,"drop":-0.492,"angle":0.266,"slice":-0.126},"rallybh":{"slice":0.127,"angle":0.525,"cross":0.396,"line":-0.199,"drop":-0.493},"serve1l":{"wide":0.275,"t":0.329,"body":0.626},"serve1r":{"t":0.208,"body":0.588,"wide":0.508},"serve2l":{"t":-0.155,"wide":0.29,"body":0.366},"return2":{"safe":0.046,"line":-0.682,"cross":-0.588,"slice":-0.623,"lob":0.005},"serve2r":{"wide":0.137,"t":-0.132,"body":0.323},"short":{"drop":0.444,"line":0.793,"cross":0.938,"approach":0.107,"angle":0.988},"return1":{"safe":-0.519,"cross":-0.666,"line":-0.807,"slice":-0.635,"lob":-0.213},"pass":{"passcross":0.159,"lob":-0.37,"passline":0.679}},"Sinner":{"rallyfh":{"cross":0.996,"line":0.485,"angle":0.755,"slice":0.227,"drop":-0.245},"serve1r":{"wide":0.821,"t":0.426,"body":0.648},"serve1l":{"wide":0.834,"t":0.353,"body":0.72},"rallybh":{"slice":0.182,"cross":0.869,"angle":0.688,"line":0.333,"drop":-0.369},"stretch":{"lob":-0.624,"safe":-0.707,"slice":-0.784},"return2":{"cross":-0.301,"safe":-0.082,"lob":-0.019,"line":-0.819,"slice":-0.392},"return1":{"cross":-0.67,"line":-0.668,"safe":-0.35,"lob":-0.12,"slice":-0.479},"serve2l":{"t":0.456,"wide":0.426,"body":0.634},"pass":{"passline":0.259,"passcross":0.092,"lob":-0.393},"serve2r":{"body":0.054,"wide":0.254,"t":0.239},"short":{"drop":0.164,"approach":-0.022,"angle":0.985,"cross":0.917,"line":0.808}},"Medvedev":{"stretch":{"safe":-0.768,"slice":-0.71,"lob":-0.585},"rallyfh":{"cross":-0.012,"line":-0.309,"angle":-0.331,"slice":-0.168,"drop":-0.386},"rallybh":{"line":-0.082,"cross":0.071,"slice":-0.148,"angle":-0.107,"drop":-0.76},"return2":{"cross":-0.397,"safe":-0.196,"line":-0.618,"lob":-0.2,"slice":-0.538},"serve1l":{"t":0.361,"wide":0.422,"body":0.253},"serve1r":{"wide":0.392,"t":0.29,"body":0.408},"serve2r":{"wide":-0.221,"body":-0.201,"t":0.061},"pass":{"passcross":-0.505,"passline":0.337,"lob":-0.415},"return1":{"cross":-0.589,"safe":-0.397,"line":-0.825,"slice":-0.496,"lob":-0.279},"serve2l":{"t":-0.016,"body":0.002,"wide":0.409},"short":{"cross":0.681,"angle":0.746,"approach":0.073,"drop":0.223,"line":-0.03}},"Zverev":{"rallyfh":{"line":-0.509,"cross":0.176,"angle":0.04,"slice":-0.213,"drop":-0.479},"serve1r":{"body":0.167,"wide":0.539,"t":0.208},"serve1l":{"t":0.267,"wide":0.557,"body":0.262},"serve2r":{"body":-0.298,"t":-0.186,"wide":-0.211},"rallybh":{"cross":0.451,"line":-0.508,"slice":-0.678,"angle":0.118,"drop":-0.393},"stretch":{"slice":-0.883,"safe":-0.906,"lob":-0.834},"serve2l":{"body":0.301,"wide":0.129,"t":-0.199},"pass":{"lob":-0.678,"passcross":-0.204,"passline":-0.123},"short":{"approach":-0.035,"drop":0.058,"angle":0.588,"line":0.07,"cross":0.488},"return2":{"safe":-0.658,"cross":-0.658,"slice":-0.72,"line":-0.757,"lob":-0.266},"return1":{"cross":-0.725,"line":-0.903,"safe":-0.694,"slice":-0.808,"lob":-0.439}},"de Minaur":{"pass":{"passcross":-0.303,"lob":-0.341,"passline":0.4},"stretch":{"safe":-0.64,"slice":-0.572,"lob":-0.773},"rallyfh":{"line":-0.397,"cross":-0.098,"angle":-0.118,"drop":-0.748,"slice":-0.133},"serve1r":{"body":0.36,"t":0.163,"wide":0.357},"serve1l":{"t":0.117,"body":-0.053,"wide":0.345},"rallybh":{"drop":-0.653,"cross":-0.204,"angle":-0.429,"line":-0.053,"slice":-0.345},"serve2r":{"t":0.129,"wide":0.11,"body":0.031},"return1":{"safe":-0.578,"line":-0.818,"cross":-0.648,"lob":-0.259,"slice":-0.533},"serve2l":{"wide":-0.268,"t":-0.288,"body":0.198},"short":{"approach":-0.233,"line":-0.304,"cross":0.342,"angle":0.632,"drop":0.469},"return2":{"cross":-0.464,"safe":-0.293,"line":-0.872,"slice":-0.506,"lob":-0.205}},"Sampras":{"serve1r":{"t":0.064,"wide":0.365,"body":0.086},"serve1l":{"body":-0.076,"wide":0.219,"t":-0.238},"rallybh":{"cross":0.792,"line":0.097,"slice":-0.273,"angle":0.207,"drop":-0.102},"rallyfh":{"cross":0.467,"line":-0.136,"angle":0.334,"slice":-0.041,"drop":-0.115},"stretch":{"safe":-0.546,"slice":-0.705,"lob":-0.784},"serve2r":{"t":-0.429,"wide":0.234,"body":0.125},"return2":{"safe":-0.369,"cross":-0.494,"line":-0.586,"slice":-0.489,"lob":0.035},"return1":{"safe":-0.571,"cross":-0.433,"lob":-0.048,"line":-0.626,"slice":-0.389},"serve2l":{"t":-0.373,"wide":-0.006,"body":-0.427},"short":{"angle":0.551,"approach":0.051,"line":0.419,"cross":0.701,"drop":-0.03},"pass":{"lob":-0.453,"passline":0.135,"passcross":-0.082}},"Borg":{"stretch":{"slice":-0.804,"safe":-0.864,"lob":-0.77},"rallybh":{"slice":-0.161,"cross":0.386,"line":-0.146,"drop":-0.424,"angle":-0.171},"rallyfh":{"cross":0.548,"angle":0.043,"line":-0.046,"drop":-0.406,"slice":0.138},"pass":{"passline":0.181,"passcross":-0.117,"lob":-0.453},"return1":{"safe":-0.353,"line":-0.598,"lob":-0.114,"cross":-0.595,"slice":-0.195},"serve1l":{"body":0.335,"wide":0.136,"t":0.482},"serve1r":{"t":0.417,"wide":0.322,"body":0.359},"serve2l":{"wide":0.266,"t":-0.284,"body":-0.035},"serve2r":{"t":-0.363,"body":0.216,"wide":0.293},"return2":{"line":-0.351,"safe":-0.119,"cross":-0.099,"lob":-0.038,"slice":-0.216},"short":{"line":0.128,"cross":0.825,"angle":0.96,"approach":0.003,"drop":0.055}},"Agassi":{"serve2r":{"wide":0.408,"t":-0.084,"body":0.517},"serve1r":{"wide":0.659,"t":0.574,"body":0.607},"rallybh":{"line":0.041,"slice":0.111,"cross":0.742,"angle":0.848,"drop":-0.059},"serve1l":{"body":0.365,"wide":0.486,"t":0.608},"serve2l":{"wide":0.37,"t":-0.231,"body":0.291},"stretch":{"safe":-0.348,"slice":-0.727,"lob":-0.518},"pass":{"passline":0.368,"passcross":0.268,"lob":-0.553},"return1":{"safe":0.037,"cross":-0.592,"line":-0.611,"slice":-0.246,"lob":-0.023},"return2":{"line":-0.504,"safe":0.167,"cross":-0.019,"slice":-0.129,"lob":-0.095},"rallyfh":{"cross":0.741,"line":0.122,"angle":0.785,"drop":-0.098,"slice":-0.001},"short":{"approach":0.222,"cross":0.754,"angle":0.96,"drop":0.07,"line":0.48}},"Murray":{"serve1r":{"body":0.379,"t":0.299,"wide":0.503},"serve1l":{"body":0.443,"t":0.363,"wide":0.588},"stretch":{"slice":-0.813,"safe":-0.611,"lob":-0.534},"rallybh":{"cross":0.747,"slice":0.017,"drop":-0.344,"line":-0.025,"angle":0.36},"rallyfh":{"angle":0.167,"cross":0.501,"line":-0.1,"slice":-0.015,"drop":-0.44},"serve2l":{"body":0.195,"wide":-0.044,"t":0.077},"pass":{"passline":0.714,"lob":-0.229,"passcross":-0.118},"return1":{"safe":-0.311,"line":-0.714,"cross":-0.536,"slice":-0.25,"lob":-0.254},"return2":{"cross":-0.221,"safe":-0.291,"slice":-0.278,"line":-0.601,"lob":-0.135},"serve2r":{"t":0.166,"wide":0.245,"body":0.038},"short":{"approach":-0.112,"line":0.209,"angle":0.897,"drop":0.272,"cross":0.844}},"McEnroe":{"rallyfh":{"cross":0.016,"line":-0.243,"angle":-0.264,"drop":-0.114,"slice":-0.013},"rallybh":{"cross":-0.014,"slice":-0.278,"line":-0.246,"angle":-0.384,"drop":-0.036},"short":{"line":0.258,"approach":0.37,"cross":0.721,"angle":0.248,"drop":0.807},"serve1r":{"t":0.257,"wide":0.203,"body":0.196},"serve2l":{"wide":0.24,"t":0.09,"body":0.119},"serve1l":{"t":0.281,"wide":0.685,"body":0.307},"serve2r":{"body":-0.003,"t":0.226,"wide":-0.02},"stretch":{"slice":-0.781,"lob":-0.858,"safe":-0.832},"pass":{"passcross":0.026,"passline":0.396,"lob":-0.442},"return2":{"safe":-0.351,"cross":-0.579,"line":-0.638,"slice":-0.438,"lob":-0.025},"return1":{"safe":-0.62,"cross":-0.314,"line":-0.804,"slice":-0.395,"lob":-0.078}}};
 
 // Tactics — what each player has learned about which choices win points
 // Every time a computer player chooses between tactics (cross or line, slice or lob, where to serve…) the choice is
@@ -854,6 +867,18 @@ const TRAITS={
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',
     paceK:0,stretchK:.2,error:c=>c.stretch>.2||c.pace>.3?.72:.92,speed:c=>1+.12*c.pace},
 };
+Object.assign(TRAITS,{
+  serveVolley:  {name:'Serve and volley',text:'A second serve as good as most first serves, and anything he reaches at the net is put away.',
+    serveErr:no=>no===2?.55:.8,serveSpeed:no=>no===1?1.03:1,stretchK:.5,error:c=>['volley','putaway','dropvolley','smash'].includes(c.tac)?.45:.92},
+  iceman:       {name:'Ice in the veins', text:'The bigger the point, the calmer the swing.',
+    serveErr:(no,pressure)=>pressure?.75:1,stretchK:.6,error:c=>c.big?.5:.88},
+  earlyBall:    {name:'Takes it early',   text:'Stands on the baseline and hits on the rise: the return comes back hard and nobody gets time.',
+    react:-.04,error:c=>c.ret?.75:.96,speed:c=>c.ret?1.06:1.02,disguise:()=>.03},
+  lobAndPass:   {name:'Lob and pass',     text:'Come to the net at your peril: the lob and the passing shot hardly ever miss.',
+    stretchK:.3,error:c=>['lob','passline','passcross'].includes(c.tac)?.45:c.stretch>.3?.75:.95},
+  softHands:    {name:'Soft hands',       text:'Volleys, drop shots and angles land on a coin, and are read late.',
+    error:c=>['volley','putaway','dropvolley','drop','angle','slice'].includes(c.tac)?.4:1,disguise:c=>c.tac==='dropvolley'||c.tac==='drop'?.35:0},
+});
 class Traits{
   static NONE={name:'',text:''};
   static of(P){return TRAITS[P.st.trait]||Traits.NONE;}
@@ -888,7 +913,8 @@ class ShotPlanner{
       const dt=t-now;
       const reach=w=>{const sw=kind==='smash'?SWING.smash:kind==='volley'?SWING.volley:SWING[w],hs=kind==='smash'?hand:(w==='fh'?hand:-hand),
         rx=clamp(x-Rx*hs*sw.r,-CT.FX+.3,CT.FX-.3),rz=z-Fz*sw.f,d=hyp(rx-P.x,rz-P.z),back=d>.05?Math.max(0,-(P.vx*(rx-P.x)+P.vz*(rz-P.z))/d)/P.loco.brake:0;
-        return{hs,rx,rz,d,margin:dt-(P.timeTo(d)+.03+back+(m.isServe?.06:0))};};
+        // a volleyer lunges: the last half-metre is covered by the reach, not the feet
+        return{hs,rx,rz,d,margin:dt-(P.timeTo(kind==='volley'?Math.max(0,d-.45):d)+.03+back+(m.isServe?.06:0))};};
       let q=reach(wing);
       // with time in hand, a player steps around the backhand to hit a forehand
       if(kind==='ground'&&wing==='bh'&&!m.isServe){const w=this.want(P),dr=w==='drive'||w==='flat',rr=dr?2.8:.55+st.aggr*.75;
@@ -945,8 +971,8 @@ class ShotPlanner{
       case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;sidespin=curl(100);break;
       case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;sidespin=0;break;
       // passing shots: hit at the gap, low over the net and dipping, so the volleyer has to play up
-      case'passline': t=T(side*(SW-.6),CT.L-1.8);v=36*P0;rpm=st.spin*1.05;clear=.1;risk=1.05;break;
-      case'passcross':t=T(-side*(SW-.5),6.6);v=32*P0;rpm=st.spin*1.25;clear=.1;risk=1.0;break;
+      case'passline': t=T(side*(SW-.6),CT.L-1.8);v=36*P0;rpm=st.spin*1.05;clear=.1;risk=1.12;break;
+      case'passcross':t=T(-side*(SW-.9),7.6);v=31*P0;rpm=st.spin*1.25;clear=.1;risk=1.15;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
       case'volley':   t=T(openX*(SW-.9),CT.L-2.2);v=21;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
       // the put-away: punched hard into the open court — short and angled from on top of the net, deep into the corner from further back
@@ -986,7 +1012,7 @@ const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passin
 const SERVES={
   flat :{name:'Flat', v:st=>st.s1,             rpm:st=>900+st.spin*.15, side:300, gyro:0,   clear:.07,err:1},
   slice:{name:'Slice',v:st=>st.s1*.6+st.s2*.4, rpm:st=>1100+st.spin*.1, side:1700,gyro:0,   clear:.14,err:.86},
-  kick :{name:'Kick', v:st=>st.s2,             rpm:st=>2300+st.spin*.3, side:1100,gyro:1500,clear:.40,err:.72},
+  kick :{name:'Kick', v:st=>st.s2,             rpm:st=>st.kick??2300+st.spin*.3, side:1100,gyro:1500,clear:.40,err:.72},
 };
 const ZONES={wide:3.72,body:1.9,t:.32};
 
@@ -1056,7 +1082,7 @@ class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
   // returning serve: reaction time, where the returner stands, how much harder a return is to control than a
   // rally ball (first serve; a second serve counts half) and how much of a full swing it gets
-  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.52};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.47};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
   // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
@@ -1484,13 +1510,14 @@ class Match{
     if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]+(tq&&tq.text?' · '+tq.text:''),strong:tq===Match.TIMING.perfect});
     this.rallyLen++;this.hitter=P;this.isServe=false;this.mood.shot(this.rallyLen,p.stretch);
     const O=this.other(P);this.recv=O;O.plan=null;O.split=this.t;O.leaving=false;
-    O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
+    // a player set at the net is already on the split step, watching the passer's racket
+    O.planAt=this.t+(O.rush&&Math.abs(O.z)<7?.08+R()*.04:.15+R()*.06)+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
     if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||tac==='smash')P.rush=true;
     if(tac==='lob'||tac==='safe'||(tac==='slice'&&p.stretch>.5))P.rush=false;
     const tx=this.tr.hasB?this.tr.fbx:0,sk=this.surface.key;
-    P.home=P.rush?{x:tx*.38,z:P.s*5.0}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
+    P.home=P.rush?{x:tx*.26,z:P.s*3.4}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
     P.gx=P.home.x;P.gz=P.home.z;
   }
 
@@ -1541,12 +1568,18 @@ class Match{
 class Tournament{
   static ROUNDS=['Quarter-finals','Semi-finals','Final'];
   static ORDER=[0,7,3,4,2,5,1,6];   // seed positions down the draw: 1 v 8, 4 v 5, 3 v 6, 2 v 7
-  constructor(me,format,level,roster=ROSTER){
-    const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);
+  // the eight who play: the person's player and seven drawn from everyone else, in seeding order
+  static field(me,all=ROSTER){
+    const rest=all.filter(p=>p.id!==me.id);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+    return[me,...rest.slice(0,7)].sort((a,b)=>a.rank-b.rank);
+  }
+  constructor(me,format,level,roster=Tournament.field(me)){
+    const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);this.seeds=seeds.map(p=>p.id);
     this.me=me.id;this.format=format;this.level=level;this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
     const slot=(a=null,b=null)=>({a,b,w:null,line:''});
     this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
   }
+  seed(id){return this.seeds.indexOf(id)+1;}
   player(id){return this.roster.find(p=>p.id===id);}
   get over(){return this.champion!=null;}
   get name(){return Tournament.ROUNDS[Math.min(this.round,2)];}
@@ -2810,7 +2843,7 @@ class BallView{
 // Outfits — what the players, ball kids and umpire wear
 // what everybody wears
 class Outfits{
-  static player(P){const r=P.st,l=r.look,f=!!r.f;return{shirt:l.shirt,sleeve:'sleeve'in l?(l.sleeve??l.skin):l.shirt,shorts:l.shorts,skin:l.skin,hair:l.hair,band:l.band,long:f,skirt:f,sock:0xf4f3ec,shoe:0xf4f3ec,trim:l.shirt,racket:l.racket};}
+  static player(P){const r=P.st,l=r.look,f=!!r.f;return{shirt:l.shirt,sleeve:'sleeve'in l?(l.sleeve??l.skin):l.shirt,shorts:l.shorts,skin:l.skin,hair:r.face&&r.face.hair==='bald'?l.skin:l.hair,band:l.band,long:f,skirt:f,sock:0xf4f3ec,shoe:0xf4f3ec,trim:l.shirt,racket:l.racket};}
   static KID=[{shirt:0x2a8088,shorts:0x101a3a,skin:0xd89c70,hair:0x1c1f2e,sock:0xf4f3ec,cap:0x2a8088},{shirt:0x2a8088,shorts:0x101a3a,skin:0xf2c8a0,hair:0x743719,sock:0xf4f3ec,cap:0x2a8088}];
   static UMP={shirt:0x1a2c5c,sleeve:0xf4f3ec,shorts:0x9aa1b3,leg:0x9aa1b3,sock:0x1a2c5c,skin:0xf2c8a0,hair:0xc8cdd8,shoe:0x1c1f2e,cap:null};
 }
@@ -3239,10 +3272,11 @@ class Portrait{
       case'long':  cap(y0-4,x0-2,x1+2,5);for(let y=y0+1;y<=y0+11;y++){H_(x0-2,y,tex(x0-2,y));H_(x0-1,y);H_(x1+1,y,hD);H_(x1+2,y,tex(x1+2,y));}if(y0+12<H)H_(x0-2,y0+12,hD),H_(x1+2,y0+12,hD);break;
       case'curly': for(let y=y0-5;y<=y0+1;y++)for(let x=x0-3;x<=x1+3;x++){const e=x===x0-3||x===x1+3||y===y0-5;if(e&&hash2(x*7,y*11+p.id)<.45)continue;if(y>=y0&&x>x0&&x<x1)continue;H_(x,y,tex(x,y));}
                    for(let y=y0+2;y<=y0+5;y++)for(const x of[x0-3,x0-2,x0-1,x1+1,x1+2,x1+3]){if((x===x0-3||x===x1+3)&&hash2(x*5,y*9)<.5)continue;H_(x,y,tex(x,y));}break;
+      case'bald':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x<=x0+3?skL:skin);px(x0+2,y0,skL,2,1);break;
       case'thin':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x===x0+1?skL:skin);
                    for(let x=x0+2;x<=x1-2;x+=2)H_(x,y0-2,mix(skin,hair,.6));for(let y=y0-1;y<=y0+4;y++){H_(x0-1,y,y<y0+1?hL:hair);H_(x1+1,y,hD);}H_(x0,y0-1);H_(x1,y0-1,hD);H_(x0,y0);H_(x1,y0,hD);break;
     }
-    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
+    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long'||f.hair==='curly')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
       if(f.hair==='bandana'){px(x1+2,by+1,band,2,1);px(x1+3,by+2,band,1,2);px(x1+2,by+3,mix(band,0x000000,.18));}}
     return cv;
   }
@@ -3299,7 +3333,7 @@ class SetupScreen{
     for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
     for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
     for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level):game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level,this.field):game.play(this.a,this.b,this.fmt,this.phase,this.level);
     for(const k of['tour','exh'])$('md-'+k).onclick=()=>{this.mode=k;this.render();};
     this.render();
   }
@@ -3308,11 +3342,11 @@ class SetupScreen{
     $(id).innerHTML=`<h2>${title}</h2>
       <div class="hero">${Portrait.img(p,'face big')}
         <div class="id"><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
-          <div class="meta"><span>${p.cc}</span> · Seed ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
+          <div class="meta"><span>${p.cc}</span> · ${p.legend?'Legend · ':''}Rank ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
           <div class="style">${p.style}</div>
           <div class="ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
       <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
-      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
+      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" class="${q.legend?'lg':''}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
   render(){
@@ -3322,13 +3356,14 @@ class SetupScreen{
     $('sideB').hidden=tour;document.querySelector('#setup .vs').hidden=tour;$('tourInfo').hidden=!tour;
     for(const k of['tour','exh'])$('md-'+k).setAttribute('aria-pressed',String(this.mode===k));
     $('walkOut').textContent=tour?'Enter the draw ▶':'Walk out ▶';
-    if(tour){const seeds=[...ROSTER].sort((a,b)=>a.rank-b.rank);$('tourField').innerHTML=seeds.map(q=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${q.rank}</span><span>${q.short}</span></div>`).join('');}
+    if(tour){if(!this.field||!this.field.some(q=>q.id===this.a))this.field=Tournament.field(ROSTER[this.a]);
+      $('tourField').innerHTML=this.field.map((q,i)=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${i+1}</span><span>${q.short}</span></div>`).join('');}
     for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
     for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
     $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;
     for(const d of Difficulty.ALL)$('lv-'+d.key).setAttribute('aria-pressed',String(this.level===d.key));$('lvlDesc').textContent=Difficulty.get(this.level).desc;
   }
-  open(){this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
+  open(){this.field=null;this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
   close(){$('setup').hidden=true;}
 }
 
@@ -3354,7 +3389,7 @@ class BracketScreen{
   row(t,id,m,side){
     if(id==null)return`<div class="bp tbd"><span class="nm">—</span></div>`;
     const p=t.player(id),won=m.w===id,lost=m.w!=null&&!won;
-    return`<div class="bp${won?' won':''}${lost?' lost':''}${id===t.me?' me':''}">${Portrait.img(p)}<span class="seed">${p.rank}</span><span class="nm">${p.short}</span>${id===t.me?'<span class="you">YOU</span>':''}${won&&side===0?`<span class="sc">${m.line}</span>`:won?`<span class="sc">${m.line}</span>`:''}</div>`;
+    return`<div class="bp${won?' won':''}${lost?' lost':''}${id===t.me?' me':''}">${Portrait.img(p)}<span class="seed">${t.seed(id)}</span><span class="nm">${p.short}</span>${id===t.me?'<span class="you">YOU</span>':''}${won&&side===0?`<span class="sc">${m.line}</span>`:won?`<span class="sc">${m.line}</span>`:''}</div>`;
   }
   open(){
     const t=this.g.tour;if(!t)return;
@@ -3363,7 +3398,7 @@ class BracketScreen{
     $('brHead').textContent=(t.over?'CHAMPION':t.name.toUpperCase())+(t.fans?`  ·  ${t.fans}k fans`:'');
     const mine=champ&&champ.id===t.me;$('bracket').classList.toggle('won',!!mine);
     $('brNote').innerHTML=mine?this.ceremony(t,champ):champ?`<div class="champ">${Trophy.img('trophy small')}${Portrait.img(champ,'face big')}<div><b>${champ.name}</b><span>${t.out?'wins the Pixel Tennis Open. You went out in the '+this.lostIn(t)+'.':'wins the Pixel Tennis Open.'}</span></div></div>`
-      :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${opp.rank} · ${opp.style}</span></div></div>`;
+      :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${t.seed(opp.id)} · ${opp.style}</span></div></div>`;
     $('brGo').textContent=t.over?'New tournament ▶':`Play the ${t.round===2?'final':t.round===1?'semi-final':'quarter-final'} ▶`;
     $('bracket').hidden=false;
     if(mine&&!t.feted){t.feted=true;const s=this.g.sound;s.event({type:'crowd',kind:'roar',power:1},0);s.event({type:'crowd',kind:'applause',power:1},0);
@@ -3473,7 +3508,7 @@ class Game{
     this.say('Players walk out. Space toggles Auto.');
   }
   // ──────── tournament ────────
-  startTour(a,fmt,phase,level){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
+  startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
   playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
   // the person's match is finished: record it, play out the others, show the draw

@@ -27,7 +27,8 @@ class ShotPlanner{
       const dt=t-now;
       const reach=w=>{const sw=kind==='smash'?SWING.smash:kind==='volley'?SWING.volley:SWING[w],hs=kind==='smash'?hand:(w==='fh'?hand:-hand),
         rx=clamp(x-Rx*hs*sw.r,-CT.FX+.3,CT.FX-.3),rz=z-Fz*sw.f,d=hyp(rx-P.x,rz-P.z),back=d>.05?Math.max(0,-(P.vx*(rx-P.x)+P.vz*(rz-P.z))/d)/P.loco.brake:0;
-        return{hs,rx,rz,d,margin:dt-(P.timeTo(d)+.03+back+(m.isServe?.06:0))};};
+        // a volleyer lunges: the last half-metre is covered by the reach, not the feet
+        return{hs,rx,rz,d,margin:dt-(P.timeTo(kind==='volley'?Math.max(0,d-.45):d)+.03+back+(m.isServe?.06:0))};};
       let q=reach(wing);
       // with time in hand, a player steps around the backhand to hit a forehand
       if(kind==='ground'&&wing==='bh'&&!m.isServe){const w=this.want(P),dr=w==='drive'||w==='flat',rr=dr?2.8:.55+st.aggr*.75;
@@ -84,8 +85,8 @@ class ShotPlanner{
       case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;sidespin=curl(100);break;
       case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;sidespin=0;break;
       // passing shots: hit at the gap, low over the net and dipping, so the volleyer has to play up
-      case'passline': t=T(side*(SW-.6),CT.L-1.8);v=36*P0;rpm=st.spin*1.05;clear=.1;risk=1.05;break;
-      case'passcross':t=T(-side*(SW-.5),6.6);v=32*P0;rpm=st.spin*1.25;clear=.1;risk=1.0;break;
+      case'passline': t=T(side*(SW-.6),CT.L-1.8);v=36*P0;rpm=st.spin*1.05;clear=.1;risk=1.12;break;
+      case'passcross':t=T(-side*(SW-.9),7.6);v=31*P0;rpm=st.spin*1.25;clear=.1;risk=1.15;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
       case'volley':   t=T(openX*(SW-.9),CT.L-2.2);v=21;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
       // the put-away: punched hard into the open court — short and angled from on top of the net, deep into the corner from further back

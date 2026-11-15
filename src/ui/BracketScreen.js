@@ -4,7 +4,7 @@ class BracketScreen{
   row(t,id,m,side){
     if(id==null)return`<div class="bp tbd"><span class="nm">—</span></div>`;
     const p=t.player(id),won=m.w===id,lost=m.w!=null&&!won;
-    return`<div class="bp${won?' won':''}${lost?' lost':''}${id===t.me?' me':''}">${Portrait.img(p)}<span class="seed">${p.rank}</span><span class="nm">${p.short}</span>${id===t.me?'<span class="you">YOU</span>':''}${won&&side===0?`<span class="sc">${m.line}</span>`:won?`<span class="sc">${m.line}</span>`:''}</div>`;
+    return`<div class="bp${won?' won':''}${lost?' lost':''}${id===t.me?' me':''}">${Portrait.img(p)}<span class="seed">${t.seed(id)}</span><span class="nm">${p.short}</span>${id===t.me?'<span class="you">YOU</span>':''}${won&&side===0?`<span class="sc">${m.line}</span>`:won?`<span class="sc">${m.line}</span>`:''}</div>`;
   }
   open(){
     const t=this.g.tour;if(!t)return;
@@ -13,7 +13,7 @@ class BracketScreen{
     $('brHead').textContent=(t.over?'CHAMPION':t.name.toUpperCase())+(t.fans?`  ·  ${t.fans}k fans`:'');
     const mine=champ&&champ.id===t.me;$('bracket').classList.toggle('won',!!mine);
     $('brNote').innerHTML=mine?this.ceremony(t,champ):champ?`<div class="champ">${Trophy.img('trophy small')}${Portrait.img(champ,'face big')}<div><b>${champ.name}</b><span>${t.out?'wins the Pixel Tennis Open. You went out in the '+this.lostIn(t)+'.':'wins the Pixel Tennis Open.'}</span></div></div>`
-      :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${opp.rank} · ${opp.style}</span></div></div>`;
+      :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${t.seed(opp.id)} · ${opp.style}</span></div></div>`;
     $('brGo').textContent=t.over?'New tournament ▶':`Play the ${t.round===2?'final':t.round===1?'semi-final':'quarter-final'} ▶`;
     $('bracket').hidden=false;
     if(mine&&!t.feted){t.feted=true;const s=this.g.sound;s.event({type:'crowd',kind:'roar',power:1},0);s.event({type:'crowd',kind:'applause',power:1},0);

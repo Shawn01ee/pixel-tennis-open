@@ -51,10 +51,11 @@ class Portrait{
       case'long':  cap(y0-4,x0-2,x1+2,5);for(let y=y0+1;y<=y0+11;y++){H_(x0-2,y,tex(x0-2,y));H_(x0-1,y);H_(x1+1,y,hD);H_(x1+2,y,tex(x1+2,y));}if(y0+12<H)H_(x0-2,y0+12,hD),H_(x1+2,y0+12,hD);break;
       case'curly': for(let y=y0-5;y<=y0+1;y++)for(let x=x0-3;x<=x1+3;x++){const e=x===x0-3||x===x1+3||y===y0-5;if(e&&hash2(x*7,y*11+p.id)<.45)continue;if(y>=y0&&x>x0&&x<x1)continue;H_(x,y,tex(x,y));}
                    for(let y=y0+2;y<=y0+5;y++)for(const x of[x0-3,x0-2,x0-1,x1+1,x1+2,x1+3]){if((x===x0-3||x===x1+3)&&hash2(x*5,y*9)<.5)continue;H_(x,y,tex(x,y));}break;
+      case'bald':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x<=x0+3?skL:skin);px(x0+2,y0,skL,2,1);break;
       case'thin':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x===x0+1?skL:skin);
                    for(let x=x0+2;x<=x1-2;x+=2)H_(x,y0-2,mix(skin,hair,.6));for(let y=y0-1;y<=y0+4;y++){H_(x0-1,y,y<y0+1?hL:hair);H_(x1+1,y,hD);}H_(x0,y0-1);H_(x1,y0-1,hD);H_(x0,y0);H_(x1,y0,hD);break;
     }
-    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
+    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long'||f.hair==='curly')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
       if(f.hair==='bandana'){px(x1+2,by+1,band,2,1);px(x1+3,by+2,band,1,2);px(x1+2,by+3,mix(band,0x000000,.18));}}
     return cv;
   }

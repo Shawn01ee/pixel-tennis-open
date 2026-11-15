@@ -9,7 +9,7 @@ class SetupScreen{
     for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
     for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
     for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level):game.play(this.a,this.b,this.fmt,this.phase,this.level);
+    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level,this.field):game.play(this.a,this.b,this.fmt,this.phase,this.level);
     for(const k of['tour','exh'])$('md-'+k).onclick=()=>{this.mode=k;this.render();};
     this.render();
   }
@@ -18,11 +18,11 @@ class SetupScreen{
     $(id).innerHTML=`<h2>${title}</h2>
       <div class="hero">${Portrait.img(p,'face big')}
         <div class="id"><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
-          <div class="meta"><span>${p.cc}</span> · Seed ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
+          <div class="meta"><span>${p.cc}</span> · ${p.legend?'Legend · ':''}Rank ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
           <div class="style">${p.style}</div>
           <div class="ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
       <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
-      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
+      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" class="${q.legend?'lg':''}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
     $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
   }
   render(){
@@ -32,12 +32,13 @@ class SetupScreen{
     $('sideB').hidden=tour;document.querySelector('#setup .vs').hidden=tour;$('tourInfo').hidden=!tour;
     for(const k of['tour','exh'])$('md-'+k).setAttribute('aria-pressed',String(this.mode===k));
     $('walkOut').textContent=tour?'Enter the draw ▶':'Walk out ▶';
-    if(tour){const seeds=[...ROSTER].sort((a,b)=>a.rank-b.rank);$('tourField').innerHTML=seeds.map(q=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${q.rank}</span><span>${q.short}</span></div>`).join('');}
+    if(tour){if(!this.field||!this.field.some(q=>q.id===this.a))this.field=Tournament.field(ROSTER[this.a]);
+      $('tourField').innerHTML=this.field.map((q,i)=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${i+1}</span><span>${q.short}</span></div>`).join('');}
     for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
     for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
     $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;
     for(const d of Difficulty.ALL)$('lv-'+d.key).setAttribute('aria-pressed',String(this.level===d.key));$('lvlDesc').textContent=Difficulty.get(this.level).desc;
   }
-  open(){this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
+  open(){this.field=null;this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
   close(){$('setup').hidden=true;}
 }

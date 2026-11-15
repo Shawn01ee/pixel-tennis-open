@@ -30,7 +30,7 @@ class Game{
     this.say('Players walk out. Space toggles Auto.');
   }
   // ──────── tournament ────────
-  startTour(a,fmt,phase,level){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
+  startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
   playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
   // the person's match is finished: record it, play out the others, show the draw

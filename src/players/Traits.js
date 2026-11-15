@@ -25,6 +25,18 @@ const TRAITS={
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',
     paceK:0,stretchK:.2,error:c=>c.stretch>.2||c.pace>.3?.72:.92,speed:c=>1+.12*c.pace},
 };
+Object.assign(TRAITS,{
+  serveVolley:  {name:'Serve and volley',text:'A second serve as good as most first serves, and anything he reaches at the net is put away.',
+    serveErr:no=>no===2?.55:.8,serveSpeed:no=>no===1?1.03:1,stretchK:.5,error:c=>['volley','putaway','dropvolley','smash'].includes(c.tac)?.45:.92},
+  iceman:       {name:'Ice in the veins', text:'The bigger the point, the calmer the swing.',
+    serveErr:(no,pressure)=>pressure?.75:1,stretchK:.6,error:c=>c.big?.5:.88},
+  earlyBall:    {name:'Takes it early',   text:'Stands on the baseline and hits on the rise: the return comes back hard and nobody gets time.',
+    react:-.04,error:c=>c.ret?.75:.96,speed:c=>c.ret?1.06:1.02,disguise:()=>.03},
+  lobAndPass:   {name:'Lob and pass',     text:'Come to the net at your peril: the lob and the passing shot hardly ever miss.',
+    stretchK:.3,error:c=>['lob','passline','passcross'].includes(c.tac)?.45:c.stretch>.3?.75:.95},
+  softHands:    {name:'Soft hands',       text:'Volleys, drop shots and angles land on a coin, and are read late.',
+    error:c=>['volley','putaway','dropvolley','drop','angle','slice'].includes(c.tac)?.4:1,disguise:c=>c.tac==='dropvolley'||c.tac==='drop'?.35:0},
+});
 class Traits{
   static NONE={name:'',text:''};
   static of(P){return TRAITS[P.st.trait]||Traits.NONE;}

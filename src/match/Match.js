@@ -3,7 +3,7 @@ class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
   // returning serve: reaction time, where the returner stands, how much harder a return is to control than a
   // rally ball (first serve; a second serve counts half) and how much of a full swing it gets
-  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.52};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.47};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
   // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
@@ -431,13 +431,14 @@ class Match{
     if(TAG[tac]&&(human||!['drive','slice','volley','flat'].includes(tac)))this.ev('tag',{who:P.idx,text:TAG[tac]+(tq&&tq.text?' · '+tq.text:''),strong:tq===Match.TIMING.perfect});
     this.rallyLen++;this.hitter=P;this.isServe=false;this.mood.shot(this.rallyLen,p.stretch);
     const O=this.other(P);this.recv=O;O.plan=null;O.split=this.t;O.leaving=false;
-    O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
+    // a player set at the net is already on the split step, watching the passer's racket
+    O.planAt=this.t+(O.rush&&Math.abs(O.z)<7?.08+R()*.04:.15+R()*.06)+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
     if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||tac==='smash')P.rush=true;
     if(tac==='lob'||tac==='safe'||(tac==='slice'&&p.stretch>.5))P.rush=false;
     const tx=this.tr.hasB?this.tr.fbx:0,sk=this.surface.key;
-    P.home=P.rush?{x:tx*.38,z:P.s*5.0}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
+    P.home=P.rush?{x:tx*.26,z:P.s*3.4}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
     P.gx=P.home.x;P.gz=P.home.z;
   }
 

@@ -128,9 +128,9 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .meta{color:var(--mute);font-size:17px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{color:var(--ball)}
 .bars{display:grid;grid-template-columns:62px 1fr 26px;gap:3px 6px;align-items:center;font-size:16px;color:var(--mute);margin-bottom:9px}
 .bars i{display:block;height:8px;background:var(--deep)}.bars i u{display:block;height:100%;background:var(--sky)}.bars em{font-style:normal;color:var(--chalk);text-align:right}
-.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.picks{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .picks button{min-height:34px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;overflow:hidden}
-.picks .face{width:39px;height:45px}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
+.picks .face{width:33px;height:38px}.picks button.lg{border-bottom-color:var(--ball)}.picks button.lg span{color:var(--ball)}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
 .picks button b{width:6px;height:16px;flex:none}.picks button span{overflow:hidden;text-overflow:ellipsis}
 .picks button:disabled{opacity:.35;cursor:not-allowed}
 .opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
@@ -253,7 +253,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
       <section class="side" id="sideA"></section>
       <div class="vs">VS</div>
       <section class="side" id="sideB"></section>
-      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players, three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
+      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players — yours and seven drawn from the field, legends included. Three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
     </div>
     <div class="opts">
       <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>

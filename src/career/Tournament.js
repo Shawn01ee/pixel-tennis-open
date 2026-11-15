@@ -4,12 +4,18 @@
 class Tournament{
   static ROUNDS=['Quarter-finals','Semi-finals','Final'];
   static ORDER=[0,7,3,4,2,5,1,6];   // seed positions down the draw: 1 v 8, 4 v 5, 3 v 6, 2 v 7
-  constructor(me,format,level,roster=ROSTER){
-    const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);
+  // the eight who play: the person's player and seven drawn from everyone else, in seeding order
+  static field(me,all=ROSTER){
+    const rest=all.filter(p=>p.id!==me.id);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+    return[me,...rest.slice(0,7)].sort((a,b)=>a.rank-b.rank);
+  }
+  constructor(me,format,level,roster=Tournament.field(me)){
+    const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);this.seeds=seeds.map(p=>p.id);
     this.me=me.id;this.format=format;this.level=level;this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
     const slot=(a=null,b=null)=>({a,b,w:null,line:''});
     this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
   }
+  seed(id){return this.seeds.indexOf(id)+1;}
   player(id){return this.roster.find(p=>p.id===id);}
   get over(){return this.champion!=null;}
   get name(){return Tournament.ROUNDS[Math.min(this.round,2)];}

@@ -1,4 +1,4 @@
-// Self-play training: the eight players play each other over and over, learning which tactics win points.
+// Self-play training: the players play each other over and over, learning which tactics win points.
 // Writes what they learned to src/players/learned.js, which the game starts from.
 //   node tools/train.js [rounds=6]         train (continues from the current learned.js) and save
 //   node tools/train.js eval [matches=40]  each player with what it has learned against an untrained twin
