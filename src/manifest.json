@@ -43,6 +43,7 @@
  "render/Gait.js",
  "render/BodyMesh.js",
  "render/FigureRig.js",
+ "render/Prizes.js",
  "stadium/PixelFont.js",
  "stadium/CourtSurface.js",
  "stadium/LedBoards.js",

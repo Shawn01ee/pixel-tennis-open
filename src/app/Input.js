@@ -6,6 +6,7 @@ class Input{
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
+      if(!$('cerBar').hidden){if(c==='Enter'||c==='Escape'){$('cerSkip').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
       if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
       const m=g.match,serving=g.dock.serving(m);

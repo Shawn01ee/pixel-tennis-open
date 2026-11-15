@@ -6,7 +6,7 @@ class Game{
     this.stadium=new Stadium(R.root,R.mats);R.addLamps(this.stadium.lamps);
     this.halos=new Halos(this.stadium.halos);R.root.add(this.halos.m);
     this.B=new Parts(R.mats.lit);R.root.add(this.B.group);
-    this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
+    this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);$('cerSkip').onclick=()=>this.endCeremony();
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
@@ -36,7 +36,19 @@ class Game{
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
   continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
-    this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});}
+    const talk=()=>this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});
+    if(t.round===2)this.ceremony(talk);else talk();}
+  // the trophy ceremony on court after a final the person played; Enter or the button skips to what comes next
+  ceremony(done){
+    const m=this.match;m.tasks.length=0;m.loose.length=0;m.ball=null;
+    this.cerDone=done;this.cerCam=this.cam.mode;this.cam.setMode(CameraRig.FOLLOW);this.cam.stage={x:0,z:0,zoom:1.5};
+    // facing where the camera will settle, not where it happens to be mid-turn
+    m.spawn(m.ceremony(this.cam.azTo??this.cam.az));$('cerBar').hidden=false;$('line').textContent='';if(this.tour)this.tour.feted=true;
+  }
+  endCeremony(){
+    if(!this.cerDone)return;const done=this.cerDone;this.cerDone=null;$('cerBar').hidden=true;this.cam.stage=null;this.cam.setMode(this.cerCam??CameraRig.FOLLOW);
+    this.match.tasks.length=0;this.sound.voice.stop();done();
+  }
   endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
@@ -86,7 +98,7 @@ class Game{
     this.R.light(dt,this.tc,this.cam.ppm);
     this.halos.u.night.value=clamp(this.R.L.night+this.R.L.flood*.4,0,1);this.halos.u.ppm.value=this.cam.ppm;
     this.updateCrowd(dt);this.stadium.led.scroll(dt*(this.paused?0:1));this.updateLed();
-    this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.B.commit();
+    this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.drawCeremony();this.B.commit();
     this.ballView.update(m,this.tc,this.cam.ppm,this.alpha,this.heldAt);
     this.stadium.court.letter(this.focus().end);this.courtHighlight(dt);this.stadium.court.flush();
     this.R.render();
@@ -113,6 +125,8 @@ class Game{
         case'replay':this.replay.show(e,m.t);break;
         case'ace':this.ledFlash(['ACE!',`${e.kmh} KM/H`,'ACE!'],3,true);break;
         case'bigPoint':this.ledFlash([e.label.toUpperCase(),e.label.toUpperCase()],5,true);break;
+        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),'PIXEL TENNIS OPEN'],12,true);break;}
+        case'ceremonyEnd':this.endCeremony();break;
         case'matchOver':{const H=m.human;this.ledFlash(['GAME SET MATCH',e.winner.short.toUpperCase()],12,true);
           if(!H||e.winner===H)this.fx.confetti(220);this.resultAt=m.t+4.5;break;}
       }
@@ -124,9 +138,10 @@ class Game{
     else L.draw([`${m.A.short} V ${m.B.short}`,'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
   updateScreens(){
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
-    const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?'CENTRE COURT':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
+    const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
+    const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
+    const s={title:!sc?'CENTRE COURT':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
@@ -140,7 +155,10 @@ class Game{
   }
   lookAtBall(){const b=this.match.ball;if(b){this.look.x=b.x;this.look.z=b.z;}return this.look;}
   drawPeople(dtSim){
-    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;
+    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;this.props=[];
+    const c=m.stage==='ceremony'?m.cer:null,holdOf=a=>{if(!c)return null;
+      if(a===m.result.winner&&c.trophy==='W')return{kind:'lift',q:c.lift,what:'trophy'};if(a===m.result.loser&&c.plate==='L')return{kind:'plate',what:'plate'};
+      for(const w of['trophy','plate'])if(c[w]==='kid'&&c.carry[w]===a)return{kind:'carry',what:w};return null;};
     const draw=(a,c,lk,extra)=>{const v=this.view(a),sit=a.pose==='sit',g=sit?null:this.gaitOf(a);
       // the split step: a hop as the opponent strikes the ball
       if(g&&a.split&&a.split!==g.splitSeen){g.splitSeen=a.split;if(!a.swing)g.hop();}
@@ -148,12 +166,22 @@ class Game{
       if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'&&!set?a.patter||0:0,set);
       return FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
     for(const P of m.players){P._fit=P._fit||Outfits.player(P);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
-      const hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold});
+      const hold2=holdOf(P),hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold,hold:hold2});
+      if(hold2&&hands)this.props.push({what:hold2.what,hands,yaw:P.yaw});
       // a ball waiting to be served sits in the server's free hand, not inside the body
       if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
-    m.kids.forEach((k,i)=>draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null)));
+    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});});
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
+  }
+  // the ceremony's stage and table, and whatever prize someone is holding: between their hands
+  drawCeremony(){
+    const m=this.match,c=m.stage==='ceremony'?m.cer:null;if(!c)return;Prizes.stage(this.B,c);
+    for(const p of this.props){const[a,b]=p.hands,x=(a[0]+b[0])/2,y=(a[1]+b[1])/2,z=(a[2]+b[2])/2,fx=Math.sin(p.yaw),fz=Math.cos(p.yaw);
+      if(p.what==='trophy')Prizes.trophy(this.B,x+fx*.02,y+.02,z+fz*.02,p.yaw,1.3);else Prizes.plate(this.B,x+fx*.03,y,z+fz*.03,fx,fz);}
+    // the camera eases in on the stage, closer still as the trophy goes up
+    if(m.t<(this.confettiUntil||0)&&R()<.05)this.fx.confetti(40,c.D.x,c.D.z,.4);
+    const D=c.D;this.cam.stage={x:D.x-c.rx*.5,z:D.z-c.rz*.5,zoom:lerp(2.3,3.1,clamp(c.lift,0,1))};
   }
   drawMarkers(){
     const m=this.match,B=this.B,t=this.tc,C=m.control;

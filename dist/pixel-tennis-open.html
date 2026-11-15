@@ -240,6 +240,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   </div>
   <div class="bottom">
     <div class="caption" id="line" aria-live="polite"></div>
+    <div class="panel after" id="cerBar" hidden aria-label="Trophy ceremony"><span class="aft-t">TROPHY CEREMONY</span><button class="cta" id="cerSkip" aria-keyshortcuts="Enter">Skip ▶<kbd>Enter</kbd></button></div>
     <div class="panel after" id="after" hidden aria-label="Match over"><span class="aft-t">MATCH OVER</span><span id="aftW" class="aft-w"></span><button id="aftRes">Result</button><button id="aftNew">New match</button><button class="cta" id="aftGo" aria-keyshortcuts="Enter">Rematch ▶<kbd>Enter</kbd></button></div>
     <div class="panel dock" id="dock" aria-label="Controls">
       <button id="auto" class="auto" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Auto<kbd>Space</kbd></button>
@@ -1627,6 +1628,48 @@ class Match{
     this.go(a,0,a.s*12.5,2.2);this.go(b,0,b.s*12.5,2.2);
     yield* this.allOf([()=>a.path.length,()=>b.path.length]);
   }
+  // ──────── the trophy ceremony, after a tournament final ────────
+  // A stage rises in the champion's half, facing the camera (az: the camera's bearing), with a table for the trophy and
+  // the runner-up's plate and the ball kids lined up behind. A ball kid carries the plate to the runner-up, then
+  // another the trophy to the champion on the stage, who lifts it. this.cer is what the drawing needs.
+  *ceremony(az){
+    const W=this.result.winner,L=this.result.loser,fx=Math.sin(az),fz=Math.cos(az),rx=Math.cos(az),rz=-Math.sin(az);
+    const D={x:0,z:W.s*4.4},at=(r,f=0)=>({x:D.x+rx*r+fx*f,z:D.z+rz*r+fz*f}),T=at(2.5,-.1),c=this.cer={D,T,az,fx,fz,rx,rz,trophy:'table',plate:'table',lift:0,dais:0,carry:{}};
+    this.stage='ceremony';this.live=false;this.ev('ceremony',{});this.mood.emit('applause',.7);
+    const face=a=>{a.yaw=az;a.look=null;};
+    for(const P of this.players){P.mode='walk';P.plan=null;P.swing=null;P.pose='stand';P.cheer=P.sulk=0;}
+    // to their marks while the stage goes up: the finalists in front of it, the ball kids in a line behind,
+    // two of them by the prize table
+    const pL=at(-1.9,.7),pW=at(-.4,1.2),home=[at(2.0,-1.0),at(2.9,-1.0)];this.go(L,pL.x,pL.z,2.4);this.go(W,pW.x,pW.z,2.4);
+    this.kids.forEach((k,i)=>{k.busy=true;k.pose='stand';const p=i<2?home[i]:at(-1.8+(i-2)*1.2,-2.0);this.go(k,p.x,p.z,5);});
+    let t0=this.t;while(this.t<t0+.6){c.dais=sstep(0,.6,this.t-t0);yield;}c.dais=1;
+    this.say('Ladies and gentlemen, the trophy presentation.','ump',3);
+    while(this.t<t0+3.2&&[W,L,...this.kids].some(a=>a.path.length))yield;
+    for(const a of[W,L,...this.kids])face(a);
+    // the runner-up's plate; meanwhile the trophy is fetched from the table
+    this.say(`Your runner-up: ${L.st.name}!`,'ump',2.8);this.mood.emit('applause',.9);
+    this.spawn(this.pickup(this.kids[1],'trophy',.3));
+    yield* this.pickup(this.kids[0],'plate',-.3);yield* this.deliver(this.kids[0],'plate',L,home[0]);
+    yield* this.wait(1.0);
+    // the champion steps up and is handed the trophy
+    this.say(`And your champion: ${W.st.name}!`,'ump',3.2);this.mood.emit('cheer',1);
+    yield* this.goW(W,D.x,D.z,2.8);face(W);
+    t0=this.t;while(this.t<t0+.25){W.y=.32*sstep(0,.25,this.t-t0);yield;}W.y=.32;
+    yield* this.deliver(this.kids[1],'trophy',W,home[1]);
+    // the lift
+    t0=this.t;this.ev('trophy',{who:W.idx,name:W.st.name});this.mood.emit('roar',1);this.wave=this.t;
+    while(this.t<t0+5){const q=this.t-t0;c.lift=sstep(0,.7,q)*(1+(q>.7&&q<3.5?.1*Math.sin((q-.7)*6):0));yield;}
+    this.ev('ceremonyEnd',{});
+  }
+  // a ball kid fetches the plate or the trophy from the table (side: which end of the table it stands at)
+  *pickup(k,what,side){const c=this.cer;c.carry[what]=k;yield* this.goW(k,c.T.x-c.fx*.45+c.rx*side,c.T.z-c.fz*.45+c.rz*side,3.4);c[what]='kid';}
+  // … carries it to a finalist, hands it over, and goes back to the line
+  *deliver(k,what,to,home){
+    const c=this.cer;while(c[what]!=='kid')yield;
+    yield* this.goW(k,to.x+c.fx*.62,to.z+c.fz*.62,4.6);k.yaw=c.az+PI;
+    yield* this.wait(.25);c[what]=to===this.result.winner?'W':'L';yield* this.wait(.15);
+    this.go(k,home.x,home.z,3.4);this.spawn((function*(){while(k.path.length)yield;k.yaw=c.az;})());
+  }
   *swapEnds(){
     const a=this.A,b=this.B;a.mode=b.mode='walk';a.plan=b.plan=null;a.swing=b.swing=null;a.s*=-1;b.s*=-1;
     this.go(a,0,a.s*12.5,2.6);this.go(b,0,b.s*12.5,2.6);
@@ -2434,6 +2477,10 @@ class FigureRig{
     else if(pose==='drag'){t1=[R0[0]-fx*.34,.85*k,R0[2]-fz*.34];t2=[L0[0]-fx*.34,.85*k,L0[2]-fz*.34];}
     else if(pose==='climb'){const w=Math.sin(ph*1.2)*.16;t1=[R0[0]+fx*.24,shY+.1+w,R0[2]+fz*.24];t2=[L0[0]+fx*.24,shY+.1-w,L0[2]+fz*.24];}
     else if(pose==='read'){t1=[R0[0]+fx*.4,hipY-.1,R0[2]+fz*.4];t2=[L0[0]+fx*.1,hipY+.1,L0[2]+fz*.1];}
+    // the trophy ceremony: carrying a prize at the waist, holding the plate up to the chest, lifting the trophy
+    else if(o.hold){const h=o.hold,W2=h.kind==='plate'?.2:.13;let f=.3,y=hipY+.25;
+      if(h.kind==='plate'){f=.3;y=shY-.1;}else if(h.kind==='lift'){f=lerp(.24,.12,h.q);y=lerp(shY-.05,shY+.62,h.q);}
+      t1=[px+fx*f+rx*hnd*W2,y,pz+fz*f+rz*hnd*W2];t2=[px+fx*f-rx*hnd*W2,y,pz+fz*f-rz*hnd*W2];}
     else if(o.holding&&hasRacket){
       t1=[R0[0]+fx*.16,hipY+.04,R0[2]+fz*.16];dirR=[fx*.55+rx*hnd*.2,-.5,fz*.55+rz*hnd*.2];
       t2=[px+fx*.36-rx*hnd*.08,hipY+.14,pz+fz*.36-rz*hnd*.08];}
@@ -2457,12 +2504,44 @@ class FigureRig{
     for(const[el,e]of[[elR,e1],[elL,e2]]){const dx=e[0]-el[0],dy=e[1]-el[1],dz=e[2]-el[2],l=Math.hypot(dx,dy,dz)||1;
       B.seg('ball',e[0]-dx/l*.01,e[1]-dy/l*.01,e[2]-dz/l*.01,e[0]+dx/l*.1*k,e[1]+dy/l*.1*k,e[2]+dz/l*.1*k,.065*k,.035*k,armC,crx,0,crz);}
     if(o.body)o.body.update({k,P:[lx,hipY,lz],C:[cx,chY,cz],N:[nkx,nkY,nkz],H:[nkx,hY,nkz],pr:[prx,0,prz],cr:[crx,0,crz],hd:[hdx,0,hdz],legs,arms:[[R0,elR,e1],[L0,elL,e2]]});
-    if(hasRacket&&!seated&&!(pose==='shake')){
+    if(hasRacket&&!seated&&!(pose==='shake')&&!o.hold){
       const dd=(sw&&Math.abs(tau)<.04)?[S.x-e1[0],S.y-e1[1],S.z-e1[2]]:(dirR||dir||[fx,.2,fz]);
       a.rkt=FigureRig.racket(B,e1[0],e1[1],e1[2],dd[0],dd[1],dd[2],fx,fz,c.racket??RKT,sw?FigureRig.face(sw.type,tau):0);
     }
     if(pose==='pull'||pose==='drag'){}
     return[e1,e2];
+  }
+}
+
+// Prizes — the trophy ceremony's set: the stage, the carpet, the table, the trophy and the runner-up's plate
+// All drawn from instanced boxes and discs each frame, like the people, so they can be carried and lifted.
+class Prizes{
+  static SILVER=0xdfe6f0;static SHADE=0xb3bdcc;static WOOD=0x3f2a20;
+  // the cup: dark plinth, stem with a knop, a deep bowl with two looped handles, a domed lid. y is its foot
+  static trophy(B,x,y,z,yaw,k=1){
+    const S=Prizes.SILVER,H=Prizes.SHADE,cx=Math.cos(yaw),cz=-Math.sin(yaw);
+    B.box(x,y+.05*k,z,.17*k,.1*k,.17*k,yaw,Prizes.WOOD);B.box(x,y+.104*k,z,.135*k,.012*k,.135*k,yaw,H);
+    B.box(x,y+.17*k,z,.045*k,.12*k,.045*k,yaw,S);B.box(x,y+.22*k,z,.09*k,.028*k,.09*k,yaw,H);
+    B.box(x,y+.31*k,z,.2*k,.16*k,.2*k,yaw,S);B.box(x,y+.39*k,z,.235*k,.024*k,.235*k,yaw,H);
+    B.box(x,y+.425*k,z,.12*k,.05*k,.12*k,yaw,S);B.box(x,y+.465*k,z,.034*k,.04*k,.034*k,yaw,H);
+    for(const s of[-1,1]){B.box(x+cx*s*.15*k,y+.32*k,z+cz*s*.15*k,.028*k,.13*k,.028*k,yaw,S);B.box(x+cx*s*.125*k,y+.385*k,z+cz*s*.125*k,.05*k,.022*k,.028*k,yaw,S);}
+  }
+  // the runner-up's plate, upright and facing (fx,fz)
+  static plate(B,x,y,z,fx,fz){
+    B.seg('disc',x,y-.24,z,x,y+.24,z,.48,.02,0xd8a830,fx,0,fz);
+    B.seg('disc',x+fx*.01,y-.21,z+fz*.01,x+fx*.01,y+.21,z+fz*.01,.42,.01,Prizes.SILVER,fx,0,fz);
+    B.seg('disc',x+fx*.02,y-.12,z+fz*.02,x+fx*.02,y+.12,z+fz*.02,.24,.006,Prizes.SHADE,fx,0,fz);
+  }
+  // the stage (it rises as c.dais goes 0 → 1), a carpet running from it toward the camera, the prize table
+  static stage(B,c){
+    const{D,T,az,fx,fz}=c,h=.32*c.dais;if(h<.01)return;
+    B.box(D.x,h/2,D.z,1.7,h,1.25,az,0x1f2f6a);B.box(D.x,h+.006,D.z,1.5,.012,1.05,az,0x25468a);
+    B.box(D.x+fx*.63,h*.5,D.z+fz*.63,1.7,.05,.02,az,0xf4d44a);
+    const L=2.9*c.dais;B.box(D.x+fx*(.6+L/2),.012,D.z+fz*(.6+L/2),.9,.012,L,az,0x7a1f2b);
+    for(const s of[-1,1])B.box(D.x+fx*(.6+L/2)+Math.cos(az)*s*.47,.014,D.z+fz*(.6+L/2)-Math.sin(az)*s*.47,.05,.014,L,az,0xd8a830);
+    B.box(T.x,.37,T.z,.95,.74,.55,az,0xf4f3ec);B.box(T.x,.6,T.z+0,.97,.08,.57,az,0x25468a);
+    if(c.trophy==='table')Prizes.trophy(B,T.x-Math.cos(az)*.18,.74,T.z+Math.sin(az)*.18,az,1);
+    if(c.plate==='table'){const px=T.x+Math.cos(az)*.24,pz=T.z-Math.sin(az)*.24;B.box(px,.77,pz,.08,.06,.06,az,Prizes.WOOD);Prizes.plate(B,px,.98,pz,fx,fz);}
   }
 }
 
@@ -2866,6 +2945,8 @@ class CameraRig{
     const RW=this.R.RW,RH=this.R.RH,portrait=RW<RH,C=Math.min(RW/(portrait?27:43),RH/(portrait?30:27));
     if(this.mode===CameraRig.STADIUM)return{ppm:Math.min(RW/80,RH/(portrait?64:56))*this.mul,x:0,y:2,z:0};
     if(this.mode===CameraRig.COURT)return{ppm:C*this.mul,x:0,y:.8,z:0};
+    // a ceremony holds the camera on its stage, closer in
+    if(this.stage)return{ppm:C*1.12*this.mul*this.stage.zoom,x:this.stage.x,y:1,z:this.stage.z};
     // Follow: the whole court, a little closer, leaning gently toward the person's player. It depends only on where
     // that player stands — never on the ball or the server — so it holds still through the serve and the rally.
     return{ppm:C*1.12*this.mul,x:f.me.x*.25,y:.8,z:f.me.z*.18};
@@ -2942,7 +3023,7 @@ class Particles{
   }
   spark(x,y,z,vx,vy,vz,l,c,fl=false){const p=this.v[this.i];Object.assign(p,{x,y,z,vx,vy,vz,l,fl});const q=hexc(c);this.c.set(q,this.i*3);this.i=(this.i+1)%this.N;}
   dust(x,z,n,col,v=1){for(let i=0;i<n;i++)this.spark(x+N(.09),.1,z+N(.09),N(.7*v),.5+R()*1.2*v,N(.7*v),.3+R()*.4,col[i%col.length]);}
-  confetti(n){const cols=[0xf4d44a,0x7bb8ea,0xf4f3ec,0xf0664a,0x4a8ed4];for(let i=0;i<n;i++)this.spark(N(6),9+R()*3,N(10),N(.6),-.4-R()*.6,N(.6),4+R()*3,cols[i%cols.length],true);}
+  confetti(n,cx=0,cz=0,w=1){const cols=[0xf4d44a,0x7bb8ea,0xf4f3ec,0xf0664a,0x4a8ed4];for(let i=0;i<n;i++)this.spark(cx+N(6*w),9+R()*3,cz+N(10*w),N(.6),-.4-R()*.6,N(.6),4+R()*3,cols[i%cols.length],true);}
   update(dt){const p=this.p;for(let i=0;i<this.N;i++){const q=this.v[i];if(q.l<=0){p[i*3+1]=-50;continue;}q.l-=dt;if(!q.fl)q.vy-=3*dt;else{q.vx+=Math.sin(q.l*5+i)*dt*.8;}
     q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;if(q.y<.04){q.y=.04;q.vy=0;q.vx*=.8;q.vz*=.8;}p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}
     this.g.attributes.position.needsUpdate=true;this.g.attributes.color.needsUpdate=true;}
@@ -3602,6 +3683,7 @@ class Input{
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
+      if(!$('cerBar').hidden){if(c==='Enter'||c==='Escape'){$('cerSkip').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
       if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
       const m=g.match,serving=g.dock.serving(m);
@@ -3638,7 +3720,7 @@ class Game{
     this.stadium=new Stadium(R.root,R.mats);R.addLamps(this.stadium.lamps);
     this.halos=new Halos(this.stadium.halos);R.root.add(this.halos.m);
     this.B=new Parts(R.mats.lit);R.root.add(this.B.group);
-    this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);
+    this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);$('cerSkip').onclick=()=>this.endCeremony();
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
@@ -3668,7 +3750,19 @@ class Game{
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
   continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
-    this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});}
+    const talk=()=>this.interview.open(m,t,fans=>{t.fans+=fans;t.record(m.result.winner===m.human,m.result.line);t.settle();this.demo();this.bracket.open();});
+    if(t.round===2)this.ceremony(talk);else talk();}
+  // the trophy ceremony on court after a final the person played; Enter or the button skips to what comes next
+  ceremony(done){
+    const m=this.match;m.tasks.length=0;m.loose.length=0;m.ball=null;
+    this.cerDone=done;this.cerCam=this.cam.mode;this.cam.setMode(CameraRig.FOLLOW);this.cam.stage={x:0,z:0,zoom:1.5};
+    // facing where the camera will settle, not where it happens to be mid-turn
+    m.spawn(m.ceremony(this.cam.azTo??this.cam.az));$('cerBar').hidden=false;$('line').textContent='';if(this.tour)this.tour.feted=true;
+  }
+  endCeremony(){
+    if(!this.cerDone)return;const done=this.cerDone;this.cerDone=null;$('cerBar').hidden=true;this.cam.stage=null;this.cam.setMode(this.cerCam??CameraRig.FOLLOW);
+    this.match.tasks.length=0;this.sound.voice.stop();done();
+  }
   endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
@@ -3718,7 +3812,7 @@ class Game{
     this.R.light(dt,this.tc,this.cam.ppm);
     this.halos.u.night.value=clamp(this.R.L.night+this.R.L.flood*.4,0,1);this.halos.u.ppm.value=this.cam.ppm;
     this.updateCrowd(dt);this.stadium.led.scroll(dt*(this.paused?0:1));this.updateLed();
-    this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.B.commit();
+    this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.drawCeremony();this.B.commit();
     this.ballView.update(m,this.tc,this.cam.ppm,this.alpha,this.heldAt);
     this.stadium.court.letter(this.focus().end);this.courtHighlight(dt);this.stadium.court.flush();
     this.R.render();
@@ -3745,6 +3839,8 @@ class Game{
         case'replay':this.replay.show(e,m.t);break;
         case'ace':this.ledFlash(['ACE!',`${e.kmh} KM/H`,'ACE!'],3,true);break;
         case'bigPoint':this.ledFlash([e.label.toUpperCase(),e.label.toUpperCase()],5,true);break;
+        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),'PIXEL TENNIS OPEN'],12,true);break;}
+        case'ceremonyEnd':this.endCeremony();break;
         case'matchOver':{const H=m.human;this.ledFlash(['GAME SET MATCH',e.winner.short.toUpperCase()],12,true);
           if(!H||e.winner===H)this.fx.confetti(220);this.resultAt=m.t+4.5;break;}
       }
@@ -3756,9 +3852,10 @@ class Game{
     else L.draw([`${m.A.short} V ${m.B.short}`,'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
   updateScreens(){
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
-    const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?'CENTRE COURT':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
+    const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
+    const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
+    const s={title:!sc?'CENTRE COURT':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
@@ -3772,7 +3869,10 @@ class Game{
   }
   lookAtBall(){const b=this.match.ball;if(b){this.look.x=b.x;this.look.z=b.z;}return this.look;}
   drawPeople(dtSim){
-    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;
+    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;this.props=[];
+    const c=m.stage==='ceremony'?m.cer:null,holdOf=a=>{if(!c)return null;
+      if(a===m.result.winner&&c.trophy==='W')return{kind:'lift',q:c.lift,what:'trophy'};if(a===m.result.loser&&c.plate==='L')return{kind:'plate',what:'plate'};
+      for(const w of['trophy','plate'])if(c[w]==='kid'&&c.carry[w]===a)return{kind:'carry',what:w};return null;};
     const draw=(a,c,lk,extra)=>{const v=this.view(a),sit=a.pose==='sit',g=sit?null:this.gaitOf(a);
       // the split step: a hop as the opponent strikes the ball
       if(g&&a.split&&a.split!==g.splitSeen){g.splitSeen=a.split;if(!a.swing)g.hop();}
@@ -3780,12 +3880,22 @@ class Game{
       if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'&&!set?a.patter||0:0,set);
       return FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
     for(const P of m.players){P._fit=P._fit||Outfits.player(P);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
-      const hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold});
+      const hold2=holdOf(P),hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold,hold:hold2});
+      if(hold2&&hands)this.props.push({what:hold2.what,hands,yaw:P.yaw});
       // a ball waiting to be served sits in the server's free hand, not inside the body
       if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
-    m.kids.forEach((k,i)=>draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null)));
+    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});});
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
+  }
+  // the ceremony's stage and table, and whatever prize someone is holding: between their hands
+  drawCeremony(){
+    const m=this.match,c=m.stage==='ceremony'?m.cer:null;if(!c)return;Prizes.stage(this.B,c);
+    for(const p of this.props){const[a,b]=p.hands,x=(a[0]+b[0])/2,y=(a[1]+b[1])/2,z=(a[2]+b[2])/2,fx=Math.sin(p.yaw),fz=Math.cos(p.yaw);
+      if(p.what==='trophy')Prizes.trophy(this.B,x+fx*.02,y+.02,z+fz*.02,p.yaw,1.3);else Prizes.plate(this.B,x+fx*.03,y,z+fz*.03,fx,fz);}
+    // the camera eases in on the stage, closer still as the trophy goes up
+    if(m.t<(this.confettiUntil||0)&&R()<.05)this.fx.confetti(40,c.D.x,c.D.z,.4);
+    const D=c.D;this.cam.stage={x:D.x-c.rx*.5,z:D.z-c.rz*.5,zoom:lerp(2.3,3.1,clamp(c.lift,0,1))};
   }
   drawMarkers(){
     const m=this.match,B=this.B,t=this.tc,C=m.control;

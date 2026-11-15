@@ -21,6 +21,8 @@ class CameraRig{
     const RW=this.R.RW,RH=this.R.RH,portrait=RW<RH,C=Math.min(RW/(portrait?27:43),RH/(portrait?30:27));
     if(this.mode===CameraRig.STADIUM)return{ppm:Math.min(RW/80,RH/(portrait?64:56))*this.mul,x:0,y:2,z:0};
     if(this.mode===CameraRig.COURT)return{ppm:C*this.mul,x:0,y:.8,z:0};
+    // a ceremony holds the camera on its stage, closer in
+    if(this.stage)return{ppm:C*1.12*this.mul*this.stage.zoom,x:this.stage.x,y:1,z:this.stage.z};
     // Follow: the whole court, a little closer, leaning gently toward the person's player. It depends only on where
     // that player stands — never on the ball or the server — so it holds still through the serve and the rally.
     return{ppm:C*1.12*this.mul,x:f.me.x*.25,y:.8,z:f.me.z*.18};

@@ -466,6 +466,48 @@ class Match{
     this.go(a,0,a.s*12.5,2.2);this.go(b,0,b.s*12.5,2.2);
     yield* this.allOf([()=>a.path.length,()=>b.path.length]);
   }
+  // ──────── the trophy ceremony, after a tournament final ────────
+  // A stage rises in the champion's half, facing the camera (az: the camera's bearing), with a table for the trophy and
+  // the runner-up's plate and the ball kids lined up behind. A ball kid carries the plate to the runner-up, then
+  // another the trophy to the champion on the stage, who lifts it. this.cer is what the drawing needs.
+  *ceremony(az){
+    const W=this.result.winner,L=this.result.loser,fx=Math.sin(az),fz=Math.cos(az),rx=Math.cos(az),rz=-Math.sin(az);
+    const D={x:0,z:W.s*4.4},at=(r,f=0)=>({x:D.x+rx*r+fx*f,z:D.z+rz*r+fz*f}),T=at(2.5,-.1),c=this.cer={D,T,az,fx,fz,rx,rz,trophy:'table',plate:'table',lift:0,dais:0,carry:{}};
+    this.stage='ceremony';this.live=false;this.ev('ceremony',{});this.mood.emit('applause',.7);
+    const face=a=>{a.yaw=az;a.look=null;};
+    for(const P of this.players){P.mode='walk';P.plan=null;P.swing=null;P.pose='stand';P.cheer=P.sulk=0;}
+    // to their marks while the stage goes up: the finalists in front of it, the ball kids in a line behind,
+    // two of them by the prize table
+    const pL=at(-1.9,.7),pW=at(-.4,1.2),home=[at(2.0,-1.0),at(2.9,-1.0)];this.go(L,pL.x,pL.z,2.4);this.go(W,pW.x,pW.z,2.4);
+    this.kids.forEach((k,i)=>{k.busy=true;k.pose='stand';const p=i<2?home[i]:at(-1.8+(i-2)*1.2,-2.0);this.go(k,p.x,p.z,5);});
+    let t0=this.t;while(this.t<t0+.6){c.dais=sstep(0,.6,this.t-t0);yield;}c.dais=1;
+    this.say('Ladies and gentlemen, the trophy presentation.','ump',3);
+    while(this.t<t0+3.2&&[W,L,...this.kids].some(a=>a.path.length))yield;
+    for(const a of[W,L,...this.kids])face(a);
+    // the runner-up's plate; meanwhile the trophy is fetched from the table
+    this.say(`Your runner-up: ${L.st.name}!`,'ump',2.8);this.mood.emit('applause',.9);
+    this.spawn(this.pickup(this.kids[1],'trophy',.3));
+    yield* this.pickup(this.kids[0],'plate',-.3);yield* this.deliver(this.kids[0],'plate',L,home[0]);
+    yield* this.wait(1.0);
+    // the champion steps up and is handed the trophy
+    this.say(`And your champion: ${W.st.name}!`,'ump',3.2);this.mood.emit('cheer',1);
+    yield* this.goW(W,D.x,D.z,2.8);face(W);
+    t0=this.t;while(this.t<t0+.25){W.y=.32*sstep(0,.25,this.t-t0);yield;}W.y=.32;
+    yield* this.deliver(this.kids[1],'trophy',W,home[1]);
+    // the lift
+    t0=this.t;this.ev('trophy',{who:W.idx,name:W.st.name});this.mood.emit('roar',1);this.wave=this.t;
+    while(this.t<t0+5){const q=this.t-t0;c.lift=sstep(0,.7,q)*(1+(q>.7&&q<3.5?.1*Math.sin((q-.7)*6):0));yield;}
+    this.ev('ceremonyEnd',{});
+  }
+  // a ball kid fetches the plate or the trophy from the table (side: which end of the table it stands at)
+  *pickup(k,what,side){const c=this.cer;c.carry[what]=k;yield* this.goW(k,c.T.x-c.fx*.45+c.rx*side,c.T.z-c.fz*.45+c.rz*side,3.4);c[what]='kid';}
+  // … carries it to a finalist, hands it over, and goes back to the line
+  *deliver(k,what,to,home){
+    const c=this.cer;while(c[what]!=='kid')yield;
+    yield* this.goW(k,to.x+c.fx*.62,to.z+c.fz*.62,4.6);k.yaw=c.az+PI;
+    yield* this.wait(.25);c[what]=to===this.result.winner?'W':'L';yield* this.wait(.15);
+    this.go(k,home.x,home.z,3.4);this.spawn((function*(){while(k.path.length)yield;k.yaw=c.az;})());
+  }
   *swapEnds(){
     const a=this.A,b=this.B;a.mode=b.mode='walk';a.plan=b.plan=null;a.swing=b.swing=null;a.s*=-1;b.s*=-1;
     this.go(a,0,a.s*12.5,2.6);this.go(b,0,b.s*12.5,2.6);

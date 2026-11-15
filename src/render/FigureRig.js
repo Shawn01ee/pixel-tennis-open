@@ -214,6 +214,10 @@ class FigureRig{
     else if(pose==='drag'){t1=[R0[0]-fx*.34,.85*k,R0[2]-fz*.34];t2=[L0[0]-fx*.34,.85*k,L0[2]-fz*.34];}
     else if(pose==='climb'){const w=Math.sin(ph*1.2)*.16;t1=[R0[0]+fx*.24,shY+.1+w,R0[2]+fz*.24];t2=[L0[0]+fx*.24,shY+.1-w,L0[2]+fz*.24];}
     else if(pose==='read'){t1=[R0[0]+fx*.4,hipY-.1,R0[2]+fz*.4];t2=[L0[0]+fx*.1,hipY+.1,L0[2]+fz*.1];}
+    // the trophy ceremony: carrying a prize at the waist, holding the plate up to the chest, lifting the trophy
+    else if(o.hold){const h=o.hold,W2=h.kind==='plate'?.2:.13;let f=.3,y=hipY+.25;
+      if(h.kind==='plate'){f=.3;y=shY-.1;}else if(h.kind==='lift'){f=lerp(.24,.12,h.q);y=lerp(shY-.05,shY+.62,h.q);}
+      t1=[px+fx*f+rx*hnd*W2,y,pz+fz*f+rz*hnd*W2];t2=[px+fx*f-rx*hnd*W2,y,pz+fz*f-rz*hnd*W2];}
     else if(o.holding&&hasRacket){
       t1=[R0[0]+fx*.16,hipY+.04,R0[2]+fz*.16];dirR=[fx*.55+rx*hnd*.2,-.5,fz*.55+rz*hnd*.2];
       t2=[px+fx*.36-rx*hnd*.08,hipY+.14,pz+fz*.36-rz*hnd*.08];}
@@ -237,7 +241,7 @@ class FigureRig{
     for(const[el,e]of[[elR,e1],[elL,e2]]){const dx=e[0]-el[0],dy=e[1]-el[1],dz=e[2]-el[2],l=Math.hypot(dx,dy,dz)||1;
       B.seg('ball',e[0]-dx/l*.01,e[1]-dy/l*.01,e[2]-dz/l*.01,e[0]+dx/l*.1*k,e[1]+dy/l*.1*k,e[2]+dz/l*.1*k,.065*k,.035*k,armC,crx,0,crz);}
     if(o.body)o.body.update({k,P:[lx,hipY,lz],C:[cx,chY,cz],N:[nkx,nkY,nkz],H:[nkx,hY,nkz],pr:[prx,0,prz],cr:[crx,0,crz],hd:[hdx,0,hdz],legs,arms:[[R0,elR,e1],[L0,elL,e2]]});
-    if(hasRacket&&!seated&&!(pose==='shake')){
+    if(hasRacket&&!seated&&!(pose==='shake')&&!o.hold){
       const dd=(sw&&Math.abs(tau)<.04)?[S.x-e1[0],S.y-e1[1],S.z-e1[2]]:(dirR||dir||[fx,.2,fz]);
       a.rkt=FigureRig.racket(B,e1[0],e1[1],e1[2],dd[0],dd[1],dd[2],fx,fz,c.racket??RKT,sw?FigureRig.face(sw.type,tau):0);
     }
