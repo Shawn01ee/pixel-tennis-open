@@ -3,7 +3,8 @@
 class WorldLabels{
   constructor(){this.tags=[{el:$('tag0'),until:0,who:0},{el:$('tag1'),until:0,who:0}];this.ti=0;this.callUntil=0;this.callAt=null;}
   tag(e,m){const q=this.tags[this.ti=(this.ti+1)%2];q.el.textContent=e.text;q.el.className='tagf'+(e.strong?' strong':'')+(m.control.idx===e.who?' me':'');q.until=m.t+(e.strong?1.7:1.05);q.who=e.who;q.el.hidden=false;}
-  call(e,m){const el=$('call');el.textContent=e.text;el.className='call'+(e.text==='LET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
+  // line calls in Korean; the net and a let are information, not a fault, and are shown in blue
+  call(e,m){const el=$('call');el.textContent=(CALLS[e.text]||{ko:e.text}).ko;el.className='call'+(e.text==='LET'||e.text==='NET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
   // a new match starts with nothing left over from the last one
   clear(){for(const q of this.tags){q.until=0;q.el.hidden=true;}this.callUntil=0;this.callAt=null;$('call').hidden=true;$('bub').hidden=true;$('tagS').hidden=true;}
   place(el,R,x,y,z,mx=60,dy='-100%'){const[sx,sy]=R.project(x,y,z);el.style.transform=`translate(${clamp(sx,mx,innerWidth-mx)}px,${clamp(sy,70,innerHeight-120)}px) translate(-50%,${dy})`;}

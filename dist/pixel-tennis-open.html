@@ -14,7 +14,7 @@
 :root{color-scheme:dark;
   --ink:#0e0f1a;--navy:#101a3a;--deep:#1a2c5c;--blue:#25468a;--court:#3166b4;--azure:#4a8ed4;--sky:#7bb8ea;--ice:#e2f4fb;
   --chalk:#f4f3ec;--mute:#9aa1b3;--ball:#f4d44a;--coral:#f0664a;--lime:#b4dc68;
-  --display:'Silkscreen','Courier New',monospace;--data:'VT323','Courier New',monospace}
+  --display:'Silkscreen','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Courier New',monospace;--data:'VT323','Courier New',monospace}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--chalk);font-family:var(--data);font-size:18px;line-height:1.1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #view{position:fixed;left:0;top:0;display:block;image-rendering:pixelated;touch-action:none;cursor:crosshair}
 button{font:18px/1 var(--data);color:var(--chalk);background:var(--deep);border:2px solid var(--ink);min-height:30px;padding:0 9px;cursor:pointer;white-space:nowrap}
@@ -333,6 +333,9 @@ class Court{
 
 // constants — aerodynamic constant, net tape radius, and the bits a physics step reports
 const KA=.5*AIR*PI*BALL.R*BALL.R/BALL.M, TAPE_R=.015;
+// the net tape: the share of its pace a clipped ball keeps (a full catch of the top … the finest touch), and the
+// hop it gets off the tape, m/s
+const NET_KEEP=[.15,.5], NET_HOP=1.2;
 const HIT=Object.freeze({BOUNCE:1,TAPE:2,MESH:4});
 
 // Surface — court surfaces: restitution, friction, roughness, wear
@@ -446,7 +449,14 @@ class BallPhysics{
     }
     if(d<rr&&d>1e-5){
       const ny=dy/d,nz=dz/d,vn=b.vy*ny+b.vz*nz;let ev=0;
-      if(vn<0){const k=1.3*vn;b.vy-=k*ny;b.vz-=k*nz;b.vx*=.88;b.wx*=.5;b.wz*=.5;b.net|=HIT.TAPE;ev=HIT.TAPE;}
+      // the tape is a strip on a slack net, not a rigid bar: it gives under the ball and soaks up most of its energy.
+      // A ball that catches the top of the tape (centre above it) keeps its heading and a share of its pace that grows
+      // the finer the touch, plus a small hop — it dribbles on over (a let, if it lands in the box). One that catches
+      // the front (centre below the tape's) is stopped and drops back on the hitter's side
+      if(vn<0){const s=clamp(dy/rr,-1,1);
+        if(s>0){const k=lerp(NET_KEEP[0],NET_KEEP[1],s);b.vx*=k;b.vz*=k;b.vy=b.vy*k+NET_HOP*(1-s*.5);}
+        else{b.vx*=.15;b.vz*=-.05;b.vy=Math.max(b.vy*.2,0)+.3;}
+        b.wx*=.5;b.wz*=.5;b.net|=HIT.TAPE;ev=HIT.TAPE;}
       b.y=hc+ny*(rr+1e-3);b.z=nz*(rr+1e-3);
       return ev;
     }
@@ -1061,6 +1071,12 @@ const KID_POS=[[6.95,-1.0],[6.95,1.0],[-5.6,-17.5],[5.6,-17.5],[-5.6,17.5],[5.6,
 // commentary — words for shots, used in captions and tags
 const DESC={drive:'with the drive',flat:'with a flat drive',cross:'cross court',line:'down the line',angle:'on the sharp angle',drop:'with the drop shot',lob:'with the lob',passline:'with a pass down the line',passcross:'with a cross-court pass',smash:'with the smash',volley:'at the net',open:'into the open court',behind:'behind him',deep:'from deep',dip:'at his feet',putaway:'with the put-away volley',dropvolley:'with a drop volley',slice:'with the slice',approach:'behind the approach',safe:'from the back',serve:'off the serve'};
 const NAME={drive:'drive',flat:'flat drive',cross:'cross-court drive',line:'drive down the line',angle:'sharp angle',drop:'drop shot',lob:'lob',passline:'pass',passcross:'pass',smash:'smash',volley:'volley',open:'drive',behind:'drive',deep:'deep ball',dip:'dipping ball',putaway:'put-away volley',dropvolley:'drop volley',slice:'slice',approach:'approach',safe:'rally ball',serve:'return'};
+// the calls, as shown and spoken in Korean; the English is spoken where the device has no Korean voice
+//   NET    the serve touched the net (a let if it then lands in, a fault if it does not)
+//   FAULT  a serve that lands outside the box or does not get over;  OUT  a rally ball outside the court
+//   LET    a serve that touched the net and landed in: the same serve again
+const CALLS={NET:{ko:'네트',en:'Net'},FAULT:{ko:'폴트',en:'Fault'},OUT:{ko:'아웃',en:'Out'},LET:{ko:'렛',en:'Let'}};
+const CHAIR_CALLS={first:{ko:'퍼스트 서브',en:'First serve.'},second:{ko:'세컨드 서브',en:'Second serve.'},df:{ko:'더블 폴트',en:'Double fault.'}};
 const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passing shot',passcross:'Passing shot',smash:'Smash',dropvolley:'Drop volley',angle:'Sharp angle',approach:'Approach',slice:'Slice',volley:'Volley',putaway:'Put-away',behind:'Wrong-footed',dip:'At the feet'};
 
 // serves — serve types and the three serve targets
@@ -1167,7 +1183,9 @@ class Match{
   get timeScale(){return this.control.timeScale;}
   other(P){return P===this.A?this.B:this.A;}
   ev(type,o={}){if(this.events.length<400)this.events.push(Object.assign({type},o));}
-  say(text,who='ump',s=2.6){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who});}
+  // en: what to speak instead when the text is Korean and the device has no Korean voice
+  say(text,who='ump',s=2.6,en=null){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who,en});}
+  sayUmp(k,s=1.6){this.say(CHAIR_CALLS[k].ko,'ump',s,CHAIR_CALLS[k].en);}
   note(text){this.ev('note',{text});}
   spawn(g){this.tasks.push(g);}
 
@@ -1260,12 +1278,13 @@ class Match{
       if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.spawn(this.fetch(this.ball));this.ball=null;}
       for(const P of this.players)P.resetRally();
       const r=yield* this.review(r0);
-      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?(r.net?'Net':'Fault'):'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':'Let',strong:true});}
-      // the line call ("Fault!", "Net!", "Let!") has been made; the chair only says which serve comes next
-      if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.say(no===1?'First serve.':'Second serve.','ump',1.6);}yield* this.wait(1.2);continue;}
+      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?CALLS.FAULT.ko:CHAIR_CALLS.df.ko,strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':CALLS.LET.ko,strong:true});}
+      // the line call (폴트, 렛) has been made; the chair only says which serve comes next.
+      // A let is not a fault: the same serve is played again, so a let on the first serve leaves two serves to come
+      if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.sayUmp(no===1?'first':'second');}yield* this.wait(1.2);continue;}
       if(r.fault){
-        if(no===1){this.say('Second serve.','ump',1.6);no=2;yield* this.wait(1.1);continue;}
-        sc.srv.ms.df++;this.how={kind:'df',by:sc.srv.idx};this.say('Double fault.');this.note(`Double fault from ${sc.srv.short}.`);w=1-sc.server;yield* this.wait(1.0);break;
+        if(no===1){this.sayUmp('second');no=2;yield* this.wait(1.1);continue;}
+        sc.srv.ms.df++;this.how={kind:'df',by:sc.srv.idx};this.sayUmp('df',2.6);this.note(`Double fault from ${sc.srv.short}.`);w=1-sc.server;yield* this.wait(1.0);break;
       }
       w=r.w;break;
     }
@@ -1387,7 +1406,7 @@ class Match{
     // percentages stay human; off the ground it narrows direction and depth
     const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
-    b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;
+    b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;this.netCalled=false;
     if(C.is(Sv))C.clear();
     if(this.cue)this.cue.tag=false;
     this.kmh=Math.round(v*3.6);this.serveLabel=no===1?'1st':'2nd';this.serveKind=S.name;
@@ -1427,6 +1446,9 @@ class Match{
       if(r.plan&&this.t>=r.plan.t-DT/2)this.contact(r);
       const ev=this.physics.step(b,DT,true);
       if(ev&(HIT.TAPE|HIT.MESH)){this.ev('net',{x:b.x,y:b.y,z:b.z,mesh:!!(ev&HIT.MESH),v:Math.abs(b.vz)});
+        // a serve clipping the tape is called at once ("네트"); where it lands then makes it a let or a fault.
+        // A serve driven into the mesh is simply a fault, called when it drops
+        if(this.isServe&&(ev&HIT.TAPE)&&!this.netCalled){this.netCalled=true;this.ev('call',{text:'NET',x:b.x,z:0});}
         if(ev&HIT.TAPE)this.stats.cords++;
         if(this.recv){this.tr.compute(b,this.t,this.physics,true);this.recv.plan=null;this.recv.swing=null;this.recv.planAt=this.t+.12;}}
       if(ev&HIT.BOUNCE){this.cue=null;const o=this.judge(b);if(o)return o;}
@@ -1505,8 +1527,9 @@ class Match{
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        // only a serve into the net is called; in a rally the point is simply over
-        if(this.isServe){this.ev('call',{text:'NET',x:b.lbx,z:0});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
+        // a serve that does not get over is a fault (called 폴트, whether or not it clipped the tape on the way);
+        // in a rally the point is simply over, with no call
+        if(this.isServe){this.ev('call',{text:'FAULT',x:b.lbx,z:b.lbz});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
       }
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
@@ -3087,19 +3110,25 @@ class CrowdAudio{
 }
 
 // Announcer — the chair umpire's calls and the electronic line calls, spoken by the browser's speech synthesis
-// The umpire prefers an Australian or British English voice; the line calls use a flatter, clipped one.
+// Men's voices only. The umpire prefers an Australian or British English voice; the line calls use a second, flatter
+// one. Calls written in Korean (폴트, 렛, 세컨드 서브…) are spoken by a Korean man's voice, or in English where the
+// device has none. Where a device has no man's voice at all, the calls are shown but not spoken.
 class Announcer{
+  static KO=['Reed','Eddy','Rocko','Grandpa'];
   static MALE=/\b(Lee|Daniel|Arthur|Oliver|Gordon|Aaron|Fred|Alex|Tom|Rishi|Ralph|Albert|Reed|Rocko|Eddy|Grandpa|David|Mark|George|James|Guy|Male)\b/i;
   constructor(){
     this.on=false;this.ok=typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';this.ump=null;this.line=null;
     if(this.ok){this.pick();speechSynthesis.addEventListener?.('voiceschanged',()=>this.pick());}
   }
-  // a man's voice for the chair: Australian first, then British, then any English man's voice
+  // a man's voice for the chair: Australian first, then British, then any English man's voice — never a woman's
   pick(){
-    const v=speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang)),lang=(l,list=v)=>list.find(x=>x.lang.replace('_','-').toLowerCase().startsWith(l));
+    const all=speechSynthesis.getVoices(),v=all.filter(x=>/^en/i.test(x.lang)),lang=(l,list)=>list.find(x=>x.lang.replace('_','-').toLowerCase().startsWith(l));
     const male=v.filter(x=>Announcer.MALE.test(x.name));
-    this.ump=lang('en-au',male)||lang('en-gb',male)||male[0]||lang('en-au')||v[0]||null;this.male=!!male.length;
+    this.ump=lang('en-au',male)||lang('en-gb',male)||male[0]||null;
     this.line=male.find(x=>x!==this.ump)||this.ump;
+    // Korean: a man's voice in the order of preference below; the women's voices (Yuna and others) are never used
+    const ko=all.filter(x=>/^ko/i.test(x.lang)&&Announcer.MALE.test(x.name)),rank=x=>{const i=Announcer.KO.findIndex(n=>x.name.startsWith(n));return i<0?99:i;};
+    this.ko=ko.sort((a,b)=>rank(a)-rank(b))[0]||null;
   }
   // "Fifteen–Love." reads better as "Fifteen, Love."
   static spoken(text){return text.replace(/–/g,', ').replace(/\s+/g,' ').trim();}
@@ -3109,20 +3138,22 @@ class Announcer{
     if(!this.ok||this.primed)return;this.primed=true;
     try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-AU';speechSynthesis.speak(u);}catch(e){}
   }
-  say(text,kind='ump'){
+  say(text,kind='ump',en=null){
     if(!this.on||!this.ok)return;
     if(!this.ump)this.pick();
-    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=line?this.line:this.ump;
-    // without a man's voice installed, a lower pitch stands in
-    if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang='en-AU';
-    u.rate=line?1.12:.98;u.pitch=line?.7:(this.male?.95:.62);u.volume=line?1:.9;
+    const korean=/[가-힣]/.test(text);if(korean&&!this.ko){if(!en)return;text=en;}
+    const ko=korean&&!!this.ko,u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=ko?this.ko:line?this.line:this.ump;
+    if(!voice)return;                       // no man's voice on this device: shown, not spoken
+    u.voice=voice;u.lang=voice.lang;
+    u.rate=ko?1.05:line?1.12:.98;u.pitch=ko?(line?.85:.95):line?.7:.95;u.volume=line?1:.9;
     // Safari drops an utterance that is collected before it is spoken, or spoken in the same breath as a cancel
-    this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;};
+    this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;if(this.lineNow===u)this.lineNow=null;};
     try{
       if(speechSynthesis.paused)speechSynthesis.resume();
       // a line call cuts in over whatever is being said; anything said in the same moment waits its turn behind it
       const now=Date.now();let d=Math.max(0,(this.hold||0)-now);
-      if(line&&speechSynthesis.speaking){speechSynthesis.cancel();d=Math.max(d,80);}
+      if(line&&speechSynthesis.speaking&&!this.lineNow){speechSynthesis.cancel();d=Math.max(d,80);}
+      if(line)this.lineNow=u;
       if(d>0){this.hold=now+d+20;setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){}},d);}
       else speechSynthesis.speak(u);
     }catch(e){}
@@ -3149,8 +3180,8 @@ class SoundSystem{
       case'slide':S.slide(pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
-      case'say':if(e.who==='ump')this.voice.say(e.text);break;
-      case'call':this.voice.say(e.text.charAt(0)+e.text.slice(1).toLowerCase()+'!','line');break;
+      case'say':if(e.who==='ump')this.voice.say(e.text,'ump',e.en);break;
+      case'call':{const c=CALLS[e.text]||{ko:e.text,en:e.text};this.voice.say(c.ko+'!','line',c.en+'!');break;}
     }
   }
   update(dt,mood){if(this.live)this.crowd.update(dt,mood);}
@@ -3207,7 +3238,8 @@ class StatsPanel{
 class WorldLabels{
   constructor(){this.tags=[{el:$('tag0'),until:0,who:0},{el:$('tag1'),until:0,who:0}];this.ti=0;this.callUntil=0;this.callAt=null;}
   tag(e,m){const q=this.tags[this.ti=(this.ti+1)%2];q.el.textContent=e.text;q.el.className='tagf'+(e.strong?' strong':'')+(m.control.idx===e.who?' me':'');q.until=m.t+(e.strong?1.7:1.05);q.who=e.who;q.el.hidden=false;}
-  call(e,m){const el=$('call');el.textContent=e.text;el.className='call'+(e.text==='LET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
+  // line calls in Korean; the net and a let are information, not a fault, and are shown in blue
+  call(e,m){const el=$('call');el.textContent=(CALLS[e.text]||{ko:e.text}).ko;el.className='call'+(e.text==='LET'||e.text==='NET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
   // a new match starts with nothing left over from the last one
   clear(){for(const q of this.tags){q.until=0;q.el.hidden=true;}this.callUntil=0;this.callAt=null;$('call').hidden=true;$('bub').hidden=true;$('tagS').hidden=true;}
   place(el,R,x,y,z,mx=60,dy='-100%'){const[sx,sy]=R.project(x,y,z);el.style.transform=`translate(${clamp(sx,mx,innerWidth-mx)}px,${clamp(sy,70,innerHeight-120)}px) translate(-50%,${dy})`;}

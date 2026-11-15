@@ -57,7 +57,14 @@ class BallPhysics{
     }
     if(d<rr&&d>1e-5){
       const ny=dy/d,nz=dz/d,vn=b.vy*ny+b.vz*nz;let ev=0;
-      if(vn<0){const k=1.3*vn;b.vy-=k*ny;b.vz-=k*nz;b.vx*=.88;b.wx*=.5;b.wz*=.5;b.net|=HIT.TAPE;ev=HIT.TAPE;}
+      // the tape is a strip on a slack net, not a rigid bar: it gives under the ball and soaks up most of its energy.
+      // A ball that catches the top of the tape (centre above it) keeps its heading and a share of its pace that grows
+      // the finer the touch, plus a small hop — it dribbles on over (a let, if it lands in the box). One that catches
+      // the front (centre below the tape's) is stopped and drops back on the hitter's side
+      if(vn<0){const s=clamp(dy/rr,-1,1);
+        if(s>0){const k=lerp(NET_KEEP[0],NET_KEEP[1],s);b.vx*=k;b.vz*=k;b.vy=b.vy*k+NET_HOP*(1-s*.5);}
+        else{b.vx*=.15;b.vz*=-.05;b.vy=Math.max(b.vy*.2,0)+.3;}
+        b.wx*=.5;b.wz*=.5;b.net|=HIT.TAPE;ev=HIT.TAPE;}
       b.y=hc+ny*(rr+1e-3);b.z=nz*(rr+1e-3);
       return ev;
     }

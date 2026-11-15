@@ -56,4 +56,11 @@ function shot(ph,v,elDeg,rpm,h=1,z0=-11.885){
  check(Math.abs(plain.land.x)<.02&&Math.abs(plain.x)<.03,`no side or gyro spin: the serve flies and bounces straight (${(plain.x*100).toFixed(0)} cm off line)`);
  check(sl.land.x>.25,`a right-hander's 1700 rpm slice curves the serve ${(sl.land.x*100).toFixed(0)} cm to the server's left before it lands`);
  check(Math.abs(kick.land.x)<.1&&kick.x-kick.land.x<-.25,`1500 rpm of gyro spin: nearly straight in the air (${(kick.land.x*100).toFixed(0)} cm), then ${(-(kick.x-kick.land.x)*100).toFixed(0)} cm to the server's right in the 5 m after the bounce`);}
+// the net cord: a serve that clips the top of the tape mostly dribbles on over, one that catches its front drops back
+{const res={over:0,back:0};
+  for(const v of[35,45,52])for(let el=-.13;el<=-.02;el+=.0003){
+    const b=new Ball(.3,2.75,11.9);b.launch(v,el,Math.PI,1200,0,0);let hit=false,z0=null;
+    for(let i=0;i<600;i++){const ev=hard.step(b,DT,true);if(ev&HIT.TAPE)hit=true;if(ev&HIT.BOUNCE){z0=b.lbz;break;}}
+    if(hit&&z0!==null)res[z0<0?'over':'back']++;}
+  check(res.over>res.back&&res.back>0,`serves clipping the tape: ${res.over} dribble over, ${res.back} drop back (a slack net soaks up the pace)`);}
 console.log(fails?`\n${fails} FAILED`:'\nall realism checks passed');process.exit(fails?1:0);
