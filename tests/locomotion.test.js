@@ -39,4 +39,13 @@ for(const v of[1.5,2.8,5.5]){
 // 6. stopping: feet settle back under the body
 {const g=new Gait(),a={x:0,z:0,yaw:0,vx:0,vz:4};for(let i=0;i<120;i++){a.z+=4*DT;g.update(a,DT);}a.vz=0;for(let i=0;i<120;i++)g.update(a,DT);
   const off=Math.max(...g.feet.map((f,i)=>Math.hypot(f.x-(a.x+(i?-.13:.13)),f.z-a.z)));check(off<.2&&g.feet.every(f=>f.u>=1),`after stopping, feet settle within ${off.toFixed(2)} m of their stance`);}
+// 7. side step: moving side-on at a moderate speed the feet never cross; faster, the trail foot crosses over
+for(const[v,cross]of[[2.4,false],[4.6,true]]){const g=new Gait(),a={x:0,z:0,yaw:0,vx:v,vz:0};let min=9,reach=0,drift=0;
+  for(let i=0;i<360;i++){const prev=g.feet.map(f=>({...f}));a.x+=v*DT;g.update(a,DT,1,.2);if(i>0)drift=Math.max(drift,Gait.drift(prev,g.feet));
+    if(i>40){min=Math.min(min,g.feet[0].x-g.feet[1].x);for(const f of g.feet)if(f.u>=1)reach=Math.max(reach,Math.hypot(f.x-a.x,f.z-a.z));}}
+  check((cross?min<0:min>.05)&&reach<.75&&drift===0,`side-on at ${v} m/s: ${cross?'crossover steps (feet cross by '+(-min).toFixed(2)+' m)':'side steps (feet stay '+min.toFixed(2)+' m apart)'}, reach ${reach.toFixed(2)} m`);}
+// 8. adjustment steps: standing with busy feet, each foot keeps taking small steps and stays under the body
+{const g=new Gait(),a={x:0,z:0,yaw:0,vx:0,vz:0};let steps=0,last=[false,false],off=0;
+  for(let i=0;i<240;i++){g.update(a,DT,1,.2,1);for(let k=0;k<2;k++){const f=g.feet[k],sw=f.u<1;if(sw&&!last[k])steps++;last[k]=sw;off=Math.max(off,Math.hypot(f.x-(k?-.2:.2),f.z));}}
+  check(steps>=8&&off<.08,`adjustment steps: ${steps} small steps in 2 s, feet within ${off.toFixed(2)} m of the stance`);}
 console.log(fails?`\n${fails} FAILED`:'\nall locomotion checks passed');process.exitCode=fails?1:0;

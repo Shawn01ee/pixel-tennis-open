@@ -7,7 +7,7 @@
 class RacketImpact{
   static E=.35;
   // racket-head speed at contact (m/s) for a player of power 1.0
-  static HEAD={fh:28,bh:26,slice:21,volley:12,smash:36};
+  static HEAD={fh:28,bh:26,slice:21,volley:12,putaway:17,smash:36};
   static headSpeed(st,type,stretch=0){return(RacketImpact.HEAD[type]||26)*st.power*(1-.45*stretch);}
   // the fastest this player can send this ball with this much spin
   // spinIn: the incoming ball's topspin (rpm). Topspin against topspin means reversing the ball's rotation, which

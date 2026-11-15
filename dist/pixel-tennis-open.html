@@ -499,7 +499,7 @@ class ShotSolver{
 class RacketImpact{
   static E=.35;
   // racket-head speed at contact (m/s) for a player of power 1.0
-  static HEAD={fh:28,bh:26,slice:21,volley:12,smash:36};
+  static HEAD={fh:28,bh:26,slice:21,volley:12,putaway:17,smash:36};
   static headSpeed(st,type,stretch=0){return(RacketImpact.HEAD[type]||26)*st.power*(1-.45*stretch);}
   // the fastest this player can send this ball with this much spin
   // spinIn: the incoming ball's topspin (rpm). Topspin against topspin means reversing the ball's rotation, which
@@ -650,7 +650,7 @@ const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf
 const ROSTER=[
  {name:'Novak Djokovic',short:'Djokovic',face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
- {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.06,spin:3250,err:.78,aggr:.48,net:.22,drop:.3,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
+ {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.12,spin:3300,err:.78,aggr:.5,net:.3,drop:.36,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
   look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xf4d44a},style:'Lefty, the heaviest topspin forehand'},
  {name:'Carlos Alcaraz',short:'Alcaraz',face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
@@ -768,7 +768,15 @@ class Player extends Agent{
     if(this.z<z0||this.z>z1){this.z=clamp(this.z,z0,z1);this.vz=0;}
     const spd=hyp(this.vx,this.vz);this.spd=spd;this.phase+=spd/2*dt*TAU;
     const sprint=spd>3.6&&d>2.5&&(!this.plan||this.plan.t-m.t>.45);
-    this.yaw=turn(this.yaw,sprint?Math.atan2(this.vx,this.vz):this.facing,L.turnRate*dt);
+    // footwork: sprinting, the body turns and runs; moving across at speed the hips open part-way for crossover
+    // steps; slower, the player stays square to the net and side-steps
+    const tc=this.plan?this.plan.t-m.t:-1;let want=this.facing;
+    if(sprint)want=Math.atan2(this.vx,this.vz);
+    else if(spd>3&&(tc<0||tc>.45)){const g=Math.atan2(this.vx,this.vz)-want;want+=clamp(Math.atan2(Math.sin(g),Math.cos(g)),-.6,.6)*clamp((spd-3)/1,0,1);}
+    this.yaw=turn(this.yaw,want,L.turnRate*dt);
+    // adjustment steps: short quick steps closing on the ball and while waiting for it, a lighter patter between
+    // shots; the feet set for the last fifth of a second before contact
+    this.patter=tc>.2?(d<1.3?1:0):tc<0&&m.live&&!this.swing?.45:0;
     // a hard stop or cut squeaks the shoes on a hard court; on clay the feet slide
     const acc=hyp(this.vx-pvx,this.vz-pvz)/dt;this.squeakT=(this.squeakT||0)-dt;
     if(acc>L.brake*.7&&before>1.4&&this.squeakT<=0){this.squeakT=.35;m.ev(surf.slide?'slide':'squeak',{x:this.x,z:this.z,v:before,a:acc/L.brake});}
@@ -834,7 +842,7 @@ const TRAITS={
   heavyForehand:{name:'Heavy forehand',  text:'The forehand carries extra topspin and holds up under any pressure.',
     spin:c=>c.wing==='fh'&&!['slice','drop','lob'].includes(c.tac)?1.25:1,error:c=>c.wing==='fh'?.72:1},
   disguise:     {name:'Disguised drop',  text:'Every shot looks the same until it is hit: the drop and the angle are read too late to run down.',
-    error:c=>['drop','dropvolley','angle','volley'].includes(c.tac)?.35:.95,disguise:c=>c.tac==='drop'?.5:c.tac==='angle'?.2:.015},
+    error:c=>['drop','dropvolley','angle','volley','putaway'].includes(c.tac)?.35:.95,disguise:c=>c.tac==='drop'?.5:c.tac==='angle'?.2:.015},
   firstStrike:  {name:'First strike',    text:'The first ball after his own serve is struck early, hard and clean.',
     error:c=>c.server&&c.n===2?.45:1,speed:c=>c.server&&c.n===2?1.1:1},
   cleanStrike:  {name:'Clean striker',   text:'Hits flat out without the errors that swinging that hard costs everyone else.',
@@ -916,7 +924,8 @@ class ShotPlanner{
     let tac;
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
-    else if(c.kind==='volley')tac=oppDeep&&c.y<1.0&&R()<.3+st.drop*.4?'dropvolley':'volley';
+    // at the net: a ball above the tape is put away into the open court; a low one is played deep to stay on top
+    else if(c.kind==='volley')tac=c.y>=.95&&c.stretch<.6?'putaway':oppDeep&&R()<.3+st.drop*.4?'dropvolley':'volley';
     else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
     else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
     else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
@@ -938,7 +947,9 @@ class ShotPlanner{
       case'passline': t=T(side*(SW-.65),CT.L-1.6);v=35*P0;risk=1.25;break;
       case'passcross':t=T(-side*(SW-.55),7.2);v=31*P0;rpm=st.spin*1.15;risk=1.2;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
-      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;sidespin=-curl(300);break;
+      case'volley':   t=T(openX*(SW-.9),CT.L-1.8);v=23;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
+      // the put-away: punched hard into the open court — short and angled from on top of the net, deep into the corner from further back
+      case'putaway':  t=dep<4.6&&c.y>1.15?T(openX*(SW-.5),5.6+R()*.8):T(openX*(SW-.6),CT.L-1.9);v=36*P0;rpm=-500;clear=.07;risk=.9;maxEl=.4;sidespin=-curl(150);break;
       case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;sidespin=-curl(300);break;
       case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;sidespin=0;break;
       default:t=T(0,9);v=26;
@@ -964,9 +975,9 @@ const CHAIR={x:-8.05,z:2.7}, UMP={x:-7.55,z:0,seat:2.25}, TUNNEL={x:-5.8,z:-CT.F
 const KID_POS=[[6.95,-1.0],[6.95,1.0],[-5.6,-17.5],[5.6,-17.5],[-5.6,17.5],[5.6,17.5]];
 
 // commentary — words for shots, used in captions and tags
-const DESC={drive:'with the drive',flat:'with a flat drive',cross:'cross court',line:'down the line',angle:'on the sharp angle',drop:'with the drop shot',lob:'with the lob',passline:'with a pass down the line',passcross:'with a cross-court pass',smash:'with the smash',volley:'at the net',dropvolley:'with a drop volley',slice:'with the slice',approach:'behind the approach',safe:'from the back',serve:'off the serve'};
-const NAME={drive:'drive',flat:'flat drive',cross:'cross-court drive',line:'drive down the line',angle:'sharp angle',drop:'drop shot',lob:'lob',passline:'pass',passcross:'pass',smash:'smash',volley:'volley',dropvolley:'drop volley',slice:'slice',approach:'approach',safe:'rally ball',serve:'return'};
-const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passing shot',passcross:'Passing shot',smash:'Smash',dropvolley:'Drop volley',angle:'Sharp angle',approach:'Approach',slice:'Slice',volley:'Volley'};
+const DESC={drive:'with the drive',flat:'with a flat drive',cross:'cross court',line:'down the line',angle:'on the sharp angle',drop:'with the drop shot',lob:'with the lob',passline:'with a pass down the line',passcross:'with a cross-court pass',smash:'with the smash',volley:'at the net',putaway:'with the put-away volley',dropvolley:'with a drop volley',slice:'with the slice',approach:'behind the approach',safe:'from the back',serve:'off the serve'};
+const NAME={drive:'drive',flat:'flat drive',cross:'cross-court drive',line:'drive down the line',angle:'sharp angle',drop:'drop shot',lob:'lob',passline:'pass',passcross:'pass',smash:'smash',volley:'volley',putaway:'put-away volley',dropvolley:'drop volley',slice:'slice',approach:'approach',safe:'rally ball',serve:'return'};
+const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passing shot',passcross:'Passing shot',smash:'Smash',dropvolley:'Drop volley',angle:'Sharp angle',approach:'Approach',slice:'Slice',volley:'Volley',putaway:'Put-away'};
 
 // serves — serve types and the three serve targets
 // serves: pace from the profile, topspin, side spin (curve in the air), gyro spin (sideways kick off the court)
@@ -1460,7 +1471,7 @@ class Match{
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*Match.RETURN.pace:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const v0=Math.min((srv?S.v*Match.RETURN.pace:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
     const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
     const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
     const ac=st.acc??1;
@@ -1475,7 +1486,7 @@ class Match{
     O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
-    if(tac==='approach'||tac==='volley'||tac==='dropvolley'||tac==='smash')P.rush=true;
+    if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||tac==='smash')P.rush=true;
     if(tac==='lob'||tac==='safe'||(tac==='slice'&&p.stretch>.5))P.rush=false;
     const tx=this.tr.hasB?this.tr.fbx:0,sk=this.surface.key;
     P.home=P.rush?{x:tx*.38,z:P.s*5.0}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
@@ -1870,17 +1881,22 @@ void main(){
 // One clock drives both legs, half a cycle apart. Each leg spends the first part of its cycle planted (stance) and the
 // rest swinging to where the body will be halfway through its next stance. A planted foot is locked to the ground.
 // Cadence and stride follow speed: a walk is ~2.5 steps/s with the stances overlapping, a sprint ~4.4 steps/s with
-// both feet briefly in the air. Side-on movement shuffles with quicker, shorter steps. Standing still, a foot that
-// strays steps back under the body. A split step is a small hop that lands wide, timed to the opponent's hit.
+// both feet briefly in the air. Standing still, a foot that strays steps back under the body.
+// Tennis footwork on top of that:
+//   split step   a small hop that lands wide, timed to the opponent's hit
+//   side step    moving side-on at moderate speed the feet never cross: the lead foot reaches, the trail foot closes
+//   crossover    side-on and fast, the trail foot crosses in front of the lead foot to cover ground
+//   adjustment   closing on the ball the steps get short and quick; waiting for it, the feet keep pattering in place
 class Gait{
   static HOP=.3;   // seconds in the air for a split step
-  constructor(){this.feet=[Gait.foot(),Gait.foot()];this.ready=false;this.cycle=0;this.bob=0;this.arm=0;this.lift=0;this.moving=false;this.hopT=-1;}
-  static foot(){return{x:0,z:0,y:0,fx:0,fz:0,u:1,armed:true,st:0};}
+  constructor(){this.feet=[Gait.foot(),Gait.foot()];this.ready=false;this.cycle=0;this.bob=0;this.arm=0;this.lift=0;this.moving=false;this.hopT=-1;this.pt=0;this.pf=0;}
+  static foot(){return{x:0,z:0,y:0,fx:0,fz:0,u:1,armed:true,st:0,ox:0,oz:0,tiny:false};}
   static cadence(v){return clamp(1.9+v*.45,1.9,4.6);}
   // start a split step unless one is under way
   hop(){if(this.hopT<0)this.hopT=0;}
   // a: the drawn figure {x,z,yaw,vx,vz}; dt: simulated seconds since the last update; k: body scale; width: half stance
-  update(a,dt,k=1,width=.13){
+  // pat: 0..1, how busy the feet are (adjustment steps)
+  update(a,dt,k=1,width=.13,pat=0){
     const fx=Math.sin(a.yaw),fz=Math.cos(a.yaw),rx=-fz,rz=fx,vx=a.vx||0,vz=a.vz||0,v=hyp(vx,vz),F=this.feet;
     const home=(i,w=width*k)=>{const s=i?1:-1;return[a.x+rx*s*w,a.z+rz*s*w];};
     // a foot further away than a leg can reach (a teleport) is put back under the body;
@@ -1897,7 +1913,7 @@ class Gait{
     }else this.lift=0;
     if(moving){
       // stance is cut short at speed so a planted foot never trails further than the leg reaches: a sprinter's 0.13 s contact
-      const cad=Gait.cadence(v)*(v<3.5?lerp(1,1.35,side):1),T=2/cad,beta=Math.min(lerp(.62,.36,run),.72*k/(v*T)),half=v*beta*T/2,frac=x=>x-Math.floor(x);
+      const cad=Gait.cadence(v)*(v<3.5?lerp(1,1.35,side):1)*(v<3?1+.7*pat:1),T=2/cad,sideOn=side>.6,shuffle=sideOn&&v<3.4,lat=ux*rx+uz*rz,beta=Math.min(lerp(.62,.36,run),.72*k/(v*T)),half=v*beta*T/2,frac=x=>x-Math.floor(x);
       // setting off: the foot that is further back steps first
       if(!this.moving){const back=i=>(F[i].x-a.x)*ux+(F[i].z-a.z)*uz,first=back(0)<=back(1)?0:1;this.cycle=Math.floor(this.cycle)+frac(beta-first*.5+1);F[first].armed=true;F[first^1].armed=false;}
       this.cycle+=dt/T;
@@ -1914,7 +1930,12 @@ class Gait{
         }
         if(f.u<1){
           f.u=Math.min(1,f.u+dt/dur);const[hx,hz]=home(i),e=lerp(sstep(0,1,f.u),f.u*(2-f.u),run),lead=(1-f.u)*dur*v*.5+half;
-          f.x=lerp(f.fx,hx+ux*lead,e);f.z=lerp(f.fz,hz+uz*lead,e);
+          let tx=hx+ux*lead,tz=hz+uz*lead;
+          if(sideOn&&(i?1:-1)*lat<0){          // the trail foot
+            if(shuffle){const al=(tx-o.x)*ux+(tz-o.z)*uz+.1*k;if(al>0){tx-=ux*al;tz-=uz*al;}}   // closes, never crosses
+            else{tx+=fx*.13*k;tz+=fz*.13*k;}                                                  // crosses in front
+          }
+          f.x=lerp(f.fx,tx,e);f.z=lerp(f.fz,tz,e);
           // (at a run the foot leaves the ground fast and floats in to land; at a walk it eases both ways)
           // the heel kicks up early in the swing, the foot reaches forward low before it lands
           f.y=f.u<1?Math.sin(PI*Math.pow(f.u,.8))*h:0;
@@ -1926,12 +1947,15 @@ class Gait{
       const wide=this.hopT>=0&&air>0;
       for(let i=0;i<2;i++){const f=F[i];
         if(wide){const[hx,hz]=home(i,Math.max(width,.24)*k),g=Math.min(1,dt*14);f.x+=(hx-f.x)*g;f.z+=(hz-f.z)*g;f.y=air*.05*k;f.u=.5;f.fx=f.x;f.fz=f.z;continue;}
-        if(f.u<1){f.u=Math.min(1,f.u+dt/.16);const[hx,hz]=home(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx,e);f.z=lerp(f.fz,hz,e);f.y=f.u<1?Math.sin(PI*f.u)*.06*k:0;}
+        if(f.u<1){f.u=Math.min(1,f.u+dt/(f.tiny?.11:.16));const[hx,hz]=home(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx+f.ox,e);f.z=lerp(f.fz,hz+f.oz,e);f.y=f.u<1?Math.sin(PI*f.u)*(f.tiny?.035:.06)*k:0;}
         else f.y=0;}
       if(!wide&&F[0].u>=1&&F[1].u>=1){let worst=-1,err=.17*k;
         for(let i=0;i<2;i++){const[hx,hz]=home(i),e=hyp(F[i].x-hx,F[i].z-hz);if(e>err){err=e;worst=i;}}
-        if(worst>=0){const f=F[worst];f.fx=f.x;f.fz=f.z;f.u=0;}}
-      this.bob=0;
+        if(worst>=0){const f=F[worst];f.fx=f.x;f.fz=f.z;f.u=0;f.ox=f.oz=0;f.tiny=false;}
+        // adjustment steps: the feet take turns at small quick steps on the spot
+        else if(pat>0){this.pt+=dt;if(this.pt>=lerp(.3,.15,pat)){this.pt=0;this.pf^=1;const f=F[this.pf],o=(this.pf?1:-1)*((this.cycle+=.5)%2<1?1:-1)*.035*k;
+          f.fx=f.x;f.fz=f.z;f.u=0;f.tiny=true;f.ox=fx*o;f.oz=fz*o;}}}
+      this.bob=pat>0&&!wide?pat*.012*Math.abs(Math.sin(PI*this.pt/lerp(.3,.15,pat))):0;
     }
     this.moving=moving;this.arm=this.cycle*TAU;
     return this;
@@ -3560,7 +3584,7 @@ class Game{
     const draw=(a,c,lk,extra)=>{const v=this.view(a),sit=a.pose==='sit',g=sit?null:this.gaitOf(a);
       // the split step: a hop as the opponent strikes the ball
       if(g&&a.split&&a.split!==g.splitSeen){g.splitSeen=a.split;if(!a.swing)g.hop();}
-      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12);
+      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'?a.patter||0:0);
       FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
     for(const P of m.players){P._fit=P._fit||Outfits.player(P);draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8});}
     m.kids.forEach((k,i)=>draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null)));

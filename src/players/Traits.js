@@ -13,7 +13,7 @@ const TRAITS={
   heavyForehand:{name:'Heavy forehand',  text:'The forehand carries extra topspin and holds up under any pressure.',
     spin:c=>c.wing==='fh'&&!['slice','drop','lob'].includes(c.tac)?1.25:1,error:c=>c.wing==='fh'?.72:1},
   disguise:     {name:'Disguised drop',  text:'Every shot looks the same until it is hit: the drop and the angle are read too late to run down.',
-    error:c=>['drop','dropvolley','angle','volley'].includes(c.tac)?.35:.95,disguise:c=>c.tac==='drop'?.5:c.tac==='angle'?.2:.015},
+    error:c=>['drop','dropvolley','angle','volley','putaway'].includes(c.tac)?.35:.95,disguise:c=>c.tac==='drop'?.5:c.tac==='angle'?.2:.015},
   firstStrike:  {name:'First strike',    text:'The first ball after his own serve is struck early, hard and clean.',
     error:c=>c.server&&c.n===2?.45:1,speed:c=>c.server&&c.n===2?1.1:1},
   cleanStrike:  {name:'Clean striker',   text:'Hits flat out without the errors that swinging that hard costs everyone else.',

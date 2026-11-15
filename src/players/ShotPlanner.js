@@ -63,7 +63,8 @@ class ShotPlanner{
     let tac;
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
-    else if(c.kind==='volley')tac=oppDeep&&c.y<1.0&&R()<.3+st.drop*.4?'dropvolley':'volley';
+    // at the net: a ball above the tape is put away into the open court; a low one is played deep to stay on top
+    else if(c.kind==='volley')tac=c.y>=.95&&c.stretch<.6?'putaway':oppDeep&&R()<.3+st.drop*.4?'dropvolley':'volley';
     else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
     else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
     else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
@@ -85,7 +86,9 @@ class ShotPlanner{
       case'passline': t=T(side*(SW-.65),CT.L-1.6);v=35*P0;risk=1.25;break;
       case'passcross':t=T(-side*(SW-.55),7.2);v=31*P0;rpm=st.spin*1.15;risk=1.2;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
-      case'volley':   t=T(openX*(SW-.8),c.y>1.1?CT.L-2.2:7.5);v=c.y>1.1?27*P0:20;rpm=-1200;clear=.12;risk=1.05;sidespin=-curl(300);break;
+      case'volley':   t=T(openX*(SW-.9),CT.L-1.8);v=23;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
+      // the put-away: punched hard into the open court — short and angled from on top of the net, deep into the corner from further back
+      case'putaway':  t=dep<4.6&&c.y>1.15?T(openX*(SW-.5),5.6+R()*.8):T(openX*(SW-.6),CT.L-1.9);v=36*P0;rpm=-500;clear=.07;risk=.9;maxEl=.4;sidespin=-curl(150);break;
       case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;sidespin=-curl(300);break;
       case'smash':    t=T(openX*(SW-.9),CT.L-2.6);v=42*P0;rpm=400;clear=.2;risk=.95;sidespin=0;break;
       default:t=T(0,9);v=26;

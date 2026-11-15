@@ -419,7 +419,7 @@ class Match{
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*Match.RETURN.pace:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const v0=Math.min((srv?S.v*Match.RETURN.pace:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
     const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
     const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
     const ac=st.acc??1;
@@ -434,7 +434,7 @@ class Match{
     O.planAt=this.t+.15+R()*.06+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
-    if(tac==='approach'||tac==='volley'||tac==='dropvolley'||tac==='smash')P.rush=true;
+    if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||tac==='smash')P.rush=true;
     if(tac==='lob'||tac==='safe'||(tac==='slice'&&p.stretch>.5))P.rush=false;
     const tx=this.tr.hasB?this.tr.fbx:0,sk=this.surface.key;
     P.home=P.rush?{x:tx*.38,z:P.s*5.0}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};
