@@ -3,7 +3,7 @@ class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
   // returning serve: reaction time, where the returner stands, how much harder a return is to control than a
   // rally ball (first serve; a second serve counts half) and how much of a full swing it gets
-  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.52};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
   // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
@@ -419,7 +419,7 @@ class Match{
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*Match.RETURN.pace:S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const v0=Math.min((srv?S.v*(this.serveNo===2?Match.RETURN.pace2:Match.RETURN.pace):S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
     const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
     const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
     const ac=st.acc??1;

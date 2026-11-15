@@ -64,7 +64,7 @@ class ShotPlanner{
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
     // at the net: a ball above the tape is put away into the open court; a low one is played deep to stay on top
-    else if(c.kind==='volley')tac=c.y>=.95&&c.stretch<.6?'putaway':oppDeep&&R()<.3+st.drop*.4?'dropvolley':'volley';
+    else if(c.kind==='volley')tac=c.y>=.95&&c.stretch<.6&&dep<6.4?'putaway':oppDeep&&R()<.3+st.drop*.4?'dropvolley':'volley';
     else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
     else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
     else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
@@ -83,10 +83,11 @@ class ShotPlanner{
       case'drive':    t=T(openX*(SW-mg-.2),CT.L-mg-.5);v=37*P0;rpm=st.spin*.85;clear=.16;risk=c.wing==='fh'?.72:.95;break;
       case'flat':     t=T(openX*(SW-mg-.15),CT.L-mg-.4);v=41*P0;rpm=st.spin*.3;clear=.09;risk=c.wing==='fh'?1.15:1.3;maxEl=.5;sidespin=curl(100);break;
       case'lob':      t=T(openX*2.2,CT.L-1.3);v=20;rpm=c.stretch>.5?900:Math.max(2200,st.spin);clear=1.6;maxEl=1.05;risk=.95;sidespin=0;break;
-      case'passline': t=T(side*(SW-.65),CT.L-1.6);v=35*P0;risk=1.25;break;
-      case'passcross':t=T(-side*(SW-.55),7.2);v=31*P0;rpm=st.spin*1.15;risk=1.2;break;
+      // passing shots: hit at the gap, low over the net and dipping, so the volleyer has to play up
+      case'passline': t=T(side*(SW-.6),CT.L-1.8);v=36*P0;rpm=st.spin*1.05;clear=.1;risk=1.05;break;
+      case'passcross':t=T(-side*(SW-.5),6.6);v=32*P0;rpm=st.spin*1.25;clear=.1;risk=1.0;break;
       case'approach': t=T(side*(SW-1.1),CT.L-1.0);v=32*P0;rpm=st.spin*.7;risk=1.05;break;
-      case'volley':   t=T(openX*(SW-.9),CT.L-1.8);v=23;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
+      case'volley':   t=T(openX*(SW-.9),CT.L-2.2);v=21;rpm=-1200;clear=.14;risk=1.0;sidespin=-curl(300);break;
       // the put-away: punched hard into the open court — short and angled from on top of the net, deep into the corner from further back
       case'putaway':  t=dep<4.6&&c.y>1.15?T(openX*(SW-.5),5.6+R()*.8):T(openX*(SW-.6),CT.L-1.9);v=36*P0;rpm=-500;clear=.07;risk=.9;maxEl=.4;sidespin=-curl(150);break;
       case'dropvolley':t=T(openX*2.2,2.6);v=9.5;rpm=-1800;clear=.14;risk=1.15;sidespin=-curl(300);break;
