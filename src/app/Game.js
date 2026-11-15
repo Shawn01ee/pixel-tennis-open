@@ -10,15 +10,22 @@ class Game{
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.title=new TitleScreen(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
-    this.demo();
+    this.demo();this.title.open();
     this.input=new Input(this);
     $('resume').onclick=()=>this.togglePause();
     addEventListener('resize',()=>this.resize());this.resize();
     window.__PTO=this;
     requestAnimationFrame(t=>this.frame(t));
   }
+  // ──────── the front end ────────
+  // menu sounds, once sound is on (the title screen's key or tap turns it on)
+  sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
+  // is a front-end screen up? The HUD hides behind it and the stadium camera turns slowly, a quarter at a time
+  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||!$('bracket').hidden;}
+  exhibition(a,b,fmt,phase,level){this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level));}
   // ──────── matches ────────
   // two computer players behind the setup screen, on a loop
   demo(){const a=Math.floor(R()*ROSTER.length);let b=Math.floor(R()*ROSTER.length);if(b===a)b=(a+3)%ROSTER.length;
@@ -31,7 +38,10 @@ class Game{
   }
   // ──────── tournament ────────
   startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
-  playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
+  playTour(){const t=this.tour;if(!t||!t.mine)return;
+    const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
+    this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
+  startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
@@ -51,7 +61,8 @@ class Game{
   }
   endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
+  // back to the front: the main menu over a match between two computer players
+  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.mainMenu.open();}
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
@@ -92,6 +103,7 @@ class Game{
     this.acc+=dt*this.ts;let n=0;while(this.acc>=DT&&n<60){m.tick();this.acc-=DT;n++;if(m.events.length>200)this.drain();}if(n===60)this.acc=0;
     this.alpha=clamp(this.acc/DT,0,1);
     this.watchPerf(now);
+    {const fe=this.frontEnd;document.body.classList.toggle('fe-on',fe);if(fe&&this.cam.mode===CameraRig.STADIUM){this.feTurn+=dt;if(this.feTurn>7){this.feTurn=0;this.cam.turn(1);}}}
     this.drain();
     this.net.update(dt);this.fx.update(dt);
     this.cam.update(dt,this.focus());

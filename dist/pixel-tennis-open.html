@@ -117,6 +117,104 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 #elcC{display:block;width:100%;image-rendering:pixelated;border:2px solid var(--ink)}
 #elcV{margin-top:3px;font-size:19px}#elcV.bad{color:var(--coral)}#elcV.good{color:var(--lime)}
 
+/* ── the front end: title, menu, player select, versus ── */
+.fe{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;color:var(--chalk);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+.fe-shade{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#0e0f1a22 0%,#0e0f1a99 70%,#0e0f1add 100%),linear-gradient(180deg,#0e0f1acc 0%,#0e0f1a00 30%,#0e0f1a00 60%,#0e0f1af2 100%)}
+.fe>*:not(.fe-shade){position:relative}
+.fe-on .hud,.fe-on #elc,.fe-on .call,.fe-on .tagf,.fe-on .bub{display:none!important}
+.fe kbd{font:500 11px var(--display);color:var(--navy);background:var(--mute);padding:2px 4px 1px;margin:0 3px;vertical-align:1px}
+.fe-keys{margin-top:auto;display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-size:17px;color:var(--mute);padding-top:14px}
+/* title */
+#title{justify-content:center;cursor:pointer;user-select:none}
+.t-logo{text-align:center;animation:logoIn 1s cubic-bezier(.2,1.25,.4,1) both}
+.t-top{font:700 clamp(38px,8.4vw,104px)/1 var(--display);letter-spacing:.08em;color:var(--chalk);text-shadow:0 5px 0 var(--ink),0 0 28px #7bb8ea55}
+.t-open{position:relative;display:inline-block;margin-top:6px;font:700 clamp(50px,11vw,138px)/1 var(--display);letter-spacing:.16em;padding-left:.16em}
+.t-open span{color:transparent;background:linear-gradient(100deg,var(--sky) 0%,var(--sky) 42%,#fff 50%,var(--sky) 58%,var(--sky) 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:shine 4.5s ease-in-out 1.2s infinite;filter:drop-shadow(0 6px 0 var(--ink)) drop-shadow(0 0 22px #7bb8ea77)}
+.t-ball{position:absolute;right:-.36em;top:.34em;width:.24em;height:.24em;background:var(--ball);box-shadow:inset -.05em -.05em 0 #c9a62a,0 .05em 0 var(--ink);animation:ballHop 1.1s cubic-bezier(.4,0,.6,1) infinite}
+.t-sub{margin-top:18px;font:700 clamp(11px,1.6vw,16px) var(--display);letter-spacing:.32em;color:var(--ball);text-shadow:0 2px 0 var(--ink)}
+.t-press{margin-top:clamp(40px,9vh,90px);font:700 clamp(16px,2vw,22px) var(--display);letter-spacing:.24em;color:var(--chalk);text-shadow:0 2px 0 var(--ink);animation:blink 1.1s steps(2,jump-none) infinite}
+.t-foot{position:absolute!important;left:16px;right:16px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;gap:12px;font:500 11px var(--display);letter-spacing:.14em;color:var(--mute)}
+@keyframes logoIn{from{opacity:0;transform:translateY(-40px) scale(.94)}}
+@keyframes shine{0%,70%{background-position:100% 0}100%{background-position:0 0}}
+@keyframes ballHop{0%,100%{transform:translateY(0) scale(1.1,.9)}12%{transform:translateY(-.02em)}50%{transform:translateY(-.5em) scale(.95,1.05)}88%{transform:translateY(-.02em)}}
+@keyframes blink{50%{opacity:.15}}
+/* main menu */
+#menu{justify-content:center}
+.m-wrap{width:min(1080px,100%);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:center;margin:auto 0}
+.m-logo{font:700 clamp(24px,3.4vw,40px)/1 var(--display);letter-spacing:.06em;margin:0 0 22px;text-shadow:0 4px 0 var(--ink)}.m-logo em{font-style:normal;color:var(--sky)}
+.m-list{display:flex;flex-direction:column;gap:6px}
+.m-list button{display:grid;grid-template-columns:22px 1fr;align-items:center;text-align:left;gap:0 10px;min-height:0;padding:12px 16px;background:#101a3acc;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep);transition:transform .12s,background .12s}
+.m-list button i{font-style:normal;color:var(--ball);opacity:0;grid-row:1/3;transition:opacity .12s,transform .12s;transform:translateX(-6px)}
+.m-list button b{font:700 clamp(20px,2.6vw,30px)/1 var(--display);letter-spacing:.06em;color:var(--chalk)}
+.m-list button small{grid-column:2;font-size:18px;color:var(--mute);margin-top:6px;white-space:normal}
+.m-list button[aria-current="true"]{background:linear-gradient(90deg,#25468a 0%,#101a3acc 100%);box-shadow:inset 0 0 0 2px var(--sky),4px 4px 0 #0009;transform:translateX(8px)}
+.m-list button[aria-current="true"] i{opacity:1;transform:none;animation:nudge .8s ease-in-out infinite}
+.m-list button[aria-current="true"] b{color:var(--ball)}.m-list button[aria-current="true"] small{color:var(--ice)}
+@keyframes nudge{50%{transform:translateX(4px)}}
+.m-side{padding:18px 20px;min-height:340px;animation:fadeUp .25s ease-out both}
+.m-side h3{font:700 16px var(--display);letter-spacing:.1em;color:var(--sky);margin:10px 0}
+.m-side ul{margin:0;padding:0;list-style:none;font-size:19px;color:var(--chalk)}.m-side li{padding:5px 0;border-bottom:1px dashed var(--deep)}.m-side li b{color:var(--ball);font-weight:400;margin-right:6px}
+.ms-cup{display:flex;justify-content:center;filter:drop-shadow(0 0 18px #f4d44a44)}.ms-trophy{width:160px;height:188px}
+.ms-faces{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ms-face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}
+.ms-keys{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:0;font-size:18px}.ms-keys dt{font:700 12px var(--display);color:var(--ball);padding-top:3px;white-space:nowrap}.ms-keys dd{margin:0;color:var(--chalk)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+/* player select */
+.s-head{width:min(1180px,100%);display:flex;align-items:center;gap:16px;margin-bottom:12px}
+.s-head h1{flex:1;margin:0;font:700 clamp(18px,2.6vw,30px)/1 var(--display);letter-spacing:.08em;text-shadow:0 3px 0 var(--ink)}
+.s-back{font:500 13px var(--display);letter-spacing:.06em}
+.s-mode{font:700 12px var(--display);letter-spacing:.14em;color:var(--navy);background:var(--sky);padding:5px 8px 4px}
+.s-main{width:min(1180px,100%);display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:14px;align-items:start}
+.s-hero{padding:14px;position:relative;overflow:hidden;animation:fadeUp .22s ease-out both}
+.s-hero:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--kit)}
+.s-hero:after{content:"";position:absolute;right:-60px;top:-40px;width:200px;height:200px;background:var(--kit);opacity:.14;transform:rotate(45deg)}
+.h-top{display:flex;gap:14px;position:relative;z-index:1}
+.h-pic{position:relative;flex:none}.h-face{width:156px;height:180px;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep),4px 4px 0 #0009;background:var(--deep)}
+.h-rank{position:absolute;left:0;right:0;bottom:-2px;text-align:center;font:700 11px var(--display);letter-spacing:.1em;background:var(--ball);color:var(--navy);padding:3px 0 2px}
+.h-id{min-width:0;flex:1;display:flex;flex-direction:column}.h-id small{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky)}
+.h-id h2{margin:4px 0 6px;font:700 clamp(18px,2.2vw,26px)/1.05 var(--display);letter-spacing:.04em;text-shadow:0 3px 0 var(--ink)}
+.h-meta{color:var(--mute);font-size:17px}.h-meta b{color:var(--ball);font-weight:400}
+.h-style{margin:8px 0 0;font-size:18px;color:var(--chalk);line-height:1.15}
+.h-ovr{margin-top:auto;display:flex;align-items:baseline;gap:8px}.h-ovr b{font:700 54px/1 var(--display);color:var(--ball);text-shadow:0 4px 0 var(--ink)}.h-ovr span{font:700 11px var(--display);letter-spacing:.14em;color:var(--mute)}
+.h-bars{position:relative;z-index:1;display:grid;grid-template-columns:72px 1fr 28px;gap:6px 8px;align-items:center;margin-top:14px;font-size:17px;color:var(--mute)}
+.h-bars i{display:block;height:10px;background:var(--ink);box-shadow:inset 0 0 0 1px var(--deep)}.h-bars u{display:block;height:100%;background:linear-gradient(90deg,var(--azure),var(--sky));transform-origin:left;animation:barIn .5s cubic-bezier(.2,.9,.3,1) both}
+.h-bars em{font-style:normal;color:var(--chalk);text-align:right}
+@keyframes barIn{from{transform:scaleX(0)}}
+.s-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;align-content:start}
+.s-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:0;padding:8px 4px 6px;background:#101a3ad9;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep);transition:transform .1s}
+.s-card .face{width:72px;height:83px;background:var(--deep)}.s-card .c-name{font:700 12px var(--display);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.s-card .c-rk{font-size:15px;color:var(--mute)}.s-card.lg .c-rk{color:var(--ball)}
+.s-card:hover{transform:translateY(-2px)}
+.s-card.on{box-shadow:inset 0 0 0 2px var(--ball),0 0 0 2px var(--ball),4px 4px 0 #0009;transform:translateY(-3px);background:#25468a}
+.s-card.on:after{content:"";position:absolute;inset:-6px;border:2px solid var(--ball);opacity:.5;animation:ping 1.2s ease-out infinite;pointer-events:none}
+.s-card:disabled{opacity:.45;cursor:not-allowed}.s-card .c-you{position:absolute;top:4px;left:4px;font:700 10px var(--display);background:var(--sky);color:var(--navy);padding:2px 3px 1px}
+@keyframes ping{to{inset:-12px;opacity:0}}
+.s-foot{width:min(1180px,100%);margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 12px}
+.s-opts{flex:1;display:flex;gap:18px;flex-wrap:wrap}
+.s-opt{display:grid;grid-template-columns:auto;gap:3px;min-width:170px}.s-opt>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
+.s-cyc{display:flex;align-items:center}.s-cyc button{min-height:30px;padding:0 8px;font-size:15px}.s-cyc b{min-width:110px;text-align:center;font:700 14px var(--display);letter-spacing:.04em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:6px 6px 5px}
+.s-opt small{font-size:15px;color:var(--mute);max-width:260px}
+.s-foot .cta kbd{background:var(--navy);color:var(--ball)}
+/* versus */
+.vs-scr{justify-content:center;background:radial-gradient(ellipse at 50% 50%,#101a3add 0%,#0e0f1af5 75%);cursor:pointer}
+.vs-body{width:min(1100px,100%);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;margin:auto 0}
+.vs-side{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:26px 10px}
+.vs-side.l{animation:vsL .6s cubic-bezier(.2,1.2,.4,1) both}.vs-side.r{animation:vsR .6s cubic-bezier(.2,1.2,.4,1) .08s both}
+.vs-band{position:absolute;inset:40px -40px;background:var(--kit);opacity:.22;transform:skewX(-12deg);z-index:-1}
+.vs-face{width:182px;height:210px;border:2px solid var(--ink);box-shadow:inset 0 0 0 3px var(--kit),6px 6px 0 #000a;background:var(--deep)}
+.vs-side small{font:700 12px var(--display);letter-spacing:.16em;color:var(--sky);margin-top:6px}
+.vs-side h2{margin:0;font:700 clamp(18px,2.6vw,30px)/1.05 var(--display);letter-spacing:.05em;text-shadow:0 4px 0 var(--ink)}
+.vs-meta{font-size:19px;color:var(--mute)}.vs-meta b{color:var(--ball);font-weight:400}.vs-meta em{font-style:normal;color:var(--chalk)}
+.vs-side p{margin:0;font-size:18px;color:var(--chalk);max-width:300px}
+.vs-mid{display:flex;flex-direction:column;align-items:center;gap:10px}
+.vs-round{font:700 13px var(--display);letter-spacing:.2em;color:var(--navy);background:var(--ball);padding:5px 9px 4px;animation:fadeUp .3s ease-out .5s both}
+.vs-x{font:700 clamp(54px,8vw,96px)/1 var(--display);color:var(--ball);text-shadow:0 6px 0 var(--ink),0 0 30px #f4d44a88;animation:vsX .5s cubic-bezier(.2,1.6,.4,1) .42s both}
+.vs-sub{font-size:18px;color:var(--mute);animation:fadeUp .3s ease-out .6s both}
+@keyframes vsL{from{opacity:0;transform:translateX(-120px)}}@keyframes vsR{from{opacity:0;transform:translateX(120px)}}
+@keyframes vsX{from{opacity:0;transform:scale(2.6)}}
+@media(max-width:820px){.m-wrap{grid-template-columns:1fr}.m-side{min-height:0}.s-main{grid-template-columns:1fr}.vs-body{grid-template-columns:1fr;gap:6px}.vs-face{width:120px;height:138px}.vs-side{padding:10px}.vs-side p{display:none}.h-face{width:104px;height:120px}}
+@media(pointer:coarse){.fe-keys,.s-back kbd,.s-foot .cta kbd{display:none}}
+@media(prefers-reduced-motion:reduce){.t-logo,.t-open span,.t-ball,.t-press,.m-list button i,.s-card.on:after,.h-bars u,.vs-side,.vs-x,.vs-round,.vs-sub,.m-side,.s-hero{animation:none!important}}
+
 /* ── overlays: setup, result, pause ── */
 .overlay{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:16px;background:#0e0f1a99;overflow:auto}
 .card{width:min(940px,100%);padding:16px 18px 18px;background:var(--navy);border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--blue),6px 6px 0 #000a}
@@ -257,27 +355,27 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="call" id="call" hidden></div>
 <section id="elc" class="panel elc" hidden aria-live="polite"><h2>CHALLENGE · BALL MARK</h2><canvas id="elcC" width="216" height="110"></canvas><div id="elcV"></div></section>
 
-<div class="overlay" id="setup">
-  <div class="card">
-    <div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p>Summer hard-court major · Centre Court</p></div>
-    <div class="seg mode"><button id="md-tour" aria-pressed="true">Tournament</button><button id="md-exh" aria-pressed="false">Exhibition match</button></div>
-    <div class="versus">
-      <section class="side" id="sideA"></section>
-      <div class="vs">VS</div>
-      <section class="side" id="sideB"></section>
-      <section class="side tinfo" id="tourInfo" hidden><h2>THE DRAW</h2><p>Eight players — yours and seven drawn from the field, legends included. Three rounds: quarter-final, semi-final, final. Win and you go through; lose and you are out. The other matches are played out while you play yours.</p><div id="tourField" class="tfield"></div></section>
-    </div>
-    <div class="opts">
-      <div><h3>FORMAT</h3><div class="seg" id="fmtRow"></div><small class="seg" id="fmtDesc"></small></div>
-      <div><h3>SESSION</h3><div class="seg" id="sesRow"></div></div>
-      <div><h3>OPPONENT LEVEL</h3><div class="seg" id="lvlRow"></div><small class="seg" id="lvlDesc"></small></div>
-    </div>
-    <div class="go">
-      <p class="how"><b>You pick the shot and the spot.</b> Your player runs and times the swing. When the ball comes to you the game slows down: press a shot key (A–G), then click the far court. Turn on <b>Auto</b> to let your player decide.</p>
-      <button class="cta" id="walkOut">Walk out ▶</button>
-    </div>
-  </div>
+<div class="fe" id="title">
+  <div class="fe-shade"></div>
+  <div class="t-logo"><div class="t-top">PIXEL TENNIS</div><div class="t-open"><span>OPEN</span><i class="t-ball" aria-hidden="true"></i></div><div class="t-sub">SUMMER HARD-COURT MAJOR · CENTRE COURT</div></div>
+  <div class="t-press" id="tPress">PRESS ENTER</div>
+  <div class="t-foot"><span>13 PLAYERS · 5 LEGENDS · ONE CUP</span><span>PIXEL TENNIS OPEN</span></div>
 </div>
+<div class="fe" id="menu" hidden>
+  <div class="fe-shade"></div>
+  <div class="m-wrap">
+    <div class="m-left"><div class="m-logo">PIXEL TENNIS <em>OPEN</em></div><nav class="m-list" id="mList" aria-label="Main menu"></nav></div>
+    <aside class="m-side panel" id="mSide"></aside>
+  </div>
+  <div class="fe-keys"><span><kbd>↑</kbd><kbd>↓</kbd> Select</span><span><kbd>Enter</kbd> Confirm</span><span><kbd>Esc</kbd> Back</span></div>
+</div>
+<div class="fe" id="setup" hidden>
+  <div class="fe-shade"></div>
+  <header class="s-head"><button id="sBack" class="s-back">◀ Back<kbd>Esc</kbd></button><h1 id="sTitle">SELECT YOUR PLAYER</h1><span id="sMode" class="s-mode">TOURNAMENT</span></header>
+  <div class="s-main"><section class="s-hero panel" id="sHero"></section><section class="s-grid" id="sGrid" aria-label="Players"></section></div>
+  <footer class="s-foot panel"><div class="s-opts" id="sOpts"></div><button class="cta" id="walkOut">ENTER THE DRAW ▶</button></footer>
+</div>
+<div class="fe vs-scr" id="vs" hidden><div class="vs-body" id="vsBody"></div><div class="fe-keys"><span><kbd>Enter</kbd> Start</span></div></div>
 <div class="overlay" id="bracket" hidden>
   <div class="card br"><div class="brand"><h1>PIXEL TENNIS <em>OPEN</em></h1><p id="brHead">QUARTER-FINALS</p></div>
     <div id="brCols" class="bcols"></div><div id="brNote" class="bnote"></div>
@@ -3546,49 +3644,120 @@ class Trophy{
   }
 }
 
-// SetupScreen — pick both players, the format and the session
-// pick both players, the format and the session, then walk out
+// TitleScreen — the first thing on screen: the logo over the stadium, waiting for a key or a tap
+// The tap that leaves it is also what lets the browser start sound (and speech, on iPad).
+class TitleScreen{
+  constructor(game){
+    this.g=game;$('title').onclick=()=>this.start();
+    $('tPress').textContent=matchMedia('(pointer:coarse)').matches?'TAP TO START':'PRESS ENTER';
+  }
+  open(){$('title').hidden=false;}
+  get on(){return!$('title').hidden;}
+  start(){if(!this.on)return;this.g.sound.start();this.g.sfx('chime');$('title').hidden=true;this.g.mainMenu.open();}
+}
+
+// MainMenu — tournament, exhibition, how to play; a preview of the highlighted choice beside the list
+class MainMenu{
+  static ITEMS=[['tour','TOURNAMENT','Eight players, three rounds. Win three matches and lift the cup.'],
+    ['exh','EXHIBITION','One match, against anyone in the field.'],['how','HOW TO PLAY','Shots, aiming, serving and challenges.']];
+  constructor(game){
+    this.g=game;this.i=0;
+    $('mList').innerHTML=MainMenu.ITEMS.map(([,t,d],i)=>`<button data-i="${i}"><i aria-hidden="true">▶</i><b>${t}</b><small>${d}</small></button>`).join('');
+    $('mList').querySelectorAll('button').forEach(b=>{b.onmouseenter=()=>this.hi(+b.dataset.i);b.onclick=()=>{this.hi(+b.dataset.i);this.choose();};});
+  }
+  get on(){return!$('menu').hidden;}
+  open(){this.render();$('menu').hidden=false;}
+  close(){$('menu').hidden=true;}
+  hi(i){if(i===this.i)return;this.i=i;this.g.sfx('click');this.render();}
+  move(d){this.hi((this.i+d+MainMenu.ITEMS.length)%MainMenu.ITEMS.length);}
+  choose(){const k=MainMenu.ITEMS[this.i][0];if(k==='how')return;this.g.sfx('chime');this.close();this.g.setup.open(k);}
+  back(){this.g.sfx('click');this.close();this.g.title.open();}
+  render(){
+    $('mList').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',String(i===this.i)));
+    const k=MainMenu.ITEMS[this.i][0],legends=ROSTER.filter(p=>p.legend).length,side=$('mSide');
+    if(k==='tour')side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>THE PIXEL TENNIS OPEN CUP</h3>
+      <ul><li><b>8</b> players, seeded: yours and seven from the field</li><li><b>3</b> rounds: quarter-final, semi-final, final</li><li><b>${legends}</b> legends can turn up in the draw</li><li>An interview after every match; a trophy ceremony for the champion</li></ul>`;
+    else if(k==='exh'){const pick=[...ROSTER].sort((a,b)=>a.rank-b.rank).slice(0,6);
+      side.innerHTML=`<div class="ms-faces">${pick.map(p=>Portrait.img(p,'face ms-face')).join('')}</div><h3>ANY TWO PLAYERS</h3>
+      <ul><li><b>${ROSTER.length}</b> players: today's best and the legends</li><li>Short set, full set or best of three</li><li>Day, twilight or night session</li><li>Opponent level: rookie, pro or legend</li></ul>`;}
+    else side.innerHTML=`<h3>HOW TO PLAY</h3><dl class="ms-keys">
+      <dt>A S D F G</dt><dd>Pick the shot as the ball comes: drive, flat, slice, lob, drop</dd>
+      <dt>Click</dt><dd>Aim it: the yellow cross, the circle shows how far it may stray</dd>
+      <dt>Timing</dt><dd>Press the shot key in the green zone of the bar for a Perfect hit</dd>
+      <dt>1 2 3</dt><dd>Serve wide, body or T; A S D picks flat, slice or kick</dd>
+      <dt>C</dt><dd>Challenge a close line call</dd>
+      <dt>Space</dt><dd>Auto: your player chooses every shot</dd>
+      <dt>V · Q E</dt><dd>Camera views · turn the court</dd>
+      <dt>X · P · M</dt><dd>Fast-forward · pause · sound</dd></dl>`;
+  }
+}
+
+// VersusScreen — the two players face off before a match: portraits slide in from either side, VS slams down
+// Goes on by itself after three seconds, or at once with Enter or a tap.
+class VersusScreen{
+  constructor(game){this.g=game;this.done=null;$('vs').onclick=()=>this.go();}
+  get on(){return!$('vs').hidden;}
+  open(a,b,round,sub,done){
+    const side=(p,cls,who)=>`<div class="vs-side ${cls}" style="--kit:${hexs(p.look.shirt)}"><div class="vs-band"></div>
+      <div class="vs-pic">${Portrait.img(p,'face vs-face')}</div><small>${who}</small><h2>${p.name.toUpperCase()}</h2>
+      <div class="vs-meta"><b>${p.cc}</b> · ${p.legend?'LEGEND':'RANK '+p.rank} · <em>${p.overall}</em> OVR</div><p>${p.style}</p></div>`;
+    $('vsBody').innerHTML=side(a,'l','YOU')+`<div class="vs-mid"><div class="vs-round">${round}</div><div class="vs-x">VS</div><div class="vs-sub">${sub}</div></div>`+side(b,'r','OPPONENT');
+    $('vs').hidden=false;this.done=done;clearTimeout(this.tm);clearTimeout(this.tm2);
+    this.tm2=setTimeout(()=>this.g.sfx('slam'),520);this.tm=setTimeout(()=>this.go(),3200);
+  }
+  go(){if(!this.done)return;const d=this.done;this.done=null;clearTimeout(this.tm);clearTimeout(this.tm2);$('vs').hidden=true;d();}
+}
+
+// SetupScreen — choosing players (yours, and in an exhibition the opponent) with the match settings beneath
+// A large card for the highlighted player beside the field as a grid of portraits. Arrow keys move through the
+// grid, Enter goes on, Esc goes back; the settings step with ◀ ▶.
 class SetupScreen{
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.mode='tour';this.phase=game.R.phaseKey;
-    $('fmtRow').innerHTML=MatchFormat.ALL.map(f=>`<button id="fm-${f.key}" aria-pressed="false">${f.name}</button>`).join('');
-    $('sesRow').innerHTML=Object.keys(PHASES).map(k=>`<button id="se-${k}" aria-pressed="false">${PHASES[k].name}</button>`).join('');
-    $('lvlRow').innerHTML=Difficulty.ALL.map(d=>`<button id="lv-${d.key}" aria-pressed="false">${d.name}</button>`).join('');
-    for(const d of Difficulty.ALL)$('lv-'+d.key).onclick=()=>{this.level=d.key;this.render();};
-    for(const f of MatchFormat.ALL)$('fm-'+f.key).onclick=()=>{this.fmt=f.key;this.render();};
-    for(const k in PHASES)$('se-'+k).onclick=()=>{this.phase=k;game.setPhase(k);this.render();};
-    $('walkOut').onclick=()=>this.mode==='tour'?game.startTour(this.a,this.fmt,this.phase,this.level,this.field):game.play(this.a,this.b,this.fmt,this.phase,this.level);
-    for(const k of['tour','exh'])$('md-'+k).onclick=()=>{this.mode=k;this.render();};
-    this.render();
+    this.g=game;this.a=2;this.b=1;this.fmt='short';this.level='pro';this.mode='tour';this.step=0;this.phase=game.R.phaseKey;
+    $('sBack').onclick=()=>this.back();$('walkOut').onclick=()=>this.go();
+    this.opts=[{k:'fmt',name:'FORMAT',list:()=>MatchFormat.ALL.map(f=>[f.key,f.name,f.desc])},
+      {k:'phase',name:'SESSION',list:()=>Object.keys(PHASES).map(k=>[k,PHASES[k].name,''])},
+      {k:'level',name:'OPPONENTS',list:()=>Difficulty.ALL.map(d=>[d.key,d.name,d.desc])}];
+    $('sOpts').innerHTML=this.opts.map((o,i)=>`<div class="s-opt"><span>${o.name}</span><div class="s-cyc"><button data-o="${i}" data-d="-1" aria-label="Previous ${o.name.toLowerCase()}">◀</button><b id="so-${o.k}"></b><button data-o="${i}" data-d="1" aria-label="Next ${o.name.toLowerCase()}">▶</button></div><small id="sd-${o.k}"></small></div>`).join('');
+    $('sOpts').querySelectorAll('button').forEach(b=>b.onclick=()=>this.cycle(+b.dataset.o,+b.dataset.d));
   }
-  side(id,title,sel,other){
-    const p=ROSTER[sel],r=p.ratings,bar=(n,v)=>`<span>${n}</span><i><u style="width:${v}%"></u></i><em>${v}</em>`;
-    $(id).innerHTML=`<h2>${title}</h2>
-      <div class="hero">${Portrait.img(p,'face big')}
-        <div class="id"><div class="who"><b style="background:${hexs(p.look.shirt)}"></b><strong>${p.name}</strong></div>
-          <div class="meta"><span>${p.cc}</span> · ${p.legend?'Legend · ':''}Rank ${p.rank} · ${p.hand<0?'Left':'Right'}-handed${p.ohb?' · one-handed backhand':''}</div>
-          <div class="style">${p.style}</div>
-          <div class="ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
-      <div class="bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>
-      <div class="picks">${ROSTER.map(q=>`<button data-i="${q.id}" class="${q.legend?'lg':''}" aria-pressed="${q.id===sel}" ${q.id===other?'disabled':''} title="${q.name}">${Portrait.img(q)}<span>${q.short}</span></button>`).join('')}</div>`;
-    $(id).querySelectorAll('.picks button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(id==='sideA')this.a=i;else this.b=i;this.render();});
-  }
-  render(){
-    const tour=this.mode==='tour';
-    this.side('sideA','YOU',this.a,tour?-1:this.b);this.side('sideB','OPPONENT',this.b,this.a);
-    // a tournament decides the opponents: only the person's own player is chosen
-    $('sideB').hidden=tour;document.querySelector('#setup .vs').hidden=tour;$('tourInfo').hidden=!tour;
-    for(const k of['tour','exh'])$('md-'+k).setAttribute('aria-pressed',String(this.mode===k));
-    $('walkOut').textContent=tour?'Enter the draw ▶':'Walk out ▶';
-    if(tour){if(!this.field||!this.field.some(q=>q.id===this.a))this.field=Tournament.field(ROSTER[this.a]);
-      $('tourField').innerHTML=this.field.map((q,i)=>`<div class="tf${q.id===this.a?' me':''}">${Portrait.img(q)}<span class="seed">${i+1}</span><span>${q.short}</span></div>`).join('');}
-    for(const f of MatchFormat.ALL)$('fm-'+f.key).setAttribute('aria-pressed',String(this.fmt===f.key));
-    for(const k in PHASES)$('se-'+k).setAttribute('aria-pressed',String(this.phase===k));
-    $('fmtDesc').textContent=MatchFormat.get(this.fmt).desc;
-    for(const d of Difficulty.ALL)$('lv-'+d.key).setAttribute('aria-pressed',String(this.level===d.key));$('lvlDesc').textContent=Difficulty.get(this.level).desc;
-  }
-  open(){this.field=null;this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
+  get on(){return!$('setup').hidden;}
+  get sel(){return this.step===1?this.b:this.a;}
+  set sel(i){if(this.step===1)this.b=i;else this.a=i;}
+  open(mode=this.mode){this.mode=mode;this.step=0;this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
   close(){$('setup').hidden=true;}
+  cycle(i,d){const o=this.opts[i],L=o.list(),j=Math.max(0,L.findIndex(q=>q[0]===this[o.k])),n=L[(j+d+L.length)%L.length][0];
+    this[o.k]=n;if(o.k==='phase')this.g.setPhase(n);this.g.sfx('click');this.render();}
+  pick(i){if(this.step===1&&i===this.a)return;if(this.sel!==i){this.sel=i;this.g.sfx('click');this.render();}}
+  // arrow keys through the grid; when choosing an opponent your own player is stepped over
+  move(dx,dy){
+    const n=ROSTER.length,cols=getComputedStyle($('sGrid')).gridTemplateColumns.split(' ').length||5;let i=this.sel;
+    for(let k=0;k<n;k++){i=dy?i+dy*cols:i+dx;if(i<0)i=dy?i+Math.ceil(n/cols)*cols:n-1;if(i>=n)i=dy?i%cols:0;if(i<n&&!(this.step===1&&i===this.a))break;}
+    if(i<n)this.pick(i);
+  }
+  go(){
+    this.g.sfx('chime');
+    if(this.mode==='tour'){this.close();this.g.startTour(this.a,this.fmt,this.phase,this.level);return;}
+    if(this.step===0){this.step=1;if(this.b===this.a)this.b=(this.a+1)%ROSTER.length;this.render();return;}
+    this.close();this.g.exhibition(this.a,this.b,this.fmt,this.phase,this.level);
+  }
+  back(){this.g.sfx('click');if(this.step===1){this.step=0;this.render();return;}this.close();this.g.mainMenu.open();}
+  render(){
+    const p=ROSTER[this.sel],r=p.ratings,mine=this.step===0;
+    $('sTitle').textContent=mine?'SELECT YOUR PLAYER':'SELECT YOUR OPPONENT';$('sMode').textContent=this.mode==='tour'?'TOURNAMENT':'EXHIBITION';
+    const bar=(n,v)=>`<span>${n}</span><i><u style="width:${v}%"></u></i><em>${v}</em>`;
+    const hero=$('sHero');hero.style.setProperty('--kit',hexs(p.look.shirt));
+    hero.innerHTML=`<div class="h-top"><div class="h-pic">${Portrait.img(p,'face h-face')}<span class="h-rank">${p.legend?'LEGEND':'RANK '+p.rank}</span></div>
+      <div class="h-id"><small>${mine?'YOU':'OPPONENT'}</small><h2>${p.name.toUpperCase()}</h2>
+        <div class="h-meta"><b>${p.cc}</b> · ${p.hand<0?'Left':'Right'}-handed · ${p.ohb?'one':'two'}-handed backhand</div>
+        <p class="h-style">${p.style}</p><div class="h-ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
+      <div class="h-bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>`;
+    $('sGrid').innerHTML=ROSTER.map(q=>{const dis=!mine&&q.id===this.a;
+      return`<button class="s-card${q.legend?' lg':''}${q.id===this.sel?' on':''}" data-i="${q.id}" aria-pressed="${q.id===this.sel}" ${dis?'disabled':''} title="${q.name}">${Portrait.img(q,'face')}<span class="c-name">${q.short}</span><span class="c-rk">${q.legend?'LEGEND':'#'+q.rank}</span>${dis?'<span class="c-you">YOU</span>':''}</button>`;}).join('');
+    $('sGrid').querySelectorAll('.s-card').forEach(b=>b.onclick=()=>this.pick(+b.dataset.i));
+    for(const o of this.opts){const it=o.list().find(q=>q[0]===this[o.k]);$('so-'+o.k).textContent=it?it[1]:'';$('sd-'+o.k).textContent=it?it[2]:'';}
+    $('walkOut').innerHTML=(this.mode==='tour'?'ENTER THE DRAW':mine?'CHOOSE OPPONENT':'WALK OUT')+' ▶<kbd>Enter</kbd>';
+  }
 }
 
 // ResultScreen — the end-of-match card, and the bar that stays once the card is put away to look at the court
@@ -3682,7 +3851,13 @@ class Input{
     // physical key codes, so the shortcuts survive a Korean or any other keyboard layout
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
-      if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
+      // the front end: title, menu, player select, versus, the draw
+      if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
+      if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
+      if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);
+        else if(c==='Enter'||c==='Space')S.go();else if(c==='Escape'||c==='Backspace')S.back();else return;e.preventDefault();return;}
+      if(!$('bracket').hidden){if(c==='Enter'){$('brGo').click();e.preventDefault();}return;}
       if(!$('cerBar').hidden){if(c==='Enter'||c==='Escape'){$('cerSkip').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
       if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
@@ -3724,15 +3899,22 @@ class Game{
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.title=new TitleScreen(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
-    this.demo();
+    this.demo();this.title.open();
     this.input=new Input(this);
     $('resume').onclick=()=>this.togglePause();
     addEventListener('resize',()=>this.resize());this.resize();
     window.__PTO=this;
     requestAnimationFrame(t=>this.frame(t));
   }
+  // ──────── the front end ────────
+  // menu sounds, once sound is on (the title screen's key or tap turns it on)
+  sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
+  // is a front-end screen up? The HUD hides behind it and the stadium camera turns slowly, a quarter at a time
+  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||!$('bracket').hidden;}
+  exhibition(a,b,fmt,phase,level){this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level));}
   // ──────── matches ────────
   // two computer players behind the setup screen, on a loop
   demo(){const a=Math.floor(R()*ROSTER.length);let b=Math.floor(R()*ROSTER.length);if(b===a)b=(a+3)%ROSTER.length;
@@ -3745,7 +3927,10 @@ class Game{
   }
   // ──────── tournament ────────
   startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
-  playTour(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
+  playTour(){const t=this.tour;if(!t||!t.mine)return;
+    const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
+    this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
+  startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
@@ -3765,7 +3950,8 @@ class Game{
   }
   endTour(){this.tour=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.setup.open();}
+  // back to the front: the main menu over a match between two computer players
+  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.mainMenu.open();}
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
@@ -3806,6 +3992,7 @@ class Game{
     this.acc+=dt*this.ts;let n=0;while(this.acc>=DT&&n<60){m.tick();this.acc-=DT;n++;if(m.events.length>200)this.drain();}if(n===60)this.acc=0;
     this.alpha=clamp(this.acc/DT,0,1);
     this.watchPerf(now);
+    {const fe=this.frontEnd;document.body.classList.toggle('fe-on',fe);if(fe&&this.cam.mode===CameraRig.STADIUM){this.feTurn+=dt;if(this.feTurn>7){this.feTurn=0;this.cam.turn(1);}}}
     this.drain();
     this.net.update(dt);this.fx.update(dt);
     this.cam.update(dt,this.focus());

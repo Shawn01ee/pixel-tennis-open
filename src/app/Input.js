@@ -5,7 +5,13 @@ class Input{
     // physical key codes, so the shortcuts survive a Korean or any other keyboard layout
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
-      if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
+      // the front end: title, menu, player select, versus, the draw
+      if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
+      if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
+      if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);
+        else if(c==='Enter'||c==='Space')S.go();else if(c==='Escape'||c==='Backspace')S.back();else return;e.preventDefault();return;}
+      if(!$('bracket').hidden){if(c==='Enter'){$('brGo').click();e.preventDefault();}return;}
       if(!$('cerBar').hidden){if(c==='Enter'||c==='Escape'){$('cerSkip').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
       if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
