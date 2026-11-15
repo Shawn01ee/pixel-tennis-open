@@ -58,6 +58,11 @@ A trained player currently wins about **57.9% of points** against an untrained c
 only the decisions differ. The model, the measurements, a player-by-player chart and each player's learned playbook
 are in **[training/](training/README.md)**, redrawn every day when the players train.
 
+What the players learn from *your* matches stays in your browser. To share it, open **View → Learning → Export** in
+the game: it saves `pixel-tennis-open-learning.json`, the difference between what the players know after your matches
+and what they shipped with. `node tools/merge.js that-file.json` folds it into the shipped values (at half weight by
+default), after which `python3 build.py` and a commit publish it to everyone.
+
 Each player also has one signature trait on top of the ratings (`src/players/Traits.js`); `node tools/traits.js`
 measures what each is worth.
 

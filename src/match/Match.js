@@ -133,7 +133,7 @@ class Match{
       }
       w=r.w;break;
     }
-    this.stats.points++;this.tactics.reward(w,this.players);if(this.stats.points%8===0)this.tactics.save();
+    this.stats.points++;this.tactics.reward(w,this.players);if(this.human){Tactics.points++;if(this.stats.points%8===0)this.tactics.save();}
     const winner=sc.p[w],loser=sc.p[1-w],Sv=sc.srv;
     winner.ms.pts++;if(w===sc.server){if(no===1)Sv.ms.won1++;else Sv.ms.won2++;}
     if(no===2)Sv.ms.sv2++;

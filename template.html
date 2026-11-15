@@ -59,6 +59,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .tools{position:relative;display:flex;gap:4px;align-items:flex-start}
 .tools>button{min-height:30px}
 .pop{position:absolute;right:0;top:36px;width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
+.pop .lrn{margin:-4px 0 2px;color:var(--mute);font-size:15px}
 .pop h3{font:500 13px var(--display);margin:2px 0 5px;color:var(--sky);letter-spacing:.05em}
 .pop .row{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}.pop .row button{margin-left:-2px}.pop .row button:first-child{margin-left:0}
 #statsP table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:17px}
@@ -222,6 +223,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
         <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
         <h3>SESSION</h3><div class="row" id="phaseRow"></div>
         <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">New match</button></div>
+        <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
       </section>
     </div>
   </div>

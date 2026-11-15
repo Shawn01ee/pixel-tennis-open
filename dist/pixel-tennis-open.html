@@ -59,6 +59,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .tools{position:relative;display:flex;gap:4px;align-items:flex-start}
 .tools>button{min-height:30px}
 .pop{position:absolute;right:0;top:36px;width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
+.pop .lrn{margin:-4px 0 2px;color:var(--mute);font-size:15px}
 .pop h3{font:500 13px var(--display);margin:2px 0 5px;color:var(--sky);letter-spacing:.05em}
 .pop .row{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}.pop .row button{margin-left:-2px}.pop .row button:first-child{margin-left:0}
 #statsP table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:17px}
@@ -222,6 +223,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
         <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
         <h3>SESSION</h3><div class="row" id="phaseRow"></div>
         <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">New match</button></div>
+        <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
       </section>
     </div>
   </div>
@@ -805,20 +807,40 @@ const LEARNED={"Djokovic":{"stype2r":{"kick":0.354,"slice":-0.068},"serve2l":{"t
 // remembered for the point. When the point ends, the winner's choices are credited and the loser's blamed, the most
 // recent ones most. A choice's learned value q ∈ [−1,1] multiplies its base weight by exp(BETA·q), so habits that win
 // are played more and habits that lose fade — but never vanish, so the player keeps exploring.
-// Values start from LEARNED (self-play, see tools/train.js) and keep changing with every point played here;
-// in a browser they are kept in localStorage, so the players go on learning from match to match.
+// Values start from LEARNED (self-play, see tools/train.js) and keep changing with every point played here.
+// In a browser, what was learned on top of LEARNED is kept in localStorage as a difference, so the players go on
+// learning from match to match and still pick up every new round of self-play that ships with the game. That
+// difference can be exported as a file and folded into LEARNED for everyone (tools/merge.js).
 class Tactics{
   static ALPHA=.05;   // how fast a value moves toward the latest result
   static GAMMA=.6;    // how much less each earlier choice in the point is credited
   static BETA=2.6;    // how strongly a learned value bends the choice (training explores with a lower one)
-  static KEY='pto.tactics.v2';
+  static KEY='pto.tactics.v3';
+  static points=0;    // points played in this browser that the stored difference rests on
   constructor(q=null){this.q=q||Tactics.load();this.trail=[[],[]];}
-  static load(){
-    const q=typeof LEARNED!=='undefined'?JSON.parse(JSON.stringify(LEARNED)):{};
-    try{if(typeof localStorage!=='undefined'){const s=localStorage.getItem(Tactics.KEY);if(s)Object.assign(q,JSON.parse(s));}}catch(e){}
+  static base(){return typeof LEARNED!=='undefined'?LEARNED:{};}
+  // add w × a difference {player:{situation:{tactic:Δ}}} to a table of values
+  static apply(q,d,w=1){
+    for(const p in d)for(const s in d[p])for(const t in d[p][s]){const v=+d[p][s][t];if(!isFinite(v))continue;
+      const S=(q[p]||(q[p]={}))[s]||(q[p][s]={});S[t]=clamp((S[t]||0)+w*v,-1,1);}
     return q;
   }
-  save(){try{if(typeof localStorage!=='undefined')localStorage.setItem(Tactics.KEY,JSON.stringify(this.q));}catch(e){}}
+  static stored(){try{if(typeof localStorage!=='undefined'){const s=localStorage.getItem(Tactics.KEY);if(s){const o=JSON.parse(s);if(o&&o.d)return o;}}}catch(e){}return null;}
+  static load(){
+    const q=JSON.parse(JSON.stringify(Tactics.base())),o=Tactics.stored();
+    if(o){Tactics.apply(q,o.d);Tactics.points=o.n||0;}
+    return q;
+  }
+  // what this table has learned beyond the shipped values
+  delta(){
+    const B=Tactics.base(),d={};
+    for(const p in this.q){if(p==='_')continue;for(const s in this.q[p])for(const t in this.q[p][s]){
+      const v=Math.round((this.q[p][s][t]-(((B[p]||{})[s]||{})[t]||0))*1000)/1000;if(Math.abs(v)>=.002)((d[p]||(d[p]={}))[s]||(d[p][s]={}))[t]=v;}}
+    return d;
+  }
+  save(){try{if(typeof localStorage!=='undefined')localStorage.setItem(Tactics.KEY,JSON.stringify({n:Tactics.points,d:this.delta()}));}catch(e){}}
+  // the file a person can hand over: what the players learned from the matches played in this browser
+  static exportFile(){const o=Tactics.stored()||{n:0,d:{}};return JSON.stringify({game:'pixel-tennis-open',kind:'tactics-delta',version:3,date:new Date().toISOString().slice(0,10),points:o.n||0,delta:o.d},null,1);}
   static forget(){try{if(typeof localStorage!=='undefined')localStorage.removeItem(Tactics.KEY);}catch(e){}}
   key(P){return P.st.tkey||P.st.short;}
   table(P){const k=this.key(P);return this.q[k]||(this.q[k]={});}
@@ -1223,7 +1245,7 @@ class Match{
       }
       w=r.w;break;
     }
-    this.stats.points++;this.tactics.reward(w,this.players);if(this.stats.points%8===0)this.tactics.save();
+    this.stats.points++;this.tactics.reward(w,this.players);if(this.human){Tactics.points++;if(this.stats.points%8===0)this.tactics.save();}
     const winner=sc.p[w],loser=sc.p[1-w],Sv=sc.srv;
     winner.ms.pts++;if(w===sc.server){if(no===1)Sv.ms.won1++;else Sv.ms.won2++;}
     if(no===2)Sv.ms.sv2++;
@@ -3224,6 +3246,9 @@ class SettingsMenu{
     for(const k in PHASES)$('ph-'+k).onclick=()=>game.setPhase(k);
     $('tl').onclick=()=>game.cam.turn(-1);$('tr').onclick=()=>game.cam.turn(1);
     $('snd').onclick=()=>game.toggleSound();$('pauseB').onclick=()=>game.togglePause();$('newB').onclick=()=>game.openSetup();
+    // what the computer players learned from this person's matches: save it as a file, or forget it
+    $('expB').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([Tactics.exportFile()],{type:'application/json'}));a.download='pixel-tennis-open-learning.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);};
+    $('fgtB').onclick=()=>{Tactics.forget();Tactics.points=0;if(game.match)game.match.tactics.q=Tactics.load();this.update();game.say('Learning from your matches was reset.');};
     const pop=(b,p,other)=>{$(b).onclick=()=>{const open=$(p).hidden;$(p).hidden=!open;$(b).setAttribute('aria-expanded',String(open));$(other[1]).hidden=true;$(other[0]).setAttribute('aria-expanded','false');};};
     pop('statsT','statsP',['menuT','menuP']);pop('menuT','menuP',['statsT','statsP']);
   }
@@ -3231,6 +3256,7 @@ class SettingsMenu{
     const on=(id,v)=>{const e=$(id);if(e)e.setAttribute('aria-pressed',String(v));};
     CameraRig.MODES.forEach((n,i)=>on('cam-'+i,this.g.cam.mode===i));for(const k in PHASES)on('ph-'+k,this.g.R.phaseKey===k);
     on('snd',this.g.sound.on);
+    const t=`${Tactics.points} points learned from in this browser`;if($('lrnN').textContent!==t)$('lrnN').textContent=t;
   }
 }
 
