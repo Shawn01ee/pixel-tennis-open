@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pixel Tennis Open</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
 <style>
 /* Broadcast graphics for a summer hard-court major: night navy, court blue, sky accents, ball yellow.
    Every colour is one of the game's 64 palette entries. */
@@ -14,7 +14,7 @@
 :root{color-scheme:dark;
   --ink:#0e0f1a;--navy:#101a3a;--deep:#1a2c5c;--blue:#25468a;--court:#3166b4;--azure:#4a8ed4;--sky:#7bb8ea;--ice:#e2f4fb;
   --chalk:#f4f3ec;--mute:#9aa1b3;--ball:#f4d44a;--coral:#f0664a;--lime:#b4dc68;
-  --display:'Pixelify Sans','Courier New',monospace;--data:'VT323','Courier New',monospace}
+  --display:'Silkscreen','Courier New',monospace;--data:'VT323','Courier New',monospace}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--chalk);font-family:var(--data);font-size:18px;line-height:1.1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #view{position:fixed;left:0;top:0;display:block;image-rendering:pixelated;touch-action:none;cursor:crosshair}
 button{font:18px/1 var(--data);color:var(--chalk);background:var(--deep);border:2px solid var(--ink);min-height:30px;padding:0 9px;cursor:pointer;white-space:nowrap}
@@ -158,6 +158,19 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .bnote .face.big{width:78px;height:90px;border:2px solid var(--deep)}.bnote .next>b{font:700 20px var(--display);color:var(--ball)}
 .bnote div div b{display:block;font:700 22px/1.1 var(--display)}.bnote div div span{display:block;color:var(--mute);font-size:18px;margin-top:3px}
 .bnote .champ .face.big{width:104px;height:120px;border-color:var(--ball)}.bnote .champ div b{color:var(--ball);font-size:28px}
+.trophy{image-rendering:pixelated;width:138px;height:162px;display:block}.trophy.small{width:69px;height:81px}
+.cere{position:relative;display:flex;align-items:center;gap:16px;padding:6px 4px 2px;overflow:hidden}
+.cere .cup{position:relative;filter:drop-shadow(0 0 14px #f4d44a66);animation:cupUp 1.1s cubic-bezier(.2,1.4,.4,1) both}
+.cere .cup s{position:absolute;width:6px;height:6px;background:#fff;box-shadow:0 -6px 0 -2px #fff,0 6px 0 -2px #fff,6px 0 0 -2px #fff,-6px 0 0 -2px #fff;animation:glint 1.8s steps(4) infinite}
+.cere .cup s:nth-child(2){left:38px;top:34px}.cere .cup s:nth-child(3){left:92px;top:22px;animation-delay:.6s}.cere .cup s:nth-child(4){left:60px;top:70px;animation-delay:1.2s}
+.cere .face.big{width:104px;height:120px;border-color:var(--ball)}
+.cere small{font:700 13px var(--display);letter-spacing:.14em;color:var(--sky)}.cere div b{color:var(--ball);font-size:30px!important}
+.cere ul{list-style:none;margin:8px 0 0;padding:0;font-size:18px;color:var(--chalk)}.cere li i{display:inline-block;width:26px;font-style:normal;color:var(--sky);font:500 12px var(--display)}.cere li em{font-style:normal;color:var(--ball)}
+.conf{position:absolute;inset:0;pointer-events:none}.conf i{position:absolute;top:-10px;width:5px;height:8px;animation:confFall 4s linear infinite}
+@keyframes confFall{to{transform:translate(18px,260px) rotate(540deg)}}
+@keyframes glint{0%,60%,100%{opacity:0;transform:scale(.4)}20%,40%{opacity:1;transform:scale(1)}}
+@keyframes cupUp{from{transform:translateY(40px) scale(.6);opacity:0}}
+@media(prefers-reduced-motion:reduce){.conf{display:none}.cere .cup,.cere .cup s{animation:none}}
 .card.iv{width:min(680px,100%)}.ivwho{display:flex;gap:12px;align-items:center;margin-bottom:12px}.ivwho .face.big{width:78px;height:90px;border:2px solid var(--deep)}
 .ivwho b{display:block;font:700 22px/1.1 var(--display)}.ivwho span{color:var(--sky);font:500 12px var(--display);letter-spacing:.08em}
 .ivq{margin:0 0 12px;font-size:22px;line-height:1.2;color:var(--chalk);background:var(--ink);border-left:4px solid var(--ball);padding:8px 10px}
@@ -3210,6 +3223,46 @@ class Portrait{
   }
 }
 
+// Trophy — the Pixel Tennis Open Cup, drawn in pixels
+// A tall silver two-handled cup with a domed lid on a dark plinth, in the manner of the great summer hard-court
+// trophies. 46 × 54 pixels, shown enlarged with hard edges. The silhouette is a list of half-widths, one per row.
+class Trophy{
+  static W=46;static H=54;static cached=null;
+  static SILVER=['#fbfdff','#dfe6f0','#b3bdcc','#838ea3','#566078'];
+  static WOOD=['#5a3d2c','#3f2a20','#2a1c17'];
+  static url(){return Trophy.cached||(Trophy.cached=Trophy.draw().toDataURL());}
+  static img(cls='trophy'){return`<img class="${cls}" src="${Trophy.url()}" alt="The Pixel Tennis Open Cup" width="${Trophy.W}" height="${Trophy.H}">`;}
+  // silver seen in stadium light: a bright streak left of centre, a fainter one near the right edge
+  static tone(u){const d=Math.abs(u+.38);return d<.13?0:d<.42?1:u>.55&&u<.8?1:d<.85?2:d<1.15?3:4;}
+  static draw(){
+    const W=Trophy.W,H=Trophy.H,cx=W>>1,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+    const px=new Map(),put=(x,y,c)=>px.set(x+','+y,c),S=Trophy.SILVER,Wd=Trophy.WOOD;
+    const row=(y,hw,pal=S,k=0)=>{for(let x=-hw;x<=hw;x++){const t=Trophy.tone(hw?x/hw:0);put(cx+x,y,pal===S?S[Math.min(4,t+k)]:pal[t<2?0:t<4?1:2]);}};
+    // finial and lid
+    [1,1,2,1].forEach((w,i)=>row(1+i,w));[3,6,9,11].forEach((w,i)=>row(5+i,w));
+    // rim, bowl with an engraved band, tapering to the stem
+    row(9,13);row(10,13,S,1);
+    const bowl=[12,12,12,12,12,12,11,11,10,10,9,8,7,6,4,3];bowl.forEach((w,i)=>row(11+i,w,S,i===3||i===5?1:0));
+    for(let x=-11;x<=11;x++)if((x+22)%3!==1)put(cx+x,15,S[3]);                   // the band's pattern
+    // stem with a knop, and the foot
+    [2,2,3,2].forEach((w,i)=>row(27+i,w));[4,6,8].forEach((w,i)=>row(31+i,w,S,i===2?1:0));
+    // the two looped handles
+    for(const s of[-1,1])for(let y=10;y<=21;y++){const q=(y-10)/11,o=14+Math.round(4.2*Math.sin(PI*q)),e=bowl[Math.max(0,y-11)]+1;
+      const c=S[s<0?1:3],c2=S[s<0?2:4];put(cx+s*o,y,c);put(cx+s*(o+1),y,c2);
+      if(y<=11||y>=20)for(let x=e;x<o;x++)put(cx+s*x,y,c);}
+    // plinth: dark wood with a silver plate for the champions' names
+    row(34,9,Wd);row(35,9,Wd);for(let y=36;y<=47;y++)row(y,10,Wd);row(48,12,Wd);row(49,12,Wd);
+    for(let y=39;y<=43;y++)for(let x=-7;x<=7;x++)put(cx+x,y,y===39?S[1]:y===43?S[3]:S[2]);
+    for(let x=-5;x<=5;x++){if(x%2)put(cx+x,40,S[4]);if((x+1)%3)put(cx+x,42,S[4]);}
+    // a dark outline around the whole silhouette
+    const ink='#141a2e',edge=[];
+    for(const k of px.keys()){const[x,y]=k.split(',').map(Number);for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const q=(x+dx)+','+(y+dy);if(!px.has(q))edge.push(q);}}
+    for(const q of edge)px.set(q,ink);
+    for(const[k,c]of px){const[x,y]=k.split(',').map(Number);g.fillStyle=c;g.fillRect(x,y,1,1);}
+    return cv;
+  }
+}
+
 // SetupScreen — pick both players, the format and the session
 // pick both players, the format and the session, then walk out
 class SetupScreen{
@@ -3283,14 +3336,24 @@ class BracketScreen{
     $('brCols').innerHTML=t.rounds.map((r,i)=>`<div class="bcol"><h3>${Tournament.ROUNDS[i].toUpperCase()}</h3>${r.map(m=>`<div class="bm${t.mine===m?' next':''}">${this.row(t,m.a,m,0)}${this.row(t,m.b,m,1)}</div>`).join('')}</div>`).join('');
     const me=t.player(t.me),opp=t.opponent,champ=t.over?t.player(t.champion):null;
     $('brHead').textContent=(t.over?'CHAMPION':t.name.toUpperCase())+(t.fans?`  ·  ${t.fans}k fans`:'');
-    $('brNote').innerHTML=champ?`<div class="champ">${Portrait.img(champ,'face big')}<div><b>${champ.name}</b><span>${champ.id===t.me?'You won the Pixel Tennis Open!':t.out?'wins the Pixel Tennis Open. You went out in the '+this.lostIn(t)+'.':'wins the Pixel Tennis Open.'}</span></div></div>`
+    const mine=champ&&champ.id===t.me;$('bracket').classList.toggle('won',!!mine);
+    $('brNote').innerHTML=mine?this.ceremony(t,champ):champ?`<div class="champ">${Trophy.img('trophy small')}${Portrait.img(champ,'face big')}<div><b>${champ.name}</b><span>${t.out?'wins the Pixel Tennis Open. You went out in the '+this.lostIn(t)+'.':'wins the Pixel Tennis Open.'}</span></div></div>`
       :`<div class="next">${Portrait.img(me,'face big')}<b>VS</b>${Portrait.img(opp,'face big')}<div><b>${opp.name}</b><span>Seed ${opp.rank} · ${opp.style}</span></div></div>`;
     $('brGo').textContent=t.over?'New tournament ▶':`Play the ${t.round===2?'final':t.round===1?'semi-final':'quarter-final'} ▶`;
     $('bracket').hidden=false;
+    if(mine&&!t.feted){t.feted=true;const s=this.g.sound;s.event({type:'crowd',kind:'roar',power:1},0);s.event({type:'crowd',kind:'applause',power:1},0);
+      s.voice.say(`Ladies and gentlemen, the champion of the Pixel Tennis Open: ${champ.name}!`);}
+  }
+  // the trophy presentation: the cup, the champion, the road to the title, confetti
+  ceremony(t,p){
+    const road=t.rounds.map((r,i)=>{const m=r.find(q=>q.a===t.me||q.b===t.me),o=t.player(m.a===t.me?m.b:m.a);return`<li><i>${['QF','SF','F'][i]}</i> d. ${o.short} <em>${m.line}</em></li>`;}).join('');
+    const cols=['#f4d44a','#f4f3ec','#7bb8ea','#ff7a59','#7bd88f'],conf=Array.from({length:36},(_,i)=>`<i style="left:${(i*37+11)%100}%;background:${cols[i%5]};animation-delay:${-(i*.37%4).toFixed(2)}s;animation-duration:${(3+i%5*.45).toFixed(2)}s"></i>`).join('');
+    return`<div class="cere"><div class="conf">${conf}</div><div class="cup">${Trophy.img()}<s></s><s></s><s></s></div>${Portrait.img(p,'face big')}
+      <div><small>CHAMPION</small><b>${p.name}</b><span>lifts the Pixel Tennis Open Cup${t.fans?` · ${t.fans}k fans`:''}</span><ul>${road}</ul></div></div>`;
   }
   lostIn(t){for(let i=0;i<3;i++)if(t.rounds[i].some(m=>(m.a===t.me||m.b===t.me)&&m.w!=null&&m.w!==t.me))return['quarter-finals','semi-finals','final'][i];return'draw';}
   go(){const t=this.g.tour;if(!t)return;this.close();if(t.over)this.g.endTour();else this.g.playTour();}
-  close(){$('bracket').hidden=true;}
+  close(){$('bracket').hidden=true;$('brNote').innerHTML='';}
 }
 
 // InterviewScreen — asks the interview's questions one at a time and shows how the crowd takes each answer

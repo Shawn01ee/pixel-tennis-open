@@ -70,6 +70,7 @@
  "ui/ControlDock.js",
  "ui/SettingsMenu.js",
  "ui/Portrait.js",
+ "ui/Trophy.js",
  "ui/SetupScreen.js",
  "ui/ResultScreen.js",
  "ui/BracketScreen.js",

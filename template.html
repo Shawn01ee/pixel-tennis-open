@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pixel Tennis Open</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
 <style>
 /* Broadcast graphics for a summer hard-court major: night navy, court blue, sky accents, ball yellow.
    Every colour is one of the game's 64 palette entries. */
@@ -14,7 +14,7 @@
 :root{color-scheme:dark;
   --ink:#0e0f1a;--navy:#101a3a;--deep:#1a2c5c;--blue:#25468a;--court:#3166b4;--azure:#4a8ed4;--sky:#7bb8ea;--ice:#e2f4fb;
   --chalk:#f4f3ec;--mute:#9aa1b3;--ball:#f4d44a;--coral:#f0664a;--lime:#b4dc68;
-  --display:'Pixelify Sans','Courier New',monospace;--data:'VT323','Courier New',monospace}
+  --display:'Silkscreen','Courier New',monospace;--data:'VT323','Courier New',monospace}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--chalk);font-family:var(--data);font-size:18px;line-height:1.1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #view{position:fixed;left:0;top:0;display:block;image-rendering:pixelated;touch-action:none;cursor:crosshair}
 button{font:18px/1 var(--data);color:var(--chalk);background:var(--deep);border:2px solid var(--ink);min-height:30px;padding:0 9px;cursor:pointer;white-space:nowrap}
@@ -158,6 +158,19 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .bnote .face.big{width:78px;height:90px;border:2px solid var(--deep)}.bnote .next>b{font:700 20px var(--display);color:var(--ball)}
 .bnote div div b{display:block;font:700 22px/1.1 var(--display)}.bnote div div span{display:block;color:var(--mute);font-size:18px;margin-top:3px}
 .bnote .champ .face.big{width:104px;height:120px;border-color:var(--ball)}.bnote .champ div b{color:var(--ball);font-size:28px}
+.trophy{image-rendering:pixelated;width:138px;height:162px;display:block}.trophy.small{width:69px;height:81px}
+.cere{position:relative;display:flex;align-items:center;gap:16px;padding:6px 4px 2px;overflow:hidden}
+.cere .cup{position:relative;filter:drop-shadow(0 0 14px #f4d44a66);animation:cupUp 1.1s cubic-bezier(.2,1.4,.4,1) both}
+.cere .cup s{position:absolute;width:6px;height:6px;background:#fff;box-shadow:0 -6px 0 -2px #fff,0 6px 0 -2px #fff,6px 0 0 -2px #fff,-6px 0 0 -2px #fff;animation:glint 1.8s steps(4) infinite}
+.cere .cup s:nth-child(2){left:38px;top:34px}.cere .cup s:nth-child(3){left:92px;top:22px;animation-delay:.6s}.cere .cup s:nth-child(4){left:60px;top:70px;animation-delay:1.2s}
+.cere .face.big{width:104px;height:120px;border-color:var(--ball)}
+.cere small{font:700 13px var(--display);letter-spacing:.14em;color:var(--sky)}.cere div b{color:var(--ball);font-size:30px!important}
+.cere ul{list-style:none;margin:8px 0 0;padding:0;font-size:18px;color:var(--chalk)}.cere li i{display:inline-block;width:26px;font-style:normal;color:var(--sky);font:500 12px var(--display)}.cere li em{font-style:normal;color:var(--ball)}
+.conf{position:absolute;inset:0;pointer-events:none}.conf i{position:absolute;top:-10px;width:5px;height:8px;animation:confFall 4s linear infinite}
+@keyframes confFall{to{transform:translate(18px,260px) rotate(540deg)}}
+@keyframes glint{0%,60%,100%{opacity:0;transform:scale(.4)}20%,40%{opacity:1;transform:scale(1)}}
+@keyframes cupUp{from{transform:translateY(40px) scale(.6);opacity:0}}
+@media(prefers-reduced-motion:reduce){.conf{display:none}.cere .cup,.cere .cup s{animation:none}}
 .card.iv{width:min(680px,100%)}.ivwho{display:flex;gap:12px;align-items:center;margin-bottom:12px}.ivwho .face.big{width:78px;height:90px;border:2px solid var(--deep)}
 .ivwho b{display:block;font:700 22px/1.1 var(--display)}.ivwho span{color:var(--sky);font:500 12px var(--display);letter-spacing:.08em}
 .ivq{margin:0 0 12px;font-size:22px;line-height:1.2;color:var(--chalk);background:var(--ink);border-left:4px solid var(--ball);padding:8px 10px}
