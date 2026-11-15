@@ -19,6 +19,11 @@ const tiebreak=(s,w,n,m)=>{let ev;for(let i=0;i<m;i++){s.point(1-w);ev=s.point(w
   toSixAll(s);check(s.tbTarget===10,'best of 3: the third-set tiebreak is played to 10');
   ev=tiebreak(s,0,7,0);check(!s.over,'best of 3: 7–0 does not win the third-set tiebreak');
   for(let i=0;i<3;i++)ev=s.point(0);check(ev.type==='match'&&s.line(0)==='7–6(5) 6–7(4) 7–6(0)',`best of 3: 10–0 wins it, written ${s.line(0)}`);}
+{const s=new Score(A,B,0,MatchFormat.get('bo5'));let won=0;
+  for(let k=0;k<4;k++){toSixAll(s);check(s.tbTarget===7,`best of 5: the tiebreak in set ${k+1} is played to 7`);tiebreak(s,k%2,7,3);}
+  check(!s.over&&s.sets[0]===2&&s.sets[1]===2,'best of 5: two sets all, not over');
+  toSixAll(s);check(s.tbTarget===10,'best of 5: the fifth-set tiebreak is played to 10');const ev=tiebreak(s,1,10,7);
+  check(ev.type==='match'&&s.winner===1,`best of 5: won in the fifth, written ${s.line(1)}`);}
 {const s=new Score(A,B,0,MatchFormat.get('tb'));
   check(s.mode==='tb'&&s.tbTarget===10,'tiebreak mode: the match is one tiebreak to 10');
   let ev;for(let i=0;i<9;i++){s.point(0);ev=s.point(1);}ev=s.point(0);check(!s.over&&s.pts[0]===10&&s.pts[1]===9,'tiebreak mode: 10–9 is not enough, it is won by two');

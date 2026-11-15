@@ -179,7 +179,7 @@ class Stadium{
   }
   buildScreens(G){
     this.screenMat=[];
-    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),w=9.6,h=4.8,y=7.6;
+    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),h=4.8,w=h*BigScreen.W/BigScreen.H,y=7.6;
       const g=new THREE.PlaneGeometry(w,h);g.setAttribute('cut',new THREE.Float32BufferAttribute(new Array(4).fill([0,s,10.2]).flat(),3));
       const m=Shading.cutOnly(new THREE.MeshBasicMaterial({map:sc.tex}),'scr'+i),me=new THREE.Mesh(g,m);
       me.position.set(0,y+h/2,z-s*.09);if(s>0)me.rotation.y=PI;this.root.add(me);this.screenMat.push(m);

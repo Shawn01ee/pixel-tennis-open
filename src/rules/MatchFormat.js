@@ -11,6 +11,7 @@ class MatchFormat{
 MatchFormat.ALL=[
   new MatchFormat('one','1 set','One set: first to 6 games by two; at 6–6 a 10-point tiebreak.',6,1),
   new MatchFormat('bo3','Best of 3 sets','Two sets to win; 7-point tiebreaks at 6–6, a 10-point tiebreak in the third.',6,2),
+  new MatchFormat('bo5','Best of 5 sets','Three sets to win, as in Grand Slam men\'s singles: 7-point tiebreaks at 6–6, a 10-point tiebreak in the fifth.',6,3),
   new MatchFormat('tb','Tiebreak','One 10-point match tiebreak: first to 10, by two clear points.',0,1,{tbOnly:true}),
   // for self-play and tests: a quick set to four games, 7-point tiebreak at 4–4
   new MatchFormat('short','Short set','One set to 4 games, tiebreak at 4–4',4,1,{decider:7,menu:false}),

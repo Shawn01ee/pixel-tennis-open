@@ -145,7 +145,8 @@ class Match{
     if(long){winner.cheer=this.t+1.1;loser.sulk=this.t+1.3;}
     this.longest=Math.max(this.longest,n);
     this.mood.point(winner,loser,this.how||{kind:'error',by:loser.idx},n,this.big);
-    const bp=this.big,ev=sc.point(w);
+    // the big point is played: it is no longer on the board once the score has moved on
+    const bp=this.big,ev=sc.point(w);this.big=null;
     if(ev.setOver)for(const P of this.players)P.chal=Match.LINE.challenges;
     this.ev('scored',{w,result:ev.type,was:bp});
     yield* this.wait(.9);

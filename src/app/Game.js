@@ -162,8 +162,8 @@ class Game{
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?'CENTRE COURT':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'CENTRE COURT',
+    const s={title:!sc?'PIXEL TENNIS OPEN':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
