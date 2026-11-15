@@ -21,7 +21,7 @@ const TRAITS={
   octopus:      {name:'Octopus',         text:'At full stretch, far behind the baseline, the ball still comes back deep.',
     stretchK:.1,error:c=>c.stretch>.3?.7:.9},
   bigServe:     {name:'Serve cannon',    text:'A first serve that rarely misses its spot — and a second that wobbles on the big points.',
-    serveErr:(no,pressure)=>no===1?.6:pressure?1.35:1,serveSpeed:no=>no===1?1.06:1},
+    serveErr:(no,pressure)=>no===1?.72:pressure?1.35:1,serveSpeed:no=>no===1?1.05:1},
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',
     paceK:0,stretchK:.2,error:c=>c.stretch>.2||c.pace>.3?.72:.92,speed:c=>1+.12*c.pace},
 };

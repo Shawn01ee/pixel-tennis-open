@@ -660,9 +660,9 @@ const ROSTER=[
   look:{shirt:WHITE,shorts:INK,skin:SKIN.tan,hair:0x4a3020,band:WHITE,racket:INK},style:'Attacks early, slice and net play'},
  {name:'Jannik Sinner',short:'Sinner',face:{hair:'curly',brow:1,shape:'long',beard:'none',freckles:true,eye:0x5a7a8a},trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
   look:{shirt:0xf4d44a,shorts:INK,skin:SKIN.fair,hair:0xc8602a,band:null,racket:WHITE},style:'Hardest clean hitting off both wings'},
- {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.82,cc:'RUS',rank:11,hand:1,h:1.98,v:6.8,a:12.5,power:.98,spin:2000,err:.78,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
+ {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.76,cc:'RUS',rank:11,hand:1,h:1.98,v:6.9,a:13,power:1.0,spin:2000,err:.74,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
   look:{shirt:0x2a8088,shorts:WHITE,skin:SKIN.fair,hair:0x9a7a54,band:null,racket:0x3166b4},style:'Flat wall from far behind the baseline'},
- {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:1.1,cc:'GER',rank:10,hand:1,h:1.98,v:6.5,a:12,power:1.08,spin:2400,err:.92,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
+ {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:.88,cc:'GER',rank:10,hand:1,h:1.98,v:6.8,a:12.5,power:1.1,spin:2500,err:.82,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
   look:{shirt:0xdc4a3c,shorts:INK,skin:SKIN.olive,hair:0xd8b060,band:WHITE,racket:INK},style:'Huge first serve, rock-solid backhand'},
  {name:'Alex de Minaur',short:'de Minaur',face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:13,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
   look:{shirt:0x7bb8ea,shorts:0x101a3a,skin:SKIN.olive,hair:0x3a2418,band:null,racket:0xf0664a},style:'Home favourite, fastest man on tour'},
@@ -863,7 +863,7 @@ const TRAITS={
   octopus:      {name:'Octopus',         text:'At full stretch, far behind the baseline, the ball still comes back deep.',
     stretchK:.1,error:c=>c.stretch>.3?.7:.9},
   bigServe:     {name:'Serve cannon',    text:'A first serve that rarely misses its spot — and a second that wobbles on the big points.',
-    serveErr:(no,pressure)=>no===1?.6:pressure?1.35:1,serveSpeed:no=>no===1?1.06:1},
+    serveErr:(no,pressure)=>no===1?.72:pressure?1.35:1,serveSpeed:no=>no===1?1.05:1},
   counterpunch: {name:'Counterpuncher',  text:'The harder the ball comes, the better it goes back: pace is borrowed, not feared.',
     paceK:0,stretchK:.2,error:c=>c.stretch>.2||c.pace>.3?.72:.92,speed:c=>1+.12*c.pace},
 };
@@ -1395,7 +1395,7 @@ class Match{
     if(b.bc>=1&&sgn(b.lbz)!==H.s){if(this.isServe)this.ace();else this.won(H);this.rec();return{w:hi};}
     this.lost(H);this.rec();return{w:1-hi};
   }
-  // Line calls. A ball that fails to cross is called "Net", one that lands outside "Out" (or "Fault" on serve).
+  // Line calls. A serve that fails to cross is called "Net", a ball that lands outside "Out" (or "Fault" on serve).
   // The line judges are human: within a few centimetres of a line they sometimes get it wrong, and the player the
   // call went against may challenge it. The ball mark then settles it.
   static LINE={near:.04,miss:.45,ask:.15,time:3.2,eye:.02,sure:.008,challenges:3};
@@ -1446,8 +1446,8 @@ class Match{
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        this.ev('call',{text:'NET',x:b.lbx,z:0});
-        if(this.isServe)return{fault:true,net:true};this.rec();this.lost(H,true);return{w:1-hi};
+        // only a serve into the net is called; in a rally the point is simply over
+        if(this.isServe){this.ev('call',{text:'NET',x:b.lbx,z:0});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
       }
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
@@ -1475,7 +1475,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.5):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.

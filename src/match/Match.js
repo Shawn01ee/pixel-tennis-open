@@ -316,7 +316,7 @@ class Match{
     if(b.bc>=1&&sgn(b.lbz)!==H.s){if(this.isServe)this.ace();else this.won(H);this.rec();return{w:hi};}
     this.lost(H);this.rec();return{w:1-hi};
   }
-  // Line calls. A ball that fails to cross is called "Net", one that lands outside "Out" (or "Fault" on serve).
+  // Line calls. A serve that fails to cross is called "Net", a ball that lands outside "Out" (or "Fault" on serve).
   // The line judges are human: within a few centimetres of a line they sometimes get it wrong, and the player the
   // call went against may challenge it. The ball mark then settles it.
   static LINE={near:.04,miss:.45,ask:.15,time:3.2,eye:.02,sure:.008,challenges:3};
@@ -367,8 +367,8 @@ class Match{
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        this.ev('call',{text:'NET',x:b.lbx,z:0});
-        if(this.isServe)return{fault:true,net:true};this.rec();this.lost(H,true);return{w:1-hi};
+        // only a serve into the net is called; in a rally the point is simply over
+        if(this.isServe){this.ev('call',{text:'NET',x:b.lbx,z:0});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
       }
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
@@ -396,7 +396,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.5):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
