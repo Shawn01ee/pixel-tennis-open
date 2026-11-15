@@ -17,7 +17,9 @@ class Gait{
   hop(){if(this.hopT<0)this.hopT=0;}
   // a: the drawn figure {x,z,yaw,vx,vz}; dt: simulated seconds since the last update; k: body scale; width: half stance
   // pat: 0..1, how busy the feet are (adjustment steps)
-  update(a,dt,k=1,width=.13,pat=0){
+  // set: where a stroke puts the feet, [[forward, right] for the left foot, [forward, right] for the right] in metres
+  //      from their usual place — a step in with the front foot, or the racket-side foot out for an open stance
+  update(a,dt,k=1,width=.13,pat=0,set=null){
     const fx=Math.sin(a.yaw),fz=Math.cos(a.yaw),rx=-fz,rz=fx,vx=a.vx||0,vz=a.vz||0,v=hyp(vx,vz),F=this.feet;
     const home=(i,w=width*k)=>{const s=i?1:-1;return[a.x+rx*s*w,a.z+rz*s*w];};
     // a foot further away than a leg can reach (a teleport) is put back under the body;
@@ -65,13 +67,14 @@ class Gait{
       const st=frac(this.cycle*2);this.bob=Math.sin(PI*st)*lerp(.018,.05,run);
     }else{
       // standing: a foot in the air comes down under the body; one that has strayed steps back
-      const wide=this.hopT>=0&&air>0;
+      const wide=this.hopT>=0&&air>0,spot=i=>{const[hx,hz]=home(i);if(!set)return[hx,hz];const o=set[i];return[hx+(fx*o[0]+rx*o[1])*k,hz+(fz*o[0]+rz*o[1])*k];};
+      if(set)pat=0;
       for(let i=0;i<2;i++){const f=F[i];
         if(wide){const[hx,hz]=home(i,Math.max(width,.24)*k),g=Math.min(1,dt*14);f.x+=(hx-f.x)*g;f.z+=(hz-f.z)*g;f.y=air*.05*k;f.u=.5;f.fx=f.x;f.fz=f.z;continue;}
-        if(f.u<1){f.u=Math.min(1,f.u+dt/(f.tiny?.11:.16));const[hx,hz]=home(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx+f.ox,e);f.z=lerp(f.fz,hz+f.oz,e);f.y=f.u<1?Math.sin(PI*f.u)*(f.tiny?.035:.06)*k:0;}
+        if(f.u<1){f.u=Math.min(1,f.u+dt/(f.tiny?.11:.16));const[hx,hz]=spot(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx+f.ox,e);f.z=lerp(f.fz,hz+f.oz,e);f.y=f.u<1?Math.sin(PI*f.u)*(f.tiny?.035:.06)*k:0;}
         else f.y=0;}
-      if(!wide&&F[0].u>=1&&F[1].u>=1){let worst=-1,err=.17*k;
-        for(let i=0;i<2;i++){const[hx,hz]=home(i),e=hyp(F[i].x-hx,F[i].z-hz);if(e>err){err=e;worst=i;}}
+      if(!wide&&F[0].u>=1&&F[1].u>=1){let worst=-1,err=(set?.05:.17)*k;
+        for(let i=0;i<2;i++){const[hx,hz]=spot(i),e=hyp(F[i].x-hx,F[i].z-hz);if(e>err){err=e;worst=i;}}
         if(worst>=0){const f=F[worst];f.fx=f.x;f.fz=f.z;f.u=0;f.ox=f.oz=0;f.tiny=false;}
         // adjustment steps: the feet take turns at small quick steps on the spot
         else if(pat>0){this.pt+=dt;if(this.pt>=lerp(.3,.15,pat)){this.pt=0;this.pf^=1;const f=F[this.pf],o=(this.pf?1:-1)*((this.cycle+=.5)%2<1?1:-1)*.035*k;

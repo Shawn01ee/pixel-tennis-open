@@ -11,11 +11,11 @@
 // face: what the portrait is assembled from (see ui/Portrait.js)
 // look: kit colours; sleeve: null → sleeveless
 const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf4f3ec,INK=0x1c1f2e;
-const ROSTER=[
+const ROSTER_DATA=[
  {name:'Novak Djokovic',short:'Djokovic',face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
  {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.12,spin:3300,err:.78,aggr:.5,net:.3,drop:.36,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
-  look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xf4d44a},style:'Lefty, the heaviest topspin forehand'},
+  look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xd9a514},style:'Lefty, the heaviest topspin forehand'},
  {name:'Carlos Alcaraz',short:'Alcaraz',face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
  {name:'Roger Federer',short:'Federer',face:{hair:'wavy',brow:1,shape:'oval',beard:'none'},trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
@@ -39,4 +39,28 @@ const ROSTER=[
   look:{shirt:0x4a5a70,shorts:INK,skin:SKIN.fair,hair:0x4a3222,band:null,racket:INK},style:'Defends everything, lobs and passes at will'},
  {name:'John McEnroe',short:'McEnroe',legend:true,face:{hair:'curly',brow:1,shape:'oval',beard:'none'},trait:'softHands',acc:0.66,cc:'USA',rank:12,hand:-1,h:1.80,v:7.0,a:14,power:.96,spin:1700,err:.82,aggr:.75,net:.85,drop:.6,lob:.3,slice:.7,deep:.2,s1:50,s2:39,kick:3100,sv:.85,bounces:2,
   look:{shirt:0x1f2f6a,shorts:WHITE,skin:SKIN.fair,hair:0x5a3a22,band:0xdc4a3c,racket:0x8a5a2c},style:'Lefty serve-and-volley, the softest hands'},
-].map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
+];
+// How each one swings — as seen in their matches; drawn by render/FigureRig.js:
+//   fh      classic  a full loop, finishing over the far shoulder
+//           compact  short takeback, the hand hardly behind the body; takes the ball early
+//           nextgen  elbow up near the shoulder, racket tip at the net on the way back, a deep lag
+//           lasso    finishes straight up and over the head on the racket side
+//   stance  open     the forehand is hit off the racket-side leg, chest to the net; otherwise the front foot steps in
+//   serve   deep     a big knee bend and leap;  sideon  back half turned to the net through the toss
+const FORMS_BY_PLAYER={
+ Djokovic:{fh:'compact',stance:'open'},      // compact, open-stance forehand; the two-hander is the shot
+ Nadal:{fh:'lasso',stance:'open'},           // the reverse forehand finishing over the head
+ Alcaraz:{fh:'nextgen',stance:'open'},       // high elbow, racket tip forward, huge lag
+ Federer:{fh:'classic',stance:'neutral'},    // steps in, wraps over the shoulder; one-handed backhand
+ Sinner:{fh:'compact',stance:'open'},        // short takeback, very fast arm, flat
+ Medvedev:{fh:'classic',stance:'open'},      // long arms, a long loop from far behind the baseline
+ Zverev:{fh:'compact',stance:'open'},        // short, at times pushed forehand
+ 'de Minaur':{fh:'compact',stance:'open'},   // quick and compact, built for counterpunching
+ Sampras:{fh:'classic',stance:'neutral',serve:'deep'}, // whippy running forehand, deep knee bend on serve
+ Borg:{fh:'lasso',stance:'open'},            // heavy topspin, high wristy finish
+ Agassi:{fh:'compact',stance:'open'},        // the shortest takeback of all, on the rise
+ Murray:{fh:'classic',stance:'open'},
+ McEnroe:{fh:'compact',stance:'neutral',serve:'sideon'}, // punchy forehand; the side-on serve stance
+};
+for(const o of ROSTER_DATA)o.form=FORMS_BY_PLAYER[o.short]||{};
+const ROSTER=ROSTER_DATA.map((o,i)=>new PlayerProfile({f:0,...o,id:i}));

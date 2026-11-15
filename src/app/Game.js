@@ -87,7 +87,7 @@ class Game{
     this.halos.u.night.value=clamp(this.R.L.night+this.R.L.flood*.4,0,1);this.halos.u.ppm.value=this.cam.ppm;
     this.updateCrowd(dt);this.stadium.led.scroll(dt*(this.paused?0:1));this.updateLed();
     this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.B.commit();
-    this.ballView.update(m,this.tc,this.cam.ppm,this.alpha);
+    this.ballView.update(m,this.tc,this.cam.ppm,this.alpha,this.heldAt);
     this.stadium.court.letter(this.focus().end);this.courtHighlight(dt);this.stadium.court.flush();
     this.R.render();
     this.labels.update(m,this.R);this.replay.update(m.t);this.prompt.update(m);
@@ -140,21 +140,26 @@ class Game{
   }
   lookAtBall(){const b=this.match.ball;if(b){this.look.x=b.x;this.look.z=b.z;}return this.look;}
   drawPeople(dtSim){
-    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;
+    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;
     const draw=(a,c,lk,extra)=>{const v=this.view(a),sit=a.pose==='sit',g=sit?null:this.gaitOf(a);
       // the split step: a hop as the opponent strikes the ball
       if(g&&a.split&&a.split!==g.splitSeen){g.splitSeen=a.split;if(!a.swing)g.hop();}
-      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'?a.patter||0:0);
-      FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
-    for(const P of m.players){P._fit=P._fit||Outfits.player(P);draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8});}
+      const set=this.stanceOf(a,t);
+      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'&&!set?a.patter||0:0,set);
+      return FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
+    for(const P of m.players){P._fit=P._fit||Outfits.player(P);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
+      const hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold});
+      // a ball waiting to be served sits in the server's free hand, not inside the body
+      if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
     m.kids.forEach((k,i)=>draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null)));
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
   }
   drawMarkers(){
     const m=this.match,B=this.B,t=this.tc,C=m.control;
-    if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.72+Math.sin(t*7)*.05,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a;
-      for(const[a,b]of[[1,1],[1,-1],[-1,1],[-1,-1]]){B.box(P.x+a*r-a*.13,.06,P.z+b*r,.3,.04,.1,0,c);B.box(P.x+a*r,.06,P.z+b*r-b*.13,.1,.04,.3,0,c);}}
+    // the server: a dashed ring lying flat on the court around the feet
+    if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.6+Math.sin(t*6)*.03,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a,n=18;
+      for(let i=0;i<n;i+=2){const q=(i+.5)/n*TAU;B.box(P.x+Math.cos(q)*r,.035,P.z+Math.sin(q)*r,.17,.015,.06,-Math.atan2(Math.cos(q),-Math.sin(q)),c);}}
     // where the person is sending the ball: a pulsing cross on the spot, inside a dashed oval that most such shots
     // land in (two standard deviations — smaller for an accurate player, larger on the stretch). Both stay until
     // the ball has landed, so the shot can be judged against them.
@@ -169,6 +174,17 @@ class Game{
           B.box(a.x+dx*u-dz*w,.05,a.z+dz*u+dx*w,.2,.03,.11,-Math.atan2(dz*tu+dx*tw,dx*tu-dz*tw),0xf4f3ec);}}}
     // over the person's own player, a small marker while the camera is wide
     const H=m.human;if(H&&this.cam.mode===CameraRig.STADIUM){const y=H.h+.55+Math.sin(t*4)*.05;B.box(H.x,y,H.z,.22,.1,.22,PI/4,0x7bb8ea);}
+  }
+  // where a stroke puts the feet (see Gait.update): a step in with the front foot, or for an open-stance forehand the
+  // racket-side foot out to the side; a one-handed backhand steps further across
+  stanceOf(a,t){
+    const sw=a.swing;if(!sw||a.mode!=='play'||!a.st)return null;const ty=sw.type;if(ty==='serve'||ty==='smash')return null;
+    const tau=t-sw.tc;if(tau<-.5||tau>.5)return null;
+    const hs=sw.hs,fr=hs>0?0:1,set=[[0,0],[0,0]],F=a.st.form||{};
+    if(ty==='volley')set[fr]=[.24,hs*.08];
+    else if(ty==='fh'&&F.stance==='open'){set[fr^1]=[-.06,hs*.14];set[fr]=[.06,0];}
+    else{const one=!!a.st.ohb&&ty!=='fh';set[fr]=[one?.34:.3,hs*(one?.16:.1)];set[fr^1]=[-.06,0];}
+    return set;
   }
   courtHighlight(dt){
     const m=this.match,C=m.control,H=m.human,S=this.stadium;let a=0,box=null,col=[1,.93,.45];

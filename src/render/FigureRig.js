@@ -1,24 +1,45 @@
 // FigureRig — people as boxes on two-bone IK, strokes on keyed paths
 // keys: τ (s from contact), hand f/r/u (forward, toward hit side, up), racket direction f/r/u, shoulder coil
 const KEYS={
- fh:[[-.62,.12,.42,1.08, .5,.45,.75, .2],[-.36,-.30,.58,1.42,-.45,.5,.72, 1.15],[-.15,-.55,.60,.86,-.72,.5,-.32, 1.0],
-     [0,.28,.44,.97, .28,.94,.12, -.1],[.13,.56,.12,1.42, .42,-.5,.72,-.6],[.34,.22,-.42,1.58,-.55,-.72,.38,-.95],[.62,.12,-.1,1.15, .3,-.4,.8,-.2]],
- bh:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.36,-.38,.28,1.3,-.5,.45,.7, 1.2],[-.15,-.42,.42,.82,-.7,.55,-.3, 1.0],
-     [0,.40,.28,.96, .34,.92,.12, -.05],[.13,.62,.0,1.4, .4,-.45,.78,-.5],[.34,.18,-.42,1.58,-.45,-.78,.4,-.85],[.62,.12,-.12,1.15,.3,-.4,.8,-.2]],
+ // forehand: unit turn (shoulders and racket go back together), a takeback that is not too long with the elbow bent,
+ // the racket head dropping behind the hand, contact in front of the body, then up and across to finish by the far ear
+ fh:[[-.62,.12,.42,1.08, .5,.45,.75, .2],[-.46,-.05,.5,1.2, .1,.55,.83, .95],[-.3,-.32,.6,1.32,-.42,.52,.74, 1.2],[-.13,-.48,.6,.88,-.72,.5,-.35, 1.0],
+     [0,.3,.44,.97, .28,.94,.12, -.1],[.12,.48,.02,1.2, .62,-.45,.55,-.65],[.3,.1,-.36,1.5,-.55,-.6,.58,-.95],[.62,.12,-.1,1.15, .3,-.4,.8,-.2]],
+ // two-handed backhand: the same unit turn, the racket pushed through the ball with both hands, finishing over the shoulder
+ bh:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.46,-.05,.28,1.12, .15,.5,.85, .95],[-.3,-.36,.4,1.22,-.45,.55,.7, 1.2],[-.13,-.42,.45,.84,-.7,.55,-.3, 1.0],
+     [0,.40,.28,.96, .34,.92,.12, -.05],[.12,.55,.05,1.25, .62,-.3,.72, -.5],[.3,.14,-.38,1.55,-.5,-.65,.55, -.85],[.62,.12,-.12,1.15,.3,-.4,.8,-.2]],
  slice:[[-.62,.15,.1,1.1, .5,.2,.8, .2],[-.38,-.34,.42,1.5,-.42,.52,.74, 1.1],[-.15,-.1,.45,1.28,.0,.8,.6, .8],
      [0,.34,.34,.98, .32,.9,.22, 0],[.16,.66,.28,.82, .72,.62,.06,-.3],[.4,.5,.6,1.0, .4,.7,.5,-.3],[.62,.15,.1,1.12,.5,.2,.8,0]],
  volley:[[-.3,.2,.35,1.2, .3,.4,.85, .2],[-.12,.15,.5,1.3, .1,.6,.8, .55],[0,.42,.36,1.12, .42,.82,.38,.1],[.14,.6,.28,1.02, .62,.72,.3,-.1],[.3,.25,.25,1.1, .4,.4,.8,0]],
  smash:[[-.6,.1,.42,1.25, .3,.2,.92, .3],[-.34,-.3,.42,1.62,-.5,.15,-.82, .9],[-.13,-.1,.34,1.95, .05,.05,-.99, .75],
      [0,.26,.14,2.2, .12,.02,.99, 0],[.16,.56,-.1,1.5, .85,-.2,-.45,-.5],[.42,.22,-.46,.98,-.1,-.6,-.78,-.8],[.62,.15,-.1,1.15,.3,-.3,.8,-.2]],
- serve:[[-1.3,.28,.2,1.02, .7,.05,.7, .3],[-.95,.02,.5,.76,-.25,.6,-.75, .55],[-.55,-.34,.4,1.32,-.62,.2,.75, 1.05],[-.3,-.26,.32,1.68,-.5,.1,-.86, 1.1],
+ serve:[[-1.3,.28,.2,1.02, .7,.05,.7, .3],[-.95,.02,.5,.76,-.25,.6,-.75, .55],[-.55,-.28,.42,1.5,-.3,.2,.93, 1.1],[-.3,-.26,.32,1.68,-.5,.1,-.86, 1.1],
      [-.1,-.02,.26,1.98, .08,.1,-.98, .7],[0,.26,.14,2.2, .12,.03,.99, 0],[.17,.58,-.1,1.5, .85,-.2,-.42,-.5],[.42,.24,-.46,.95,-.1,-.6,-.78,-.8],[.68,.15,-.1,1.15,.3,-.3,.8,-.2]],
 };
 // racket face through the stroke, τ → radians: topspin closes over the ball on the way up, a slice stays laid back
 const FACE={
- fh:[[-.62,0],[-.36,-.25],[-.15,-.85],[0,-.14],[.13,-.6],[.34,-.3],[.62,0]],
- bh:[[-.62,0],[-.36,-.25],[-.15,-.8],[0,-.12],[.13,-.55],[.34,-.3],[.62,0]],
+ fh:[[-.62,0],[-.3,-.25],[-.13,-.85],[0,-.14],[.12,-.6],[.3,-.3],[.62,0]],
+ bh:[[-.62,0],[-.3,-.25],[-.13,-.8],[0,-.12],[.12,-.55],[.3,-.3],[.62,0]],
  slice:[[-.62,.2],[-.38,.75],[-.15,.7],[0,.42],[.16,.8],[.4,.5],[.62,.2]],
  volley:[[-.3,.2],[0,.3],[.3,.2]],
+};
+// the players' own forms: variants of the forehand (form.fh in the roster) and the one-handed backhand (ohb)
+const swap=(K,rows)=>K.map(r=>rows.find(q=>q[0]===r[0])||r);
+const FORMS={
+ fh:{
+  classic:KEYS.fh,
+  // short and quick: the hand barely goes behind the body
+  compact:swap(KEYS.fh,[[-.46,.0,.48,1.15, .25,.5,.83, .8],[-.3,-.18,.55,1.22,-.2,.55,.8, 1.0],[-.13,-.3,.56,.9,-.62,.55,-.3, .9]]),
+  // the next-generation forehand: the elbow up near shoulder height and the racket tip pointing at the net on the way
+  // back, then a deep lag as the body turns
+  nextgen:swap(KEYS.fh,[[-.46,-.02,.55,1.3, .3,.45,.84, 1.0],[-.3,-.22,.62,1.48, .38,.42,.82, 1.25],[-.13,-.42,.62,.86,-.8,.45,-.4, 1.05]]),
+  // the lasso: straight up after contact and over the head on the same side
+  lasso:swap(KEYS.fh,[[.12,.42,.24,1.38, .3,.2,.93,-.55],[.3,.06,.22,1.86,-.62,.08,.32,-.8]]),
+ },
+ // one-handed backhand: a deeper shoulder turn, contact further in front, the arm extending up and out to finish
+ // (the free arm goes back for balance)
+ bh1:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.46,-.12,.2,1.08,-.1,.45,.88, 1.15],[-.3,-.38,.32,1.12,-.5,.45,.74, 1.4],[-.13,-.42,.4,.84,-.72,.5,-.32, 1.2],
+     [0,.5,.38,.96, .3,.94,.12, .0],[.14,.55,.56,1.32, .55,.4,.73,-.2],[.32,.28,.72,1.6, .12,.45,.88,-.3],[.62,.12,-.1,1.15,.3,-.4,.8,-.2]],
 };
 const TOSS=[[-1.3,.42,-.08,1.0],[-.9,.42,-.05,1.02],[-.64,.46,.0,1.72],[-.3,.42,.02,2.08],[-.1,.36,-.06,1.62],[.06,.26,-.2,1.25],[.3,.2,-.3,1.08],[.68,.15,-.25,1.0]];
 const _k=[0,0,0,0,0,0,0];
@@ -33,6 +54,7 @@ class FigureRig{
     let j=0;while(K[j+1][0]<t)j++;const a=K[j],b=K[j+1],u=(t-a[0])/(b[0]-a[0]),s=u*u*(3-2*u),w=(u+s)/2;
     for(let i=0;i<7;i++)out[i]=lerp(a[i+1]??0,b[i+1]??0,w);return out;
   }
+  static keysFor(type,st){const f=st&&st.form||{};if(type==='fh')return FORMS.fh[f.fh]||KEYS.fh;if(type==='bh'&&st&&st.ohb)return FORMS.bh1;return KEYS[type];}
   static face(type,t){const K=FACE[type];if(!K)return 0;if(t<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(t<=K[i][0]){const a=K[i-1],b=K[i];return lerp(a[1],b[1],(t-a[0])/(b[0]-a[0]));}return K[K.length-1][1];}
   static ik(ax,ay,az,bx,by,bz,l1,l2,px,py,pz){
     let dx=bx-ax,dy=by-ay,dz=bz-az,d=Math.hypot(dx,dy,dz);const mx=l1+l2-1e-3;
@@ -77,15 +99,19 @@ class FigureRig{
     const tau=sw?t-sw.tc:0;
     let Kc=null,S=null,H=null,dir=null;
     if(sw){
-      const K=KEYS[sw.type],hs=sw.hs,Rx=rx*hs,Rz=rz*hs;Kc=FigureRig.evalKeys(K,tau,[0,0,0,0,0,0,0]);
+      const K=FigureRig.keysFor(sw.type,a.st),hs=sw.hs,Rx=rx*hs,Rz=rz*hs;Kc=FigureRig.evalKeys(K,tau,[0,0,0,0,0,0,0]);
       const k0=FigureRig.evalKeys(K,0,[0,0,0,0,0,0,0]);
       tw=Kc[6];
       if(sw.type==='serve'||sw.type==='smash'){
-        const q=sw.type==='serve'?sstep(-.2,-.02,tau)*(1-sstep(.08,.34,tau)):sstep(-.22,-.03,tau)*(1-sstep(.08,.3,tau));py+=q*.22*k+(sw.type==='smash'?clamp(sw.C.y-2.55,0,.45)*q:0);
-        crouch=sstep(-.55,-.28,tau)*(1-sstep(-.26,-.1,tau))*.2;lean=-.08*sstep(-.5,-.3,tau)*(1-sstep(-.1,0,tau))+.2*sstep(-.1,.2,tau)*(1-sstep(.3,.68,tau));
+        const sf=sw.type==='serve'&&a.st&&a.st.form&&a.st.form.serve,deep=sf==='deep'?1.7:1;
+        if(sf==='sideon')tw+=.6*sstep(-1.3,-.9,tau)*(1-sstep(-.25,0,tau));
+        const q=sw.type==='serve'?sstep(-.2,-.02,tau)*(1-sstep(.08,.34,tau)):sstep(-.22,-.03,tau)*(1-sstep(.08,.3,tau));py+=q*.22*k*(sw.type==='serve'?Math.sqrt(deep):1)+(sw.type==='smash'?clamp(sw.C.y-2.55,0,.45)*q:0);
+        crouch=sstep(-.55,-.28,tau)*(1-sstep(-.26,-.1,tau))*.2*deep;lean=-.08*sstep(-.5,-.3,tau)*(1-sstep(-.1,0,tau))+.2*sstep(-.1,.2,tau)*(1-sstep(.3,.68,tau));
       }else{
         const lowc=clamp((1.0-sw.C.y)*.62,-.05,.34);crouch=(.1+Math.max(0,lowc))*(1-sstep(.15,.55,tau))*sstep(-.6,-.2,tau);lean=.1*sstep(-.2,.05,tau)*(1-sstep(.15,.6,tau));
         if(sw.rx!==undefined){const w=Math.exp(-(((tau/.17)**2)))*.22;px=lerp(px,sw.rx,w);pz=lerp(pz,sw.rz,w);}
+        // weight: back over the rear leg in the takeback, forward onto the front foot through contact
+        const wt=-.06*sstep(-.5,-.3,tau)*(1-sstep(-.2,0,tau))+.1*sstep(-.08,.15,tau)*(1-sstep(.4,.62,tau));px+=fx*wt;pz+=fz*wt;
       }
       const hy0=py;
       const kp=(f,r,u)=>[px+fx*f+Rx*r,hy0+u*(sw.type==='serve'||sw.type==='smash'?k*.98+.02:1)-crouch*.4,pz+fz*f+Rz*r];
@@ -132,11 +158,13 @@ class FigureRig{
     // legs
     const L1=.4*k,L2=.41*k,stance=(sw||pose==='ready'||inPlay)?.2:.12;
     const legs=[];
+    // the rear foot (on the racket side) comes up onto its toes as the hips turn through the ball
+    const heel=s=>sw&&sw.type!=='serve'&&sw.type!=='smash'&&s===sw.hs?sstep(0,.15,tau)*(1-sstep(.42,.6,tau)):0;
     for(const s of[-1,1]){
       const hp=[lx+prx*s*.09*k,hipY-.04,lz+prz*s*.09*k];let fX,fY,fZ;const q=ph+(s>0?0:Math.PI);
       if(seated){fX=lx+fx*.48+rx*s*.14;fZ=lz+fz*.48+rz*s*.14;fY=py+.03;}
       else if(pose==='climb'){const w=Math.sin(ph*1.2+(s>0?0:3.1))*.16;fX=lx+rx*s*.13-fx*.0;fZ=lz+rz*s*.13;fY=py+.25+w;}
-      else if(G_){const F=G_.feet[s>0?1:0];fX=F.x;fZ=F.z;fY=py*(sw?.55:1)+.03+F.y;}
+      else if(G_){const F=G_.feet[s>0?1:0];fX=F.x;fZ=F.z;fY=py*(sw?.55:1)+.03+F.y+.08*k*heel(s);}
       else if(run){
         const dvx=inPlay?(a.vx/(spd||1)):fx,dvz=inPlay?(a.vz/(spd||1)):fz,A=spd>3?.5:Math.min(.32,spd*.15),lift=spd>3?.26:.13;
         fX=lx+rx*s*.1+dvx*Math.cos(q)*A;fZ=lz+rz*s*.1+dvz*Math.cos(q)*A;fY=py+.03+Math.max(0,Math.sin(q))*lift;
@@ -144,7 +172,7 @@ class FigureRig{
       if(sw&&!run&&!G_){fX+=fx*(s===sw.hs?.0:-.0)+fx*(tau>0?s*.1:0);}
       const[kn,e]=FigureRig.chain(hp,[fX,fY+.03,fZ],L1,L2,[fx+rx*s*.15,.1,fz+rz*s*.15]);legs.push([hp,kn,e]);
       // a shoe: a white sole under the upper, heel to a rounded toe along the way the body faces
-      const sh=c.shoe??SHOE,gu=G_?G_.feet[s>0?1:0].u:1,pit=gu<1?Math.sin(PI*gu)*.55:0,fy=yaw+s*.22,cp=Math.cos(pit);
+      const sh=c.shoe??SHOE,gu=G_?G_.feet[s>0?1:0].u:1,pit=Math.max(gu<1?Math.sin(PI*gu)*.55:0,.75*heel(s)),fy=yaw+s*.22,cp=Math.cos(pit);
       const fdx=Math.sin(fy)*cp,fdy=-Math.sin(pit),fdz=Math.cos(fy)*cp,hl=[e[0]-fdx*.07*k,e[1]-.03-fdy*.07*k,e[2]-fdz*.07*k],toe=[e[0]+fdx*.17*k,e[1]-.03+fdy*.17*k,e[2]+fdz*.17*k];
       B.seg('box',hl[0],hl[1]-.022,hl[2],toe[0],toe[1]-.022,toe[2],.098*k,.02,0xf4f3ec,0,1,0);B.seg('box',hl[0],hl[1],hl[2],toe[0]-fdx*.03,toe[1]-fdy*.03,toe[2]-fdz*.03,.09*k,.055,sh,0,1,0);B.ball(toe[0]-fdx*.03,toe[1]-.003,toe[2]-fdz*.03,.09*k,.055,.09*k,fy,sh);
     }
@@ -186,6 +214,9 @@ class FigureRig{
     else if(pose==='drag'){t1=[R0[0]-fx*.34,.85*k,R0[2]-fz*.34];t2=[L0[0]-fx*.34,.85*k,L0[2]-fz*.34];}
     else if(pose==='climb'){const w=Math.sin(ph*1.2)*.16;t1=[R0[0]+fx*.24,shY+.1+w,R0[2]+fz*.24];t2=[L0[0]+fx*.24,shY+.1-w,L0[2]+fz*.24];}
     else if(pose==='read'){t1=[R0[0]+fx*.4,hipY-.1,R0[2]+fz*.4];t2=[L0[0]+fx*.1,hipY+.1,L0[2]+fz*.1];}
+    else if(o.holding&&hasRacket){
+      t1=[R0[0]+fx*.16,hipY+.04,R0[2]+fz*.16];dirR=[fx*.55+rx*hnd*.2,-.5,fz*.55+rz*hnd*.2];
+      t2=[px+fx*.36-rx*hnd*.08,hipY+.14,pz+fz*.36-rz*hnd*.08];}
     else if(a.cheer&&t<a.cheer&&hasRacket){t1=[R0[0]+fx*.1,shY+.5,R0[2]+fz*.1];t2=[L0[0]+fx*.08,hipY+.02,L0[2]+fz*.08];dirR=[fx*.2,.95,fz*.2];}
     else if(inPlay&&hasRacket&&(pose==='ready'||spd<3.6||!run)){ // ready position, both hands forward
       const dd=.36;t1=[lx+fx*dd+rx*hnd*.13,hipY+.2,lz+fz*dd+rz*hnd*.13];t2=[lx+fx*dd+.0+fx*.14-rx*hnd*.03,hipY+.22,lz+fz*.5-rz*hnd*.03];dirR=[fx*.7-rx*hnd*.3,.4,fz*.7-rz*hnd*.3];

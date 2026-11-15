@@ -651,11 +651,11 @@ class PlayerProfile{
 // face: what the portrait is assembled from (see ui/Portrait.js)
 // look: kit colours; sleeve: null → sleeveless
 const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf4f3ec,INK=0x1c1f2e;
-const ROSTER=[
+const ROSTER_DATA=[
  {name:'Novak Djokovic',short:'Djokovic',face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
  {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.12,spin:3300,err:.78,aggr:.5,net:.3,drop:.36,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
-  look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xf4d44a},style:'Lefty, the heaviest topspin forehand'},
+  look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xd9a514},style:'Lefty, the heaviest topspin forehand'},
  {name:'Carlos Alcaraz',short:'Alcaraz',face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
  {name:'Roger Federer',short:'Federer',face:{hair:'wavy',brow:1,shape:'oval',beard:'none'},trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
@@ -679,7 +679,31 @@ const ROSTER=[
   look:{shirt:0x4a5a70,shorts:INK,skin:SKIN.fair,hair:0x4a3222,band:null,racket:INK},style:'Defends everything, lobs and passes at will'},
  {name:'John McEnroe',short:'McEnroe',legend:true,face:{hair:'curly',brow:1,shape:'oval',beard:'none'},trait:'softHands',acc:0.66,cc:'USA',rank:12,hand:-1,h:1.80,v:7.0,a:14,power:.96,spin:1700,err:.82,aggr:.75,net:.85,drop:.6,lob:.3,slice:.7,deep:.2,s1:50,s2:39,kick:3100,sv:.85,bounces:2,
   look:{shirt:0x1f2f6a,shorts:WHITE,skin:SKIN.fair,hair:0x5a3a22,band:0xdc4a3c,racket:0x8a5a2c},style:'Lefty serve-and-volley, the softest hands'},
-].map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
+];
+// How each one swings — as seen in their matches; drawn by render/FigureRig.js:
+//   fh      classic  a full loop, finishing over the far shoulder
+//           compact  short takeback, the hand hardly behind the body; takes the ball early
+//           nextgen  elbow up near the shoulder, racket tip at the net on the way back, a deep lag
+//           lasso    finishes straight up and over the head on the racket side
+//   stance  open     the forehand is hit off the racket-side leg, chest to the net; otherwise the front foot steps in
+//   serve   deep     a big knee bend and leap;  sideon  back half turned to the net through the toss
+const FORMS_BY_PLAYER={
+ Djokovic:{fh:'compact',stance:'open'},      // compact, open-stance forehand; the two-hander is the shot
+ Nadal:{fh:'lasso',stance:'open'},           // the reverse forehand finishing over the head
+ Alcaraz:{fh:'nextgen',stance:'open'},       // high elbow, racket tip forward, huge lag
+ Federer:{fh:'classic',stance:'neutral'},    // steps in, wraps over the shoulder; one-handed backhand
+ Sinner:{fh:'compact',stance:'open'},        // short takeback, very fast arm, flat
+ Medvedev:{fh:'classic',stance:'open'},      // long arms, a long loop from far behind the baseline
+ Zverev:{fh:'compact',stance:'open'},        // short, at times pushed forehand
+ 'de Minaur':{fh:'compact',stance:'open'},   // quick and compact, built for counterpunching
+ Sampras:{fh:'classic',stance:'neutral',serve:'deep'}, // whippy running forehand, deep knee bend on serve
+ Borg:{fh:'lasso',stance:'open'},            // heavy topspin, high wristy finish
+ Agassi:{fh:'compact',stance:'open'},        // the shortest takeback of all, on the rise
+ Murray:{fh:'classic',stance:'open'},
+ McEnroe:{fh:'compact',stance:'neutral',serve:'sideon'}, // punchy forehand; the side-on serve stance
+};
+for(const o of ROSTER_DATA)o.form=FORMS_BY_PLAYER[o.short]||{};
+const ROSTER=ROSTER_DATA.map((o,i)=>new PlayerProfile({f:0,...o,id:i}));
 
 // Difficulty — how well the opponent uses what the computer players have learned
 // Rookie plays on instinct alone: none of the learned tactics, and looser strokes. Pro plays the tactics learned in
@@ -1965,7 +1989,9 @@ class Gait{
   hop(){if(this.hopT<0)this.hopT=0;}
   // a: the drawn figure {x,z,yaw,vx,vz}; dt: simulated seconds since the last update; k: body scale; width: half stance
   // pat: 0..1, how busy the feet are (adjustment steps)
-  update(a,dt,k=1,width=.13,pat=0){
+  // set: where a stroke puts the feet, [[forward, right] for the left foot, [forward, right] for the right] in metres
+  //      from their usual place — a step in with the front foot, or the racket-side foot out for an open stance
+  update(a,dt,k=1,width=.13,pat=0,set=null){
     const fx=Math.sin(a.yaw),fz=Math.cos(a.yaw),rx=-fz,rz=fx,vx=a.vx||0,vz=a.vz||0,v=hyp(vx,vz),F=this.feet;
     const home=(i,w=width*k)=>{const s=i?1:-1;return[a.x+rx*s*w,a.z+rz*s*w];};
     // a foot further away than a leg can reach (a teleport) is put back under the body;
@@ -2013,13 +2039,14 @@ class Gait{
       const st=frac(this.cycle*2);this.bob=Math.sin(PI*st)*lerp(.018,.05,run);
     }else{
       // standing: a foot in the air comes down under the body; one that has strayed steps back
-      const wide=this.hopT>=0&&air>0;
+      const wide=this.hopT>=0&&air>0,spot=i=>{const[hx,hz]=home(i);if(!set)return[hx,hz];const o=set[i];return[hx+(fx*o[0]+rx*o[1])*k,hz+(fz*o[0]+rz*o[1])*k];};
+      if(set)pat=0;
       for(let i=0;i<2;i++){const f=F[i];
         if(wide){const[hx,hz]=home(i,Math.max(width,.24)*k),g=Math.min(1,dt*14);f.x+=(hx-f.x)*g;f.z+=(hz-f.z)*g;f.y=air*.05*k;f.u=.5;f.fx=f.x;f.fz=f.z;continue;}
-        if(f.u<1){f.u=Math.min(1,f.u+dt/(f.tiny?.11:.16));const[hx,hz]=home(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx+f.ox,e);f.z=lerp(f.fz,hz+f.oz,e);f.y=f.u<1?Math.sin(PI*f.u)*(f.tiny?.035:.06)*k:0;}
+        if(f.u<1){f.u=Math.min(1,f.u+dt/(f.tiny?.11:.16));const[hx,hz]=spot(i),e=sstep(0,1,f.u);f.x=lerp(f.fx,hx+f.ox,e);f.z=lerp(f.fz,hz+f.oz,e);f.y=f.u<1?Math.sin(PI*f.u)*(f.tiny?.035:.06)*k:0;}
         else f.y=0;}
-      if(!wide&&F[0].u>=1&&F[1].u>=1){let worst=-1,err=.17*k;
-        for(let i=0;i<2;i++){const[hx,hz]=home(i),e=hyp(F[i].x-hx,F[i].z-hz);if(e>err){err=e;worst=i;}}
+      if(!wide&&F[0].u>=1&&F[1].u>=1){let worst=-1,err=(set?.05:.17)*k;
+        for(let i=0;i<2;i++){const[hx,hz]=spot(i),e=hyp(F[i].x-hx,F[i].z-hz);if(e>err){err=e;worst=i;}}
         if(worst>=0){const f=F[worst];f.fx=f.x;f.fz=f.z;f.u=0;f.ox=f.oz=0;f.tiny=false;}
         // adjustment steps: the feet take turns at small quick steps on the spot
         else if(pat>0){this.pt+=dt;if(this.pt>=lerp(.3,.15,pat)){this.pt=0;this.pf^=1;const f=F[this.pf],o=(this.pf?1:-1)*((this.cycle+=.5)%2<1?1:-1)*.035*k;
@@ -2163,24 +2190,45 @@ class BodyMesh{
 // FigureRig — people as boxes on two-bone IK, strokes on keyed paths
 // keys: τ (s from contact), hand f/r/u (forward, toward hit side, up), racket direction f/r/u, shoulder coil
 const KEYS={
- fh:[[-.62,.12,.42,1.08, .5,.45,.75, .2],[-.36,-.30,.58,1.42,-.45,.5,.72, 1.15],[-.15,-.55,.60,.86,-.72,.5,-.32, 1.0],
-     [0,.28,.44,.97, .28,.94,.12, -.1],[.13,.56,.12,1.42, .42,-.5,.72,-.6],[.34,.22,-.42,1.58,-.55,-.72,.38,-.95],[.62,.12,-.1,1.15, .3,-.4,.8,-.2]],
- bh:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.36,-.38,.28,1.3,-.5,.45,.7, 1.2],[-.15,-.42,.42,.82,-.7,.55,-.3, 1.0],
-     [0,.40,.28,.96, .34,.92,.12, -.05],[.13,.62,.0,1.4, .4,-.45,.78,-.5],[.34,.18,-.42,1.58,-.45,-.78,.4,-.85],[.62,.12,-.12,1.15,.3,-.4,.8,-.2]],
+ // forehand: unit turn (shoulders and racket go back together), a takeback that is not too long with the elbow bent,
+ // the racket head dropping behind the hand, contact in front of the body, then up and across to finish by the far ear
+ fh:[[-.62,.12,.42,1.08, .5,.45,.75, .2],[-.46,-.05,.5,1.2, .1,.55,.83, .95],[-.3,-.32,.6,1.32,-.42,.52,.74, 1.2],[-.13,-.48,.6,.88,-.72,.5,-.35, 1.0],
+     [0,.3,.44,.97, .28,.94,.12, -.1],[.12,.48,.02,1.2, .62,-.45,.55,-.65],[.3,.1,-.36,1.5,-.55,-.6,.58,-.95],[.62,.12,-.1,1.15, .3,-.4,.8,-.2]],
+ // two-handed backhand: the same unit turn, the racket pushed through the ball with both hands, finishing over the shoulder
+ bh:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.46,-.05,.28,1.12, .15,.5,.85, .95],[-.3,-.36,.4,1.22,-.45,.55,.7, 1.2],[-.13,-.42,.45,.84,-.7,.55,-.3, 1.0],
+     [0,.40,.28,.96, .34,.92,.12, -.05],[.12,.55,.05,1.25, .62,-.3,.72, -.5],[.3,.14,-.38,1.55,-.5,-.65,.55, -.85],[.62,.12,-.12,1.15,.3,-.4,.8,-.2]],
  slice:[[-.62,.15,.1,1.1, .5,.2,.8, .2],[-.38,-.34,.42,1.5,-.42,.52,.74, 1.1],[-.15,-.1,.45,1.28,.0,.8,.6, .8],
      [0,.34,.34,.98, .32,.9,.22, 0],[.16,.66,.28,.82, .72,.62,.06,-.3],[.4,.5,.6,1.0, .4,.7,.5,-.3],[.62,.15,.1,1.12,.5,.2,.8,0]],
  volley:[[-.3,.2,.35,1.2, .3,.4,.85, .2],[-.12,.15,.5,1.3, .1,.6,.8, .55],[0,.42,.36,1.12, .42,.82,.38,.1],[.14,.6,.28,1.02, .62,.72,.3,-.1],[.3,.25,.25,1.1, .4,.4,.8,0]],
  smash:[[-.6,.1,.42,1.25, .3,.2,.92, .3],[-.34,-.3,.42,1.62,-.5,.15,-.82, .9],[-.13,-.1,.34,1.95, .05,.05,-.99, .75],
      [0,.26,.14,2.2, .12,.02,.99, 0],[.16,.56,-.1,1.5, .85,-.2,-.45,-.5],[.42,.22,-.46,.98,-.1,-.6,-.78,-.8],[.62,.15,-.1,1.15,.3,-.3,.8,-.2]],
- serve:[[-1.3,.28,.2,1.02, .7,.05,.7, .3],[-.95,.02,.5,.76,-.25,.6,-.75, .55],[-.55,-.34,.4,1.32,-.62,.2,.75, 1.05],[-.3,-.26,.32,1.68,-.5,.1,-.86, 1.1],
+ serve:[[-1.3,.28,.2,1.02, .7,.05,.7, .3],[-.95,.02,.5,.76,-.25,.6,-.75, .55],[-.55,-.28,.42,1.5,-.3,.2,.93, 1.1],[-.3,-.26,.32,1.68,-.5,.1,-.86, 1.1],
      [-.1,-.02,.26,1.98, .08,.1,-.98, .7],[0,.26,.14,2.2, .12,.03,.99, 0],[.17,.58,-.1,1.5, .85,-.2,-.42,-.5],[.42,.24,-.46,.95,-.1,-.6,-.78,-.8],[.68,.15,-.1,1.15,.3,-.3,.8,-.2]],
 };
 // racket face through the stroke, τ → radians: topspin closes over the ball on the way up, a slice stays laid back
 const FACE={
- fh:[[-.62,0],[-.36,-.25],[-.15,-.85],[0,-.14],[.13,-.6],[.34,-.3],[.62,0]],
- bh:[[-.62,0],[-.36,-.25],[-.15,-.8],[0,-.12],[.13,-.55],[.34,-.3],[.62,0]],
+ fh:[[-.62,0],[-.3,-.25],[-.13,-.85],[0,-.14],[.12,-.6],[.3,-.3],[.62,0]],
+ bh:[[-.62,0],[-.3,-.25],[-.13,-.8],[0,-.12],[.12,-.55],[.3,-.3],[.62,0]],
  slice:[[-.62,.2],[-.38,.75],[-.15,.7],[0,.42],[.16,.8],[.4,.5],[.62,.2]],
  volley:[[-.3,.2],[0,.3],[.3,.2]],
+};
+// the players' own forms: variants of the forehand (form.fh in the roster) and the one-handed backhand (ohb)
+const swap=(K,rows)=>K.map(r=>rows.find(q=>q[0]===r[0])||r);
+const FORMS={
+ fh:{
+  classic:KEYS.fh,
+  // short and quick: the hand barely goes behind the body
+  compact:swap(KEYS.fh,[[-.46,.0,.48,1.15, .25,.5,.83, .8],[-.3,-.18,.55,1.22,-.2,.55,.8, 1.0],[-.13,-.3,.56,.9,-.62,.55,-.3, .9]]),
+  // the next-generation forehand: the elbow up near shoulder height and the racket tip pointing at the net on the way
+  // back, then a deep lag as the body turns
+  nextgen:swap(KEYS.fh,[[-.46,-.02,.55,1.3, .3,.45,.84, 1.0],[-.3,-.22,.62,1.48, .38,.42,.82, 1.25],[-.13,-.42,.62,.86,-.8,.45,-.4, 1.05]]),
+  // the lasso: straight up after contact and over the head on the same side
+  lasso:swap(KEYS.fh,[[.12,.42,.24,1.38, .3,.2,.93,-.55],[.3,.06,.22,1.86,-.62,.08,.32,-.8]]),
+ },
+ // one-handed backhand: a deeper shoulder turn, contact further in front, the arm extending up and out to finish
+ // (the free arm goes back for balance)
+ bh1:[[-.62,.15,-.1,1.05, .55,.1,.8, .2],[-.46,-.12,.2,1.08,-.1,.45,.88, 1.15],[-.3,-.38,.32,1.12,-.5,.45,.74, 1.4],[-.13,-.42,.4,.84,-.72,.5,-.32, 1.2],
+     [0,.5,.38,.96, .3,.94,.12, .0],[.14,.55,.56,1.32, .55,.4,.73,-.2],[.32,.28,.72,1.6, .12,.45,.88,-.3],[.62,.12,-.1,1.15,.3,-.4,.8,-.2]],
 };
 const TOSS=[[-1.3,.42,-.08,1.0],[-.9,.42,-.05,1.02],[-.64,.46,.0,1.72],[-.3,.42,.02,2.08],[-.1,.36,-.06,1.62],[.06,.26,-.2,1.25],[.3,.2,-.3,1.08],[.68,.15,-.25,1.0]];
 const _k=[0,0,0,0,0,0,0];
@@ -2195,6 +2243,7 @@ class FigureRig{
     let j=0;while(K[j+1][0]<t)j++;const a=K[j],b=K[j+1],u=(t-a[0])/(b[0]-a[0]),s=u*u*(3-2*u),w=(u+s)/2;
     for(let i=0;i<7;i++)out[i]=lerp(a[i+1]??0,b[i+1]??0,w);return out;
   }
+  static keysFor(type,st){const f=st&&st.form||{};if(type==='fh')return FORMS.fh[f.fh]||KEYS.fh;if(type==='bh'&&st&&st.ohb)return FORMS.bh1;return KEYS[type];}
   static face(type,t){const K=FACE[type];if(!K)return 0;if(t<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(t<=K[i][0]){const a=K[i-1],b=K[i];return lerp(a[1],b[1],(t-a[0])/(b[0]-a[0]));}return K[K.length-1][1];}
   static ik(ax,ay,az,bx,by,bz,l1,l2,px,py,pz){
     let dx=bx-ax,dy=by-ay,dz=bz-az,d=Math.hypot(dx,dy,dz);const mx=l1+l2-1e-3;
@@ -2239,15 +2288,19 @@ class FigureRig{
     const tau=sw?t-sw.tc:0;
     let Kc=null,S=null,H=null,dir=null;
     if(sw){
-      const K=KEYS[sw.type],hs=sw.hs,Rx=rx*hs,Rz=rz*hs;Kc=FigureRig.evalKeys(K,tau,[0,0,0,0,0,0,0]);
+      const K=FigureRig.keysFor(sw.type,a.st),hs=sw.hs,Rx=rx*hs,Rz=rz*hs;Kc=FigureRig.evalKeys(K,tau,[0,0,0,0,0,0,0]);
       const k0=FigureRig.evalKeys(K,0,[0,0,0,0,0,0,0]);
       tw=Kc[6];
       if(sw.type==='serve'||sw.type==='smash'){
-        const q=sw.type==='serve'?sstep(-.2,-.02,tau)*(1-sstep(.08,.34,tau)):sstep(-.22,-.03,tau)*(1-sstep(.08,.3,tau));py+=q*.22*k+(sw.type==='smash'?clamp(sw.C.y-2.55,0,.45)*q:0);
-        crouch=sstep(-.55,-.28,tau)*(1-sstep(-.26,-.1,tau))*.2;lean=-.08*sstep(-.5,-.3,tau)*(1-sstep(-.1,0,tau))+.2*sstep(-.1,.2,tau)*(1-sstep(.3,.68,tau));
+        const sf=sw.type==='serve'&&a.st&&a.st.form&&a.st.form.serve,deep=sf==='deep'?1.7:1;
+        if(sf==='sideon')tw+=.6*sstep(-1.3,-.9,tau)*(1-sstep(-.25,0,tau));
+        const q=sw.type==='serve'?sstep(-.2,-.02,tau)*(1-sstep(.08,.34,tau)):sstep(-.22,-.03,tau)*(1-sstep(.08,.3,tau));py+=q*.22*k*(sw.type==='serve'?Math.sqrt(deep):1)+(sw.type==='smash'?clamp(sw.C.y-2.55,0,.45)*q:0);
+        crouch=sstep(-.55,-.28,tau)*(1-sstep(-.26,-.1,tau))*.2*deep;lean=-.08*sstep(-.5,-.3,tau)*(1-sstep(-.1,0,tau))+.2*sstep(-.1,.2,tau)*(1-sstep(.3,.68,tau));
       }else{
         const lowc=clamp((1.0-sw.C.y)*.62,-.05,.34);crouch=(.1+Math.max(0,lowc))*(1-sstep(.15,.55,tau))*sstep(-.6,-.2,tau);lean=.1*sstep(-.2,.05,tau)*(1-sstep(.15,.6,tau));
         if(sw.rx!==undefined){const w=Math.exp(-(((tau/.17)**2)))*.22;px=lerp(px,sw.rx,w);pz=lerp(pz,sw.rz,w);}
+        // weight: back over the rear leg in the takeback, forward onto the front foot through contact
+        const wt=-.06*sstep(-.5,-.3,tau)*(1-sstep(-.2,0,tau))+.1*sstep(-.08,.15,tau)*(1-sstep(.4,.62,tau));px+=fx*wt;pz+=fz*wt;
       }
       const hy0=py;
       const kp=(f,r,u)=>[px+fx*f+Rx*r,hy0+u*(sw.type==='serve'||sw.type==='smash'?k*.98+.02:1)-crouch*.4,pz+fz*f+Rz*r];
@@ -2294,11 +2347,13 @@ class FigureRig{
     // legs
     const L1=.4*k,L2=.41*k,stance=(sw||pose==='ready'||inPlay)?.2:.12;
     const legs=[];
+    // the rear foot (on the racket side) comes up onto its toes as the hips turn through the ball
+    const heel=s=>sw&&sw.type!=='serve'&&sw.type!=='smash'&&s===sw.hs?sstep(0,.15,tau)*(1-sstep(.42,.6,tau)):0;
     for(const s of[-1,1]){
       const hp=[lx+prx*s*.09*k,hipY-.04,lz+prz*s*.09*k];let fX,fY,fZ;const q=ph+(s>0?0:Math.PI);
       if(seated){fX=lx+fx*.48+rx*s*.14;fZ=lz+fz*.48+rz*s*.14;fY=py+.03;}
       else if(pose==='climb'){const w=Math.sin(ph*1.2+(s>0?0:3.1))*.16;fX=lx+rx*s*.13-fx*.0;fZ=lz+rz*s*.13;fY=py+.25+w;}
-      else if(G_){const F=G_.feet[s>0?1:0];fX=F.x;fZ=F.z;fY=py*(sw?.55:1)+.03+F.y;}
+      else if(G_){const F=G_.feet[s>0?1:0];fX=F.x;fZ=F.z;fY=py*(sw?.55:1)+.03+F.y+.08*k*heel(s);}
       else if(run){
         const dvx=inPlay?(a.vx/(spd||1)):fx,dvz=inPlay?(a.vz/(spd||1)):fz,A=spd>3?.5:Math.min(.32,spd*.15),lift=spd>3?.26:.13;
         fX=lx+rx*s*.1+dvx*Math.cos(q)*A;fZ=lz+rz*s*.1+dvz*Math.cos(q)*A;fY=py+.03+Math.max(0,Math.sin(q))*lift;
@@ -2306,7 +2361,7 @@ class FigureRig{
       if(sw&&!run&&!G_){fX+=fx*(s===sw.hs?.0:-.0)+fx*(tau>0?s*.1:0);}
       const[kn,e]=FigureRig.chain(hp,[fX,fY+.03,fZ],L1,L2,[fx+rx*s*.15,.1,fz+rz*s*.15]);legs.push([hp,kn,e]);
       // a shoe: a white sole under the upper, heel to a rounded toe along the way the body faces
-      const sh=c.shoe??SHOE,gu=G_?G_.feet[s>0?1:0].u:1,pit=gu<1?Math.sin(PI*gu)*.55:0,fy=yaw+s*.22,cp=Math.cos(pit);
+      const sh=c.shoe??SHOE,gu=G_?G_.feet[s>0?1:0].u:1,pit=Math.max(gu<1?Math.sin(PI*gu)*.55:0,.75*heel(s)),fy=yaw+s*.22,cp=Math.cos(pit);
       const fdx=Math.sin(fy)*cp,fdy=-Math.sin(pit),fdz=Math.cos(fy)*cp,hl=[e[0]-fdx*.07*k,e[1]-.03-fdy*.07*k,e[2]-fdz*.07*k],toe=[e[0]+fdx*.17*k,e[1]-.03+fdy*.17*k,e[2]+fdz*.17*k];
       B.seg('box',hl[0],hl[1]-.022,hl[2],toe[0],toe[1]-.022,toe[2],.098*k,.02,0xf4f3ec,0,1,0);B.seg('box',hl[0],hl[1],hl[2],toe[0]-fdx*.03,toe[1]-fdy*.03,toe[2]-fdz*.03,.09*k,.055,sh,0,1,0);B.ball(toe[0]-fdx*.03,toe[1]-.003,toe[2]-fdz*.03,.09*k,.055,.09*k,fy,sh);
     }
@@ -2348,6 +2403,9 @@ class FigureRig{
     else if(pose==='drag'){t1=[R0[0]-fx*.34,.85*k,R0[2]-fz*.34];t2=[L0[0]-fx*.34,.85*k,L0[2]-fz*.34];}
     else if(pose==='climb'){const w=Math.sin(ph*1.2)*.16;t1=[R0[0]+fx*.24,shY+.1+w,R0[2]+fz*.24];t2=[L0[0]+fx*.24,shY+.1-w,L0[2]+fz*.24];}
     else if(pose==='read'){t1=[R0[0]+fx*.4,hipY-.1,R0[2]+fz*.4];t2=[L0[0]+fx*.1,hipY+.1,L0[2]+fz*.1];}
+    else if(o.holding&&hasRacket){
+      t1=[R0[0]+fx*.16,hipY+.04,R0[2]+fz*.16];dirR=[fx*.55+rx*hnd*.2,-.5,fz*.55+rz*hnd*.2];
+      t2=[px+fx*.36-rx*hnd*.08,hipY+.14,pz+fz*.36-rz*hnd*.08];}
     else if(a.cheer&&t<a.cheer&&hasRacket){t1=[R0[0]+fx*.1,shY+.5,R0[2]+fz*.1];t2=[L0[0]+fx*.08,hipY+.02,L0[2]+fz*.08];dirR=[fx*.2,.95,fz*.2];}
     else if(inPlay&&hasRacket&&(pose==='ready'||spd<3.6||!run)){ // ready position, both hands forward
       const dd=.36;t1=[lx+fx*dd+rx*hnd*.13,hipY+.2,lz+fz*dd+rz*hnd*.13];t2=[lx+fx*dd+.0+fx*.14-rx*hnd*.03,hipY+.22,lz+fz*.5-rz*hnd*.03];dirR=[fx*.7-rx*hnd*.3,.4,fz*.7-rz*hnd*.3];
@@ -2862,10 +2920,12 @@ class BallView{
     this.trail=new THREE.Points(this.trG,new THREE.PointsMaterial({size:1,sizeAttenuation:false,color:0xfdf0a0,depthWrite:false,transparent:true}));this.trail.frustumCulled=false;root.add(this.trail);
     this.loose=[];for(let i=0;i<8;i++){const m=new THREE.Mesh(this.m.geometry,this.m.material);m.visible=false;m.castShadow=true;root.add(m);this.loose.push(m);}
   }
-  update(match,t,ppm,al=1){
+  // held: where the holder's hand is drawn, for a ball waiting to be served
+  update(match,t,ppm,al=1,held=null){
     const size=Math.max(.09,2.7/ppm),b=match.ball,P=this.trP;
     // drawn between the last two ticks
-    const bx=b&&b.ox!==undefined?lerp(b.ox,b.x,al):b&&b.x,by=b&&b.oy!==undefined?lerp(b.oy,b.y,al):b&&b.y,bz=b&&b.oz!==undefined?lerp(b.oz,b.z,al):b&&b.z;
+    let bx=b&&b.ox!==undefined?lerp(b.ox,b.x,al):b&&b.x,by=b&&b.oy!==undefined?lerp(b.oy,b.y,al):b&&b.y,bz=b&&b.oz!==undefined?lerp(b.oz,b.z,al):b&&b.z;
+    if(b&&b.mode==='held'&&held)[bx,by,bz]=held;
     if(b&&b.y>-1){this.m.visible=true;this.m.position.set(bx,by,bz);this.m.scale.setScalar(size);this.m.rotation.set(t*9,t*7,0);
       this.dot.visible=by>.25;this.dot.position.set(bx,.03,bz);this.dot.scale.setScalar(size*.9);}else{this.m.visible=false;this.dot.visible=false;}
     for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){m.visible=true;m.position.set(q.x,q.y,q.z);m.scale.setScalar(size*.9);}else m.visible=false;}
@@ -3606,7 +3666,7 @@ class Game{
     this.halos.u.night.value=clamp(this.R.L.night+this.R.L.flood*.4,0,1);this.halos.u.ppm.value=this.cam.ppm;
     this.updateCrowd(dt);this.stadium.led.scroll(dt*(this.paused?0:1));this.updateLed();
     this.B.begin();this.drawPeople(dt*this.ts);this.drawMarkers();this.B.commit();
-    this.ballView.update(m,this.tc,this.cam.ppm,this.alpha);
+    this.ballView.update(m,this.tc,this.cam.ppm,this.alpha,this.heldAt);
     this.stadium.court.letter(this.focus().end);this.courtHighlight(dt);this.stadium.court.flush();
     this.R.render();
     this.labels.update(m,this.R);this.replay.update(m.t);this.prompt.update(m);
@@ -3659,21 +3719,26 @@ class Game{
   }
   lookAtBall(){const b=this.match.ball;if(b){this.look.x=b.x;this.look.z=b.z;}return this.look;}
   drawPeople(dtSim){
-    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;
+    const m=this.match,t=m.t-DT*(1-this.alpha),look=this.lookAtBall(),B=this.B;this.heldAt=null;
     const draw=(a,c,lk,extra)=>{const v=this.view(a),sit=a.pose==='sit',g=sit?null:this.gaitOf(a);
       // the split step: a hop as the opponent strikes the ball
       if(g&&a.split&&a.split!==g.splitSeen){g.splitSeen=a.split;if(!a.swing)g.hop();}
-      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'?a.patter||0:0);
-      FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
-    for(const P of m.players){P._fit=P._fit||Outfits.player(P);draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8});}
+      const set=this.stanceOf(a,t);
+      if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'&&!set?a.patter||0:0,set);
+      return FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
+    for(const P of m.players){P._fit=P._fit||Outfits.player(P);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
+      const hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold});
+      // a ball waiting to be served sits in the server's free hand, not inside the body
+      if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
     m.kids.forEach((k,i)=>draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null)));
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
   }
   drawMarkers(){
     const m=this.match,B=this.B,t=this.tc,C=m.control;
-    if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.72+Math.sin(t*7)*.05,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a;
-      for(const[a,b]of[[1,1],[1,-1],[-1,1],[-1,-1]]){B.box(P.x+a*r-a*.13,.06,P.z+b*r,.3,.04,.1,0,c);B.box(P.x+a*r,.06,P.z+b*r-b*.13,.1,.04,.3,0,c);}}
+    // the server: a dashed ring lying flat on the court around the feet
+    if(m.cue&&m.cue.tag){const P=m.players[m.cue.who],r=.6+Math.sin(t*6)*.03,c=m.cue.no===2?0xf0664a:C.is(P)?0x7bb8ea:0xf4d44a,n=18;
+      for(let i=0;i<n;i+=2){const q=(i+.5)/n*TAU;B.box(P.x+Math.cos(q)*r,.035,P.z+Math.sin(q)*r,.17,.015,.06,-Math.atan2(Math.cos(q),-Math.sin(q)),c);}}
     // where the person is sending the ball: a pulsing cross on the spot, inside a dashed oval that most such shots
     // land in (two standard deviations — smaller for an accurate player, larger on the stretch). Both stay until
     // the ball has landed, so the shot can be judged against them.
@@ -3688,6 +3753,17 @@ class Game{
           B.box(a.x+dx*u-dz*w,.05,a.z+dz*u+dx*w,.2,.03,.11,-Math.atan2(dz*tu+dx*tw,dx*tu-dz*tw),0xf4f3ec);}}}
     // over the person's own player, a small marker while the camera is wide
     const H=m.human;if(H&&this.cam.mode===CameraRig.STADIUM){const y=H.h+.55+Math.sin(t*4)*.05;B.box(H.x,y,H.z,.22,.1,.22,PI/4,0x7bb8ea);}
+  }
+  // where a stroke puts the feet (see Gait.update): a step in with the front foot, or for an open-stance forehand the
+  // racket-side foot out to the side; a one-handed backhand steps further across
+  stanceOf(a,t){
+    const sw=a.swing;if(!sw||a.mode!=='play'||!a.st)return null;const ty=sw.type;if(ty==='serve'||ty==='smash')return null;
+    const tau=t-sw.tc;if(tau<-.5||tau>.5)return null;
+    const hs=sw.hs,fr=hs>0?0:1,set=[[0,0],[0,0]],F=a.st.form||{};
+    if(ty==='volley')set[fr]=[.24,hs*.08];
+    else if(ty==='fh'&&F.stance==='open'){set[fr^1]=[-.06,hs*.14];set[fr]=[.06,0];}
+    else{const one=!!a.st.ohb&&ty!=='fh';set[fr]=[one?.34:.3,hs*(one?.16:.1)];set[fr^1]=[-.06,0];}
+    return set;
   }
   courtHighlight(dt){
     const m=this.match,C=m.control,H=m.human,S=this.stadium;let a=0,box=null,col=[1,.93,.45];

@@ -8,10 +8,12 @@ class BallView{
     this.trail=new THREE.Points(this.trG,new THREE.PointsMaterial({size:1,sizeAttenuation:false,color:0xfdf0a0,depthWrite:false,transparent:true}));this.trail.frustumCulled=false;root.add(this.trail);
     this.loose=[];for(let i=0;i<8;i++){const m=new THREE.Mesh(this.m.geometry,this.m.material);m.visible=false;m.castShadow=true;root.add(m);this.loose.push(m);}
   }
-  update(match,t,ppm,al=1){
+  // held: where the holder's hand is drawn, for a ball waiting to be served
+  update(match,t,ppm,al=1,held=null){
     const size=Math.max(.09,2.7/ppm),b=match.ball,P=this.trP;
     // drawn between the last two ticks
-    const bx=b&&b.ox!==undefined?lerp(b.ox,b.x,al):b&&b.x,by=b&&b.oy!==undefined?lerp(b.oy,b.y,al):b&&b.y,bz=b&&b.oz!==undefined?lerp(b.oz,b.z,al):b&&b.z;
+    let bx=b&&b.ox!==undefined?lerp(b.ox,b.x,al):b&&b.x,by=b&&b.oy!==undefined?lerp(b.oy,b.y,al):b&&b.y,bz=b&&b.oz!==undefined?lerp(b.oz,b.z,al):b&&b.z;
+    if(b&&b.mode==='held'&&held)[bx,by,bz]=held;
     if(b&&b.y>-1){this.m.visible=true;this.m.position.set(bx,by,bz);this.m.scale.setScalar(size);this.m.rotation.set(t*9,t*7,0);
       this.dot.visible=by>.25;this.dot.position.set(bx,.03,bz);this.dot.scale.setScalar(size*.9);}else{this.m.visible=false;this.dot.visible=false;}
     for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){m.visible=true;m.position.set(q.x,q.y,q.z);m.scale.setScalar(size*.9);}else m.visible=false;}
