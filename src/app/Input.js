@@ -7,6 +7,7 @@ class Input{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
+      if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
       const m=g.match,serving=g.dock.serving(m);
       const shot=SHOT_KEYS.find(s=>s[3]===c),srv=SERVE_KEYS.find(s=>s[3]===c),zn=ZONE_KEYS.find(s=>s[2]===c||'Numpad'+s[3]===c);
       if(c==='Space')g.toggleAuto();

@@ -14,7 +14,7 @@
 :root{color-scheme:dark;
   --ink:#0e0f1a;--navy:#101a3a;--deep:#1a2c5c;--blue:#25468a;--court:#3166b4;--azure:#4a8ed4;--sky:#7bb8ea;--ice:#e2f4fb;
   --chalk:#f4f3ec;--mute:#9aa1b3;--ball:#f4d44a;--coral:#f0664a;--lime:#b4dc68;
-  --display:'Silkscreen','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Courier New',monospace;--data:'VT323','Courier New',monospace}
+  --display:'Silkscreen','Courier New',monospace;--data:'VT323','Courier New',monospace}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--chalk);font-family:var(--data);font-size:18px;line-height:1.1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #view{position:fixed;left:0;top:0;display:block;image-rendering:pixelated;touch-action:none;cursor:crosshair}
 button{font:18px/1 var(--data);color:var(--chalk);background:var(--deep);border:2px solid var(--ink);min-height:30px;padding:0 9px;cursor:pointer;white-space:nowrap}
@@ -83,6 +83,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .caption{background:#0e0f1acc;padding:1px 8px;font-size:18px;max-width:100%;text-align:center;min-height:20px}
 .caption:empty{visibility:hidden}
 .dock{display:flex;align-items:stretch;gap:6px;padding:4px;max-width:100%}
+.after{display:flex;align-items:center;gap:8px;padding:6px 8px;max-width:100%;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+.after .aft-t{font:700 13px var(--display);letter-spacing:.08em;color:var(--ball)}.after .aft-w{color:var(--chalk);font-size:18px;margin-right:4px}
 .dock .grp{display:flex}.dock .grp>button{margin-left:-2px}.dock .grp>button:first-child{margin-left:0}
 .shot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:70px;min-height:46px;padding:3px 6px}
 .shot .k{font:500 15px var(--display);color:var(--ball)}.shot small{font-size:14px;color:var(--mute)}
@@ -102,8 +104,14 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .tagf{position:fixed;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--ice);padding:0 6px;font-size:18px;white-space:nowrap;z-index:2}
 .tagf.strong{background:var(--ball);color:var(--navy)}.tagf.me{box-shadow:0 0 0 2px var(--sky)}
 .tagf.cue{background:var(--sky);color:var(--navy)}.tagf.cue.second{background:var(--coral);color:var(--chalk)}
-.call{position:fixed;left:0;top:0;pointer-events:none;z-index:4;font:700 22px/1 var(--display);letter-spacing:.08em;color:var(--chalk);background:var(--coral);padding:4px 8px 3px;box-shadow:0 0 0 2px var(--ink)}
-.call.let{background:var(--sky);color:var(--navy)}
+.call{position:fixed;left:0;top:0;pointer-events:none;z-index:4;display:flex;flex-direction:column;align-items:center;--c:var(--coral);--t:#ffe1d8}
+.call.let{--c:var(--sky);--t:var(--ice)}
+/* a small dark tag with a coloured edge and a dot, pointing down at the mark; it pops in */
+.call .cin{display:flex;align-items:center;gap:5px;font:700 12px/1 var(--display);letter-spacing:.1em;color:var(--t);background:#0e0f1ad9;padding:4px 8px 4px 6px;box-shadow:inset 0 0 0 1px var(--c),0 2px 0 #0008;animation:callIn .22s cubic-bezier(.2,1.5,.4,1) both}
+.call .cin i{width:5px;height:5px;background:var(--c);box-shadow:0 0 4px var(--c)}
+.call .tip{width:0;height:0;border:4px solid transparent;border-top-color:var(--c);border-bottom:0;animation:callIn .22s both}
+@keyframes callIn{from{opacity:0;transform:translateY(5px) scale(.8)}}
+@media(prefers-reduced-motion:reduce){.call .cin,.call .tip{animation:none}}
 .elc{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(122px,calc(env(safe-area-inset-bottom,0px) + 122px));width:196px;padding:6px;z-index:4;pointer-events:none}
 .elc h2{font:500 12px var(--display);letter-spacing:.06em;color:var(--sky);margin:0 0 4px}
 #elcC{display:block;width:100%;image-rendering:pixelated;border:2px solid var(--ink)}
@@ -232,6 +240,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   </div>
   <div class="bottom">
     <div class="caption" id="line" aria-live="polite"></div>
+    <div class="panel after" id="after" hidden aria-label="Match over"><span class="aft-t">MATCH OVER</span><span id="aftW" class="aft-w"></span><button id="aftRes">Result</button><button id="aftNew">New match</button><button class="cta" id="aftGo" aria-keyshortcuts="Enter">Rematch ▶<kbd>Enter</kbd></button></div>
     <div class="panel dock" id="dock" aria-label="Controls">
       <button id="auto" class="auto" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Auto<kbd>Space</kbd></button>
       <span class="sep"></span>

@@ -1,7 +1,10 @@
-// ResultScreen — the end-of-match card
+// ResultScreen — the end-of-match card, and the bar that stays once the card is put away to look at the court
 class ResultScreen{
-  constructor(game){this.g=game;$('resAgain').onclick=()=>game.tour?game.continueTour():game.rematch();$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.close();}
+  constructor(game){this.g=game;const next=()=>game.tour?game.continueTour():game.rematch();
+    $('resAgain').onclick=next;$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.watch();
+    $('aftGo').onclick=next;$('aftNew').onclick=()=>game.openSetup();$('aftRes').onclick=()=>{if(this.last)this.open(...this.last);};}
   open(m,rows){
+    this.last=[m,rows];$('after').hidden=true;
     const r=m.result,H=m.human,won=H&&r.winner===H;
     $('resH').textContent=H?(won?'YOU WIN · GAME, SET AND MATCH':'GAME, SET AND MATCH'):'GAME, SET AND MATCH';
     $('resW').textContent=`${r.winner.st.name} d. ${r.loser.st.name}`;
@@ -11,5 +14,12 @@ class ResultScreen{
     const tour=!!this.g.tour;$('resNew').hidden=tour;$('resAgain').textContent=tour?'Continue ▶':'Rematch';
     $('result').hidden=false;
   }
-  close(){$('result').hidden=true;}
+  // the card goes, the way on stays: a bar at the foot of the screen with the same choices (Enter = the main one)
+  watch(){
+    $('result').hidden=true;if(!this.last)return;const[m]=this.last,tour=!!this.g.tour,H=m.human,won=H&&m.result.winner===H;
+    $('aftW').textContent=`${won?'You win':m.result.winner.st.short+' wins'} ${m.result.line}`;
+    $('aftNew').hidden=tour;$('aftGo').innerHTML=(tour?'Continue ▶':'Rematch ▶')+'<kbd>Enter</kbd>';$('after').hidden=false;
+  }
+  get watching(){return!$('after').hidden;}
+  close(){$('result').hidden=true;$('after').hidden=true;this.last=null;}
 }

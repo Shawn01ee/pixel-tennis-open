@@ -31,9 +31,8 @@ class Match{
   get timeScale(){return this.control.timeScale;}
   other(P){return P===this.A?this.B:this.A;}
   ev(type,o={}){if(this.events.length<400)this.events.push(Object.assign({type},o));}
-  // en: what to speak instead when the text is Korean and the device has no Korean voice
-  say(text,who='ump',s=2.6,en=null){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who,en});}
-  sayUmp(k,s=1.6){this.say(CHAIR_CALLS[k].ko,'ump',s,CHAIR_CALLS[k].en);}
+  say(text,who='ump',s=2.6){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who});}
+  sayUmp(k,s=1.6){this.say(CHAIR_CALLS[k],'ump',s);}
   note(text){this.ev('note',{text});}
   spawn(g){this.tasks.push(g);}
 
@@ -126,8 +125,8 @@ class Match{
       if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.spawn(this.fetch(this.ball));this.ball=null;}
       for(const P of this.players)P.resetRally();
       const r=yield* this.review(r0);
-      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?CALLS.FAULT.ko:CHAIR_CALLS.df.ko,strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':CALLS.LET.ko,strong:true});}
-      // the line call (폴트, 렛) has been made; the chair only says which serve comes next.
+      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?'Fault':'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':'Let',strong:true});}
+      // the line call (Fault, Let) has been made; the chair only says which serve comes next.
       // A let is not a fault: the same serve is played again, so a let on the first serve leaves two serves to come
       if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.sayUmp(no===1?'first':'second');}yield* this.wait(1.2);continue;}
       if(r.fault){
@@ -294,7 +293,7 @@ class Match{
       if(r.plan&&this.t>=r.plan.t-DT/2)this.contact(r);
       const ev=this.physics.step(b,DT,true);
       if(ev&(HIT.TAPE|HIT.MESH)){this.ev('net',{x:b.x,y:b.y,z:b.z,mesh:!!(ev&HIT.MESH),v:Math.abs(b.vz)});
-        // a serve clipping the tape is called at once ("네트"); where it lands then makes it a let or a fault.
+        // a serve clipping the tape is called at once ("Net"); where it lands then makes it a let or a fault.
         // A serve driven into the mesh is simply a fault, called when it drops
         if(this.isServe&&(ev&HIT.TAPE)&&!this.netCalled){this.netCalled=true;this.ev('call',{text:'NET',x:b.x,z:0});}
         if(ev&HIT.TAPE)this.stats.cords++;
@@ -375,7 +374,7 @@ class Match{
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        // a serve that does not get over is a fault (called 폴트, whether or not it clipped the tape on the way);
+        // a serve that does not get over is a fault (called Fault, whether or not it clipped the tape on the way);
         // in a rally the point is simply over, with no call
         if(this.isServe){this.ev('call',{text:'FAULT',x:b.lbx,z:b.lbz});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
       }

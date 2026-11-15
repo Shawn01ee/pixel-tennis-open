@@ -14,7 +14,8 @@ class ControlDock{
   serving(m){const H=m.human;return!!H&&!!m.cue&&m.cue.who===H.idx&&!m.live;}
   update(m){
     const C=m.control,H=m.human,on=(id,v)=>{const e=$(id);if(e&&e.getAttribute('aria-pressed')!==String(v))e.setAttribute('aria-pressed',String(v));};
-    $('dock').hidden=!H;if(!H)return;
+    // once the match is over the shot buttons have nothing to do: the after-match bar takes their place
+    $('dock').hidden=!H||!!m.result;if(!H||m.result)return;
     const sv=this.serving(m);$('shots').hidden=sv;$('serves').hidden=!sv;
     for(const[k]of SHOT_KEYS)on('sh-'+k,C.shot===k);
     for(const[k]of SERVE_KEYS)on('sv-'+k,C.serveType===k);

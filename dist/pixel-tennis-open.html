@@ -14,7 +14,7 @@
 :root{color-scheme:dark;
   --ink:#0e0f1a;--navy:#101a3a;--deep:#1a2c5c;--blue:#25468a;--court:#3166b4;--azure:#4a8ed4;--sky:#7bb8ea;--ice:#e2f4fb;
   --chalk:#f4f3ec;--mute:#9aa1b3;--ball:#f4d44a;--coral:#f0664a;--lime:#b4dc68;
-  --display:'Silkscreen','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Courier New',monospace;--data:'VT323','Courier New',monospace}
+  --display:'Silkscreen','Courier New',monospace;--data:'VT323','Courier New',monospace}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--chalk);font-family:var(--data);font-size:18px;line-height:1.1;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 #view{position:fixed;left:0;top:0;display:block;image-rendering:pixelated;touch-action:none;cursor:crosshair}
 button{font:18px/1 var(--data);color:var(--chalk);background:var(--deep);border:2px solid var(--ink);min-height:30px;padding:0 9px;cursor:pointer;white-space:nowrap}
@@ -83,6 +83,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .caption{background:#0e0f1acc;padding:1px 8px;font-size:18px;max-width:100%;text-align:center;min-height:20px}
 .caption:empty{visibility:hidden}
 .dock{display:flex;align-items:stretch;gap:6px;padding:4px;max-width:100%}
+.after{display:flex;align-items:center;gap:8px;padding:6px 8px;max-width:100%;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+.after .aft-t{font:700 13px var(--display);letter-spacing:.08em;color:var(--ball)}.after .aft-w{color:var(--chalk);font-size:18px;margin-right:4px}
 .dock .grp{display:flex}.dock .grp>button{margin-left:-2px}.dock .grp>button:first-child{margin-left:0}
 .shot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:70px;min-height:46px;padding:3px 6px}
 .shot .k{font:500 15px var(--display);color:var(--ball)}.shot small{font-size:14px;color:var(--mute)}
@@ -102,8 +104,14 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .tagf{position:fixed;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--ice);padding:0 6px;font-size:18px;white-space:nowrap;z-index:2}
 .tagf.strong{background:var(--ball);color:var(--navy)}.tagf.me{box-shadow:0 0 0 2px var(--sky)}
 .tagf.cue{background:var(--sky);color:var(--navy)}.tagf.cue.second{background:var(--coral);color:var(--chalk)}
-.call{position:fixed;left:0;top:0;pointer-events:none;z-index:4;font:700 22px/1 var(--display);letter-spacing:.08em;color:var(--chalk);background:var(--coral);padding:4px 8px 3px;box-shadow:0 0 0 2px var(--ink)}
-.call.let{background:var(--sky);color:var(--navy)}
+.call{position:fixed;left:0;top:0;pointer-events:none;z-index:4;display:flex;flex-direction:column;align-items:center;--c:var(--coral);--t:#ffe1d8}
+.call.let{--c:var(--sky);--t:var(--ice)}
+/* a small dark tag with a coloured edge and a dot, pointing down at the mark; it pops in */
+.call .cin{display:flex;align-items:center;gap:5px;font:700 12px/1 var(--display);letter-spacing:.1em;color:var(--t);background:#0e0f1ad9;padding:4px 8px 4px 6px;box-shadow:inset 0 0 0 1px var(--c),0 2px 0 #0008;animation:callIn .22s cubic-bezier(.2,1.5,.4,1) both}
+.call .cin i{width:5px;height:5px;background:var(--c);box-shadow:0 0 4px var(--c)}
+.call .tip{width:0;height:0;border:4px solid transparent;border-top-color:var(--c);border-bottom:0;animation:callIn .22s both}
+@keyframes callIn{from{opacity:0;transform:translateY(5px) scale(.8)}}
+@media(prefers-reduced-motion:reduce){.call .cin,.call .tip{animation:none}}
 .elc{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(122px,calc(env(safe-area-inset-bottom,0px) + 122px));width:196px;padding:6px;z-index:4;pointer-events:none}
 .elc h2{font:500 12px var(--display);letter-spacing:.06em;color:var(--sky);margin:0 0 4px}
 #elcC{display:block;width:100%;image-rendering:pixelated;border:2px solid var(--ink)}
@@ -232,6 +240,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   </div>
   <div class="bottom">
     <div class="caption" id="line" aria-live="polite"></div>
+    <div class="panel after" id="after" hidden aria-label="Match over"><span class="aft-t">MATCH OVER</span><span id="aftW" class="aft-w"></span><button id="aftRes">Result</button><button id="aftNew">New match</button><button class="cta" id="aftGo" aria-keyshortcuts="Enter">Rematch ▶<kbd>Enter</kbd></button></div>
     <div class="panel dock" id="dock" aria-label="Controls">
       <button id="auto" class="auto" aria-pressed="false"><span class="sw" aria-hidden="true"></span>Auto<kbd>Space</kbd></button>
       <span class="sep"></span>
@@ -1071,12 +1080,12 @@ const KID_POS=[[6.95,-1.0],[6.95,1.0],[-5.6,-17.5],[5.6,-17.5],[-5.6,17.5],[5.6,
 // commentary — words for shots, used in captions and tags
 const DESC={drive:'with the drive',flat:'with a flat drive',cross:'cross court',line:'down the line',angle:'on the sharp angle',drop:'with the drop shot',lob:'with the lob',passline:'with a pass down the line',passcross:'with a cross-court pass',smash:'with the smash',volley:'at the net',open:'into the open court',behind:'behind him',deep:'from deep',dip:'at his feet',putaway:'with the put-away volley',dropvolley:'with a drop volley',slice:'with the slice',approach:'behind the approach',safe:'from the back',serve:'off the serve'};
 const NAME={drive:'drive',flat:'flat drive',cross:'cross-court drive',line:'drive down the line',angle:'sharp angle',drop:'drop shot',lob:'lob',passline:'pass',passcross:'pass',smash:'smash',volley:'volley',open:'drive',behind:'drive',deep:'deep ball',dip:'dipping ball',putaway:'put-away volley',dropvolley:'drop volley',slice:'slice',approach:'approach',safe:'rally ball',serve:'return'};
-// the calls, as shown and spoken in Korean; the English is spoken where the device has no Korean voice
+// the line calls: the label shown at the mark and the word spoken
 //   NET    the serve touched the net (a let if it then lands in, a fault if it does not)
 //   FAULT  a serve that lands outside the box or does not get over;  OUT  a rally ball outside the court
 //   LET    a serve that touched the net and landed in: the same serve again
-const CALLS={NET:{ko:'네트',en:'Net'},FAULT:{ko:'폴트',en:'Fault'},OUT:{ko:'아웃',en:'Out'},LET:{ko:'렛',en:'Let'}};
-const CHAIR_CALLS={first:{ko:'퍼스트 서브',en:'First serve.'},second:{ko:'세컨드 서브',en:'Second serve.'},df:{ko:'더블 폴트',en:'Double fault.'}};
+const CALLS={NET:{label:'NET',say:'Net!'},FAULT:{label:'FAULT',say:'Fault!'},OUT:{label:'OUT',say:'Out!'},LET:{label:'LET',say:'Let!'}};
+const CHAIR_CALLS={first:'First serve.',second:'Second serve.',df:'Double fault.'};
 const TAG={drive:'Drive',flat:'Flat',drop:'Drop shot',lob:'Lob',passline:'Passing shot',passcross:'Passing shot',smash:'Smash',dropvolley:'Drop volley',angle:'Sharp angle',approach:'Approach',slice:'Slice',volley:'Volley',putaway:'Put-away',behind:'Wrong-footed',dip:'At the feet'};
 
 // serves — serve types and the three serve targets
@@ -1183,9 +1192,8 @@ class Match{
   get timeScale(){return this.control.timeScale;}
   other(P){return P===this.A?this.B:this.A;}
   ev(type,o={}){if(this.events.length<400)this.events.push(Object.assign({type},o));}
-  // en: what to speak instead when the text is Korean and the device has no Korean voice
-  say(text,who='ump',s=2.6,en=null){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who,en});}
-  sayUmp(k,s=1.6){this.say(CHAIR_CALLS[k].ko,'ump',s,CHAIR_CALLS[k].en);}
+  say(text,who='ump',s=2.6){this.bubble={text,who,until:this.t+s};this.ev('say',{text,who});}
+  sayUmp(k,s=1.6){this.say(CHAIR_CALLS[k],'ump',s);}
   note(text){this.ev('note',{text});}
   spawn(g){this.tasks.push(g);}
 
@@ -1278,8 +1286,8 @@ class Match{
       if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.spawn(this.fetch(this.ball));this.ball=null;}
       for(const P of this.players)P.resetRally();
       const r=yield* this.review(r0);
-      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?CALLS.FAULT.ko:CHAIR_CALLS.df.ko,strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':CALLS.LET.ko,strong:true});}
-      // the line call (폴트, 렛) has been made; the chair only says which serve comes next.
+      {const q=sc.srv.idx;if(r.fault)this.ev('tag',{who:q,text:no===1?'Fault':'Double fault',strong:true});else if(r.replay)this.ev('tag',{who:q,text:r.first?'Replay':'Let',strong:true});}
+      // the line call (Fault, Let) has been made; the chair only says which serve comes next.
       // A let is not a fault: the same serve is played again, so a let on the first serve leaves two serves to come
       if(r.replay){if(r.first)no=1;else{this.stats.lets++;this.sayUmp(no===1?'first':'second');}yield* this.wait(1.2);continue;}
       if(r.fault){
@@ -1446,7 +1454,7 @@ class Match{
       if(r.plan&&this.t>=r.plan.t-DT/2)this.contact(r);
       const ev=this.physics.step(b,DT,true);
       if(ev&(HIT.TAPE|HIT.MESH)){this.ev('net',{x:b.x,y:b.y,z:b.z,mesh:!!(ev&HIT.MESH),v:Math.abs(b.vz)});
-        // a serve clipping the tape is called at once ("네트"); where it lands then makes it a let or a fault.
+        // a serve clipping the tape is called at once ("Net"); where it lands then makes it a let or a fault.
         // A serve driven into the mesh is simply a fault, called when it drops
         if(this.isServe&&(ev&HIT.TAPE)&&!this.netCalled){this.netCalled=true;this.ev('call',{text:'NET',x:b.x,z:0});}
         if(ev&HIT.TAPE)this.stats.cords++;
@@ -1527,7 +1535,7 @@ class Match{
     this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
-        // a serve that does not get over is a fault (called 폴트, whether or not it clipped the tape on the way);
+        // a serve that does not get over is a fault (called Fault, whether or not it clipped the tape on the way);
         // in a rally the point is simply over, with no call
         if(this.isServe){this.ev('call',{text:'FAULT',x:b.lbx,z:b.lbz});return{fault:true,net:true};}this.rec();this.lost(H,true);return{w:1-hi};
       }
@@ -2545,17 +2553,24 @@ class BigScreen{
     this.tex=new THREE.CanvasTexture(this.cv);this.tex.minFilter=this.tex.magFilter=THREE.NearestFilter;this.tex.generateMipmaps=false;
   }
   // s: {title, rows:[{name,col,sets:[…],pt,serve}], foot, hot}
+  // Built to be read from the far end of the court: three-letter names, games and points in double-size letters;
+  // only the set title, finished sets and the footer are small
   draw(s){
     const g=this.g;g.fillStyle=hexs(0x101a3a);g.fillRect(0,0,96,48);
-    g.fillStyle=hexs(0x25468a);g.fillRect(0,0,96,9);PixelFont.center(g,s.title,48,2,'#f4f3ec');
-    s.rows.forEach((r,i)=>{const y=13+i*10;
-      g.fillStyle=hexs(r.col);g.fillRect(3,y,3,5);if(r.serve){g.fillStyle='#f4d44a';g.fillRect(8,y+1,3,3);}
-      PixelFont.draw(g,r.name.slice(0,9),13,y,'#f4f3ec');
-      r.sets.forEach((v,j)=>PixelFont.draw(g,String(v),52+j*7,y,j===r.sets.length-1?'#f4f3ec':'#7bb8ea'));
-      g.fillStyle=hexs(0xf4f3ec);g.fillRect(78,y-1,16,7);PixelFont.center(g,r.pt,86,y,'#101a3a');});
-    g.fillStyle=hexs(s.hot?0xf4d44a:0x1a2c5c);g.fillRect(0,36,96,12);PixelFont.center(g,s.foot||'',48,39,s.hot?'#101a3a':'#b0dcf6');
+    g.fillStyle=hexs(0x25468a);g.fillRect(0,0,96,7);PixelFont.center(g,s.title,48,1,'#f4f3ec');
+    s.rows.forEach((r,i)=>{const y=9+i*13;
+      g.fillStyle=hexs(r.col);g.fillRect(1,y,3,10);if(r.serve){g.fillStyle='#f4d44a';g.fillRect(5,y+3,3,4);}
+      PixelFont.draw(g,BigScreen.code(r.name),10,y,'#f4f3ec',2);
+      const done=r.sets.slice(0,-1),cur=r.sets.length?String(r.sets[r.sets.length-1]):'';
+      done.forEach((v,j)=>PixelFont.draw(g,String(v),36+j*5,y+5,'#7bb8ea'));
+      if(cur)PixelFont.center(g,cur,56,y,'#f4f3ec',2);
+      g.fillStyle=hexs(0xf4f3ec);g.fillRect(67,y-1,28,12);PixelFont.center(g,r.pt,81,y,'#101a3a',2);});
+    // the footer too in big letters when it fits (BREAK POINT, 176 KM/H), small otherwise
+    const ft=s.foot||'',big=PixelFont.width(ft,2)<=94;g.fillStyle=hexs(s.hot?0xf4d44a:0x1a2c5c);g.fillRect(0,36,96,12);PixelFont.center(g,ft,48,big?37:39,s.hot?'#101a3a':'#b0dcf6',big?2:1);
     this.tex.needsUpdate=true;
   }
+  // a three-letter code, as on a tour scoreboard: DJO, NAD, DEM
+  static code(name){return name.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase();}
 }
 
 // CrowdMotion — mexican waves, applause, standing ovations and raised arms, moved in the crowd's vertex shader
@@ -2750,11 +2765,11 @@ class Stadium{
   }
   buildScreens(G){
     this.screenMat=[];
-    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+9.4),w=6.2,h=3.1,y=7.7;
+    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+9.4),w=7.6,h=3.8,y=7.0;
       const g=new THREE.PlaneGeometry(w,h);g.setAttribute('cut',new THREE.Float32BufferAttribute(new Array(4).fill([0,s,10.2]).flat(),3));
       const m=Shading.cutOnly(new THREE.MeshBasicMaterial({map:sc.tex}),'scr'+i),me=new THREE.Mesh(g,m);
       me.position.set(0,y+h/2,z-s*.09);if(s>0)me.rotation.y=PI;this.root.add(me);this.screenMat.push(m);
-      G.cut=[0,s,10.2];G.pat=-1;G.box(0,y-.15,z,w+.3,h+.3,.14,0x1c1f2e);G.box(0,y+h+.1,z+s*.4,.2,10.8-y-h,.2,0x4a4f63);G.cut=Geo.NOCUT;G.pat=0;});
+      G.cut=[0,s,10.2];G.pat=-1;G.box(0,y-.15,z,w+.3,h+.3,.14,0x1c1f2e);if(10.8-y-h>.05)G.box(0,y+h+.1,z+s*.4,.2,10.8-y-h,.2,0x4a4f63);G.cut=Geo.NOCUT;G.pat=0;});
   }
 }
 
@@ -3111,10 +3126,8 @@ class CrowdAudio{
 
 // Announcer — the chair umpire's calls and the electronic line calls, spoken by the browser's speech synthesis
 // Men's voices only. The umpire prefers an Australian or British English voice; the line calls use a second, flatter
-// one. Calls written in Korean (폴트, 렛, 세컨드 서브…) are spoken by a Korean man's voice, or in English where the
-// device has none. Where a device has no man's voice at all, the calls are shown but not spoken.
+// one. Where a device has no man's voice at all, the calls are shown but not spoken.
 class Announcer{
-  static KO=['Reed','Eddy','Rocko','Grandpa'];
   static MALE=/\b(Lee|Daniel|Arthur|Oliver|Gordon|Aaron|Fred|Alex|Tom|Rishi|Ralph|Albert|Reed|Rocko|Eddy|Grandpa|David|Mark|George|James|Guy|Male)\b/i;
   constructor(){
     this.on=false;this.ok=typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';this.ump=null;this.line=null;
@@ -3126,9 +3139,6 @@ class Announcer{
     const male=v.filter(x=>Announcer.MALE.test(x.name));
     this.ump=lang('en-au',male)||lang('en-gb',male)||male[0]||null;
     this.line=male.find(x=>x!==this.ump)||this.ump;
-    // Korean: a man's voice in the order of preference below; the women's voices (Yuna and others) are never used
-    const ko=all.filter(x=>/^ko/i.test(x.lang)&&Announcer.MALE.test(x.name)),rank=x=>{const i=Announcer.KO.findIndex(n=>x.name.startsWith(n));return i<0?99:i;};
-    this.ko=ko.sort((a,b)=>rank(a)-rank(b))[0]||null;
   }
   // "Fifteen–Love." reads better as "Fifteen, Love."
   static spoken(text){return text.replace(/–/g,', ').replace(/\s+/g,' ').trim();}
@@ -3138,14 +3148,13 @@ class Announcer{
     if(!this.ok||this.primed)return;this.primed=true;
     try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-AU';speechSynthesis.speak(u);}catch(e){}
   }
-  say(text,kind='ump',en=null){
+  say(text,kind='ump'){
     if(!this.on||!this.ok)return;
     if(!this.ump)this.pick();
-    const korean=/[가-힣]/.test(text);if(korean&&!this.ko){if(!en)return;text=en;}
-    const ko=korean&&!!this.ko,u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=ko?this.ko:line?this.line:this.ump;
+    const u=new SpeechSynthesisUtterance(Announcer.spoken(text)),line=kind==='line',voice=line?this.line:this.ump;
     if(!voice)return;                       // no man's voice on this device: shown, not spoken
     u.voice=voice;u.lang=voice.lang;
-    u.rate=ko?1.05:line?1.12:.98;u.pitch=ko?(line?.85:.95):line?.7:.95;u.volume=line?1:.9;
+    u.rate=line?1.12:.98;u.pitch=line?.7:.95;u.volume=line?1:.9;
     // Safari drops an utterance that is collected before it is spoken, or spoken in the same breath as a cancel
     this.keep=u;u.onend=()=>{if(this.keep===u)this.keep=null;if(this.lineNow===u)this.lineNow=null;};
     try{
@@ -3180,8 +3189,8 @@ class SoundSystem{
       case'slide':S.slide(pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
-      case'say':if(e.who==='ump')this.voice.say(e.text,'ump',e.en);break;
-      case'call':{const c=CALLS[e.text]||{ko:e.text,en:e.text};this.voice.say(c.ko+'!','line',c.en+'!');break;}
+      case'say':if(e.who==='ump')this.voice.say(e.text);break;
+      case'call':{const c=CALLS[e.text];if(c)this.voice.say(c.say,'line');break;}
     }
   }
   update(dt,mood){if(this.live)this.crowd.update(dt,mood);}
@@ -3238,8 +3247,8 @@ class StatsPanel{
 class WorldLabels{
   constructor(){this.tags=[{el:$('tag0'),until:0,who:0},{el:$('tag1'),until:0,who:0}];this.ti=0;this.callUntil=0;this.callAt=null;}
   tag(e,m){const q=this.tags[this.ti=(this.ti+1)%2];q.el.textContent=e.text;q.el.className='tagf'+(e.strong?' strong':'')+(m.control.idx===e.who?' me':'');q.until=m.t+(e.strong?1.7:1.05);q.who=e.who;q.el.hidden=false;}
-  // line calls in Korean; the net and a let are information, not a fault, and are shown in blue
-  call(e,m){const el=$('call');el.textContent=(CALLS[e.text]||{ko:e.text}).ko;el.className='call'+(e.text==='LET'||e.text==='NET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
+  // line calls; the net and a let are information, not a fault, and are shown in blue
+  call(e,m){const el=$('call');el.innerHTML=`<span class="cin"><i></i>${(CALLS[e.text]||{label:''}).label}</span><span class="tip"></span>`;el.className='call'+(e.text==='LET'||e.text==='NET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
   // a new match starts with nothing left over from the last one
   clear(){for(const q of this.tags){q.until=0;q.el.hidden=true;}this.callUntil=0;this.callAt=null;$('call').hidden=true;$('bub').hidden=true;$('tagS').hidden=true;}
   place(el,R,x,y,z,mx=60,dy='-100%'){const[sx,sy]=R.project(x,y,z);el.style.transform=`translate(${clamp(sx,mx,innerWidth-mx)}px,${clamp(sy,70,innerHeight-120)}px) translate(-50%,${dy})`;}
@@ -3318,7 +3327,8 @@ class ControlDock{
   serving(m){const H=m.human;return!!H&&!!m.cue&&m.cue.who===H.idx&&!m.live;}
   update(m){
     const C=m.control,H=m.human,on=(id,v)=>{const e=$(id);if(e&&e.getAttribute('aria-pressed')!==String(v))e.setAttribute('aria-pressed',String(v));};
-    $('dock').hidden=!H;if(!H)return;
+    // once the match is over the shot buttons have nothing to do: the after-match bar takes their place
+    $('dock').hidden=!H||!!m.result;if(!H||m.result)return;
     const sv=this.serving(m);$('shots').hidden=sv;$('serves').hidden=!sv;
     for(const[k]of SHOT_KEYS)on('sh-'+k,C.shot===k);
     for(const[k]of SERVE_KEYS)on('sv-'+k,C.serveType===k);
@@ -3500,10 +3510,13 @@ class SetupScreen{
   close(){$('setup').hidden=true;}
 }
 
-// ResultScreen — the end-of-match card
+// ResultScreen — the end-of-match card, and the bar that stays once the card is put away to look at the court
 class ResultScreen{
-  constructor(game){this.g=game;$('resAgain').onclick=()=>game.tour?game.continueTour():game.rematch();$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.close();}
+  constructor(game){this.g=game;const next=()=>game.tour?game.continueTour():game.rematch();
+    $('resAgain').onclick=next;$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.watch();
+    $('aftGo').onclick=next;$('aftNew').onclick=()=>game.openSetup();$('aftRes').onclick=()=>{if(this.last)this.open(...this.last);};}
   open(m,rows){
+    this.last=[m,rows];$('after').hidden=true;
     const r=m.result,H=m.human,won=H&&r.winner===H;
     $('resH').textContent=H?(won?'YOU WIN · GAME, SET AND MATCH':'GAME, SET AND MATCH'):'GAME, SET AND MATCH';
     $('resW').textContent=`${r.winner.st.name} d. ${r.loser.st.name}`;
@@ -3513,7 +3526,14 @@ class ResultScreen{
     const tour=!!this.g.tour;$('resNew').hidden=tour;$('resAgain').textContent=tour?'Continue ▶':'Rematch';
     $('result').hidden=false;
   }
-  close(){$('result').hidden=true;}
+  // the card goes, the way on stays: a bar at the foot of the screen with the same choices (Enter = the main one)
+  watch(){
+    $('result').hidden=true;if(!this.last)return;const[m]=this.last,tour=!!this.g.tour,H=m.human,won=H&&m.result.winner===H;
+    $('aftW').textContent=`${won?'You win':m.result.winner.st.short+' wins'} ${m.result.line}`;
+    $('aftNew').hidden=tour;$('aftGo').innerHTML=(tour?'Continue ▶':'Rematch ▶')+'<kbd>Enter</kbd>';$('after').hidden=false;
+  }
+  get watching(){return!$('after').hidden;}
+  close(){$('result').hidden=true;$('after').hidden=true;this.last=null;}
 }
 
 // BracketScreen — the tournament draw between matches
@@ -3583,6 +3603,7 @@ class Input{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       if(!$('setup').hidden){if(c==='Enter'){$('walkOut').click();e.preventDefault();}return;}
       if(!$('result').hidden)return;
+      if(g.results.watching){if(c==='Enter'){$('aftGo').click();e.preventDefault();}return;}
       const m=g.match,serving=g.dock.serving(m);
       const shot=SHOT_KEYS.find(s=>s[3]===c),srv=SERVE_KEYS.find(s=>s[3]===c),zn=ZONE_KEYS.find(s=>s[2]===c||'Numpad'+s[3]===c);
       if(c==='Space')g.toggleAuto();
@@ -3737,7 +3758,7 @@ class Game{
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
     const s={title:!sc?'CENTRE COURT':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
+      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);

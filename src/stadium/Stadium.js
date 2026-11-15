@@ -179,10 +179,10 @@ class Stadium{
   }
   buildScreens(G){
     this.screenMat=[];
-    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+9.4),w=6.2,h=3.1,y=7.7;
+    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+9.4),w=7.6,h=3.8,y=7.0;
       const g=new THREE.PlaneGeometry(w,h);g.setAttribute('cut',new THREE.Float32BufferAttribute(new Array(4).fill([0,s,10.2]).flat(),3));
       const m=Shading.cutOnly(new THREE.MeshBasicMaterial({map:sc.tex}),'scr'+i),me=new THREE.Mesh(g,m);
       me.position.set(0,y+h/2,z-s*.09);if(s>0)me.rotation.y=PI;this.root.add(me);this.screenMat.push(m);
-      G.cut=[0,s,10.2];G.pat=-1;G.box(0,y-.15,z,w+.3,h+.3,.14,0x1c1f2e);G.box(0,y+h+.1,z+s*.4,.2,10.8-y-h,.2,0x4a4f63);G.cut=Geo.NOCUT;G.pat=0;});
+      G.cut=[0,s,10.2];G.pat=-1;G.box(0,y-.15,z,w+.3,h+.3,.14,0x1c1f2e);if(10.8-y-h>.05)G.box(0,y+h+.1,z+s*.4,.2,10.8-y-h,.2,0x4a4f63);G.cut=Geo.NOCUT;G.pat=0;});
   }
 }

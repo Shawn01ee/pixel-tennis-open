@@ -1,4 +1,4 @@
-// The serve calls follow the rules: a let is not a fault, a double fault takes two faults, and "네트" is only called
+// The serve calls follow the rules: a let is not a fault, a double fault takes two faults, and "Net" is only called
 // for a serve that touches the net.  Run: node tests/serve-calls.test.js
 const{loadSim}=require('./load');
 const{Match,ROSTER,MatchFormat}=loadSim(['Match','ROSTER','MatchFormat']);
@@ -21,16 +21,16 @@ for(let k=0;k<26;k++){
         else if(serve&&m.isServe){serve.call=e.text;
           if(e.text==='FAULT'){faults++;if(serve.net)netThenFault++;if(seq.some(s=>s.call==='LET'))letThenFault++;}
           if(e.text==='LET'){lets++;if(serve.net)netThenLet++;}}
-      }else if(e.type==='tag'&&e.text==='더블 폴트'){dfs++;if(faults!==2)wrongDF++;}
+      }else if(e.type==='tag'&&e.text==='Double fault'){dfs++;if(faults!==2)wrongDF++;}
       else if(e.type==='scored'){points++;for(const s of seq)if(s.touched&&!s.net)tapeNoCall++;faults=0;serve=null;seq=[];}
     }
     m.events.length=0;
   }
 }
 console.log(`  ${points} points · ${lets} lets (${letThenFault} followed by a fault in the same point) · ${dfs} double faults · ${netCalls} net calls (${netThenLet} then let, ${netThenFault} then fault)`);
-check(lets>0&&netThenLet===lets,'every let is a serve that touched the net and was called 네트 first');
+check(lets>0&&netThenLet===lets,'every let is a serve that touched the net and was called Net first');
 check(wrongNo===0,`after a let the same serve is played again: serve numbers count faults only (${wrongNo} wrong)`);
 check(wrongDF===0&&dfs>0,`a double fault comes only after two faults in the point (${wrongDF} wrong of ${dfs})`);
-check(netOutsideServe===0,`네트 is called only on serves, never in a rally (${netOutsideServe} wrong)`);
-check(tapeNoCall===0,`every serve that clips the tape is called 네트 (${tapeNoCall} missed)`);
+check(netOutsideServe===0,`Net is called only on serves, never in a rally (${netOutsideServe} wrong)`);
+check(tapeNoCall===0,`every serve that clips the tape is called Net (${tapeNoCall} missed)`);
 console.log(fails?`\n${fails} FAILED`:'\nall serve-call checks passed');process.exitCode=fails?1:0;

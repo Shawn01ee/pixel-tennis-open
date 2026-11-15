@@ -17,8 +17,8 @@ class SoundSystem{
       case'slide':S.slide(pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
-      case'say':if(e.who==='ump')this.voice.say(e.text,'ump',e.en);break;
-      case'call':{const c=CALLS[e.text]||{ko:e.text,en:e.text};this.voice.say(c.ko+'!','line',c.en+'!');break;}
+      case'say':if(e.who==='ump')this.voice.say(e.text);break;
+      case'call':{const c=CALLS[e.text];if(c)this.voice.say(c.say,'line');break;}
     }
   }
   update(dt,mood){if(this.live)this.crowd.update(dt,mood);}

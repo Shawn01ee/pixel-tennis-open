@@ -126,7 +126,7 @@ class Game{
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
     const s={title:!sc?'CENTRE COURT':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
+      foot:big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
