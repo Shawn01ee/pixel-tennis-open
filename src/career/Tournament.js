@@ -15,6 +15,8 @@ class Tournament{
     // a slot: its two players, the winner, the score as a line and per set (from a's side), and while it is being
     // played in the background, the match itself (live)
     const slot=(a=null,b=null)=>({a,b,w:null,line:'',sets:null,live:null});this.version=0;
+    // what each player carries into their next match from the last one (see Stamina.carry)
+    this.tired={};
     this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
   }
   seed(id){return this.seeds.indexOf(id)+1;}
@@ -25,12 +27,13 @@ class Tournament{
   get mine(){if(this.out||this.over)return null;return this.rounds[this.round].find(m=>m.a===this.me||m.b===this.me)||null;}
   get opponent(){const m=this.mine;return m?this.player(m.a===this.me?m.b:m.a):null;}
   // the match configuration for the person's next match
-  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2};}
+  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2,carry:[this.tired[me.id]||0,this.tired[opp.id]||0]};}
   // the person's match is over. match: the finished Match, whose first player is the person
   record(won,match){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);this.score(m,match,m.a===this.me?0:1);if(!won)this.out=true;}
   // the score of a finished match into its slot, set by set from the slot's first player's side (ia: that player's
   // index in the match)
   score(m,match,ia=0){const sc=match.score,r=match.result;m.live=null;m.line=r?r.line:'';
+    for(const P of match.players)this.tired[P.st.id]=P.sta.carry;
     m.sets=sc?sc.done.map(d=>({a:d.g[ia],b:d.g[1-ia],tb:d.tb,pa:d.pts?d.pts[ia]:null,pb:d.pts?d.pts[1-ia]:null})):null;this.version++;}
   // the other matches, played in the format of the event a slice at a time (a generator, stepped by the game while it
   // runs): the rest of this round, and — once the person is out — the rest of the draw, round by round
@@ -38,7 +41,7 @@ class Tournament{
     for(;;){
       for(const m of this.rounds[this.round]){
         if(m.w!=null||m.a==null||m.b==null||m.a===this.me||m.b===this.me)continue;
-        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format});m.live=sim;this.version++;let n=0;
+        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format,carry:[this.tired[m.a]||0,this.tired[m.b]||0]});m.live=sim;this.version++;let n=0;
         while(!(sim.stage==='over'&&sim.result)&&n<120*60*240){sim.tick();n++;sim.events.length=0;if(n%40===0)yield m;}
         m.w=sim.result?sim.result.winner.st.id:m.a;this.score(m,sim);yield m;
       }

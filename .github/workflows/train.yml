@@ -32,6 +32,8 @@ jobs:
         run: |
           node tests/match-simulation.test.js | tail -1
           node tests/physics-realism.test.js | tail -1
+          node tests/score.test.js | tail -1
+          node tests/stamina.test.js | tail -1
       - name: Build
         run: python3 build.py
       - name: Commit

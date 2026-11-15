@@ -1,0 +1,73 @@
+{
+ "match": {
+  "seed": 1,
+  "line": "6–4 6–7(5) 6–7(4) 6–4 7–6(8)",
+  "winner": "Zverev",
+  "sets": [
+   49,
+   138,
+   204,
+   258
+  ],
+  "points": 343,
+  "players": [
+   {
+    "name": "Alexander Zverev",
+    "short": "Zverev",
+    "end": 1.04,
+    "dist": 2525,
+    "energy": 53,
+    "legs": 0.46,
+    "arm": 0.61
+   },
+   {
+    "name": "Pete Sampras",
+    "short": "Sampras",
+    "end": 0.86,
+    "dist": 3129,
+    "energy": 19,
+    "legs": 0.81,
+    "arm": 0.99
+   }
+  ]
+ },
+ "calibration": {
+  "matches": 20,
+  "legs260": 0.81,
+  "arm260": 0.81,
+  "metresPerPoint": 13.6
+ },
+ "constants": {
+  "CP": 16,
+  "WP": 600,
+  "LEGS": 48000,
+  "ARM": 940,
+  "TAU_B": 40,
+  "SEAT": 0.00008333333333333333,
+  "EFFECT": {
+   "speed": {
+    "legs": 0.03,
+    "breath": 0.06
+   },
+   "accel": {
+    "legs": 0.08,
+    "breath": 0.1
+   },
+   "serveV": {
+    "arm": 0.025
+   },
+   "serveErr": {
+    "arm": 0.08
+   },
+   "pace": {
+    "arm": 0.03,
+    "breath": 0.03
+   },
+   "err": {
+    "legs": 0.1,
+    "arm": 0.15,
+    "breath": 0.35
+   }
+  }
+ }
+}

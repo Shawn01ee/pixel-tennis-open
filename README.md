@@ -16,9 +16,14 @@ matches) or a single **Exhibition match** against the opponent of your choice. T
 of what the computer players have learned is used against you.
 
 Matches are played to the Grand Slam rules, as at the Australian Open: sets of six games won by two, a 7-point
-tiebreak at 6–6, and a 10-point tiebreak at 6–6 in the deciding set. Choose **1 set**, **best of 3 sets**, or a single
-**10-point match tiebreak**. In a tournament the other matches are played out in full, in the same format, while you
+tiebreak at 6–6, and a 10-point tiebreak at 6–6 in the deciding set. Choose **1 set**, **best of 3 sets**, **best of
+5 sets** (three sets to win, as in Grand Slam men's singles), or a single **10-point match tiebreak**. In a tournament the other matches are played out in full, in the same format, while you
 play yours; the draw shows them live.
+
+Players tire. Running drains the legs (top speed and first step), strokes drain the arm (pace, serve and
+accuracy), and a long rally leaves a player short of breath for the next point. Fitter players last longer. A thin
+gauge under each name on the scoreboard shows what is left. The model and the research behind it, with a chart of a
+five-setter, are in **[docs/stamina](docs/stamina/README.md)**.
 
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
@@ -41,11 +46,14 @@ node tests/locomotion.test.js         # movement and footwork
 node tests/match-simulation.test.js   # whole matches, computer and scripted human
 node tests/crowd.test.js              # crowd reactions (statistical; can fail on an unlucky seed)
 node tests/physics-realism.test.js    # ball flight and bounce against real-world figures
+node tests/stamina.test.js            # the fatigue model against the declines measured in long matches
+node tests/score.test.js              # Grand Slam scoring: tiebreaks, best of 3 and 5, the match tiebreak
 
 node tools/train.js 6                 # self-play: the computer players learn which tactics win, saved to src/players/learned.js
 node tools/train.js eval              # each trained player against an untrained twin
 node tools/accuracy.js                # where each player's aimed shots land
 node tools/balance.js                 # aces, double faults, serve percentages and rally length over many sets
+node tools/stamina.js 20              # five-set matches headless: calibrates the fatigue model, redraws docs/stamina
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.
@@ -85,7 +93,7 @@ One class per file, grouped by what it is about. `src/manifest.json` sets the bu
 | `src/core` | constants, maths, random numbers, court dimensions |
 | `src/physics` | ball flight (drag, Magnus), bounce, net, shot solver |
 | `src/rules` | match formats and scoring |
-| `src/players` | profiles and roster, movement, shot planning, learned tactics, the person's controls |
+| `src/players` | profiles and roster, movement, stamina, shot planning, learned tactics, the person's controls |
 | `src/career` | the tournament draw and the post-match interview |
 | `src/match` | the match itself, umpire, ball kids, crowd mood, commentary |
 | `src/render` | renderer, camera, figures (skeleton, body mesh, footwork), ball, effects |

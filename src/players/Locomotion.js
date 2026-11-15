@@ -4,7 +4,9 @@
 // Kinematic and exact, like a game character controller; there are no rigid bodies to tune or to tunnel.
 class Locomotion{
   // vmax m/s top speed · tau s sprint time constant (push at rest = vmax/τ) · brake m/s² · cut m/s² sideways · turn rad/s
-  constructor(vmax,tau,brake,cut=brake*.85,turnRate=8){this.vmax=vmax;this.tau=tau;this.brake=brake;this.cut=cut;this.turnRate=turnRate;this.a0=vmax/tau;}
+  constructor(vmax,tau,brake,cut=brake*.85,turnRate=8){this.vmax=vmax;this.tau=tau;this.brake=brake;this.cut=cut;this.turnRate=turnRate;this.a0=vmax/tau;this.fresh={vmax,a0:this.a0,brake,cut};}
+  // a tired runner: top speed times kv; first step, braking and cutting times ka
+  scale(kv,ka){const f=this.fresh;this.vmax=f.vmax*kv;this.a0=f.a0*ka;this.tau=this.vmax/this.a0;this.brake=f.brake*ka;this.cut=f.cut*ka;}
   // a tour player: top speed 5.5–6.5 m/s; an explosive first step out of the split step (13–17 m/s²) that fades with speed
   static forProfile(st){const vmax=st.v*.9;return new Locomotion(vmax,vmax/(st.a*1.2),st.a,st.a*.9,8);}
   // walkers: ball kids, players between points. Cached by speed.

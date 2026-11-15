@@ -16,6 +16,7 @@
  "players/PlayerProfile.js",
  "players/Difficulty.js",
  "players/Locomotion.js",
+ "players/Stamina.js",
  "players/Agent.js",
  "players/Player.js",
  "players/learned.js",

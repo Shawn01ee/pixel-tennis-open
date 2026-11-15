@@ -16,7 +16,7 @@ class Match{
     this.t=0;this.events=[];this.tasks=[];
     this.physics=new BallPhysics(SURFACES[this.cfg.surface]);this.solver=new ShotSolver(this.physics);this.tr=new Trajectory();
     this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);this.tactics=this.cfg.tactics||new Tactics();
-    this.players=[new Player(this.cfg.a,0),new Player(this.cfg.b,1)];
+    const carry=this.cfg.carry||[0,0];this.players=[new Player(this.cfg.a,0,carry[0]),new Player(this.cfg.b,1,carry[1])];
     this.ump=new Umpire();this.kids=KID_POS.map(([x,z],i)=>new BallKid(x,z,i));this.movers=[...this.players,...this.kids,this.ump];
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
     this.rallyLen=0;this.lastTac='';this.kmh=0;this.serveLabel='';this.bubble=null;this.cue=null;this.status='';this.stage='walkon';
@@ -62,7 +62,7 @@ class Match{
     else if(inside(a)&&!inside(to)){net(a,gi);p.push(gi,go);}
     p.push(to);return p;
   }
-  go(a,x,z,v=2.4){a.mode='walk';a.path=this.route(a,x,z);a.vmax=v;a.pose='stand';}
+  go(a,x,z,v=2.4){a.mode='walk';a.path=this.route(a,x,z);a.vmax=v*(a.sta?a.sta.walk:1);a.pose='stand';}
   *goW(a,x,z,v){this.go(a,x,z,v);while(a.path.length)yield;}
 
   // ──────── the person at the screen ────────
@@ -153,6 +153,8 @@ class Match{
     if(ev.call)this.say(ev.call,'ump',3.2);
     yield* this.wait(1.6);
     if(sc.over)return;
+    // the time the rules allow between points, at a changeover and between sets, in real seconds
+    const rest=ev.setOver?120:ev.changeEnds&&ev.sit?90:25;for(const P of this.players)P.sta.rest(rest,rest>25);
     if(ev.changeEnds&&ev.sit){yield* this.sit(true);this.mood.changeover(ev.setOver);if(R()<.45||ev.setOver)this.wave=this.t;yield* this.wait(ev.setOver?7:5);this.say('Time.','ump',1.6);yield* this.stand();}
     else if(ev.changeEnds)yield* this.swapEnds();
     else if(ev.setOver){yield* this.sit(false);this.mood.changeover(true);this.wave=this.t;yield* this.wait(6);this.say('Time.','ump',1.6);yield* this.stand();}
@@ -249,11 +251,11 @@ class Match{
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const TS=Traits.of(Sv),pressure=!!this.big&&this.big.w!==Sv.idx;
     // side spin is counter-clockwise from above when positive: a right-hander's slice, curving to the server's left
-    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
+    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1)*Sv.sta.serveV;
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,gyro,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
-    const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1)*Sv.sta.serveErr,ac=st.acc??1;Sv.sta.stroke(2.5);
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;this.netCalled=false;
     if(C.is(Sv))C.clear();
@@ -406,7 +408,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*P.sta.err;
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -429,9 +431,9 @@ class Match{
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*(this.serveNo===2?Match.RETURN.pace2:Match.RETURN.pace):S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const v0=P.sta.pace*Math.min((srv?S.v*(this.serveNo===2?Match.RETURN.pace2:Match.RETURN.pace):S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
     const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
-    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
+    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);P.sta.stroke(1);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;

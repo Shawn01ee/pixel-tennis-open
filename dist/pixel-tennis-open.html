@@ -40,7 +40,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 #sbT tr+tr td{border-top:2px solid var(--deep)}
 #sbT td{padding:2px 0;font-size:21px;height:28px;vertical-align:middle}
 #sbT .sv{width:18px;padding-left:7px}#sbT .sv i{display:block;width:8px;height:8px;background:var(--ball);box-shadow:0 0 0 1px var(--ink)}
-#sbT .nm{white-space:nowrap;overflow:hidden;max-width:0;width:100%}
+#sbT .nm{white-space:nowrap;overflow:hidden;max-width:0;width:100%;position:relative}
+#sbT .en{position:absolute;left:30px;right:6px;bottom:1px;height:3px;background:var(--deep)}#sbT .en u{display:block;height:100%;transition:width .6s}
 #sbT .nm b{display:inline-block;width:5px;height:16px;margin-right:6px;vertical-align:-2px}
 #sbT .nm .face{display:inline-block;width:19px;height:22px;margin-right:4px;vertical-align:-5px}
 #sbT .seed{color:var(--mute);font-size:16px;margin-right:4px}#sbT .cc{color:var(--sky);font-size:15px;margin-left:6px}
@@ -802,7 +803,7 @@ class PlayerProfile{
   get ratings(){
     const k=(v,a,b)=>Math.round(45+55*clamp((v-a)/(b-a),0,1));
     return{serve:k(this.s1,40,60),power:k(this.power,.75,1.2),speed:k(this.v+this.a*.08,6.6,8.4),spin:k(this.spin,1200,3300),
-      control:k(1.12-this.err,0,.45),accuracy:k(1.25-(this.acc??1),0,.65),touch:k(this.drop*.4+this.slice*.3+this.net*.3,0,.6)};
+      control:k(1.12-this.err,0,.45),accuracy:k(1.25-(this.acc??1),0,.65),touch:k(this.drop*.4+this.slice*.3+this.net*.3,0,.6),stamina:k(this.end??1,.8,1.22)};
   }
   get signature(){return TRAITS[this.trait]||null;}
   get overall(){const r=this.ratings;return Math.round((r.serve*1.2+r.power*1.1+r.speed+r.spin*.8+r.control*1.3+r.accuracy*1.2+r.touch*.6)/7.2);}
@@ -828,7 +829,9 @@ class Difficulty{
 // Kinematic and exact, like a game character controller; there are no rigid bodies to tune or to tunnel.
 class Locomotion{
   // vmax m/s top speed · tau s sprint time constant (push at rest = vmax/τ) · brake m/s² · cut m/s² sideways · turn rad/s
-  constructor(vmax,tau,brake,cut=brake*.85,turnRate=8){this.vmax=vmax;this.tau=tau;this.brake=brake;this.cut=cut;this.turnRate=turnRate;this.a0=vmax/tau;}
+  constructor(vmax,tau,brake,cut=brake*.85,turnRate=8){this.vmax=vmax;this.tau=tau;this.brake=brake;this.cut=cut;this.turnRate=turnRate;this.a0=vmax/tau;this.fresh={vmax,a0:this.a0,brake,cut};}
+  // a tired runner: top speed times kv; first step, braking and cutting times ka
+  scale(kv,ka){const f=this.fresh;this.vmax=f.vmax*kv;this.a0=f.a0*ka;this.tau=this.vmax/this.a0;this.brake=f.brake*ka;this.cut=f.cut*ka;}
   // a tour player: top speed 5.5–6.5 m/s; an explosive first step out of the split step (13–17 m/s²) that fades with speed
   static forProfile(st){const vmax=st.v*.9;return new Locomotion(vmax,vmax/(st.a*1.2),st.a,st.a*.9,8);}
   // walkers: ball kids, players between points. Cached by speed.
@@ -870,6 +873,75 @@ Locomotion.CACHE=new Map();
 // the push never falls below this share of the first step's, so a runner does reach top speed
 Locomotion.FLOOR=.12;
 
+// Stamina — how tired a player is, and what it costs them: speed, first step, accuracy, pace and serve
+// Three stores, because the research finds three different things going on (docs/stamina/README.md):
+//   legs  long-term, filled by running. Over a three-hour match the legs lose about 9% of their strength and
+//         stiffness and sprints slow by 2–3% (Girard 2006, 2014; Gescheit 2015): top speed and first step fall.
+//   arm   long-term, filled by strokes, the serve most. Serve speed falls by up to 4% in long matches in the lab
+//         (Martin 2016, Hornery 2007) but barely at all in Wimbledon five-setters (Maquirriain 2016), so the
+//         serve loses little; groundstroke pace and accuracy lose more (Hornery 2007, Pereira 2016).
+//   breath short-term, filled by hard running above what the body can keep up (a W′ balance, as in Skiba 2012),
+//         emptied again between points: the late shots of a long rally and the point after it are the loose ones
+//         (accuracy falls 69% at the point of exhaustion, Davey 2002).
+// Running cost is the metabolic power of accelerated running (di Prampero 2005, Osgnach 2010): running while
+// speeding up costs what running uphill would, at the slope a forward acceleration a is equivalent to, a/g.
+class Stamina{
+  // CP W/kg: critical metabolic power, what can be held without running into the breath store (about 85% of a
+  // tour player's aerobic maximum). WP J/kg: the breath store above it. LEGS J/kg, ARM strokes: the long-term
+  // capacity of an average-endurance player, calibrated so a 260-point five-setter ends near 0.8 in both (see
+  // docs/stamina). TAU_B s: the breath comes back with this time constant (phosphocreatine resynthesis, ~30–45 s).
+  static CP=16;static WP=600;static LEGS=48000;static ARM=940;static TAU_B=40;
+  // seated at a changeover the long-term stores come back a little: about half a percent a minute
+  static SEAT=1/12000;
+  // what each store costs at full (1): the declines measured at the end of a long match
+  static EFFECT={
+    speed:{legs:.03,breath:.06},        // top speed: repeated-sprint time +2.3% mid-match, +3.1% after (Girard 2014)
+    accel:{legs:.08,breath:.10},        // first step, braking, cutting: strength −9%, leg stiffness −6.5…9% (Girard 2006, 2014)
+    serveV:{arm:.025},                  // serve speed: −0.5% (Maquirriain 2016) to −3.7% (Martin 2016)
+    serveErr:{arm:.08},                 // first serves in 63.1% → 62.3%, double faults unchanged (Maquirriain 2016)
+    pace:{arm:.03,breath:.03},          // groundstroke speed falls (Hornery 2007)
+    err:{legs:.10,arm:.15,breath:.35},  // forehand proficiency 75.2% → 65.5% from set 1 to set 2 (Pereira 2016); −69% at exhaustion (Davey 2002)
+  };
+  constructor(st,carry=0){this.end=st.end??1;this.legs=carry;this.arm=carry;this.breath=0;this.dist=0;this.work=0;}
+  // metabolic power of running at speed v (m/s) with forward acceleration a (m/s²), in W/kg: the energy cost
+  // per metre on the equivalent slope (Minetti's polynomial, 3.6 J/kg/m on the flat) times the equivalent mass
+  static power(v,a){
+    const es=clamp(a/9.81,-.45,.45),em=Math.sqrt(1+es*es),ec=((((155.4*es-30.4)*es-43.3)*es+46.3)*es+19.5)*es+3.6;
+    return Math.max(0,ec*em*v);
+  }
+  // a step of running in play: speed v, acceleration along the run at and across it an (m/s²)
+  run(v,at,an,dt){
+    const P=Stamina.power(v,at+.5*Math.abs(an)),e=this.end;
+    this.dist+=v*dt;this.work+=P*dt;
+    this.legs+=P*dt/(Stamina.LEGS*e);
+    if(P>Stamina.CP)this.breath=Math.min(1.2,this.breath+(P-Stamina.CP)*dt/(Stamina.WP*e));
+    else this.breath*=Math.exp(-dt*e/Stamina.TAU_B);
+  }
+  // a stroke: a groundstroke or volley is 1, the serve 2.5 (the most demanding stroke on the shoulder)
+  stroke(k=1){this.arm+=k/(Stamina.ARM*this.end);}
+  // rest of so many seconds of real time: between points (25 s), at a changeover (90 s), between sets (120 s).
+  // The breath comes back quicker the fitter the player; the long-term stores only while seated
+  rest(sec,seated=false){
+    this.breath*=Math.exp(-sec*this.end/Stamina.TAU_B);
+    if(seated){const r=sec*Stamina.SEAT*this.end;this.legs=Math.max(0,this.legs-r);this.arm=Math.max(0,this.arm-r);}
+  }
+  k(name){const E=Stamina.EFFECT[name];return(E.legs||0)*this.legs+(E.arm||0)*this.arm+(E.breath||0)*Math.min(1,this.breath);}
+  get speed(){return 1-this.k('speed');}
+  get accel(){return 1-this.k('accel');}
+  get serveV(){return 1-this.k('serveV');}
+  get serveErr(){return 1+this.k('serveErr');}
+  get pace(){return 1-this.k('pace');}
+  get err(){return 1+this.k('err');}
+  // tired feet stop pattering; tired players walk back slower between points
+  get footwork(){return clamp(1-.5*this.legs-.3*this.breath,.3,1);}
+  get walk(){return clamp(1-.2*this.legs,.75,1);}
+  // what is left, for the scoreboard: 1 fresh, 0 spent
+  get energy(){return clamp(1-(.55*this.legs+.3*this.arm+.25*Math.min(1,this.breath)),0,1);}
+  // carried into the next round: most of it is gone after a night's sleep (Girard 2014: all markers back within
+  // 24 h), a little stays after a long one (Gescheit 2015: sprint and jump still down on the following days)
+  get carry(){return clamp(.1*(this.legs+this.arm)/2,0,.15);}
+}
+
 // Agent — anything that walks: players between points, ball kids, the umpire
 // Paths are followed through Locomotion, so people speed up, slow down and turn instead of gliding.
 class Agent{
@@ -890,11 +962,13 @@ class Agent{
 // Player — a player on court: running, braking, facing the net
 // a player on court. s: which end (+1 is the +z half); st: the profile
 class Player extends Agent{
-  constructor(profile,idx){
+  // carry: fatigue brought in from an earlier round
+  constructor(profile,idx,carry=0){
     super(0,0,{h:profile.h});
     this.st=profile;this.loco=Locomotion.forProfile(profile);this.idx=idx;this.short=profile.short;this.s=1;this.vx=0;this.vz=0;this.gx=0;this.gz=0;
     this.swing=null;this.plan=null;this.planAt=0;this.home={x:0,z:0};this.rush=false;this.leaving=false;
     this.cheer=0;this.sulk=0;this.split=0;this.ritual=0;this.ritualT=0;this.lastStep=0;this.ms=Player.freshStats();
+    this.sta=new Stamina(profile,carry);
   }
   static freshStats(){return{aces:0,df:0,win:0,ue:0,sv1:0,sv1in:0,won1:0,sv2:0,won2:0,fast:0,pts:0,bpW:0,bpT:0};}
   get facing(){return this.s>0?PI:0;}
@@ -903,12 +977,16 @@ class Player extends Agent{
   timeTo(d){return this.loco.timeTo(d);}
   // run toward (gx,gz) through the player's locomotion; clay lets the feet slide, which softens braking and cutting
   run(dt,m){
-    const surf=m.surface,L=this.loco,before=hyp(this.vx,this.vz),pvx=this.vx,pvz=this.vz;
+    const surf=m.surface,L=this.loco,before=hyp(this.vx,this.vz),pvx=this.vx,pvz=this.vz,S=this.sta;
+    L.scale(S.speed,S.accel);
     const d=L.step(this,this.gx,this.gz,dt,{slide:surf.slide?.72:1});
     const x0=-CT.FX+.25,x1=CT.FX-.25,z0=this.s>0?.45:-CT.FZ+.25,z1=this.s>0?CT.FZ-.25:-.45;
     if(this.x<x0||this.x>x1){this.x=clamp(this.x,x0,x1);this.vx=0;}
     if(this.z<z0||this.z>z1){this.z=clamp(this.z,z0,z1);this.vz=0;}
     const spd=hyp(this.vx,this.vz);this.spd=spd;this.phase+=spd/2*dt*TAU;
+    // the work of it, while the ball is in play: acceleration along the run and across it
+    if(m.live){const ax=(this.vx-pvx)/dt,az=(this.vz-pvz)/dt,hx=spd>.05?this.vx/spd:0,hz=spd>.05?this.vz/spd:0,at=ax*hx+az*hz;
+      S.run(spd,at,hyp(ax-at*hx,az-at*hz),dt);}else S.rest(dt);
     const sprint=spd>3.6&&d>2.5&&(!this.plan||this.plan.t-m.t>.45);
     // footwork: sprinting, the body turns and runs; moving across at speed the hips open part-way for crossover
     // steps; slower, the player stays square to the net and side-steps
@@ -918,7 +996,7 @@ class Player extends Agent{
     this.yaw=turn(this.yaw,want,L.turnRate*dt);
     // adjustment steps: short quick steps closing on the ball and while waiting for it, a lighter patter between
     // shots; the feet set for the last fifth of a second before contact
-    this.patter=tc>.2?(d<1.3?1:0):tc<0&&m.live&&!this.swing?.45:0;
+    this.patter=(tc>.2?(d<1.3?1:0):tc<0&&m.live&&!this.swing?.45:0)*S.footwork;
     // a hard stop or cut squeaks the shoes on a hard court; on clay the feet slide
     const acc=hyp(this.vx-pvx,this.vz-pvz)/dt;this.squeakT=(this.squeakT||0)-dt;
     if(acc>L.brake*.7&&before>1.4&&this.squeakT<=0){this.squeakT=.35;m.ev(surf.slide?'slide':'squeak',{x:this.x,z:this.z,v:before,a:acc/L.brake});}
@@ -1043,36 +1121,38 @@ class Traits{
 // kick: topspin on the second serve in rpm, when it is not simply what the forehand spin implies
 // trait: the player's signature (see Traits.js) — not shown among the ratings
 // ohb: one-handed backhand
+// end: endurance, 1 tour average — how slowly the legs and arm tire and how quickly the breath comes back. Set by
+//   reputation (Djokovic's and Nadal's six-hour finals, Sampras's thalassaemia and the 1996 US Open), not measured
 // face: what the portrait is assembled from (see ui/Portrait.js)
 // look: kit colours; sleeve: null → sleeveless
 const SKIN={fair:0xf2c8a0,tan:0xe0b088,olive:0xd29a6c,bronze:0xc88a5c},WHITE=0xf4f3ec,INK=0x1c1f2e;
 const ROSTER_DATA=[
- {name:'Novak Djokovic',short:'Djokovic',face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
+ {name:'Novak Djokovic',short:'Djokovic',end:1.2,face:{hair:'short',brow:2,shape:'oval',beard:'none',eye:0x4a5a3a},trait:'returnWall',acc:0.6,cc:'SRB',rank:3,hand:1,h:1.88,v:7.0,a:13.5,power:1.04,spin:2700,err:.74,aggr:.5,net:.22,drop:.4,lob:.4,slice:.35,deep:.4,s1:54,s2:41,sv:.04,bounces:6,
   look:{shirt:0x3166b4,shorts:WHITE,skin:SKIN.tan,hair:0x241a16,band:null,racket:WHITE},style:'Best return in the game, never misses'},
- {name:'Rafael Nadal',short:'Nadal',face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.12,spin:3300,err:.78,aggr:.5,net:.3,drop:.36,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
+ {name:'Rafael Nadal',short:'Nadal',end:1.18,face:{hair:'bandana',brow:2,shape:'oval',beard:'stubble'},trait:'heavyForehand',acc:0.75,cc:'ESP',rank:4,hand:-1,h:1.85,v:7.0,a:14,power:1.12,spin:3300,err:.78,aggr:.5,net:.3,drop:.36,lob:.4,slice:.35,deep:.95,s1:51.5,s2:39.5,sv:.03,bounces:5,
   look:{shirt:0x8a3ea0,sleeve:null,shorts:INK,skin:SKIN.bronze,hair:0x2e1a12,band:WHITE,racket:0xd9a514},style:'Lefty, the heaviest topspin forehand'},
- {name:'Carlos Alcaraz',short:'Alcaraz',face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
+ {name:'Carlos Alcaraz',short:'Alcaraz',end:1.1,face:{hair:'fade',brow:2,shape:'square',beard:'stubble'},trait:'disguise',acc:0.8,cc:'ESP',rank:2,hand:1,h:1.83,v:7.2,a:14.5,power:1.12,spin:3000,err:.86,aggr:.72,net:.45,drop:.8,lob:.35,slice:.35,deep:.5,s1:54,s2:40,sv:.12,bounces:3,
   look:{shirt:0x4f9a3e,sleeve:null,shorts:WHITE,skin:SKIN.olive,hair:0x1a1410,band:null,racket:WHITE},style:'Explosive all-court, drop shots'},
- {name:'Roger Federer',short:'Federer',face:{hair:'wavy',brow:1,shape:'oval',beard:'none'},trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
+ {name:'Roger Federer',short:'Federer',end:1.06,face:{hair:'wavy',brow:1,shape:'oval',beard:'none'},trait:'firstStrike',acc:0.68,cc:'SUI',rank:5,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.06,spin:2700,err:.84,aggr:.72,net:.55,drop:.4,lob:.2,slice:.85,deep:.15,s1:54,s2:41,sv:.3,bounces:3,
   look:{shirt:WHITE,shorts:INK,skin:SKIN.tan,hair:0x4a3020,band:WHITE,racket:INK},style:'Attacks early, slice and net play'},
- {name:'Jannik Sinner',short:'Sinner',face:{hair:'curly',brow:1,shape:'long',beard:'none',freckles:true,eye:0x5a7a8a},trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
+ {name:'Jannik Sinner',short:'Sinner',end:1.1,face:{hair:'curly',brow:1,shape:'long',beard:'none',freckles:true,eye:0x5a7a8a},trait:'cleanStrike',acc:0.7,cc:'ITA',rank:1,hand:1,h:1.91,v:6.9,a:13.5,power:1.14,spin:2850,err:.78,aggr:.68,net:.2,drop:.25,lob:.2,slice:.2,deep:.4,s1:55.5,s2:41,sv:.03,bounces:4,
   look:{shirt:0xf4d44a,shorts:INK,skin:SKIN.fair,hair:0xc8602a,band:null,racket:WHITE},style:'Hardest clean hitting off both wings'},
- {name:'Daniil Medvedev',short:'Medvedev',face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.76,cc:'RUS',rank:11,hand:1,h:1.98,v:6.9,a:13,power:1.0,spin:2000,err:.74,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
+ {name:'Daniil Medvedev',short:'Medvedev',end:1.14,face:{hair:'thin',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'octopus',acc:0.76,cc:'RUS',rank:11,hand:1,h:1.98,v:6.9,a:13,power:1.0,spin:2000,err:.74,aggr:.3,net:.12,drop:.15,lob:.3,slice:.3,deep:1,s1:55.5,s2:39,sv:0,bounces:3,
   look:{shirt:0x2a8088,shorts:WHITE,skin:SKIN.fair,hair:0x9a7a54,band:null,racket:0x3166b4},style:'Flat wall from far behind the baseline'},
- {name:'Alexander Zverev',short:'Zverev',face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:.88,cc:'GER',rank:10,hand:1,h:1.98,v:6.8,a:12.5,power:1.1,spin:2500,err:.82,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
+ {name:'Alexander Zverev',short:'Zverev',end:1.04,face:{hair:'long',brow:1,shape:'long',beard:'stubble',chain:true,eye:0x5a7a8a},trait:'bigServe',acc:.88,cc:'GER',rank:10,hand:1,h:1.98,v:6.8,a:12.5,power:1.1,spin:2500,err:.82,aggr:.55,net:.15,drop:.1,lob:.2,slice:.2,deep:.6,s1:58,s2:41,sv:.05,bounces:5,
   look:{shirt:0xdc4a3c,shorts:INK,skin:SKIN.olive,hair:0xd8b060,band:WHITE,racket:INK},style:'Huge first serve, rock-solid backhand'},
- {name:'Alex de Minaur',short:'de Minaur',face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:13,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
+ {name:'Alex de Minaur',short:'de Minaur',end:1.16,face:{hair:'crop',brow:2,shape:'oval',beard:'moustache'},trait:'counterpunch',acc:0.95,cc:'AUS',rank:13,hand:1,h:1.83,v:7.3,a:14.5,power:.94,spin:2100,err:.82,aggr:.4,net:.25,drop:.2,lob:.5,slice:.4,deep:.5,s1:51.5,s2:38,sv:.03,bounces:3,
   look:{shirt:0x7bb8ea,shorts:0x101a3a,skin:SKIN.olive,hair:0x3a2418,band:null,racket:0xf0664a},style:'Home favourite, fastest man on tour'},
  // ── legends: each at the level of their best years ──
- {name:'Pete Sampras',short:'Sampras',legend:true,face:{hair:'curly',brow:2,shape:'oval',beard:'none'},trait:'serveVolley',acc:0.78,cc:'USA',rank:6,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.08,spin:2300,err:.82,aggr:.7,net:.7,drop:.2,lob:.2,slice:.6,deep:.3,s1:56.5,s2:41.5,kick:3400,sv:.8,bounces:3,
+ {name:'Pete Sampras',short:'Sampras',end:0.86,legend:true,face:{hair:'curly',brow:2,shape:'oval',beard:'none'},trait:'serveVolley',acc:0.78,cc:'USA',rank:6,hand:1,ohb:true,h:1.85,v:6.8,a:13.5,power:1.08,spin:2300,err:.82,aggr:.7,net:.7,drop:.2,lob:.2,slice:.6,deep:.3,s1:56.5,s2:41.5,kick:3400,sv:.8,bounces:3,
   look:{shirt:WHITE,shorts:WHITE,skin:SKIN.olive,hair:0x1c1410,band:null,racket:INK},style:'Serve and volley, the best second serve ever'},
- {name:'Björn Borg',short:'Borg',legend:true,face:{hair:'long',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'iceman',acc:0.78,cc:'SWE',rank:8,hand:1,h:1.80,v:7.2,a:14.5,power:.98,spin:2900,err:.72,aggr:.35,net:.3,drop:.2,lob:.5,slice:.25,deep:.9,s1:51,s2:39.5,sv:.15,bounces:4,
+ {name:'Björn Borg',short:'Borg',end:1.16,legend:true,face:{hair:'long',brow:1,shape:'long',beard:'stubble',eye:0x5a7a8a},trait:'iceman',acc:0.78,cc:'SWE',rank:8,hand:1,h:1.80,v:7.2,a:14.5,power:.98,spin:2900,err:.72,aggr:.35,net:.3,drop:.2,lob:.5,slice:.25,deep:.9,s1:51,s2:39.5,sv:.15,bounces:4,
   look:{shirt:WHITE,shorts:0x24386e,skin:SKIN.tan,hair:0xd8b866,band:0xdc4a3c,racket:0x8a5a2c},style:'Ice-cool baseliner, topspin before its time'},
- {name:'Andre Agassi',short:'Agassi',legend:true,face:{hair:'bald',brow:2,shape:'oval',beard:'stubble'},trait:'earlyBall',acc:0.68,cc:'USA',rank:7,hand:1,h:1.80,v:6.9,a:14,power:1.1,spin:2500,err:.8,aggr:.7,net:.15,drop:.25,lob:.3,slice:.15,deep:.1,s1:52,s2:40,sv:0,bounces:3,
+ {name:'Andre Agassi',short:'Agassi',end:1.06,legend:true,face:{hair:'bald',brow:2,shape:'oval',beard:'stubble'},trait:'earlyBall',acc:0.68,cc:'USA',rank:7,hand:1,h:1.80,v:6.9,a:14,power:1.1,spin:2500,err:.8,aggr:.7,net:.15,drop:.25,lob:.3,slice:.15,deep:.1,s1:52,s2:40,sv:0,bounces:3,
   look:{shirt:0x2b2f44,shorts:WHITE,skin:SKIN.tan,hair:0x5a4636,band:null,racket:0xdc4a3c},style:'Takes the ball early, punishing returns'},
- {name:'Andy Murray',short:'Murray',legend:true,face:{hair:'wavy',brow:2,shape:'long',beard:'stubble'},trait:'lobAndPass',acc:0.74,cc:'GBR',rank:9,hand:1,h:1.91,v:7.1,a:14,power:1.02,spin:2500,err:.76,aggr:.38,net:.3,drop:.45,lob:.75,slice:.55,deep:.6,s1:54,s2:37.5,sv:.03,bounces:4,
+ {name:'Andy Murray',short:'Murray',end:1.16,legend:true,face:{hair:'wavy',brow:2,shape:'long',beard:'stubble'},trait:'lobAndPass',acc:0.74,cc:'GBR',rank:9,hand:1,h:1.91,v:7.1,a:14,power:1.02,spin:2500,err:.76,aggr:.38,net:.3,drop:.45,lob:.75,slice:.55,deep:.6,s1:54,s2:37.5,sv:.03,bounces:4,
   look:{shirt:0x4a5a70,shorts:INK,skin:SKIN.fair,hair:0x4a3222,band:null,racket:INK},style:'Defends everything, lobs and passes at will'},
- {name:'John McEnroe',short:'McEnroe',legend:true,face:{hair:'curly',brow:1,shape:'oval',beard:'none'},trait:'softHands',acc:0.66,cc:'USA',rank:12,hand:-1,h:1.80,v:7.0,a:14,power:.96,spin:1700,err:.82,aggr:.75,net:.85,drop:.6,lob:.3,slice:.7,deep:.2,s1:50,s2:39,kick:3100,sv:.85,bounces:2,
+ {name:'John McEnroe',short:'McEnroe',end:0.92,legend:true,face:{hair:'curly',brow:1,shape:'oval',beard:'none'},trait:'softHands',acc:0.66,cc:'USA',rank:12,hand:-1,h:1.80,v:7.0,a:14,power:.96,spin:1700,err:.82,aggr:.75,net:.85,drop:.6,lob:.3,slice:.7,deep:.2,s1:50,s2:39,kick:3100,sv:.85,bounces:2,
   look:{shirt:0x1f2f6a,shorts:WHITE,skin:SKIN.fair,hair:0x5a3a22,band:0xdc4a3c,racket:0x8a5a2c},style:'Lefty serve-and-volley, the softest hands'},
 ];
 // How each one swings — as seen in their matches; drawn by render/FigureRig.js:
@@ -1328,7 +1408,7 @@ class Match{
     this.t=0;this.events=[];this.tasks=[];
     this.physics=new BallPhysics(SURFACES[this.cfg.surface]);this.solver=new ShotSolver(this.physics);this.tr=new Trajectory();
     this.control=new HumanControl(this.cfg.human);this.planner=new ShotPlanner(this);this.tactics=this.cfg.tactics||new Tactics();
-    this.players=[new Player(this.cfg.a,0),new Player(this.cfg.b,1)];
+    const carry=this.cfg.carry||[0,0];this.players=[new Player(this.cfg.a,0,carry[0]),new Player(this.cfg.b,1,carry[1])];
     this.ump=new Umpire();this.kids=KID_POS.map(([x,z],i)=>new BallKid(x,z,i));this.movers=[...this.players,...this.kids,this.ump];
     this.ball=null;this.loose=[];this.live=false;this.hitter=null;this.recv=null;this.isServe=false;this.serveNo=1;this.serveX=1;
     this.rallyLen=0;this.lastTac='';this.kmh=0;this.serveLabel='';this.bubble=null;this.cue=null;this.status='';this.stage='walkon';
@@ -1374,7 +1454,7 @@ class Match{
     else if(inside(a)&&!inside(to)){net(a,gi);p.push(gi,go);}
     p.push(to);return p;
   }
-  go(a,x,z,v=2.4){a.mode='walk';a.path=this.route(a,x,z);a.vmax=v;a.pose='stand';}
+  go(a,x,z,v=2.4){a.mode='walk';a.path=this.route(a,x,z);a.vmax=v*(a.sta?a.sta.walk:1);a.pose='stand';}
   *goW(a,x,z,v){this.go(a,x,z,v);while(a.path.length)yield;}
 
   // ──────── the person at the screen ────────
@@ -1465,6 +1545,8 @@ class Match{
     if(ev.call)this.say(ev.call,'ump',3.2);
     yield* this.wait(1.6);
     if(sc.over)return;
+    // the time the rules allow between points, at a changeover and between sets, in real seconds
+    const rest=ev.setOver?120:ev.changeEnds&&ev.sit?90:25;for(const P of this.players)P.sta.rest(rest,rest>25);
     if(ev.changeEnds&&ev.sit){yield* this.sit(true);this.mood.changeover(ev.setOver);if(R()<.45||ev.setOver)this.wave=this.t;yield* this.wait(ev.setOver?7:5);this.say('Time.','ump',1.6);yield* this.stand();}
     else if(ev.changeEnds)yield* this.swapEnds();
     else if(ev.setOver){yield* this.sit(false);this.mood.changeover(true);this.wave=this.t;yield* this.wait(6);this.say('Time.','ump',1.6);yield* this.stand();}
@@ -1561,11 +1643,11 @@ class Match{
     const tgt=this.serveTarget(Sv,no),type=this.serveType(Sv,no),S=SERVES[type];
     const TS=Traits.of(Sv),pressure=!!this.big&&this.big.w!==Sv.idx;
     // side spin is counter-clockwise from above when positive: a right-hander's slice, curving to the server's left
-    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1);
+    const rpm=S.rpm(st),side=S.side*st.hand,gyro=(S.gyro||0)*st.hand,v0=S.v(st)*(tgt.mod||1)*(TS.serveSpeed?TS.serveSpeed(no):1)*Sv.sta.serveV;
     const sol=this.solver.solve(b,tgt,{v:v0,rpm,side,gyro,clear:S.clear,maxEl:.5});
     // acc: how tightly this player places the ball. On serve it narrows the direction only, so first-serve
     // percentages stay human; off the ground it narrows direction and depth
-    const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1),ac=st.acc??1;
+    const es=(TS.serveErr?TS.serveErr(no,pressure):1)*Match.SERVE_ERR*S.err*st.err*(1+st.aggr*.2)*(C.is(Sv)&&C.target?.95:1)*Sv.sta.serveErr,ac=st.acc??1;Sv.sta.stroke(2.5);
     const v=sol.v*(1+N(.016*es)),el=sol.el+N(.0145*es)-.0045*es,az=sol.az+N(.018*es*ac);
     b.launch(v,el,az,rpm,side,gyro);this.lastCall=null;this.netCalled=false;
     if(C.is(Sv))C.clear();
@@ -1718,7 +1800,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*P.sta.err;
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -1741,9 +1823,9 @@ class Match{
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
     const T=Traits.of(P),cx=this.shotContext(P,p,S),rpm=S.rpm*(T.spin?T.spin(cx):1);
-    const v0=Math.min((srv?S.v*(this.serveNo===2?Match.RETURN.pace2:Match.RETURN.pace):S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
+    const v0=P.sta.pace*Math.min((srv?S.v*(this.serveNo===2?Match.RETURN.pace2:Match.RETURN.pace):S.v)*(1-.24*p.stretch*(T.stretchK??1))*(T.speed?T.speed(cx):1)*(tq?tq.v:1),RacketImpact.maxSpeed(st,S.tac==='putaway'?'putaway':P.swing?P.swing.type:p.wing,b.speed,rpm,p.stretch,cx.spinIn));
     const side=S.side||0,sol=this.solver.solve(b,tgt,{v:v0,rpm,side,clear:S.clear,maxEl:S.maxEl});
-    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);
+    const e=this.shotError(P,p,S,sol.v,aimed)*(tq?tq.err:1);P.sta.stroke(1);
     const ac=st.acc??1;
     const v=sol.v*(1+N(.02*e*lerp(1,ac,.6))),el=sol.el+N(.021*e*ac)-.0085*e*ac,az=sol.az+N(.0165*e*ac);
     b.vx=b.vy=b.vz=0;
@@ -1864,6 +1946,8 @@ class Tournament{
     // a slot: its two players, the winner, the score as a line and per set (from a's side), and while it is being
     // played in the background, the match itself (live)
     const slot=(a=null,b=null)=>({a,b,w:null,line:'',sets:null,live:null});this.version=0;
+    // what each player carries into their next match from the last one (see Stamina.carry)
+    this.tired={};
     this.rounds=[[0,1,2,3].map(i=>slot(draw[i*2].id,draw[i*2+1].id)),[slot(),slot()],[slot()]];
   }
   seed(id){return this.seeds.indexOf(id)+1;}
@@ -1874,12 +1958,13 @@ class Tournament{
   get mine(){if(this.out||this.over)return null;return this.rounds[this.round].find(m=>m.a===this.me||m.b===this.me)||null;}
   get opponent(){const m=this.mine;return m?this.player(m.a===this.me?m.b:m.a):null;}
   // the match configuration for the person's next match
-  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2};}
+  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2,carry:[this.tired[me.id]||0,this.tired[opp.id]||0]};}
   // the person's match is over. match: the finished Match, whose first player is the person
   record(won,match){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);this.score(m,match,m.a===this.me?0:1);if(!won)this.out=true;}
   // the score of a finished match into its slot, set by set from the slot's first player's side (ia: that player's
   // index in the match)
   score(m,match,ia=0){const sc=match.score,r=match.result;m.live=null;m.line=r?r.line:'';
+    for(const P of match.players)this.tired[P.st.id]=P.sta.carry;
     m.sets=sc?sc.done.map(d=>({a:d.g[ia],b:d.g[1-ia],tb:d.tb,pa:d.pts?d.pts[ia]:null,pb:d.pts?d.pts[1-ia]:null})):null;this.version++;}
   // the other matches, played in the format of the event a slice at a time (a generator, stepped by the game while it
   // runs): the rest of this round, and — once the person is out — the rest of the draw, round by round
@@ -1887,7 +1972,7 @@ class Tournament{
     for(;;){
       for(const m of this.rounds[this.round]){
         if(m.w!=null||m.a==null||m.b==null||m.a===this.me||m.b===this.me)continue;
-        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format});m.live=sim;this.version++;let n=0;
+        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format,carry:[this.tired[m.a]||0,this.tired[m.b]||0]});m.live=sim;this.version++;let n=0;
         while(!(sim.stage==='over'&&sim.result)&&n<120*60*240){sim.tick();n++;sim.events.length=0;if(n%40===0)yield m;}
         m.w=sim.result?sim.result.winner.st.id:m.a;this.score(m,sim);yield m;
       }
@@ -3483,20 +3568,23 @@ class Scoreboard{
     const sc=m.score;
     if(!sc){const k='pre'+m.players.map(p=>p.short);if(k!==this.key){this.key=k;$('sbT').innerHTML=this.rows(m,null);$('sbMode').textContent='Walk-on';$('sbBadge').hidden=true;$('sbSpeed').textContent='';}return;}
     const big=m.stage==='play'&&m.big&&!sc.over?m.big:null;
-    const key=[sc.pts,sc.games,sc.sets,sc.server,sc.over,sc.mode,m.kmh,m.serveLabel,big&&big.label,m.control.idx,m.stage].join();
+    const key=[sc.pts,sc.games,sc.sets,sc.server,sc.over,sc.mode,m.kmh,m.serveLabel,big&&big.label,m.control.idx,m.stage,...m.players.map(P=>Math.round(P.sta.energy*50))].join();
     if(key===this.key)return;this.key=key;
     $('sbT').innerHTML=this.rows(m,sc,big);
     $('sbMode').textContent=sc.over?'Final':sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
     const b=$('sbBadge');b.hidden=!big;if(big){b.textContent=big.label.toUpperCase();b.className='badge'+(big.kind==='set'?' set':big.kind==='match'?' match':'');}
     $('sbSpeed').innerHTML=m.kmh?`<b>${m.kmh}</b> km/h · ${m.serveKind} ${m.serveLabel}`:'';
   }
+  // energy left: green, then amber, then red as the match wears on
+  static gauge(P){const e=P.sta.energy,c=e>.6?'var(--lime)':e>.35?'var(--ball)':'var(--coral)';
+    return`<span class="en" title="Energy ${Math.round(e*100)}%"><u style="width:${(e*100).toFixed(0)}%;background:${c}"></u></span>`;}
   rows(m,sc,big){
     return m.players.map((P,i)=>{
       const st=P.st,you=m.control.is(P),sv=sc&&sc.server===i&&!sc.over;
       const sets=sc?sc.done.map(d=>{const won=d.g[i]>d.g[1-i];return`<td class="set ${won?'won':''}">${d.g[i]}${d.tb!=null&&!won?`<sup>${d.tb}</sup>`:''}</td>`;}).join(''):'';
       const cur=sc&&!sc.over?`<td class="cur">${sc.games[i]}</td>`:'';
       const pt=!sc?'':sc.over?(sc.winner===i?'✓':''):sc.label(i),hot=big&&big.w===i?'hot':'';
-      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm">${Portrait.img(st)}<b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
+      return`<tr><td class="sv">${sv?'<i></i>':''}</td><td class="nm">${Portrait.img(st)}<b style="background:${hexs(st.look.shirt)}"></b><span class="seed">${st.rank}</span>${st.short}<span class="cc">${st.cc}</span>${you?'<span class="you">YOU</span>':''}${Scoreboard.gauge(P)}</td>${sets}${cur}<td class="pt"><span class="${hot}">${pt}</span></td></tr>`;
     }).join('');
   }
 }
@@ -3505,10 +3593,10 @@ class Scoreboard{
 class StatsPanel{
   constructor(){this.html='';}
   update(m){
-    const[a,b]=m.players,x=a.ms,y=b.ms,pc=(n,d)=>d?Math.round(n/d*100)+'%':'–';
+    const[a,b]=m.players,x=a.ms,y=b.ms,pc=(n,d)=>d?Math.round(n/d*100)+'%':'–',km=P=>P.sta.dist>=1000?(P.sta.dist/1000).toFixed(2)+' km':Math.round(P.sta.dist)+' m',en=P=>Math.round(P.sta.energy*100)+'%';
     const rows=[[x.aces,'Aces',y.aces],[x.df,'Double faults',y.df],[pc(x.sv1in,x.sv1),'1st serve in',pc(y.sv1in,y.sv1)],[pc(x.won1,x.sv1in),'1st serve pts won',pc(y.won1,y.sv1in)],
       [pc(x.won2,x.sv2),'2nd serve pts won',pc(y.won2,y.sv2)],[x.win,'Winners',y.win],[x.ue,'Errors',y.ue],[`${x.bpW}/${x.bpT}`,'Break points won',`${y.bpW}/${y.bpT}`],
-      [x.fast?x.fast:'–','Fastest serve',y.fast?y.fast:'–'],[x.pts,'Points won',y.pts]];
+      [x.fast?x.fast:'–','Fastest serve',y.fast?y.fast:'–'],[x.pts,'Points won',y.pts],[km(a),'Distance run',km(b)],[en(a),'Energy left',en(b)]];
     const html=`<table><tr><th>${a.short}</th><th></th><th>${b.short}</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table>`;
     if(html!==this.html){this.html=html;$('statsP').innerHTML=html;}
     return rows;
@@ -3846,7 +3934,7 @@ class SetupScreen{
       <div class="h-id"><small>${mine?'YOU':'OPPONENT'}</small><h2>${p.name.toUpperCase()}</h2>
         <div class="h-meta"><b>${p.cc}</b> · ${p.hand<0?'Left':'Right'}-handed · ${p.ohb?'one':'two'}-handed backhand</div>
         <p class="h-style">${p.style}</p><div class="h-ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
-      <div class="h-bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}</div>`;
+      <div class="h-bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}${bar('Stamina',r.stamina)}</div>`;
     $('sGrid').innerHTML=ROSTER.map(q=>{const dis=!mine&&q.id===this.a;
       return`<button class="s-card${q.legend?' lg':''}${q.id===this.sel?' on':''}" data-i="${q.id}" aria-pressed="${q.id===this.sel}" ${dis?'disabled':''} title="${q.name}">${Portrait.img(q,'face')}<span class="c-name">${q.short}</span><span class="c-rk">${q.legend?'LEGEND':'#'+q.rank}</span>${dis?'<span class="c-you">YOU</span>':''}</button>`;}).join('');
     $('sGrid').querySelectorAll('.s-card').forEach(b=>b.onclick=()=>this.pick(+b.dataset.i));
@@ -4176,7 +4264,7 @@ class Game{
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
     const s={title:!sc?'PIXEL TENNIS OPEN':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
-      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.result.winner.short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
+      foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.players[sc.winner].short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
     for(const scr of this.stadium.screens)scr.draw(s);
