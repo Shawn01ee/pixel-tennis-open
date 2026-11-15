@@ -58,6 +58,9 @@ A trained player currently wins about **57.9% of points** against an untrained c
 only the decisions differ. The model, the measurements, a player-by-player chart and each player's learned playbook
 are in **[training/](training/README.md)**, redrawn every day when the players train.
 
+Each player also has one signature trait on top of the ratings (`src/players/Traits.js`); `node tools/traits.js`
+measures what each is worth.
+
 ## Layout
 
 One class per file, grouped by what it is about. `src/manifest.json` sets the build order.
