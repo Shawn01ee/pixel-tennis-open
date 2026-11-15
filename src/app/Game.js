@@ -43,7 +43,7 @@ class Game{
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
-    $('line').textContent='';$('elc').hidden=true;
+    $('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
   shot(k){const m=this.match;if(m.human){m.setShot(k);this.dock.update(m);}}
@@ -97,8 +97,10 @@ class Game{
   watchPerf(now){const p=this.perf;if(navigator.webdriver)return;p.a+=now-(p.p||now);p.p=now;if(++p.n===150){if(p.a/p.n>38&&this.R.perfStep<2){this.R.perfStep++;this.resize();}p.a=0;p.n=0;}}
   resize(){this.R.resize();this.cam.update(0,this.focus(),true);}
   drain(){
-    const m=this.match,S=this.sound;
+    // the match that plays behind the menus is scenery: no calls, tags or umpire, on screen or in the speakers
+    const m=this.match,S=this.sound,demo=!m.human;
     for(const e of m.events){
+      if(demo&&(e.type==='say'||e.type==='call'||e.type==='tag'||e.type==='replay'||e.type==='note'))continue;
       // sounds sit left or right where they happen on screen
       if(S.live){let pan=0;if(e.x!==undefined){const[sx]=this.R.project(e.x,e.y||0,e.z);pan=clamp(sx/innerWidth*2-1,-1,1)*.8;}S.event(e,pan);}
       switch(e.type){

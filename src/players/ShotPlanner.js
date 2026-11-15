@@ -61,16 +61,21 @@ class ShotPlanner{
     const mg=lerp(1.05,.52,st.aggr),P0=st.power,SW=CT.SW;
     const T=(x,d)=>({x:clamp(x,-SW+.25,SW-.25),d:clamp(d,1.2,CT.L-.35)});
     const pick=(sit,l)=>m.tactics.pick(P,sit,l),w=this.want(P);
+    // reading the court: where the opponent is against this ball's cross-court line ('c' covering it, 'm' in the
+    // middle, 'l' caught on the line side), whether he is on the move, and how hurried this swing is
+    const oppLat=O.x*-side,where=oppLat>1.2?'c':oppLat<-.6?'l':'m',moving=Math.abs(O.vx)>1.2,press=c.stretch>.25?'p':'e';
+    const plus1=!m.isServe&&m.rallyLen===2;       // the server's first ball after the serve
     let tac;
     if(w&&(c.kind==='ground'||(c.kind==='volley'&&(w==='lob'||w==='drop'))))tac=w;
     else if(c.kind==='smash')tac='smash';
     // at the net: a ball above the tape is put away into the open court; a low one is played deep to stay on top
     else if(c.kind==='volley')tac=c.y>=.95&&c.stretch<.6&&dep<6.4?'putaway':oppDeep&&R()<.3+st.drop*.4?'dropvolley':'volley';
     else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
-    else if(oppNet)tac=pick('pass',[['passline',2],['passcross',2],['lob',.5+st.lob*1.6]]);
-    else if(dep<9.2&&c.y>.62)tac=pick('short',[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1]]);
-    else if(m.isServe)tac=pick('return'+m.serveNo,[['safe',2.2],['cross',1.4],['line',.5],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*.12]]);
-    else tac=pick(c.wing==='fh'?'rallyfh':'rallybh',[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02]]);
+    else if(m.isServe)tac=pick('return'+m.serveNo+(O.rush?'v':''),[['safe',2.2],['cross',1.4],['line',.5],['deep',1],['dip',O.rush?1.6:0],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*(O.rush?.5:.12)]]);
+    else if(oppNet)tac=pick('pass'+c.wing,[['passline',2],['passcross',2],['dip',1.2],['lob',.5+st.lob*1.6]]);
+    else if(dep<9.2&&c.y>.62)tac=pick('short:'+where,[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1],['open',1.2]]);
+    else tac=pick((plus1?'plus1':'rally')+c.wing+(plus1?'':':'+where+press),[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02],
+      ['open',where==='m'?.4:1.4],['behind',moving?1:.12],['deep',press==='p'?1.4:.6]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
     // side spin from the way the stroke is swung: topspin strokes curl toward the hitter's off side, cut strokes away
     const curl=k=>c.hs*k;let sidespin=curl(200+st.spin*.08);
@@ -78,6 +83,12 @@ class ShotPlanner{
       case'safe':     t=T(-side*1.6,CT.L-1.9);v=26*P0;rpm=st.spin*.9;clear=.75;risk=.9;break;
       case'cross':    t=T(-side*(SW-mg),CT.L-mg-.35);v=33*P0;break;
       case'line':     t=T(side*(SW-mg-.1),CT.L-mg-.35);v=33*P0;risk=1.2;break;
+      // to the open court, hard; behind a player who is running back to cover it; heavy and deep down the middle;
+      // low at the feet of a player coming in
+      case'open':     t=T(openX*(SW-mg-.15),CT.L-mg-.45);v=35*P0;rpm=st.spin*.9;clear=.14;risk=1.12;break;
+      case'behind':   t=T((moving?-sgn(O.vx):sgn(O.x||1))*(SW-mg-.4),CT.L-mg-.7);v=33*P0;risk=1.1;break;
+      case'deep':     t=T(O.x*.3,CT.L-1.35);v=30*P0;rpm=st.spin*1.1;clear=.5;risk=.8;break;
+      case'dip':      t=T(clamp(O.x*.7,-2.6,2.6),4.8+R()*.8);v=25*P0;rpm=st.spin*1.3;clear=.07;risk=1.0;break;
       case'angle':    t=T(-side*(SW-.6),5.9+R()*1.2);v=25*P0;rpm=st.spin*1.25;risk=1.2;sidespin=curl(650);break;
       case'slice':    t=T(-side*(SW-mg-.3),CT.L-mg-.7);v=24*P0;rpm=-2300;clear=.32;sw='slice';sidespin=-curl(800);break;
       case'drop':     t=T(openX*(1.2+R()*1.6),1.9+R()*1.3);v=11.5;rpm=-2800;clear=.2;sw='slice';risk=1.25;sidespin=-curl(500);break;

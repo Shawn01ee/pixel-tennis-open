@@ -1,5 +1,6 @@
 # The computer players keep learning: every day they play each other, and what they learned is committed
-# back with a fresh build, so the published game always starts from the latest values.
+# back with a fresh build, so the published game always starts from the latest values. Each run also measures what
+# the learning is worth and redraws training/README.md.
 name: Train players
 on:
   schedule:
@@ -7,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       rounds:
-        description: Rounds of self-play (56 sets each)
+        description: Rounds of self-play (every player meets every other twice a round)
         default: '4'
 permissions:
   contents: write
@@ -15,7 +16,7 @@ concurrency: train
 jobs:
   train:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,6 +34,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/players/learned.js dist/pixel-tennis-open.html
+          git add src/players/learned.js dist/pixel-tennis-open.html training
           git diff --cached --quiet || git commit -m "Players trained: $(date -u +%F)"
           git push

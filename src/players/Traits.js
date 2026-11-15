@@ -17,7 +17,7 @@ const TRAITS={
   firstStrike:  {name:'First strike',    text:'The first ball after his own serve is struck early, hard and clean.',
     error:c=>c.server&&c.n===2?.45:1,speed:c=>c.server&&c.n===2?1.1:1},
   cleanStrike:  {name:'Clean striker',   text:'Hits flat out without the errors that swinging that hard costs everyone else.',
-    overhitK:0,error:c=>['drive','flat','cross','line'].includes(c.tac)?.88:1,speed:c=>['drive','flat','cross','line'].includes(c.tac)?1.06:1},
+    overhitK:0,error:c=>['drive','flat','cross','line','open','behind'].includes(c.tac)?.88:1,speed:c=>['drive','flat','cross','line','open','behind'].includes(c.tac)?1.06:1},
   octopus:      {name:'Octopus',         text:'At full stretch, far behind the baseline, the ball still comes back deep.',
     stretchK:.1,error:c=>c.stretch>.3?.7:.9},
   bigServe:     {name:'Serve cannon',    text:'A first serve that rarely misses its spot — and a second that wobbles on the big points.',
@@ -33,7 +33,7 @@ Object.assign(TRAITS,{
   earlyBall:    {name:'Takes it early',   text:'Stands on the baseline and hits on the rise: the return comes back hard and nobody gets time.',
     react:-.04,error:c=>c.ret?.75:.96,speed:c=>c.ret?1.06:1.02,disguise:()=>.03},
   lobAndPass:   {name:'Lob and pass',     text:'Come to the net at your peril: the lob and the passing shot hardly ever miss.',
-    stretchK:.3,error:c=>['lob','passline','passcross'].includes(c.tac)?.45:c.stretch>.3?.75:.95},
+    stretchK:.3,error:c=>['lob','passline','passcross','dip'].includes(c.tac)?.45:c.stretch>.3?.75:.95},
   softHands:    {name:'Soft hands',       text:'Volleys, drop shots and angles land on a coin, and are read late.',
     error:c=>['volley','putaway','dropvolley','drop','angle','slice'].includes(c.tac)?.4:1,disguise:c=>c.tac==='dropvolley'||c.tac==='drop'?.35:0},
 });

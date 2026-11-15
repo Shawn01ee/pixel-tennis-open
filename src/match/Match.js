@@ -3,7 +3,7 @@ class Match{
   // the returner: split-step reaction after the serve is struck, and how wide of centre they stand
   // returning serve: reaction time, where the returner stands, how much harder a return is to control than a
   // rally ball (first serve; a second serve counts half) and how much of a full swing it gets
-  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.5,pace:.6,pace2:.47};
+  static RETURN={react:.14,jitter:.05,x:2.9,deep:.1,err:5.1,pace:.6,pace2:.47};
   // how wild serves are overall; set so first serves land about 63% of the time (tools/balance.js)
   static SERVE_ERR=1.4;
   // when the person presses the shot key, measured in seconds before contact: committing as the ball arrives is
@@ -278,8 +278,10 @@ class Match{
   }
   serveType(Sv,no){
     const C=this.control;if(C.is(Sv)&&C.serveType)return C.serveType;
-    if(no===2)return'kick';
-    return!C.is(Sv)&&R()<.18+Sv.st.slice*.15?'slice':'flat';
+    // which serve to hit is learned too: mostly flat first and kick second, with the slice as the change-up
+    const court=this.serveX*Sv.s>0?'r':'l';
+    if(no===2)return this.tactics.pick(Sv,'stype2'+court,[['kick',3],['slice',.5]]);
+    return this.tactics.pick(Sv,'stype1'+court,[['flat',1],['slice',.22+Sv.st.slice*.18],['kick',.08]]);
   }
   *rally(){
     const b=this.ball;

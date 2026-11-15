@@ -47,12 +47,16 @@ Python 3 and Node are the only requirements; there are no packages to install.
 
 ## Computer players learn
 
-Every choice a computer player makes (cross-court or down the line, slice or lob, where to serve) is credited when
+Every computer player keeps a table of what has worked for it — which serve to which corner, cross-court or down the
+line, when to come in, how to pass a player at the net — and fills it in by playing. Each choice is credited when
 the point is won and blamed when it is lost. The game ships with what the players learned in self-play and keeps
 learning in your browser as you play; the values are stored in `localStorage`.
 
-Each player also has one signature trait on top of the ratings (`src/players/Traits.js`); `node tools/traits.js`
-measures what each is worth.
+<picture><source media="(prefers-color-scheme: dark)" srcset="training/learning-dark.svg"><img src="training/learning-light.svg" alt="Learning curve: share of points trained players win against untrained twins, by rounds of self-play"></picture>
+
+A trained player currently wins about **57.9% of points** against an untrained copy of itself — same strokes,
+only the decisions differ. The model, the measurements, a player-by-player chart and each player's learned playbook
+are in **[training/](training/README.md)**, redrawn every day when the players train.
 
 ## Layout
 

@@ -8,8 +8,8 @@
 class Tactics{
   static ALPHA=.05;   // how fast a value moves toward the latest result
   static GAMMA=.6;    // how much less each earlier choice in the point is credited
-  static BETA=1.8;    // how strongly a learned value bends the choice
-  static KEY='pto.tactics.v1';
+  static BETA=2.6;    // how strongly a learned value bends the choice (training explores with a lower one)
+  static KEY='pto.tactics.v2';
   constructor(q=null){this.q=q||Tactics.load();this.trail=[[],[]];}
   static load(){
     const q=typeof LEARNED!=='undefined'?JSON.parse(JSON.stringify(LEARNED)):{};
