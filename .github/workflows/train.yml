@@ -24,6 +24,10 @@ jobs:
           node-version: 20
       - name: Self-play
         run: node tools/train.js ${{ github.event.inputs.rounds || '4' }}
+      - name: Analysis
+        run: |
+          node tools/analysis/collect.js 2
+          node tools/analysis/analyze.js
       - name: Tests
         run: |
           node tests/match-simulation.test.js | tail -1

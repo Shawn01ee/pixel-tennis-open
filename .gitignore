@@ -1,2 +1,4 @@
 .DS_Store
 node_modules/
+training/analysis/data.json
+__pycache__/

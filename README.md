@@ -58,6 +58,9 @@ A trained player currently wins about **57.9% of points** against an untrained c
 only the decisions differ. The model, the measurements, a player-by-player chart and each player's learned playbook
 are in **[training/](training/README.md)**, redrawn every day when the players train.
 
+The shots they play while training are analysed — correlation, mutual information, PCA and K-means of the playing
+styles, decision trees and KNN, cross-validation of the learning itself — in **[training/analysis](training/analysis/README.md)**.
+
 What the players learn from *your* matches stays in your browser. To share it, open **View → Learning → Export** in
 the game: it saves `pixel-tennis-open-learning.json`, the difference between what the players know after your matches
 and what they shipped with. `node tools/merge.js that-file.json` folds it into the shipped values (at half weight by

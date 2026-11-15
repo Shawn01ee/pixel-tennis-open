@@ -115,7 +115,13 @@ the average of the other choices in the same situation.
 `;
 for(const n of names){const b=playbook(n);if(!b.likes.length)continue;
   md+=`<details><summary><b>${n}</b> — ${last.players[n]}% of points against the untrained twin</summary>\n\n| Situation | Prefers | Value |\n|---|---|---|\n${b.likes.join('\n')}\n\n| Situation | Avoids | Value |\n|---|---|---|\n${b.avoids.join('\n')}\n\n</details>\n\n`;}
-md+=`## Reproduce it
+md+=`## What the data says
+
+The shots the players play while training are analysed in **[analysis/](analysis/README.md)**: correlation, entropy and
+mutual information, PCA and K-means of the playing styles, decision trees and KNN, and cross-validation — including
+of the learning itself.
+
+## Reproduce it
 
 \`\`\`
 node tools/train.js 4          # four more rounds, then one measurement appended to history.json

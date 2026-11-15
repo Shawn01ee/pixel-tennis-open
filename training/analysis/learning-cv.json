@@ -1,0 +1,144 @@
+{
+ "date": "2026-11-15",
+ "folds": 4,
+ "rounds": 3,
+ "sets": 2,
+ "results": [
+  {
+   "fold": 1,
+   "test": [
+    "Sinner",
+    "McEnroe",
+    "Alcaraz",
+    "Federer"
+   ],
+   "train": [
+    "de Minaur",
+    "Sampras",
+    "Agassi",
+    "Medvedev",
+    "Zverev",
+    "Murray",
+    "Nadal",
+    "Djokovic",
+    "Borg"
+   ],
+   "inSample": {
+    "advantage": 5.29,
+    "tw": 1120,
+    "tt": 1938,
+    "uw": 1156,
+    "ut": 2202
+   },
+   "heldOut": {
+    "advantage": 6.28,
+    "tw": 1537,
+    "tt": 2831,
+    "uw": 1475,
+    "ut": 3072
+   }
+  },
+  {
+   "fold": 2,
+   "test": [
+    "de Minaur",
+    "Medvedev",
+    "Nadal"
+   ],
+   "train": [
+    "Sinner",
+    "Sampras",
+    "Agassi",
+    "McEnroe",
+    "Zverev",
+    "Murray",
+    "Alcaraz",
+    "Djokovic",
+    "Borg",
+    "Federer"
+   ],
+   "inSample": {
+    "advantage": 3.25,
+    "tw": 1400,
+    "tt": 2579,
+    "uw": 1433,
+    "ut": 2808
+   },
+   "heldOut": {
+    "advantage": 6.29,
+    "tw": 1297,
+    "tt": 2244,
+    "uw": 1233,
+    "ut": 2394
+   }
+  },
+  {
+   "fold": 3,
+   "test": [
+    "Sampras",
+    "Zverev",
+    "Djokovic"
+   ],
+   "train": [
+    "Sinner",
+    "de Minaur",
+    "Agassi",
+    "McEnroe",
+    "Medvedev",
+    "Murray",
+    "Alcaraz",
+    "Nadal",
+    "Borg",
+    "Federer"
+   ],
+   "inSample": {
+    "advantage": 3,
+    "tw": 1264,
+    "tt": 2325,
+    "uw": 1339,
+    "ut": 2607
+   },
+   "heldOut": {
+    "advantage": 7.27,
+    "tw": 1315,
+    "tt": 2316,
+    "uw": 1307,
+    "ut": 2640
+   }
+  },
+  {
+   "fold": 4,
+   "test": [
+    "Agassi",
+    "Murray",
+    "Borg"
+   ],
+   "train": [
+    "Sinner",
+    "de Minaur",
+    "Sampras",
+    "McEnroe",
+    "Medvedev",
+    "Zverev",
+    "Alcaraz",
+    "Nadal",
+    "Djokovic",
+    "Federer"
+   ],
+   "inSample": {
+    "advantage": 5.83,
+    "tw": 1334,
+    "tt": 2394,
+    "uw": 1337,
+    "ut": 2680
+   },
+   "heldOut": {
+    "advantage": 3.36,
+    "tw": 1311,
+    "tt": 2440,
+    "uw": 1298,
+    "ut": 2577
+   }
+  }
+ ]
+}

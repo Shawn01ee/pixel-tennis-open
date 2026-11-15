@@ -277,6 +277,12 @@ the average of the other choices in the same situation.
 
 </details>
 
+## What the data says
+
+The shots the players play while training are analysed in **[analysis/](analysis/README.md)**: correlation, entropy and
+mutual information, PCA and K-means of the playing styles, decision trees and KNN, and cross-validation — including
+of the learning itself.
+
 ## Reproduce it
 
 ```
