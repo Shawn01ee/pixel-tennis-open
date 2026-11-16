@@ -214,7 +214,7 @@ class Match{
     yield* this.kidsSettled();
     const sc=this.score,Sv=sc.srv,Rc=sc.rcv,b=this.ball,st=Sv.st,C=this.control;
     const F=-Sv.s;
-    this.cue={who:Sv.idx,no,tag:true,side:sgn(-this.serveX),court:this.serveX*Sv.s>0?'deuce':'ad',box:this.serveBox(Sv)};
+    this.cue={who:Sv.idx,no,tag:true,t0:this.t,side:sgn(-this.serveX),court:this.serveX*Sv.s>0?'deuce':'ad',box:this.serveBox(Sv)};
     this.how=null;this.mood.serveReady();
     Sv.pose='ritual';this.note(`${Sv.short} to serve${no===2?', second serve':''}.`);
     const n=Math.max(1,Math.round(st.bounces+N(.8)));
@@ -449,7 +449,8 @@ class Match{
     O.planAt=this.t+(O.rush&&Math.abs(O.z)<7?.08+R()*.04:.15+R()*.06)+(T.disguise?T.disguise(cx):0);
     this.tr.compute(b,this.t,this.physics,false);
     // recover: bisect the angle, or follow the approach in
-    if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||tac==='smash')P.rush=true;
+    // an overhead keeps a player at the net only if he hit it from near the net; from the back he recovers
+    if(tac==='approach'||tac==='volley'||tac==='putaway'||tac==='dropvolley'||(tac==='smash'&&Math.abs(P.z)<8))P.rush=true;
     if(tac==='lob'||tac==='safe'||(tac==='slice'&&p.stretch>.5))P.rush=false;
     const tx=this.tr.hasB?this.tr.fbx:0,sk=this.surface.key;
     P.home=P.rush?{x:tx*.26,z:P.s*3.4}:{x:tx*.27,z:P.s*(12.2+st.deep*.9+(sk==='clay'?.5:sk==='grass'?-.2:0))};

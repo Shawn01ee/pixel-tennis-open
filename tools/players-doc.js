@@ -4,20 +4,62 @@
 const fs=require('fs'),path=require('path'),ROOT=path.join(__dirname,'..');
 const T=JSON.parse(fs.readFileSync(path.join(ROOT,'data','mcp-players.json'),'utf8'));
 const F=JSON.parse(fs.readFileSync(path.join(ROOT,'data','fit-report.json'),'utf8'));
+const RC=JSON.parse(fs.readFileSync(path.join(ROOT,'data','rally-check.json'),'utf8')),RB=fs.existsSync(path.join(ROOT,'data','rally-before.json'))?JSON.parse(fs.readFileSync(path.join(ROOT,'data','rally-before.json'),'utf8')):null;
 const P=Object.keys(F.players),pc=x=>(x*100).toFixed(1),AS=r=>r.winners+r.errors;
 const row=a=>`| ${a.join(' | ')} |`,sep=n=>row(Array(n).fill('---'));
 const cell=(g,r)=>{const d=Math.abs(g-r),tol=Math.max(1.5,r*.15);return d<=tol?`${g} / ${r}`:`**${g}** / ${r}`;};
+// the rally figures: off when more than 15% from the real figure, or outside it when the real figure is a range
+const ROWS=[['Rally balls cross-court','cross','%','Match Charting Project, hard courts since 2010'],['… down the middle','middle','%',''],['… down the line','line','%',''],
+  ['Overheads, share of shots','overhead','%',''],['Volleys, share of shots','volley','%',''],['Points a player comes to the net','net','%',''],
+  ['Rally-ending shots that are winners','winnerShare','%',''],['Metres between a player\'s shots','cycle',' m','Armstrong et al. 2024 (Australian Open, Hawk-Eye)'],
+  ['… share over 4.5 m','cycleOver45','%',''],['Metres per point','distance',' m','Armstrong et al. 2024; Cui et al. 2020'],['Seconds between shots','gap',' s','Carboch & Sklenářik 2018'],
+  ['Shots per point, serve included','rally','','Match Charting Project']];
+const rallyOff=k=>{const g=RC.game[k],r=RC.real[k];if(typeof r==='string'){const[lo,hi]=r.split('–').map(Number);return g<lo||g>hi;}return Math.abs(g/r-1)>.15;};
+const DIR=(s=>({middle:+s.match(/DIR=\{middle:([0-9.]+)/)[1],line:+s.match(/line:([0-9.]+)\};/)[1]}))(fs.readFileSync(path.join(ROOT,'src','players','ShotPlanner.js'),'utf8'));
+function stillOff(){
+  const L=ROWS.filter(([,k])=>rallyOff(k));if(!L.length)return'Every figure is now within 15% of the real one.';
+  return`Bold: more than 15% from the real figure, or outside the real range. Still off after these fixes: ${L.map(([n,k,u])=>`${n.replace('… ','').replace(/^./,c=>c.toLowerCase())} ${RC.game[k]}${u} against ${RC.real[k]}${u}`).join('; ')}.`+
+    (rallyOff('line')&&RC.game.line>RC.real.line&&DIR.line<.1?` The down-the-line choice already has a fitted weight of ${DIR.line}, against 3 for cross-court, so the fit cannot lower that share any further. Where the remaining down-the-line balls come from has not been traced yet.`:'');
+}
 let md=`# Players
 
 Every number a player has in the game is one of five kinds, and this page says which:
 
 | Kind | Numbers | Where they come from |
 |---|---|---|
-| **Real** | name, country, height, hand, one- or two-handed backhand | the players' public profiles |
+| **Real** | name, country, height, hand, one- or two-handed backhand; the Power, Control and Touch bars on the player card | the players' public profiles; the card bars are his real winners per shot, errors per shot, and drop, slice and net frequency against the tour's (Match Charting Project), 75 being the tour |
 | **Fitted** | first-serve speed, first- and second-serve accuracy, return errors, error scale, shot power, how often he serve-volleys, comes in, drops, slices and lobs | fitted so the game reproduces his statistics in the Match Charting Project (below) |
 | **Read off** | risk-taking (aggr) | his aggression score in the Match Charting Project |
 | **Published** | Stamina, five-set record | ATP's five-set records ([docs/stamina](../stamina/README.md)) |
 | **Design** | top speed, acceleration, topspin, kick, second-serve speed, return position, placement, ball bounces before serving, seeding, signature trait, looks | no public data per player; set by hand |
+
+## How points are played
+
+Before any player was fitted, the rally itself was checked against real tennis, because the player numbers can only
+be as right as the game they play in. \`node tools/rally-check.js\` measures it:
+
+${row(['','Before','Now','Real','Real source'])}
+${row(['---','---','---','---','---'])}
+${ROWS.map(([n,k,u,s])=>row([n,RB?`${RB.game[k]}${u}`:'—',rallyOff(k)?`**${RC.game[k]}${u}**`:`${RC.game[k]}${u}`,`${RC.real[k]}${u}`,s])).join('\n')}
+
+"Before" is the previous version of the game, measured the same way. Three causes were found and fixed:
+
+1. **Winners were mostly failed reaches.** Nearly every winner was a ball the defender had planned to reach and
+   then failed to. A volleyer was allowed to cover the last 0.45 m with arm and racket, but a groundstroke player was
+   not. Now both are, and a ball reached that way is played stretched, with the stretch penalty. Real players start
+   moving about 0.18–0.31 s after the opponent's contact (Navia et al. 2021; Filipčič et al. 2017). The game's
+   players already reacted that fast, so reaction time was not the cause.
+2. **High balls were smashed from the baseline, and the smash sent the player to the net.** Any high-bouncing ball
+   became an overhead. Now an overhead off the bounce is played only when no groundstroke is there to be played. A
+   player stays at the net after an overhead only if he hit it from near the net.
+3. **Rally balls went to the corners.** Almost nothing went down the middle. The weights of the middle and line
+   choices are now fitted (\`tools/fit-directions.js\`) toward the real split.
+
+${stillOff()}
+
+A ball taken 1.4 m or more inside the baseline now counts as a chance to come in (it was 2.7 m). That threshold is a
+design choice with no data behind it. How often each player takes the chance is fitted to how often he really comes
+in.
 
 ## The data
 
@@ -41,7 +83,8 @@ opponent forced. Aggression is Tennis Abstract's aggression score, (winners + er
 \`node tools/fit-players.js\` fits each player's numbers until the game reproduces his statistics.
 
 1. **A tour-average opponent.** It starts from the roster's mean and plays copies of itself, until it serves,
-   returns and chooses its shots like the tour reference above.
+   returns, hits winners and errs, and chooses its shots, like the tour reference above. In the game it hits winners
+   on ${F.tourInGame.winners}% of its shots and errors on ${F.tourInGame.errors}%, against ${pc(T.tour.winners)}% and ${pc(T.tour.errors)}% for real.
 2. **Each player against it.** One-set matches, ${F.sets} per round for ${F.rounds} rounds. After each round, every
    number moves toward the value that would give the player's real statistic:
 
@@ -59,11 +102,8 @@ opponent forced. Aggression is Tennis Abstract's aggression score, (winners + er
 
    The steps shrink every round (Robbins–Monro), so one noisy round cannot throw a number about. The last
    measurement is three times as long as a round.
-3. **Winners and errors as ratios.** Points in the game end in a winner more often than real ones do. In the game the
-   tour average hits winners on ${F.tourInGame.winners}% of its shots and errors on ${F.tourInGame.errors}%, against
-   ${pc(T.tour.winners)}% and ${pc(T.tour.errors)}% for real. That gap comes from how players move and reach the
-   ball, not from any one player. So each player is fitted to his real ratio to the tour: a player who hits 1.3
-   times the tour's winners for real hits 1.3 times the game tour's.
+3. **Winners and errors as ratios to the tour.** A player who hits 1.3 times the tour's winners for real is fitted to
+   hit 1.3 times the game tour's. Since the tour itself now matches the real tour, these are the real rates too.
 
 ## What the game does now
 
@@ -76,6 +116,12 @@ ${P.map(k=>{const{game:g,real:r}=F.players[k];return row([k,cell(g.ace,r.ace),ce
 
 The last two columns, points won on first and second serve, are not fitted. They are the check: they follow from
 everything else.
+
+**Where the fit ran out of room.** A number that ends at the edge of its allowed range means the game could not reach
+the real figure with it. This round:
+${P.filter(k=>(F.players[k].atBound||[]).length).map(k=>`- ${k}: ${F.players[k].atBound.map(x=>({net:'coming in (net)',slice:'slices',drop:'drop shots',lob:'lobs',rerr:'return points won (return errors)',serr:'first serves in',serr2:'double faults',err:'errors'})[x]||x).join(', ')}`).join('\n')||'- none'}
+
+These are the bold cells above. Closing them needs changes to how the game plays, not to the player's numbers.
 
 ### The numbers, before and after
 

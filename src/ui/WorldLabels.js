@@ -5,13 +5,15 @@ class WorldLabels{
   tag(e,m){const q=this.tags[this.ti=(this.ti+1)%2];q.el.textContent=e.text;q.el.className='tagf'+(e.strong?' strong':'')+(m.control.idx===e.who?' me':'');q.until=m.t+(e.strong?1.7:1.05);q.who=e.who;q.el.hidden=false;}
   // line calls; the net and a let are information, not a fault, and are shown in blue
   call(e,m){const el=$('call');el.innerHTML=`<span class="cin"><i></i>${(CALLS[e.text]||{label:''}).label}</span><span class="tip"></span>`;el.className='call'+(e.text==='LET'||e.text==='NET'?' let':'');el.hidden=false;this.callUntil=m.t+1.1;this.callAt=e;}
+  static CUE=1.5;   // seconds the serve cue stays up
   // a new match starts with nothing left over from the last one
   clear(){for(const q of this.tags){q.until=0;q.el.hidden=true;}this.callUntil=0;this.callAt=null;$('call').hidden=true;$('bub').hidden=true;$('tagS').hidden=true;}
   place(el,R,x,y,z,mx=60,dy='-100%'){const[sx,sy]=R.project(x,y,z);el.style.transform=`translate(${clamp(sx,mx,innerWidth-mx)}px,${clamp(sy,70,innerHeight-120)}px) translate(-50%,${dy})`;}
   update(m,R){
     for(const q of this.tags){if(m.t>q.until){q.el.hidden=true;continue;}const P=m.players[q.who];this.place(q.el,R,P.x,2.35,P.z,50);}
     const c=m.cue,el=$('tagS');
-    if(c&&c.tag&&m.human){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · from the ${c.court==='deuce'?'right':'left'}`;
+    // which serve and from where: shown as the server steps up, gone after a moment so it does not sit over him
+    if(c&&c.tag&&m.human&&m.t-(c.t0??m.t)<WorldLabels.CUE){for(const q of this.tags)q.until=0;const P=m.players[c.who],t=`${m.control.is(P)?'Your':P.short+':'} ${c.no===1?'1st':'2nd'} serve · ${c.court==='deuce'?'right':'left'}`;
       if(el.textContent!==t)el.textContent=t;el.classList.toggle('second',c.no===2);el.hidden=false;this.place(el,R,P.x,2.5,P.z,90);}
     else el.hidden=true;
     const b=m.bubble,bu=$('bub');

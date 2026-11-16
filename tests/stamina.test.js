@@ -49,10 +49,10 @@ check(c1===1&&c.cost===5,`a 108 km/h stroke costs 1, a 216 km/h serve 4 more (ki
 const t=new Stamina();t.legs=1;t.arm=1;
 check(near(1-t.speed,.031,1e-9),`top speed −${pc(1-t.speed)} (sprint +3.1% slower after a match, Girard 2014)`);
 check(near(1-t.accel,.080,1e-9),`first step and braking −${pc(1-t.accel)} (mean of −9, −9, −7.7, −6.5%: Girard 2006, 2014; Poignard 2023)`);
-check(near(1-t.serveV,.0143,1e-9),`first-serve speed −${pc(1-t.serveV)} (Grand Slam five-setters, set 1 → 5: Martin 2019, Cui 2020, Maquirriain 2016)`);
+check(near(1-t.serveV,.0143/.8,1e-9),`first-serve speed −${pc(1-t.serveV)}: −1.43% set 1 → 5 in Grand Slam five-setters (Martin 2019, Cui 2020, Maquirriain 2016), over set averages 0.8 apart`);
 check(t.serveErr===1,'first serves in unchanged (59.5→61.1%, 62→64%, 63.1→62.3% in the same three datasets)');
 check(t.err===1,'groundstroke errors unchanged by the long-term stores (no change in error ratios across sets, Cui 2020)');
-check(near(1-t.walk,.105,1e-9),`walking back −${pc(1-t.walk)} (time between points 20.91 s in set 1, 23.11 s in set 5, Carboch 2018)`);
+check(near(1-t.walk,.105/.8,1e-9),`walking back −${pc(1-t.walk)}: time between points 20.91 s in set 1, 23.11 s in set 5 (Carboch 2018), over set averages 0.8 apart`);
 
 // at exhaustion (breath at 1)
 const x=new Stamina();x.bf=.5;x.bs=.5;

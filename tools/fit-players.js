@@ -3,8 +3,8 @@
 // Reads data/mcp-players.json (made from the Match Charting Project, CC BY-NC-SA 4.0). Writes src/players/fitted.js
 // (the fitted numbers, the same licence) and data/fit-report.json (each player's statistics in the game next to his
 // real ones). How it works:
-//   1. A "tour average" opponent is fitted first, playing a copy of itself until it serves, returns and chooses its
-//      shots like the average charted hard-court match since 2010.
+//   1. A "tour average" opponent is fitted first, playing a copy of itself until it serves, returns, hits winners and
+//      errs, and chooses its shots, like the average charted hard-court match since 2010.
 //   2. Each player then plays one-set matches against it, and after every round each of his numbers is moved toward
 //      the value that would give his real statistic: serve speed by aces, first- and second-serve accuracy by first
 //      serves in and double faults, and how often he serve-volleys, comes in, drops, slices and lobs by how often he
@@ -73,6 +73,8 @@ function step(p,g,t,rel=true,k=0){
   p.serr*=r(1-t.firstIn,1-g.firstIn,.7,.8,1.25);
   p.serr2*=r(t.df,g.df,.6,.75,1.33);
   if(rel){p.err*=r(t.errors,g.errors,.8,.8,1.25);p.power*=r(t.winners,g.winners,.5,.92,1.08);}
+  // the tour-average opponent's errors and winners per shot are fitted to the real tour's directly (14.1%, 6.5%)
+  else{p.err*=r(t.errors,g.errors,.8,.8,1.25);p.power*=r(t.winners,g.winners,.5,.92,1.08);}
   // return: more return errors when he wins more return points than he really does (the tour too: 35.3%)
   p.rerr*=r(g.returnWon,t.returnWon,2.5,.8,1.25);
   // serve and volley: on first serves at the rate sv, on second serves at .45 sv (Match.serve)
@@ -99,12 +101,13 @@ function step(p,g,t,rel=true,k=0){
       step(p,g,t,true,it);}
     const g=rates(await run(p,tour,SETS*3,9e6+P.id*97));
     const o={};for(const k of KEYS)o[k]=+(+p[k]).toFixed(k==='s1'?2:3);fit[P.short]=o;
+    const atBound=['net','drop','slice','lob'].filter(k=>p[k]>=2.999||p[k]<=.001).concat(['rerr','serr','serr2','err'].filter(k=>p[k]<.06));
     const real={},game={},R0=T.players[P.short];for(const k of['ace','df','firstIn','firstWon','secondWon','returnWon','snv','net','drop','slice','lob','winners','errors'])
       {real[k]=+(R0[k]*100).toFixed(1);game[k]=+(g[k]*100).toFixed(1);}
     // winners and errors against the tour, in the game and for real
     real.winnersVsTour=+(R0.winners/T.tour.winners).toFixed(2);game.winnersVsTour=+(g.winners/tg.winners).toFixed(2);
     real.errorsVsTour=+(R0.errors/T.tour.errors).toFixed(2);game.errorsVsTour=+(g.errors/tg.errors).toFixed(2);
-    report[P.short]={real,game,before:Object.fromEntries(KEYS.map(k=>[k,P[k]??1])),after:o,points:g.points,charted:{matches:t.matches,points:t.points,surface:t.surface,years:t.years}};
+    report[P.short]={real,game,atBound,before:Object.fromEntries(KEYS.map(k=>[k,P[k]??1])),after:o,points:g.points,charted:{matches:t.matches,points:t.points,surface:t.surface,years:t.years}};
     log(`${P.short} done`);
   }));
   pool.forEach(w=>w.kill());
@@ -116,7 +119,11 @@ function step(p,g,t,rel=true,k=0){
 // faults · rerr return error scale, by return points won · err error scale, by errors per shot · power, by winners per
 // shot · aggr risk, from the aggression score ((winners + errors) per shot) · sv, net, drop, slice, lob: how often
 // he serve-volleys, comes in, drops, slices and lobs, by how often he really does. See docs/players.
-const FITTED={\n${order.map(k=>` ${JSON.stringify(k)}:${JSON.stringify(fit[k])},`).join('\n')}\n};\n`;
+const FITTED={\n${order.map(k=>` ${JSON.stringify(k)}:${JSON.stringify(fit[k])},`).join('\n')}\n};
+// the tour-average opponent the players were fitted against: the player card rates each number against it
+const FITTED_TOUR=${JSON.stringify(Object.fromEntries(KEYS.map(k=>[k,+(+tour[k]).toFixed(3)])))};
+// each player's real statistics and the tour's (Match Charting Project), for the player card
+const MCP_RATES={\n${[...order,'Tour'].map(k=>{const r=k==='Tour'?T.tour:T.players[k];return` ${JSON.stringify(k)}:${JSON.stringify(Object.fromEntries(['ace','df','firstIn','returnWon','snv','net','drop','slice','lob','winners','errors'].map(x=>[x,+r[x].toFixed(4)])))},`;}).join('\n')}\n};\n`;
   fs.writeFileSync(path.join(ROOT,'src','players','fitted.js'),head);
   fs.writeFileSync(path.join(ROOT,'data','fit-report.json'),JSON.stringify({rounds:ROUNDS,sets:SETS,tourInGame:{winners:+(tg.winners*100).toFixed(1),errors:+(tg.errors*100).toFixed(1),returnWon:+(tg.returnWon*100).toFixed(1)},tour:Object.fromEntries(KEYS.concat(NUM).map(k=>[k,+(+tour[k]).toFixed(3)])),players:Object.fromEntries(order.map(k=>[k,report[k]]))},null,1)+'\n');
   console.log('\nplayer      '+['ace','df','firstIn','firstWon','secondWon','returnWon','snv','net','drop','slice','lob','winnersVsTour','errorsVsTour'].map(k=>k.slice(0,7).padStart(13)).join(''));

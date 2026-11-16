@@ -3,6 +3,10 @@
 const SWING={fh:{r:.93,f:.42},bh:{r:.58,f:.52},slice:{r:.62,f:.5},volley:{r:.76,f:.62},smash:{r:.24,f:.26},serve:{r:.14,f:.34}};
 // reads the precomputed path of the ball, picks where and how to meet it, and what to do with it
 class ShotPlanner{
+  // how much more often a rally ball goes down the middle or down the line than the base weights say: set so the
+  // game's rally shots go where real ones do — 59.2% cross-court, 26.5% down the middle, 14.2% down the line
+  // (Match Charting Project, hard courts since 2010; tools/fit-directions.js)
+  static DIR={middle:9.928,line:0.036};
   constructor(match){this.m=match;}
   want(P){const C=this.m.control;return C.is(P)?C.shot:null;}
   makePlan(P){
@@ -27,8 +31,9 @@ class ShotPlanner{
       const dt=t-now;
       const reach=w=>{const sw=kind==='smash'?SWING.smash:kind==='volley'?SWING.volley:SWING[w],hs=kind==='smash'?hand:(w==='fh'?hand:-hand),
         rx=clamp(x-Rx*hs*sw.r,-CT.FX+.3,CT.FX-.3),rz=z-Fz*sw.f,d=hyp(rx-P.x,rz-P.z),back=d>.05?Math.max(0,-(P.vx*(rx-P.x)+P.vz*(rz-P.z))/d)/P.loco.brake:0;
-        // a volleyer lunges: the last half-metre is covered by the reach, not the feet
-        return{hs,rx,rz,d,margin:dt-(P.timeTo(kind==='volley'?Math.max(0,d-.45):d)+.03+back+(m.isServe?.06:0))};};
+        // the last 0.45 m to a ball out wide is covered by the reach — arm and racket at full stretch — not the feet,
+        // off the ground as at the net; such a ball is played stretched (see the stretch penalty)
+        return{hs,rx,rz,d,margin:dt-(P.timeTo(Math.max(0,d-.45))+.03+back+(m.isServe?.06:0))};};
       let q=reach(wing);
       // with time in hand, a player steps around the backhand to hit a forehand
       if(kind==='ground'&&wing==='bh'&&!m.isServe){const w=this.want(P),dr=w==='drive'||w==='flat',rr=dr?2.8:.55+st.aggr*.75;
@@ -40,7 +45,10 @@ class ShotPlanner{
       let sc;
       if(kind==='ground'){sc=2-Math.abs(y-.95)*1.1-Math.max(0,Math.abs(z)-(12.3+st.deep*.9))*.7+Math.min(margin,.5)*1.4-dt*(.12+st.aggr*.3);if(y<.45)sc-=.8;}
       else if(kind==='volley')sc=(P.rush?3.5:1.6)-Math.abs(y-1.1)*.6-dt*.2;
-      else sc=3.2-dt*.2;
+      // an overhead off the bounce only when no groundstroke is there to be played: players let a high ball drop,
+      // or take it on the rise, rather than smash it from the baseline (overheads are 0.93% of shots, Match Charting
+      // Project, hard courts since 2010)
+      else sc=(bc===1?1.0:3.2)-dt*.2;
       if(sc>bs){bs=sc;best={i,x,y,z,t,kind,wing,hs,rx,rz,margin,bc};}
     }
     const p=best||near;
@@ -73,9 +81,11 @@ class ShotPlanner{
     else if(c.stretch>.55)tac=pick('stretch',[['slice',1.2+st.slice*2],['lob',.25+st.lob*1.1],['safe',2]]);
     else if(m.isServe)tac=pick('return'+m.serveNo+(O.rush?'v':''),[['safe',2.2],['cross',1.4],['line',.5],['deep',1],['dip',O.rush?1.6:0],['slice',c.wing==='bh'?st.slice*1.2:0],['lob',st.lob*(O.rush?.5:.12)]]);
     else if(oppNet)tac=pick('pass'+c.wing,[['passline',2],['passcross',2],['dip',1.2],['lob',.5+st.lob*1.6]]);
-    else if(dep<9.2&&c.y>.62)tac=pick('short:'+where,[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1],['open',1.2]]);
-    else tac=pick((plus1?'plus1':'rally')+c.wing+(plus1?'':':'+where+press),[['cross',3],['line',1+(Math.abs(lat)>2?1:0)],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02],
-      ['open',where==='m'?.4:1.4],['behind',moving?1:.12],['deep',press==='p'?1.4:.6]]);
+    // a ball taken well inside the baseline (1.4 m or more: a design threshold, there is no data for it) is a chance to
+    // come in; how often each player takes it is fitted to how often he really comes to the net (tools/fit-players.js)
+    else if(dep<10.5&&c.y>.62)tac=pick('short:'+where,[['approach',.5+st.net*4],['drop',oppDeep?st.drop*2.2:.1],['angle',1],['line',1.2],['cross',1],['open',1.2]]);
+    else tac=pick((plus1?'plus1':'rally')+c.wing+(plus1?'':':'+where+press),[['cross',3],['line',(1+(Math.abs(lat)>2?1:0))*ShotPlanner.DIR.line],['angle',Math.abs(lat)>2.4?.9:.2],['slice',c.wing==='bh'?st.slice*1.6:.05],['drop',oppDeep?st.drop*.55:.02],
+      ['open',where==='m'?.4:1.4],['behind',moving?1:.12],['deep',(press==='p'?1.4:.6)*ShotPlanner.DIR.middle]]);
     let t,v,rpm=st.spin,clear=.11+(1-st.aggr)*.24,sw=null,risk=1,maxEl=.75;
     // side spin from the way the stroke is swung: topspin strokes curl toward the hitter's off side, cut strokes away
     const curl=k=>c.hs*k;let sidespin=curl(200+st.spin*.08);

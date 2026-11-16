@@ -19,8 +19,8 @@ class Stamina{
   // to Chorley's half at exhaustion
   static FAST={tau:21.5};static SLOW={share:.4933,tau:388};
   // the work (J/kg of running, sum of stroke costs) of an average five-set match in this game, so that legs and arm
-  // read 1 when one ends; measured by tools/stamina.js
-  static LEGS=58800;static ARM=1120;
+  // read 1 when one ends; measured by tools/stamina.js (set again whenever the way players move or hit changes)
+  static LEGS=48400;static ARM=1070;
   // a stroke costs the arm in proportion to the racket's kinetic energy, so to the square of the ball's speed; a
   // 30 m/s (108 km/h) groundstroke is 1
   static V_REF=30;
@@ -32,11 +32,13 @@ class Stamina{
   static EFFECT={
     speed:   {legs:.031,breath:.095},   // sprint +3.1% slower after a match (Girard 2014); change of direction +10.6% slower when spent (Bilić 2023)
     accel:   {legs:.080,breath:.095},   // strength and leg stiffness −6.5…−9% (Girard 2006, 2014; Poignard 2023); Bilić 2023 again
-    serveV:  {arm:.0143},               // first-serve speed set 1 → 5 in Grand Slam five-setters (Martin 2019, Cui 2020, Maquirriain 2016)
-    pace:    {arm:.0143},               // the same share off groundstrokes: no match data of its own
+    // set 1 → set 5 figures compare set averages; the stores grow steadily, so a set-1 average is 0.1 and a set-5
+    // average 0.9 of an average five-setter: 0.8 apart, and the effect at 1 is the set-1 → set-5 change ÷ 0.8
+    serveV:  {arm:.0143/.8},            // first-serve speed −1.43% set 1 → 5 in Grand Slam five-setters (Martin 2019, Cui 2020, Maquirriain 2016)
+    pace:    {arm:.0143/.8},            // the same share off groundstrokes: no match data of its own
     serveErr:{breath:.30},              // serve accuracy −30% (Davey 2002) and −33% (Bilić 2023) when spent
     err:     {breath:1.0},              // groundstroke accuracy −69% at exhaustion (Davey 2002): twice the spread
-    walk:    {legs:.105},               // time between points 20.9 s in set 1, 23.1 s in set 5 (Carboch 2018)
+    walk:    {legs:.105/.8},            // time between points 20.9 s in set 1, 23.1 s in set 5, +10.5% (Carboch 2018), ÷ 0.8 as above
   };
   constructor(st={}){this.end=st.end??1;this.legs=0;this.arm=0;this.bf=0;this.bs=0;this.dist=0;this.work=0;this.cost=0;}
   get breath(){return Math.min(1,this.bf+this.bs);}

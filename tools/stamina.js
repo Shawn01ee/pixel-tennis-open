@@ -14,14 +14,15 @@ const effects=on=>{for(const k in EFFECT)for(const j in EFFECT[k])Stamina.EFFECT
 // one match, with everything measured per set
 function play(a,b,seed,trace){
   rng.s=seed;const m=new Match({a,b,format:MatchFormat.get('bo5')});let n=0;
-  const P=m.players,sets=[],cur=()=>P.map(p=>({sv:[],sv1:p.ms.sv1,in1:p.ms.sv1in,ue:p.ms.ue,pts:p.ms.pts,dist:p.sta.dist,gaps:[]}));
+  const P=m.players,sets=[],cur=()=>P.map(p=>({sv:[],arm:[],kind:[],sv1:p.ms.sv1,in1:p.ms.sv1in,ue:p.ms.ue,pts:p.ms.pts,dist:p.sta.dist,gaps:[]}));
   let S=cur(),lastHit=null,pts=-1;
   const close=()=>{const tot=P[0].ms.pts+P[1].ms.pts-S[0].pts-S[1].pts;
-    sets.push(S.map((x,i)=>({sv:x.sv,sv1:P[i].ms.sv1-x.sv1,in1:P[i].ms.sv1in-x.in1,ue:P[i].ms.ue-x.ue,pts:tot,dist:P[i].sta.dist-x.dist,gaps:x.gaps})));S=cur();};
+    sets.push(S.map((x,i)=>({sv:x.sv,arm:x.arm,kind:x.kind,sv1:P[i].ms.sv1-x.sv1,in1:P[i].ms.sv1in-x.in1,ue:P[i].ms.ue-x.ue,pts:tot,dist:P[i].sta.dist-x.dist,gaps:x.gaps})));S=cur();};
   while(!(m.stage==='over'&&m.result&&m.tasks.length===0)&&n<150*60*600){
     m.tick();n++;
     for(const e of m.events)if(e.type==='hit'){
-      if(e.kind==='serve'){if(m.serveLabel==='1st')S[e.who].sv.push(e.v*3.6);lastHit=m.t;}
+      // each first serve: its speed, the server's arm store (as the effect reads it) and the type of serve
+      if(e.kind==='serve'){if(m.serveLabel==='1st'){const x=S[e.who];x.sv.push(e.v*3.6);x.arm.push(Math.min(1.5,P[e.who].sta.arm));x.kind.push(m.serveKind);}lastHit=m.t;}
       else{if(lastHit!=null)S[0].gaps.push(m.t-lastHit);lastHit=m.t;}
     }
     m.events.length=0;
@@ -37,9 +38,11 @@ for(let k=0;k<N;k++){const a=ROSTER[k%ROSTER.length];pairs.push([a,a,2000+k]);}
 // ── fatigue on ──
 effects(true);const on=pairs.map(([a,b,s])=>play(a,b,s));
 const five=on.filter(r=>r.sets.length===5);
-// calibration: the running work and stroke cost at the end of a five-setter, per player
-const work=[],cost=[];for(const r of five)for(const p of r.m.players){work.push(p.sta.work);cost.push(p.sta.cost);}
-const calibration={fiveSetters:five.length,of:N,work:Math.round(mean(work)),cost:Math.round(mean(cost)),LEGS:Stamina.LEGS,ARM:Stamina.ARM};
+// calibration: the running work and stroke cost at the end of a five-setter, per player, with the 95% margin of the
+// mean in % (taken over matches, since the two players of one match are not independent)
+const work=[],cost=[];for(const r of five){const p=r.m.players;work.push((p[0].sta.work+p[1].sta.work)/2);cost.push((p[0].sta.cost+p[1].sta.cost)/2);}
+const m95=a=>{const u=mean(a),sd=Math.sqrt(a.reduce((s,v)=>s+(v-u)**2,0)/Math.max(1,a.length-1));return+(196*sd/Math.sqrt(a.length)/u).toFixed(1);};
+const calibration={fiveSetters:five.length,of:N,work:Math.round(mean(work)),cost:Math.round(mean(cost)),workMargin:m95(work),costMargin:m95(cost),LEGS:Stamina.LEGS,ARM:Stamina.ARM};
 if(process.argv[3]==='calibrate'){console.log(JSON.stringify(calibration));process.exit(0);}
 // by set, over the five-setters: everyone, the winners, the losers
 function bySet(rows,who){
@@ -49,8 +52,28 @@ function bySet(rows,who){
     return{serve:+mean(sv).toFixed(1),firstIn:+(in1[0]/in1[1]*100).toFixed(1),errPerPoint:+(ue[0]/ue[1]).toFixed(3),mPerPoint:+(dist[0]/dist[1]).toFixed(1),pace:+mean(gaps.filter(g=>g<3)).toFixed(3)};});
 }
 const sets={all:bySet(five,'all'),winners:bySet(five,'w'),losers:bySet(five,'l')};
+// first serves, set 1 against set 5: the change overall, the change within each serve type (at the set-1 mix of types,
+// so overall minus within is what the change of mix does), and what the arm store predicts (e: EFFECT.serveV.arm in
+// force). 95% intervals from resampling the matches
+function serveTrace(rows,e){
+  const one=rs=>{
+    const g=[0,4].map(s=>{const by={};let n=0,arm=0;for(const r of rs)for(const i of[0,1]){const st=r.sets[s][i];st.sv.forEach((v,j)=>{(by[st.kind[j]]=by[st.kind[j]]||[]).push(v);arm+=st.arm[j];n++;});}return{by,n,arm:arm/n};});
+    let a=0,b=0;for(const k in g[0].by)if(g[1].by[k]){const w=g[0].by[k].length;a+=w*mean(g[1].by[k]);b+=w*mean(g[0].by[k]);}
+    const all=s=>[].concat(...Object.values(g[s].by));
+    return{overall:(mean(all(1))/mean(all(0))-1)*100,within:(a/b-1)*100,arm1:g[0].arm,arm5:g[1].arm,g};
+  };
+  const est=one(rows),boot={overall:[],within:[]};let seed=12345;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+  for(let k=0;k<400;k++){const q=one(rows.map(()=>rows[Math.floor(rnd()*rows.length)]));boot.overall.push(q.overall);boot.within.push(q.within);}
+  const ci=a=>{a.sort((p,q)=>p-q);return[+a[Math.floor(.025*a.length)].toFixed(2),+a[Math.ceil(.975*a.length)-1].toFixed(2)];};
+  const kinds=[...new Set([...Object.keys(est.g[0].by),...Object.keys(est.g[1].by)])];
+  return{matches:rows.length,overall:+est.overall.toFixed(2),overallCI:ci(boot.overall),within:+est.within.toFixed(2),withinCI:ci(boot.within),
+    arm1:+est.arm1.toFixed(3),arm5:+est.arm5.toFixed(3),expected:+(((1-e*est.arm5)/(1-e*est.arm1)-1)*100).toFixed(2),
+    mix:kinds.map(k=>({kind:k,set1:+((est.g[0].by[k]||[]).length/est.g[0].n*100).toFixed(1),set5:+((est.g[1].by[k]||[]).length/est.g[1].n*100).toFixed(1)}))};
+}
+const trace={on:serveTrace(five,EFFECT.serveV.arm)};
 // ── the same seeds, fatigue off: what it changes ──
 effects(false);const off=pairs.map(([a,b,s])=>play(a,b,s));effects(true);
+trace.off=serveTrace(off.filter(r=>r.sets.length===5),0);
 // in each fifth set, did the player who had run further in sets 1–4 win it?
 function fifth(rows){let n=0,won=0;for(const r of rows){if(r.sets.length<5)continue;const d=[0,1].map(i=>r.sets.slice(0,4).reduce((s,st)=>s+st[i].dist,0));n++;if(r.w===(d[0]>d[1]?0:1))won++;}return{fiveSetters:n,ranMoreWonFifth:+(won/Math.max(1,n)*100).toFixed(1)};}
 const late=(rows,who)=>{const b=bySet(rows.filter(r=>r.sets.length===5),who);return{serve:+((b[4].serve/b[0].serve-1)*100).toFixed(2),firstIn:+(b[4].firstIn-b[0].firstIn).toFixed(1),err:+((b[4].errPerPoint/b[0].errPerPoint-1)*100).toFixed(1),pace:+((b[4].pace/b[0].pace-1)*100).toFixed(1)};};
@@ -113,12 +136,13 @@ ${legend}${g}${line(sr.rw,th.s[0],true)}${line(sr.rl,th.s[1],true)}${line(sr.gw,
 }
 fs.mkdirSync(OUT,{recursive:true});
 for(const k in THEMES){fs.writeFileSync(path.join(OUT,`energy-${k}.svg`),energyChart(THEMES[k]));fs.writeFileSync(path.join(OUT,`serve-${k}.svg`),serveChart(THEMES[k]));}
-const run={matches:N,control:control(),calibration,sets,sowhat,match,constants:{CP:+Stamina.CP.toFixed(2),WP:+Stamina.WP.toFixed(0),FAST:Stamina.FAST,SLOW:Stamina.SLOW,LEGS:Stamina.LEGS,ARM:Stamina.ARM,V_REF:Stamina.V_REF,EFFECT}};
+const run={matches:N,control:control(),calibration,sets,trace,sowhat,match,constants:{CP:+Stamina.CP.toFixed(2),WP:+Stamina.WP.toFixed(0),FAST:Stamina.FAST,SLOW:Stamina.SLOW,LEGS:Stamina.LEGS,ARM:Stamina.ARM,V_REF:Stamina.V_REF,EFFECT}};
 fs.writeFileSync(path.join(OUT,'run.json'),JSON.stringify(run,null,1)+'\n');
 writeDoc(run);
 const t=(name,b)=>console.log(`${name.padEnd(8)} serve ${b.map(s=>s.serve).join(' ')} · 1st in ${b.map(s=>s.firstIn).join(' ')} · err/pt ${b.map(s=>s.errPerPoint).join(' ')} · m/pt ${b.map(s=>s.mPerPoint).join(' ')} · pace ${b.map(s=>s.pace).join(' ')}`);
 console.log(`calibration: ${five.length} five-setters of ${N} · work ${calibration.work} J/kg (LEGS ${Stamina.LEGS}) · stroke cost ${calibration.cost} (ARM ${Stamina.ARM})`);
 t('all',sets.all);t('winners',sets.winners);t('losers',sets.losers);
+console.log('serve trace:',JSON.stringify(trace));
 console.log('so what:',JSON.stringify(sowhat));
 console.log(`chart: ${match.players.map(p=>`${p.short} ${p.energy}% left, ${p.dist} m`).join(' · ')} · ${match.winner} won ${match.line}`);
 
@@ -129,14 +153,29 @@ function control(){
       for(const e of m.events)if(e.type==='hit'&&e.kind==='serve'&&m.serveLabel==='1st')v.push(e.v*3.6);m.events.length=0;}}return v.reduce((s,x)=>s+x,0)/v.length;};
   const a0=sv(0),a1=sv(1);return{serveFresh:+a0.toFixed(2),serveArm1:+a1.toFixed(2),change:+((a1/a0-1)*100).toFixed(2)};
 }
+// the serve-speed paragraph: the change over the match, then where it comes from, every statement from the run's numbers
+function serveText(run,fmt){
+  const T=run.trace&&run.trace.on,T0=run.trace&&run.trace.off,K=run.control,A=run.sets.all,REAL=-1.43;
+  const sv=T?T.overall:(A[4].serve/A[0].serve-1)*100,ci=c=>`${fmt(c[0],2)} to ${fmt(c[1],2)}`,inCI=(x,c)=>x>=c[0]&&x<=c[1];
+  let s=`- **Serve speed.** The game's first serves change by ${fmt(sv,2)} from set 1 to set 5${T?` (95% interval over the ${T.matches} five-setters: ${ci(T.overallCI)})`:''}. `+
+    `The real five-setters show −0.5% to −2.4%, −1.43% combined, the figure the game is built on. The game's change is ${Math.abs(sv)<.5?'smaller than any of them':Math.abs(sv)>2.4?'larger than any of them':'inside their range'}`+
+    `${T?`, and −1.43% is ${inCI(REAL,T.overallCI)?'inside':'outside'} the game's interval`:''}.`;
+  if(T)s+=`\n  *Where the change comes from.* Within each type of serve, at the set-1 mix of types, first serves change by ${fmt(T.within,2)} (${ci(T.withinCI)})`+
+    `${T0?`, and by ${fmt(T0.within,2)} (${ci(T0.withinCI)}) with fatigue off`:''}. The server's arm store averages ${T.arm1} at the first serves of set 1 and ${T.arm5} in set 5, `+
+    `so the model expects ${fmt(T.expected,2)}, ${inCI(T.expected,T.withinCI)?'inside':'outside'} the within-type interval. The rest of the overall change, ${fmt(T.overall-T.within,2,' points')}, `+
+    `is the change in the mix of serves (share of first serves, set 1 → set 5: ${T.mix.map(q=>`${q.kind} ${q.set1}% → ${q.set5}%`).join(', ')}).`;
+  if(K)s+=` In a controlled check (the same matches with the arm store held at 0 and at 1, all else equal), first serves change by ${fmt(K.change,2)} at 1 (${K.serveFresh} → ${K.serveArm1} km/h).`;
+  return s;
+}
 // the results section of docs/stamina/README.md, between its markers. Every statement is worked out from the numbers
 // of the run: nothing is written in advance, and a difference is called one only when it is outside the run's margin
 function writeDoc(run){
   const{sets:{all:A,winners:W,losers:L},sowhat:S,match,calibration:C,matches:N}=run,E=S.endurance,F=C.fiveSetters,K=run.control;
-  const ch=(b,k,d=1)=>(b[4][k]/b[0][k]-1)*100,fmt=(x,d=1,u='%')=>`${x>=0?'+':''}${x.toFixed(d)}${u}`,pp=(b,k)=>b[4][k]-b[0][k],row=a=>`| ${a.join(' | ')} |`;
+  const ch=(b,k,d=1)=>(b[4][k]/b[0][k]-1)*100,fmt=(x,d=1,u='%')=>{const r=+x.toFixed(d);return`${r>=0?'+':''}${r.toFixed(d)}${u}`;},pp=(b,k)=>b[4][k]-b[0][k],row=a=>`| ${a.join(' | ')} |`;
   const margin=n=>196*Math.sqrt(.25/Math.max(1,n));      // 95% margin of a share near one half, in points
   const vsHalf=(x,n)=>Math.abs(x-50)<=margin(n)?`within chance at this sample size (50% ± ${margin(n).toFixed(0)})`:x>50?`more often than chance (50% ± ${margin(n).toFixed(0)})`:`less often than chance (50% ± ${margin(n).toFixed(0)})`;
-  const sv=ch(A,'serve',2),svW=ch(W,'serve',2),svL=ch(L,'serve',2);
+  // everyone's serve change from the unrounded speeds when the run has them, as in the paragraph below the table
+  const T=run.trace,sv=T?T.on.overall:ch(A,'serve',2),svOff=T?T.off.overall:S.off.all.serve,svW=ch(W,'serve',2),svL=ch(L,'serve',2);
   const md=`<!-- RESULTS -->
 ## What it does in the game
 
@@ -149,7 +188,7 @@ measured. Nothing was tuned after looking at them.
 
 ${row(['','Set 1','Set 5','Change','Fatigue off','Real five-setters'])}
 ${row(['---','---','---','---','---','---'])}
-${row(['First-serve speed, everyone',`${A[0].serve} km/h`,`${A[4].serve} km/h`,fmt(sv,2),fmt(S.off.all.serve,2),'−1.2% (Martin 2019), −2.4% (Cui 2020), −0.5% (Maquirriain 2016)'])}
+${row(['First-serve speed, everyone',`${A[0].serve} km/h`,`${A[4].serve} km/h`,fmt(sv,2),fmt(svOff,2),'−1.2% (Martin 2019), −2.4% (Cui 2020), −0.5% (Maquirriain 2016)'])}
 ${row(['First-serve speed, match winners',`${W[0].serve} km/h`,`${W[4].serve} km/h`,fmt(svW,2),fmt(S.off.winners.serve,2),'+0.2% (Martin 2019)'])}
 ${row(['First-serve speed, match losers',`${L[0].serve} km/h`,`${L[4].serve} km/h`,fmt(svL,2),fmt(S.off.losers.serve,2),'−2.4% (Martin 2019)'])}
 ${row(['First serves in',`${A[0].firstIn}%`,`${A[4].firstIn}%`,fmt(pp(A,'firstIn'),1,' pts'),fmt(S.off.all.firstIn,1,' pts'),'+1.6, +2, −0.8 pts (Cui 2020; Martin 2019; Maquirriain 2016)'])}
@@ -161,18 +200,19 @@ ${row(['Time between shots',`${A[0].pace} s`,`${A[4].pace} s`,fmt(ch(A,'pace')),
 <picture><source media="(prefers-color-scheme: dark)" srcset="serve-dark.svg"><img src="serve-light.svg" alt="First-serve speed by set against the first set, for match winners and losers, in the game and in the 2014 Grand Slam five-setters"></picture>
 
 **What the numbers say:**
-- **Serve speed.** The game's first serves change by ${fmt(sv,2)} from set 1 to set 5 (${fmt(S.off.all.serve,2)} with fatigue off). The real five-setters show −0.5% to −2.4%, so the game's decline is ${Math.abs(sv)<.5?'smaller than any of them':Math.abs(sv)>2.4?'larger than any of them':'inside their range'}.${K?` In a controlled check (same matches, arm store held at 0 and at 1, all else equal), first serves change by ${fmt(K.change,2)} at 1 (${K.serveFresh} → ${K.serveArm1} km/h). So the effect works as specified, and over a real five-setter something else in the match offsets part of it. That has not been traced yet.`:''} Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by ${fmt(svW,2)} and the losers by ${fmt(svL,2)}, ${Math.abs(svL)>Math.abs(svW)?'the same order':'the opposite order'}.
+${serveText(run,fmt)}
+  Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by ${fmt(svW,2)} and the losers by ${fmt(svL,2)}, ${Math.abs(svL)>Math.abs(svW)?'the same order':'the opposite order'}.
 - **First serves in** change by ${fmt(pp(A,'firstIn'),1,' points')} (${fmt(S.off.all.firstIn,1,' points')} with fatigue off). The real datasets move by −0.8 to +2 points.
-- **Errors per point** change by ${fmt(ch(A,'errPerPoint'))} overall (${fmt(S.off.all.err)} with fatigue off). Real Grand Slam data show no significant change. The split between the eventual winner (${fmt(ch(W,'errPerPoint'))}) and loser (${fmt(ch(L,'errPerPoint'))}) is ${fmt(S.off.winners.err)} / ${fmt(S.off.losers.err)} with fatigue off too, so it mostly comes from who lost the set, not from fatigue.
-- **Distance per point** changes by ${fmt(ch(A,'mPerPoint'))} and **time between shots** by ${fmt(ch(A,'pace'))} (${fmt(S.off.all.pace)} with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance is above the real figures at every set (see Limits).
+- **Errors per point** change by ${fmt(ch(A,'errPerPoint'))} overall (${fmt(S.off.all.err)} with fatigue off). Real Grand Slam data show no significant change. The eventual winner's change is ${fmt(ch(W,'errPerPoint'))} and the loser's ${fmt(ch(L,'errPerPoint'))}; with fatigue off they are ${fmt(S.off.winners.err)} and ${fmt(S.off.losers.err)}.
+- **Distance per point** changes by ${fmt(ch(A,'mPerPoint'))} and **time between shots** by ${fmt(ch(A,'pace'))} (${fmt(S.off.all.pace)} with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance per point, ${A.map(s=>s.mPerPoint).join(', ')} m in sets 1 to 5, is ${A.every(s=>s.mPerPoint>10.7)?'above the published range (6.46–10.7 m) in every set':A.every(s=>s.mPerPoint>=6.46&&s.mPerPoint<=10.7)?'inside the published range (6.46–10.7 m) in every set':'outside the published range (6.46–10.7 m) in some sets'}.
 - **Who wins the fifth set.** The player who had run further in sets 1–4 won ${S.on.ranMoreWonFifth}% of ${F} fifth sets, ${vsHalf(S.on.ranMoreWonFifth,F)}. With fatigue off: ${S.off.ranMoreWonFifth}%.
-- **A fitter player.** A copy one standard deviation fitter (Stamina 90) beat his average copy in ${E.fitterWon}% of ${E.matches} matches, ${vsHalf(E.fitterWon,E.matches)}, and in ${E.fitterWonFifth}% of the ${E.fiveSetters} that reached a fifth set, ${vsHalf(E.fitterWonFifth,E.fiveSetters)}. He ended with ${E.energyGapAtEnd} points more energy.
+- **A fitter player.** A copy one standard deviation fitter (Stamina 90) beat his average copy in ${E.fitterWon}% of ${E.matches} matches, ${vsHalf(E.fitterWon,E.matches)}, and in ${E.fitterWonFifth}% of the ${E.fiveSetters} that reached a fifth set, ${vsHalf(E.fitterWonFifth,E.fiveSetters)}. He ended with ${Math.abs(E.energyGapAtEnd)} points ${E.energyGapAtEnd>=0?'more':'less'} energy.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="energy-dark.svg"><img src="energy-light.svg" alt="Energy left after each point of a five-set match"></picture>
 
 One five-setter from the run, ${match.winner} winning ${match.line}: ${match.players.map(p=>`${p.short} ran ${(p.dist/1000).toFixed(2)} km`).join(', ')}. Each dip is a long rally. The line comes back between points as the breath does.
 
-Calibration in this run: an average five-setter took ${C.work.toLocaleString('en')} J/kg of running and ${C.cost.toLocaleString('en')} of stroke cost. The game uses Stamina.LEGS ${C.LEGS.toLocaleString('en')} and ARM ${C.ARM.toLocaleString('en')}, set from an earlier run of the same measurement. The two differ by ${fmt((C.work/C.LEGS-1)*100)} and ${fmt((C.cost/C.ARM-1)*100)}, which is the run-to-run spread, and the constants were not reset to this run.
+Calibration in this run: an average five-setter took ${C.work.toLocaleString('en')} J/kg of running and ${C.cost.toLocaleString('en')} of stroke cost. The game uses Stamina.LEGS ${C.LEGS.toLocaleString('en')} and ARM ${C.ARM.toLocaleString('en')}, set from an earlier run of the same measurement. This run differs from them by ${fmt((C.work/C.LEGS-1)*100)} and ${fmt((C.cost/C.ARM-1)*100)}${C.workMargin!=null?`, against a 95% margin of ±${C.workMargin}% and ±${C.costMargin}% on this run's averages: ${Math.abs(C.work/C.LEGS-1)*100<=C.workMargin&&Math.abs(C.cost/C.ARM-1)*100<=C.costMargin?'both inside it':'outside it, so the constants are due to be set again from this measurement'}`:''}.
 <!-- /RESULTS -->`;
   const f=path.join(OUT,'README.md');if(fs.existsSync(f)){const t=fs.readFileSync(f,'utf8'),i=t.indexOf('<!-- RESULTS -->'),j=t.indexOf('<!-- /RESULTS -->');
     if(i>=0&&j>i)fs.writeFileSync(f,t.slice(0,i)+md+t.slice(j+'<!-- /RESULTS -->'.length));}
