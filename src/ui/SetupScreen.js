@@ -40,7 +40,7 @@ class SetupScreen{
     const hero=$('sHero');hero.style.setProperty('--kit',hexs(p.look.shirt));
     hero.innerHTML=`<div class="h-top"><div class="h-pic">${Portrait.img(p,'face h-face')}<span class="h-rank">${p.legend?'LEGEND':'RANK '+p.rank}</span></div>
       <div class="h-id"><small>${mine?'YOU':'OPPONENT'}</small><h2>${p.name.toUpperCase()}</h2>
-        <div class="h-meta"><b>${p.cc}</b> · ${p.hand<0?'Left':'Right'}-handed · ${p.ohb?'one':'two'}-handed backhand</div>
+        <div class="h-meta"><b>${p.cc}</b> · ${p.hand<0?'Left':'Right'}-handed · ${p.ohb?'one':'two'}-handed backhand${p.fiveSets?` · five-set record ${p.fiveSets}`:''}</div>
         <p class="h-style">${p.style}</p><div class="h-ovr"><b>${p.overall}</b><span>OVERALL</span></div></div></div>
       <div class="h-bars">${bar('Serve',r.serve)}${bar('Power',r.power)}${bar('Speed',r.speed)}${bar('Spin',r.spin)}${bar('Control',r.control)}${bar('Accuracy',r.accuracy)}${bar('Touch',r.touch)}${bar('Stamina',r.stamina)}</div>`;
     $('sGrid').innerHTML=ROSTER.map(q=>{const dis=!mine&&q.id===this.a;

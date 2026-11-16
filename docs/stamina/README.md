@@ -1,129 +1,205 @@
 # Stamina
 
-Players tire over a match. Their legs slow, their first step loses its snap, the arm loses a little pace off the
-ground and on the serve, and their shots get looser. A long rally leaves them short of breath for the next point or
-two. How much each of these drops, and how fast, comes from published measurements of tennis players in long
-matches. The model is `src/players/Stamina.js`.
+Players tire over a match the way the research says real players do. Their legs slow, their first step loses its
+snap, their serve loses a little pace, and a long rally leaves them short of breath, with looser shots, for the
+next point or two. This page explains where each number in `src/players/Stamina.js` comes from, how it was turned
+into the game's value, and what the game then does compared with real Grand Slam five-setters.
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="energy-dark.svg"><img src="energy-light.svg" alt="Energy left after each point of a five-set match: Zverev ends at 53%, Sampras at 19%"></picture>
+<!-- RESULTS -->
+## What it does in the game
 
-One five-setter, played headless by the game's own simulation (`node tools/stamina.js`). Zverev (endurance 1.04)
-and Sampras (0.86) played 343 points. Sampras ran 3.13 km and ended with 19% left; Zverev ran 2.52 km and kept 53%.
-Each downward spike is a long rally. The line comes back up as the player gets his breath back between points.
+Measured by `node tools/stamina.js 90`: 90 best-of-five matches, each player against an identical copy of himself.
+Skill is equal, so whatever separates the two late in a match is what the match took out of them. 33 went five
+sets. The same matches were then played again with every fatigue effect switched off. The numbers below are as
+measured. Nothing was tuned after looking at them.
 
-## Three kinds of tiredness
+### Set 1 against set 5, next to real Grand Slam five-setters
 
-The research finds three different things happening, so the game keeps three stores.
+|  | Set 1 | Set 5 | Change | Fatigue off | Real five-setters |
+| --- | --- | --- | --- | --- | --- |
+| First-serve speed, everyone | 185.7 km/h | 184.9 km/h | -0.43% | +0.05% | −1.2% (Martin 2019), −2.4% (Cui 2020), −0.5% (Maquirriain 2016) |
+| First-serve speed, match winners | 185.9 km/h | 184.6 km/h | -0.70% | -0.05% | +0.2% (Martin 2019) |
+| First-serve speed, match losers | 185.6 km/h | 185.2 km/h | -0.22% | +0.27% | −2.4% (Martin 2019) |
+| First serves in | 63.4% | 63.4% | +0.0 pts | -3.0 pts | +1.6, +2, −0.8 pts (Cui 2020; Martin 2019; Maquirriain 2016) |
+| Errors per point, everyone | 0.202 | 0.188 | -6.9% | -3.0% | no significant change across sets (Cui 2020) |
+| Errors per point, winners / losers | 0.202 / 0.202 | 0.162 / 0.213 | -19.8% / +5.4% | -13.3% / +8.5% | — |
+| Distance per point | 14 m | 13.2 m | -5.7% | — | 10.3 → 10.6 m (Cui 2020); no difference between sets (Armstrong 2024) |
+| Time between shots | 1.349 s | 1.36 s | +0.8% | -0.1% | 1.19 → 1.23 s, +3.4% (Carboch 2018) |
 
-| Store | Filled by | Empties | What it costs at full |
+<picture><source media="(prefers-color-scheme: dark)" srcset="serve-dark.svg"><img src="serve-light.svg" alt="First-serve speed by set against the first set, for match winners and losers, in the game and in the 2014 Grand Slam five-setters"></picture>
+
+**What the numbers say:**
+- **Serve speed.** The game's first serves change by -0.43% from set 1 to set 5 (+0.05% with fatigue off). The real five-setters show −0.5% to −2.4%, so the game's decline is smaller than any of them. In a controlled check (same matches, arm store held at 0 and at 1, all else equal), first serves change by -1.94% at 1 (187.63 → 184 km/h). So the effect works as specified, and over a real five-setter something else in the match offsets part of it. That has not been traced yet. Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by -0.70% and the losers by -0.22%, the opposite order.
+- **First serves in** change by +0.0 points (-3.0 points with fatigue off). The real datasets move by −0.8 to +2 points.
+- **Errors per point** change by -6.9% overall (-3.0% with fatigue off). Real Grand Slam data show no significant change. The split between the eventual winner (-19.8%) and loser (+5.4%) is -13.3% / +8.5% with fatigue off too, so it mostly comes from who lost the set, not from fatigue.
+- **Distance per point** changes by -5.7% and **time between shots** by +0.8% (-0.1% with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance is above the real figures at every set (see Limits).
+- **Who wins the fifth set.** The player who had run further in sets 1–4 won 39.4% of 33 fifth sets, within chance at this sample size (50% ± 17). With fatigue off: 51.4%.
+- **A fitter player.** A copy one standard deviation fitter (Stamina 90) beat his average copy in 51.1% of 45 matches, within chance at this sample size (50% ± 15), and in 57.9% of the 19 that reached a fifth set, within chance at this sample size (50% ± 22). He ended with 3.1 points more energy.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="energy-dark.svg"><img src="energy-light.svg" alt="Energy left after each point of a five-set match"></picture>
+
+One five-setter from the run, Zverev winning 6–4 7–6(6) 4–6 5–7 6–2: Zverev ran 4.20 km, Medvedev ran 4.30 km. Each dip is a long rally. The line comes back between points as the breath does.
+
+Calibration in this run: an average five-setter took 60,870 J/kg of running and 1,166 of stroke cost. The game uses Stamina.LEGS 58,800 and ARM 1,120, set from an earlier run of the same measurement. The two differ by +3.5% and +4.1%, which is the run-to-run spread, and the constants were not reset to this run.
+<!-- /RESULTS -->
+
+## How a measurement becomes a game value
+
+Every number follows the same rules:
+
+1. **Only measured effects go in.** Where a decline has been measured in tennis players, the game uses it. Where
+   nothing has been measured, the game adds nothing (0) rather than guess.
+2. **Match data over lab data.** Real Grand Slam matches come first. Lab protocols are used only where match data do
+   not exist, and newer studies are preferred.
+3. **Where studies disagree, a stated rule picks the value.** Either they are averaged by sample size, or the
+   larger match sample wins. Each row below says which.
+4. **One unit for the long-term stores.** The legs and arm stores read **1 at the end of an average five-set
+   match**. Real five-setters last 212 ± 27 minutes (50 five-setters at the 2014 Grand Slams, Martin et al. 2019).
+   That is the same length as the 3–4 hour matches over which the lab declines were measured (Girard et al. 2006;
+   Martin et al. 2016; Gescheit et al. 2015). So a decline measured at the end of a long match is the effect at 1,
+   unchanged.
+5. **Calibrated against the game, then checked against real matches.** `tools/stamina.js` measures how much
+   running and hitting an average five-setter takes in the game, and sets the stores so they read 1 at its end. It
+   then compares the game with real five-setters set by set (the results above).
+
+## The model
+
+Three stores, because tennis fatigue works on three time scales:
+
+| Store | Fills with | Empties | Reads 1 at |
 |---|---|---|---|
-| **Legs** | running in play, priced by metabolic power | only sitting at changeovers, slowly | top speed −3%, first step and braking −8%, shot error +10% |
-| **Arm** | strokes: 1 per groundstroke or volley, 2.5 per serve | only sitting at changeovers, slowly | serve speed −2.5%, serve error +8%, groundstroke pace −3%, shot error +15% |
-| **Breath** | running harder than the body can sustain | between points: about half comes back in 25 s | top speed −6%, first step −10%, pace −3%, shot error +35% |
+| **Legs** | running in play, priced by metabolic power | never during a match | the end of an average five-setter |
+| **Arm** | each stroke, priced by the square of the ball's speed | never during a match | the end of an average five-setter |
+| **Breath** | running harder than critical power (CP) | between points and at changeovers, in two phases | exhaustion (W′ spent) |
 
-Endurance (the player card's **Stamina** rating) divides how fast the legs and arm fill. It also speeds up how fast
-the breath comes back.
+- **Running cost.** Accelerating at *a* costs what running uphill on a slope of *a*/g does (di Prampero et al.
+  2005). Minetti's polynomial gives that cost per metre: 3.6 J/kg on the flat. The game charges every step a player
+  takes in play this way (Osgnach et al. 2010 apply the same method to football). Turning sharply is charged as half
+  a forward acceleration.
+- **Stroke cost.** The racket's kinetic energy grows with the square of its speed, and the ball leaves at a speed in
+  proportion to it. So a stroke costs (ball speed / 30 m/s)². A 108 km/h groundstroke costs 1, and a 200 km/h first
+  serve 3.4.
+- **Breath** is the W′ of the critical power model (Jones & Vanhatalo 2017). Power above CP spends it, and below
+  CP it comes back. During a rally it comes back more slowly the closer the effort is to CP (Skiba et al. 2012;
+  Chorley et al. 2023).
+- **Effects** are in proportion to each store. The legs and arm keep counting up to 1.5, for matches longer than an
+  average five-setter.
 
-### What the numbers rest on
+## Where each number comes from
 
-- **Top speed and first step.** Over a match, repeated-sprint times rise 2.3% by mid-match and 3.1% by the end. Leg
-  stiffness drops 6.5% and jump height falls ([Girard et al. 2014](https://doi.org/10.1136/bjsports-2013-093165)).
-  Over a three-hour match, maximal leg strength falls 9% and leg stiffness 9%
-  ([Girard et al. 2006](https://doi.org/10.1136/bjsm.2005.023754),
-  [Girard et al. 2007](https://doi.org/10.1016/j.jelekin.2007.05.005)). After four-hour matches on consecutive days,
-  20 m sprints are slower ([Gescheit et al. 2015](https://doi.org/10.1123/ijspp.2014-0329)).
-- **Serve.** In fifteen five-set Wimbledon matches, men served 177.0 km/h in the first set and 176.1 km/h in the
-  fifth. First serves in went from 63.1% to 62.3%, and double faults stayed at 2.8%
-  ([Maquirriain et al. 2016](https://doi.org/10.1080/17461391.2016.1156163)). In the lab, serve speed fell 1.8 m/s
-  (about 3.7%) over a three-hour match ([Martin et al. 2016](https://doi.org/10.1177/0363546516645542),
-  [Martin et al. 2016](https://doi.org/10.1371/journal.pone.0159979)). The game sits between the two: real pros
-  pace themselves to protect the serve.
-- **Groundstrokes.** Over 2 h 40 min of simulated play, both groundstroke speed and accuracy fell
-  ([Hornery et al. 2007](https://doi.org/10.1123/ijspp.2.4.423)). In tracked tour matches, forehand success fell from
-  75.2% in the first set to 65.5% in the second ([Pereira et al. 2016](https://doi.org/10.1080/02640414.2016.1165858)).
-  At the point of exhaustion, groundstroke accuracy was 69% lower than at the start
-  ([Davey et al. 2002](https://doi.org/10.1080/026404102753576080)). That is what a full breath store stands for.
-- **Recovery.** Every physical marker is back to normal within 24 hours of a match
-  ([Girard et al. 2014](https://doi.org/10.1136/bjsports-2013-093165)). Even so, sprint and jump stay down after
-  four long matches on consecutive days ([Gescheit et al. 2015](https://doi.org/10.1123/ijspp.2014-0329)). In a
-  tournament, a tenth of what a player ended a match with is carried into the next round (at most 0.15).
-- **Players adapt.** Reviews of match-play fatigue find players change their game to protect what is failing,
-  so a decline measured in the lab overstates the one seen on court
-  ([Reid & Duffield 2014](https://doi.org/10.1136/bjsports-2013-093196)). The game's effects are set toward the
-  match-play figures where the two differ.
+### Constants of the body
 
-### The cost of running
+| Game value | What was measured | Source | How it became the game value |
+|---|---|---|---|
+| CP **17.2 W/kg** | Second ventilatory threshold of 20 competitive players: 49.4 mL/kg/min, 84% of a VO2max of 58.0 ± 4.6 | Baiget et al. 2015 | 49.4 mL × 20.9 J per mL of oxygen ÷ 60 s. CP lies at 70–90% of VO2max (Jones & Vanhatalo 2017), and 84% is inside that range |
+| W′ **1181 J/kg** | D′ (the distance a runner can cover above critical speed) of 12 elite runners: 328 ± 104 m | Jones & Vanhatalo 2017, Table 1 | 328 m × 3.6 J/kg per metre on the flat |
+| Breath back in two phases: **τ 21.5 s** and **τ 388 s** | After exhaustion, W′ returned 50.7% fast (τ 21.5 s) and 49.3% slow (τ 388 s), in 10 trained cyclists | Chorley et al. 2022 (two phases also in Caen et al. 2021) | Used as measured |
+| Slow share **49.3% × how deep the player already is** | After a partial depletion no slow phase appears. Singles tennis keeps blood lactate at 1–2 mmol/L, and players spend 97% of play below VT2 | Lievens et al. 2024; Armstrong et al. 2023; Baiget et al. 2015 | Runs from 0 when fresh (ordinary points come back within the 25 s) to Chorley's 49.3% at exhaustion. With a fixed 49.3%, ordinary play left every player half spent and errors rose to 35.7%, against the tour's ~28% |
+| Recovery in play **× (CP − P)/CP** | W′ recovers more slowly the closer recovery power is to CP | Skiba et al. 2012; Chorley et al. 2023 | Recovery rate in proportion to the gap below CP |
+| Rest **25 s / 90 s / 120 s** | The rules' time between points, at a changeover, between sets | ITF rules | Only breath recovers in that time. The legs and arm declines were measured over whole matches, changeovers included |
+| LEGS **58,800 J/kg**, ARM **1,120** | Running work and stroke cost of an average five-setter in the game, with the fitted players (36 five-setters of 90 matches) | `node tools/stamina.js` | So the stores read 1 when an average five-setter ends |
 
-Running in tennis is mostly speeding up and slowing down. The legs are charged the **metabolic power of accelerated
-running** ([di Prampero et al. 2005](https://doi.org/10.1242/jeb.01700),
-[Osgnach et al. 2010](https://doi.org/10.1249/MSS.0b013e3181ae5cfd)). Accelerating forward at *a* costs the same as
-running uphill on a slope of *a/g*. Minetti's polynomial gives that cost per metre: 3.6 J/kg on the flat. Speeding
-up at 4 m/s² costs about five times as much. Easing off costs less, while braking hard costs about what flat
-running does, because the muscles take the load. Turning sharply is charged as half a forward acceleration.
-In the game this comes to about 13 J/kg per metre over a match, because tennis running is nearly all starting and
-stopping. For comparison, the first 30 m of a sprint from a standing start average 10.7 J/kg per metre
-(di Prampero et al. 2005).
+### What each store costs at 1
 
-The breath store fills only above a **critical power** of 16 W/kg, about 85% of a tour player's aerobic maximum.
-It works like the W′ balance used in endurance sport ([Skiba et al. 2012](https://doi.org/10.1249/MSS.0b013e3182517a80)):
-it holds 600 J/kg above that level, and comes back with a 40-second time constant (phosphocreatine resynthesis).
-Between points the game allows the 25 seconds the rules give, then 90 at a changeover and 120 between sets.
-
-## Calibration
-
-The long-term stores are scaled so that an average-endurance player who plays 260 points of a five-setter ends near
-0.8 in both, where the effects match the end-of-match declines above. Over 20 headless five-set matches
-(`node tools/stamina.js 20`), scaled to endurance 1 and 260 points, the result is **legs 0.81, arm 0.81**.
-
-Players in the game run 13.6 m a point. A meta-analysis of international men's matches puts it at 9.6 m (95% CI
-7.6–12.2) and a five-setter at 2.3 km ([Pluim et al. 2023](https://doi.org/10.1007/s40279-022-01807-8)). Hawk-Eye
-data from the Australian Open puts it at 4.2–4.5 m between shots ([Armstrong et al. 2024](https://doi.org/10.52082/jssm.2024.1)).
-The game's players run a little more than real ones, so the capacities are calibrated against the game's own
-distances, not the published ones.
-
-`docs/stamina/run.json` holds the chart's match, the calibration and the constants it was made with.
-
-## Endurance ratings
-
-The endurance ratings come from each player's reputation, not from measurements, and are the one judgement call
-here:
-
-| Player | Endurance | | Player | Endurance |
+| Effect | Game value | What was measured | Source | How it became the game value |
 |---|---|---|---|---|
-| Djokovic | 1.20 | | Federer | 1.06 |
-| Nadal | 1.18 | | Agassi | 1.06 |
-| de Minaur | 1.16 | | Zverev | 1.04 |
-| Murray | 1.16 | | McEnroe | 0.92 |
-| Borg | 1.16 | | Sampras | 0.86 |
-| Medvedev | 1.14 | | | |
-| Alcaraz | 1.10 | | | |
-| Sinner | 1.10 | | | |
+| Top speed (legs) | **−3.1%** | Sprint time +3.1% after a match, 12 players | Girard et al. 2014 | Used as measured. Those matches were about 2 h, so the true five-set figure is likely larger; this is the conservative choice |
+| First step, braking, cutting (legs) | **−8.0%** | Maximal leg strength −9% and leg stiffness −9% after 3 h; strength −7.7% after a 1.5 h protocol; leg stiffness −6.5% after a match | Girard et al. 2006; Poignard et al. 2023; Girard et al. 2014 | Mean of the four: (9 + 9 + 7.7 + 6.5) / 4 |
+| First-serve speed (arm) | **−1.43%** | Set 1 → set 5 of Grand Slam five-setters: −1.2% (100 players), −2.4% (56 fifth sets), −0.5% (30 players) | Martin et al. 2019; Cui et al. 2020; Maquirriain et al. 2016 | Mean weighted by sample size: (100 × 1.17 + 56 × 2.38 + 30 × 0.51) / 186 |
+| Serve accuracy (arm) | **0** | First serves in, set 1 → 5: 59.5 → 61.1%, 62 → 64%, 63.1 → 62.3%. Double faults unchanged | Cui et al. 2020; Martin et al. 2019; Maquirriain et al. 2016 | No change in any of the three |
+| Groundstroke speed (arm) | **−1.43%** | Falls over a 2 h 40 min lab protocol; no match figure exists | Hornery et al. 2007 | The serve's share, as the only match measure of the racket arm's output. This is the one value carried over from another stroke |
+| Groundstroke errors (legs, arm) | **0** | Across sets of 146 Grand Slam matches, return errors 3.6% → 3.0% and winners per error 1.1 → 1.2, no rise. A smaller study of 8 players found forehand success 75.2% → 65.5% | Cui et al. 2020; Pereira et al. 2016 | The larger match sample wins. Tired legs still cost accuracy indirectly: a slower player reaches the ball later and more stretched, and the game's stretch penalty applies |
+| Walking back between points (legs) | **−10.5%** | Time between points 20.91 s in set 1, 23.11 s in set 5, in 5 Australian Open five-setters | Carboch & Sklenářik 2018 | 23.11 / 20.91 − 1 |
 
-## In the game
+### What the breath store costs at 1 (exhaustion)
 
-- The scoreboard has a thin energy gauge under each name: green, then amber below 60%, then red below 35%.
-- The match statistics show the distance each player has run and the energy each has left.
-- A tired player's feet stop pattering between shots, and they walk back to the baseline more slowly.
-- `node tests/stamina.test.js` checks the cost model, the three stores, and that the end-of-match declines fall
-  inside the measured ranges.
+| Effect | Game value | What was measured | Source | How it became the game value |
+|---|---|---|---|---|
+| Groundstroke spread | **× 2.0** | Hitting accuracy −69% at volitional exhaustion | Davey et al. 2002 | If a target is hit with probability p, a 69% drop means hitting it with probability 0.31p. For a round target and normal scatter, that takes a spread 1.9–2.1 times wider, for any p from 0.3 to 0.6 (worked in `tests/stamina.test.js`) |
+| Serve spread | **× 1.3** | Serve accuracy −30% at exhaustion; serve precision 6.00 → 4.00 (−33%) after a 15 × 20 m shuttle run (perceived effort 9 out of 10) | Davey et al. 2002; Bilić et al. 2023 | The same conversion gives 1.27–1.33 |
+| Top speed, first step | **−9.5%** | Change-of-direction test 11.75 → 12.99 s after the same shuttle run, 21 players | Bilić et al. 2023 | 11.75 / 12.99 − 1 |
+| Groundstroke speed | **0** | Forehand speed 122.2 → 120.4 km/h after 10 consecutive hard forehands (not significant) | Brito et al. 2022 | No measured change |
+
+### Who is fitter
+
+Aerobic fitness sets how fast W′ comes back (Caen et al. 2021; Lievens et al. 2024). It also sets how hard ordinary
+play is for a player: fitter players play at a lower share of their maximum (Baiget et al. 2015). One standard
+deviation of tennis players' VO2max is 4.6 of 58.0 mL/kg/min, or **7.9%** (Baiget et al. 2015). A player one SD
+fitter therefore fills legs and arm 7.9% more slowly and gets his breath back 7.9% faster. On the player card that is
+**Stamina 90** against the field's **75**.
+
+No VO2max has been published for these players. The only stamina-related record that is published is the five-set
+record, and ATP published it for three of the thirteen (ATP Tour, January 2025): **Borg 27–6**, the best in the Open
+Era; **Djokovic 40–11**, third; and **Alcaraz 12–1**, too few matches to qualify. These three are rated one SD fitter.
+Everyone else is the field average, because nothing published says otherwise. A five-set record also reflects skill,
+so the step is kept to one SD rather than scaled to the records.
+
+### Removed from the first version, for lack of evidence
+
+- Endurance ratings set by reputation (Nadal 1.18, Sampras 0.86 and so on).
+- Fatigue carried into the next round of a tournament. All physical markers are back to baseline within 24 hours
+  (Girard et al. 2014; Poignard et al. 2023), and Grand Slam rounds are 48 hours apart.
+- Recovery of legs and arm while seated at changeovers, which the measured declines already include.
+- Long-term effects on serve accuracy and groundstroke errors, which match data do not show (see above).
+
+## Perfect timing: a game rule
+
+This one is not a measurement. A shot timed **Perfect** is struck clean on the sweet spot, so tiredness does not
+show in its accuracy or pace, and the arm feels half of it. A **Good** shot takes half the fatigue penalty. The
+reasoning: a clean strike on the sweet spot sends the least shock up the arm, and a well-prepared swing needs no
+extra effort to make up for tired legs. It rewards the player for timing well when tired, which is when it matters
+most.
+
+## Limits
+
+- **W′ comes from runners.** D′ was measured in marathon runners, not tennis players. Tennis players probably have
+  a larger one, which would make breath run out more slowly.
+- **Breath recovery comes from cyclists** (Chorley et al. 2022), and the split by depth interpolates between two
+  measured end points.
+- **Two exhaustion figures are dated.** The groundstroke figure is from 2002 (Davey et al.). The serve figure agrees
+  with a 2023 study (Bilić et al.), but no newer study measures groundstroke accuracy at exhaustion.
+- **The game's players run more than real ones.** A man covers 6.46 m a point by Hawk-Eye at the Australian Open
+  (Armstrong et al. 2024), 10.3–10.7 m by official match statistics (Cui et al. 2020) and 9.6 m by a meta-analysis
+  (Pluim et al. 2023). The game's players cover about 14 m (see the results). Legs and arm are calibrated to the
+  game's own five-setter, so this does not inflate the match-long effects. Breath is not: it works on real
+  physiology, so the game's extra running reaches it in full. That is a property of how the game's players move,
+  to fix there rather than here.
+- **The serve also slows within a single game.** Serve speed fell 141.7 → 134.9 km/h within a prolonged 12-point
+  service game (Brito et al. 2025). How hard that protocol was is not reported in a way that maps onto W′, so it is
+  left out.
+- **Pacing is not modelled.** Real players pace themselves (Reid & Duffield 2014; Martin et al. 2019), and the
+  game's computer players do not.
 
 ## References
 
-The paper details and DOIs were checked against PubMed.
+PubMed was used to check paper details and DOIs where the paper is indexed there.
 
 - Armstrong C, Peeling P, Murphy A, Reid M (2024). Navigating the court: a comparison of distance demands between sexes in Grand Slam tennis. *J Sports Sci Med* 23:1–7. [doi:10.52082/jssm.2024.1](https://doi.org/10.52082/jssm.2024.1)
+- Armstrong C, Reid M, Beale C, Girard O (2023). A comparison of match load between padel and singles and doubles tennis. *Int J Sports Physiol Perform* 18:512–522. [doi:10.1123/ijspp.2022-0330](https://doi.org/10.1123/ijspp.2022-0330)
+- ATP Tour (12 January 2025). Who has the best five-set record in tennis? [atptour.com](https://www.atptour.com/en/news/australian-open-2025-best-five-set-records)
+- Baiget E, Fernández-Fernández J, Iglesias X, Rodríguez FA (2015). Tennis play intensity distribution and relation with aerobic fitness in competitive players. *PLoS One* 10:e0131304. [doi:10.1371/journal.pone.0131304](https://doi.org/10.1371/journal.pone.0131304)
+- Bilić Z, Sinković F, Barbaros P, Novak D, Zemkova E (2023). Exercise-induced fatigue impairs change of direction performance and serve precision among young male tennis players. *Sports* 11:111. [doi:10.3390/sports11060111](https://doi.org/10.3390/sports11060111)
+- Brito AV, Carvalho DD, Fonseca P, et al. (2022). Shoulder torque production and muscular balance after long and short tennis points. *Int J Environ Res Public Health* 19:15857. [doi:10.3390/ijerph192315857](https://doi.org/10.3390/ijerph192315857)
+- Brito AV, Carvalho D, Silva M, et al. (2025). The effect of a prolonged tennis serve game on shoulder function, speed and precision. *Sports Biomech* 24:3655–3674. [doi:10.1080/14763141.2025.2552172](https://doi.org/10.1080/14763141.2025.2552172)
+- Caen K, Bourgois G, Dauwe C, et al. (2021). W′ recovery kinetics after exhaustion: a two-phase exponential process influenced by aerobic fitness. *Med Sci Sports Exerc* 53:1911–1921. [doi:10.1249/MSS.0000000000002673](https://doi.org/10.1249/MSS.0000000000002673)
+- Carboch J, Sklenářik M (2018). Rally pace development in five-set matches at the Australian Open 2017. *Studia Kinanthropologica* 19(1):7–13. [sk.pf.jcu.cz](https://sk.pf.jcu.cz/artkey/stk-201801-0001_vyvoj-tempa-hry-v-petisetovych-utkanich-na-australian-open-2017.php)
+- Chorley A, Bott RP, Marwood S, Lamb KL (2022). Bi-exponential modelling of W′ reconstitution kinetics in trained cyclists. *Eur J Appl Physiol* 122:677–689. [doi:10.1007/s00421-021-04874-3](https://doi.org/10.1007/s00421-021-04874-3)
+- Chorley A, Marwood S, Lamb KL (2023). A dynamic model of the bi-exponential reconstitution and expenditure of W′ in trained cyclists. *Eur J Sport Sci* 23:2368–2378. [doi:10.1080/17461391.2023.2238679](https://doi.org/10.1080/17461391.2023.2238679)
+- Cui Y, Liu H, Gómez MÁ, Liu H, Gonçalves B (2020). Set-to-set performance variation in tennis Grand Slams: play with consistency and risks. *J Hum Kinet* 73:153–163. [doi:10.2478/hukin-2019-0140](https://doi.org/10.2478/hukin-2019-0140)
 - Davey PR, Thorpe RD, Williams C (2002). Fatigue decreases skilled tennis performance. *J Sports Sci* 20:311–318. [doi:10.1080/026404102753576080](https://doi.org/10.1080/026404102753576080)
 - di Prampero PE, Fusi S, Sepulcri L, et al. (2005). Sprint running: a new energetic approach. *J Exp Biol* 208:2809–2816. [doi:10.1242/jeb.01700](https://doi.org/10.1242/jeb.01700)
 - Gescheit DT, Cormack SJ, Reid M, Duffield R (2015). Consecutive days of prolonged tennis match play: performance, physical, and perceptual responses in trained players. *Int J Sports Physiol Perform* 10:913–920. [doi:10.1123/ijspp.2014-0329](https://doi.org/10.1123/ijspp.2014-0329)
 - Girard O, Lattier G, Micallef JP, Millet GP (2006). Changes in exercise characteristics, maximal voluntary contraction, and explosive strength during prolonged tennis playing. *Br J Sports Med* 40:521–526. [doi:10.1136/bjsm.2005.023754](https://doi.org/10.1136/bjsm.2005.023754)
-- Girard O, Lattier G, Maffiuletti NA, et al. (2007). Neuromuscular fatigue during a prolonged intermittent exercise: application to tennis. *J Electromyogr Kinesiol* 18:1038–1046. [doi:10.1016/j.jelekin.2007.05.005](https://doi.org/10.1016/j.jelekin.2007.05.005)
 - Girard O, Christian RJ, Racinais S, Périard JD (2014). Heat stress does not exacerbate tennis-induced alterations in physical performance. *Br J Sports Med* 48:i39–i44. [doi:10.1136/bjsports-2013-093165](https://doi.org/10.1136/bjsports-2013-093165)
 - Hornery DJ, Farrow D, Mujika I, Young WB (2007). Caffeine, carbohydrate, and cooling use during prolonged simulated tennis. *Int J Sports Physiol Perform* 2:423–438. [doi:10.1123/ijspp.2.4.423](https://doi.org/10.1123/ijspp.2.4.423)
+- Jones AM, Vanhatalo A (2017). The 'critical power' concept: applications to sports performance with a focus on intermittent high-intensity exercise. *Sports Med* 47(Suppl 1):65–78. [doi:10.1007/s40279-017-0688-0](https://doi.org/10.1007/s40279-017-0688-0)
+- Lievens M, Ghijs M, Bourgois JG, et al. (2024). Characterizing the exponential profile of W′ recovery following partial depletion. *Med Sci Sports Exerc* 56:1770–1781. [doi:10.1249/MSS.0000000000003468](https://doi.org/10.1249/MSS.0000000000003468)
 - Maquirriain J, Baglione R, Cardey M (2016). Male professional tennis players maintain constant serve speed and accuracy over long matches on grass courts. *Eur J Sport Sci* 16:845–849. [doi:10.1080/17461391.2016.1156163](https://doi.org/10.1080/17461391.2016.1156163)
-- Martin C, Kulpa R, Ezanno F, et al. (2016). Influence of playing a prolonged tennis match on shoulder internal range of motion. *Am J Sports Med* 44:2147–2151. [doi:10.1177/0363546516645542](https://doi.org/10.1177/0363546516645542)
 - Martin C, Bideau B, Delamarche P, Kulpa R (2016). Influence of a prolonged tennis match play on serve biomechanics. *PLoS One* 11:e0159979. [doi:10.1371/journal.pone.0159979](https://doi.org/10.1371/journal.pone.0159979)
-- Osgnach C, Poser S, Bernardini R, et al. (2010). Energy cost and metabolic power in elite soccer: a new match analysis approach. *Med Sci Sports Exerc* 42:170–178. [doi:10.1249/MSS.0b013e3181ae5cfd](https://doi.org/10.1249/MSS.0b013e3181ae5cfd)
+- Martin C, Bideau B, Touzard P, Kulpa R (2019). Identification of serve pacing strategies during five-set tennis matches. *Int J Sports Sci Coach* 14:32–42. [doi:10.1177/1747954118806682](https://doi.org/10.1177/1747954118806682)
+- Osgnach C, Poser S, Bernardini R, Rinaldo R, di Prampero PE (2010). Energy cost and metabolic power in elite soccer: a new match analysis approach. *Med Sci Sports Exerc* 42:170–178. [doi:10.1249/MSS.0b013e3181ae5cfd](https://doi.org/10.1249/MSS.0b013e3181ae5cfd)
 - Pereira TJC, Nakamura FY, de Jesus MT, et al. (2016). Analysis of the distances covered and technical actions performed by professional tennis players during official matches. *J Sports Sci* 35:361–368. [doi:10.1080/02640414.2016.1165858](https://doi.org/10.1080/02640414.2016.1165858)
 - Pluim BM, Jansen MGT, Williamson S, et al. (2023). Physical demands of tennis across the different court surfaces, performance levels and sexes: a systematic review with meta-analysis. *Sports Med* 53:807–836. [doi:10.1007/s40279-022-01807-8](https://doi.org/10.1007/s40279-022-01807-8)
+- Poignard M, Guilhem G, Jubeau M, et al. (2023). Cold-water immersion and whole-body cryotherapy attenuate muscle soreness during 3 days of match-like tennis protocol. *Eur J Appl Physiol* 123:1895–1909. [doi:10.1007/s00421-023-05190-8](https://doi.org/10.1007/s00421-023-05190-8)
 - Reid M, Duffield R (2014). The development of fatigue during match-play tennis. *Br J Sports Med* 48:i7–i11. [doi:10.1136/bjsports-2013-093196](https://doi.org/10.1136/bjsports-2013-093196)
 - Skiba PF, Chidnok W, Vanhatalo A, Jones AM (2012). Modeling the expenditure and reconstitution of work capacity above critical power. *Med Sci Sports Exerc* 44:1526–1532. [doi:10.1249/MSS.0b013e3182517a80](https://doi.org/10.1249/MSS.0b013e3182517a80)

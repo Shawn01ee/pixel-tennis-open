@@ -20,10 +20,17 @@ tiebreak at 6–6, and a 10-point tiebreak at 6–6 in the deciding set. Choose 
 5 sets** (three sets to win, as in Grand Slam men's singles), or a single **10-point match tiebreak**. In a tournament the other matches are played out in full, in the same format, while you
 play yours; the draw shows them live.
 
-Players tire. Running drains the legs (top speed and first step), strokes drain the arm (pace, serve and
-accuracy), and a long rally leaves a player short of breath for the next point. Fitter players last longer. A thin
-gauge under each name on the scoreboard shows what is left. The model and the research behind it, with a chart of a
-five-setter, are in **[docs/stamina](docs/stamina/README.md)**.
+The players' numbers are fitted to their real statistics. Aces, double faults, first serves in, return points won,
+how often each serve-volleys, comes in, drops, slices and lobs, and his winners and errors against the tour come
+from the Tennis Abstract Match Charting Project, a shot-by-shot record of real matches. Each player is fitted until
+the game reproduces them. What is real, what is fitted and what is set by hand, with the game next to the real
+figures, is in **[docs/players](docs/players/README.md)**.
+
+Players tire, by the measurements of real ones. Running wears the legs (top speed and first step), strokes wear
+the arm (serve and groundstroke speed), and a long rally leaves a player short of breath, with looser shots, for the
+next point or two. A perfectly timed shot is struck clean: tiredness does not show in it. A thin gauge under each
+name on the scoreboard shows what is left. Where each number comes from, and what the game then does set by set
+next to real Grand Slam five-setters, is in **[docs/stamina](docs/stamina/README.md)**.
 
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
@@ -53,7 +60,9 @@ node tools/train.js 6                 # self-play: the computer players learn wh
 node tools/train.js eval              # each trained player against an untrained twin
 node tools/accuracy.js                # where each player's aimed shots land
 node tools/balance.js                 # aces, double faults, serve percentages and rally length over many sets
-node tools/stamina.js 20              # five-set matches headless: calibrates the fatigue model, redraws docs/stamina
+node tools/stamina.js 100             # best-of-five matches headless: calibrates fatigue, checks it set by set, redraws docs/stamina
+node tools/fit-players.js             # fits every player's numbers to his real statistics (data/mcp-players.json)
+node tools/players-doc.js             # rewrites docs/players from the fit
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.
@@ -83,6 +92,13 @@ Each player also has one signature trait on top of the ratings (`src/players/Tra
 measures what each is worth.
 
 How the strokes are built, each player's form and before/after pose sheets: **[docs/motion](docs/motion/README.md)**.
+
+## Data and licence
+
+The game's code is the project's own. The fitted player numbers (`src/players/fitted.js`) and the files in `data/`
+are derived from the [Tennis Abstract Match Charting Project](https://github.com/JeffSackmann/tennis_MatchChartingProject)
+and carry its licence, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): attribution,
+non-commercial use only, share alike. See [data/README.md](data/README.md).
 
 ## Layout
 
