@@ -1,0 +1,33 @@
+{
+ "rate": 48000,
+ "hit": {
+  "onsetMs": 0.08,
+  "parts": {
+   "contact": 990,
+   "dip": 250,
+   "ring": 1010
+  },
+  "upshift": true,
+  "ringVsCrackDb": -14.7,
+  "lengthMs": 18,
+  "flat": {
+   "db": -20.1,
+   "centroid": 3713
+  },
+  "spun": {
+   "db": -21.2,
+   "centroid": 3820
+  },
+  "flatLouderDarker": true
+ },
+ "bounce": {
+  "onsetMs": 0.15,
+  "parts": {
+   "first": 1000,
+   "thump": 250
+  },
+  "downshift": true,
+  "lengthMs": 25
+ },
+ "onsetOk": true
+}

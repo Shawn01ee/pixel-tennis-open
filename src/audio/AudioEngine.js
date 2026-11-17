@@ -45,6 +45,11 @@ class AudioEngine{
     setTimeout(()=>{try{g.disconnect();w.disconnect();if(p)p.disconnect();}catch(e){}},until*1000+250);
     return g;
   }
+  // a sound already rendered as samples (TennisSfx's chip sounds), placed and sent to the reverb like any other
+  play(data,pan=0,wet=.1){
+    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.copyToChannel(data,0);
+    s.buffer=b;s.connect(this.out(pan,wet,data.length/ac.sampleRate+.3));s.start(this.now);
+  }
   // a burst of noise through a filter, shaped by an attack and an exponential release
   burst(dest,t,{type='bandpass',f=1000,q=1,peak=.3,att=.002,rel=.05,pink=false,f2=null}){
     const ac=this.ac,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();

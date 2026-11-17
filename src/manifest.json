@@ -70,6 +70,8 @@
  "render/BallView.js",
  "render/Outfits.js",
  "audio/AudioEngine.js",
+ "audio/SoundData.js",
+ "audio/ChipVoice.js",
  "audio/TennisSfx.js",
  "audio/CrowdAudio.js",
  "audio/Announcer.js",

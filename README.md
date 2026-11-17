@@ -15,7 +15,9 @@ four majors of the game's own.
 He starts ranked 349 and climbs through Challengers, ATP 250s and 500s and the Masters 1000s to the four majors.
 The ranking points are the ATP's, the rest of the ranking is the real one of 16 November 2026, and how strong every
 player is comes from real Elo ratings; your level rises with every match. Play each match on court, or simulate it by
-the Elo odds. How it all works, and what is real and what is design, is in **[docs/career](docs/career/README.md)**.
+the Elo odds. Experience earns training points to put into the bars on his card; the PLAYER tab shows his card, his
+own match statistics, and what a point in each bar is measured to be worth. How it all works, and what is real and
+what is design, is in **[docs/career](docs/career/README.md)**.
 
 **The four majors** are the game's own, in the spirit of the real four: the **Pixel Tennis Open** (January, a summer
 hard court), the **Terre Battue Open** (late May, red clay), the **Old Lawn Championships** (late June, grass, players
@@ -43,6 +45,12 @@ the arm (serve and groundstroke speed), and a long rally leaves a player short o
 next point or two. A perfectly timed shot is struck clean: tiredness does not show in it. A thin gauge under each
 name on the scoreboard shows what is left. Where each number comes from, and what the game then does set by set
 next to real Grand Slam five-setters, is in **[docs/stamina](docs/stamina/README.md)**.
+
+The ☰ Menu (or Esc) pauses a match: step out of a career match and come back to it later, retire, or leave.
+
+The sounds of the ball are built from how real ones sound — a racket hit is a few cycles at about 1 kHz while the ball
+is on the strings, one at 250 Hz, then a quieter ring; a bounce drops from 1 kHz to a 250 Hz thump — and played on an
+8-bit sound chip, the NES's, to fit the pixels: **[docs/sound](docs/sound/README.md)**.
 
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.
@@ -86,9 +94,12 @@ node tools/rally-check.js 24 data/rally-check.json  # how points are played (dir
 node tools/fit-directions.js          # fits how often rally balls go down the middle and down the line
 node tools/players-doc.js             # rewrites docs/players from the fit and the rally check
 node tools/fit-levels.js              # fits how a player's Elo reaches the court, against Elo's odds
-node tools/career-doc.js              # rewrites docs/career from the career's data and the level fit
+node tools/fit-attributes.js          # what a trained point in each bar is worth in Elo (LEVEL_FIT.attr)
+node tools/career-doc.js              # rewrites docs/career from the career's data, the level fit and the training fit
 node tools/surface-check.js           # how the game plays on hard, clay and grass against the real tour on each
 node tools/surfaces-doc.js            # rewrites docs/surfaces from the courts' sources and the surface check
+node tools/sound-check.js             # renders the ball's sounds on the chip and measures them against their sources
+node tools/sound-doc.js               # rewrites docs/sound from the sounds' sources and the sound check
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.

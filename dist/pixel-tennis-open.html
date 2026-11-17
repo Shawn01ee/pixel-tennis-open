@@ -191,10 +191,10 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 @keyframes ping{to{inset:-12px;opacity:0}}
 .s-foot{width:min(1180px,100%);margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 12px}
 /* three settings in equal columns, each: label, a fixed-width stepper, two lines of description */
-.s-opts{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 22px;align-items:start}
+.s-opts{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;align-items:start}
 .s-opt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.s-opt>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
-.s-cyc{display:grid;grid-template-columns:34px 150px 34px;height:34px}.s-cyc button{min-height:0;height:34px;padding:0;font-size:15px}.s-cyc b{display:flex;align-items:center;justify-content:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);white-space:nowrap;overflow:hidden}
-.s-opt small{font-size:15px;line-height:1.2;color:var(--mute);min-height:2.4em;max-width:250px}
+.s-cyc{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;width:100%;max-width:300px;height:34px}.s-cyc button{min-height:0;height:34px;padding:0;font-size:15px}.s-cyc b{display:flex;align-items:center;justify-content:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.s-opt small{font-size:15px;line-height:1.2;color:var(--mute);max-width:340px}
 .s-foot .cta kbd{background:var(--navy);color:var(--ball)}
 /* versus */
 .vs-scr{justify-content:center;background:radial-gradient(ellipse at 50% 50%,#101a3add 0%,#0e0f1af5 75%);cursor:pointer}
@@ -334,7 +334,18 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .res td{padding:2px 0;border-top:2px solid var(--deep);color:var(--mute)}.res td:first-child,.res td:last-child{color:var(--chalk);width:30%}.res td:last-child{text-align:right}.res td:nth-child(2){text-align:center}
 .res .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 #howto{z-index:10}.howc{width:min(620px,100%)}.howc h2{font:700 18px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 12px}.howc .ms-keys dd{font-size:17px;line-height:1.2}.howc .acts{display:flex;justify-content:flex-end;margin-top:14px}
-#pause .card{width:auto;text-align:center}#pause h2{font:700 26px var(--display);margin:0 0 6px}
+#pause{z-index:9}.pm{width:min(760px,100%);position:relative}
+.pm-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--deep);padding-bottom:8px;margin-bottom:12px}
+.pm-h h2{margin:0;font:700 22px var(--display);letter-spacing:.12em}.pm-h span{color:var(--mute);font-size:17px}
+.pm-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px}
+.pm-col{display:flex;flex-direction:column;gap:8px;min-width:0}.pm-col>button{min-height:42px;width:100%;white-space:normal}
+.pm-acts{display:flex;flex-direction:column;gap:8px}.pm-acts button{min-height:42px;width:100%;text-align:left;padding:4px 12px;white-space:normal;line-height:1.1}
+.pm-acts button small{display:block;color:var(--mute);font-size:14px;margin-top:2px}.pm-acts button.danger{box-shadow:inset 0 0 0 2px #f0664a88}
+.pm-set h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:4px 0 0}.pm-set .row{display:flex;flex-wrap:wrap;gap:4px}.pm-set .row button{min-height:34px}
+.pm-set .lrn{margin:0;color:var(--mute);font-size:15px}
+.pm-confirm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;background:#0e0f1af2;text-align:center}
+.pm-confirm p{margin:0;font-size:20px;max-width:440px;line-height:1.2}.pm-cb{display:flex;gap:10px}.pm-cb button{min-height:44px;min-width:120px}
+.cta.danger{background:var(--coral);color:var(--chalk)}.cta.danger:hover{background:#ff7a59}
 #nogl{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:var(--navy);z-index:9;font-size:22px}
 
 @media (max-width:820px){
@@ -387,6 +398,28 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .ce-road .none{color:var(--mute)}.ce-seeds span{color:var(--lime);margin-left:6px}.ce-seeds li.out{color:var(--mute)}.ce-seeds li.out span{color:var(--coral)}
 .d-next .odds{margin-top:4px;color:var(--chalk)}.d-next .odds strong{color:var(--ball);font-weight:400}
 #cevent .d-note{width:min(1180px,100%)}
+/* career: the player tab */
+.ch-stat.pts{cursor:pointer;border-color:var(--ball);background:#f4d44a1a;min-height:0;font:inherit;padding:4px 10px 3px}.ch-stat.pts b{color:var(--ball)}.ch-stat.pts:hover{background:#f4d44a33}
+.cp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:start}.cp-l{display:grid;gap:12px;min-width:0}
+.cp-card{position:relative;overflow:hidden;display:flex;gap:12px;padding:12px;background:#0e0f1ae6;border:2px solid var(--deep)}
+.cp-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--kit)}
+.cp-card .face{width:96px;height:111px;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep),3px 3px 0 #0009;flex:none}
+.cp-id{min-width:0;display:flex;flex-direction:column;gap:3px}.cp-id small{font:700 9px/1.3 var(--display);letter-spacing:.1em;color:var(--sky)}
+.cp-id b{font:700 18px/1.1 var(--display);text-shadow:0 3px 0 var(--ink);overflow-wrap:anywhere}.cp-id>span{color:var(--mute);font-size:16px;line-height:1.1}
+.cp-ovr{margin-top:auto;display:flex;align-items:center;gap:8px}.cp-ovr strong{font:700 40px/1 var(--display);color:var(--ball);text-shadow:0 3px 0 var(--ink)}
+.cp-ovr span{font:700 9px/1.5 var(--display);letter-spacing:.1em;color:var(--mute)}
+.cp-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:6px}.cp-tile{background:var(--navy);border:2px solid var(--deep);padding:6px 6px 5px;text-align:center}
+.cp-tile b{display:block;font:700 16px/1.1 var(--display);color:var(--chalk)}.cp-tile small{display:block;margin-top:3px;font:700 8px/1.3 var(--display);letter-spacing:.08em;color:var(--sky)}
+.cp-train header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}.cp-train header h3{margin:0}
+.cp-pts{font-size:17px;color:var(--mute)}.cp-pts b{font:700 18px var(--display);color:var(--chalk);margin-right:4px}.cp-pts.on b{color:var(--ball);animation:pulse 1s steps(2) infinite}
+.cp-rows{display:grid;gap:8px;margin-top:8px}
+.cp-row{display:grid;grid-template-columns:76px minmax(0,1fr) 30px auto;grid-template-rows:auto auto;gap:3px 8px;align-items:center}
+.cp-n{font-size:17px;color:var(--chalk)}.cp-v{font:700 15px var(--display);color:var(--ball);text-align:right}
+.cp-bar{position:relative;height:10px;background:var(--ink);box-shadow:inset 0 0 0 1px var(--deep)}.cp-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--azure),var(--sky))}
+.cp-bar u{position:absolute;top:0;bottom:0;background:var(--ball);box-shadow:0 0 6px #f4d44a88}
+.cp-btns{display:flex;gap:4px}.cp-btns button{min-width:32px;min-height:30px;padding:0;font:700 16px var(--display)}.cp-btns button[data-up]:not(:disabled){background:var(--ball);color:var(--navy);border-color:var(--ink)}
+.cp-btns button:disabled{opacity:.3;cursor:default}
+.cp-e{grid-column:1/-1;font-size:14px;color:var(--mute);line-height:1.15}.cp-e em{font-style:normal;color:var(--ball)}.cp-e .cp-neg{color:var(--coral)}
 /* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
 .shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
@@ -449,6 +482,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .fe>.d-acts{position:sticky;bottom:0;padding:8px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(#0e0f1a00,#0e0f1af2 30%);z-index:2}
   .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
   .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
+  .pm-grid{grid-template-columns:1fr}.pm{padding:12px}
   .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
   .cc-main{grid-template-columns:minmax(0,1fr)}.cc-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:2px 10px;text-align:left;padding:10px}.cc-card .face{grid-row:1/6;width:72px;height:83px;margin:0}
   .cc-card h2{font-size:15px;margin:2px 0}.cc-card p{font-size:15px;margin-top:2px}.cc-opts{gap:4px 8px}.cc-opts .s-cyc{grid-template-columns:30px minmax(0,1fr) 30px;height:32px}.cc-opts .s-cyc button{height:32px}
@@ -456,12 +490,14 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .ch-tabs button{flex:1;padding:0 4px;font-size:10px}.ch-body{padding:10px}.ch-rank{font-size:16px}.ch-rank td{padding:2px 3px}
   .ch-stars{grid-template-columns:repeat(5,1fr)}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
   #cevent .d-note{order:1;margin:0 0 10px}#cevent .ce-path{order:2;margin-top:0}#cevent .d-acts{order:3}
+  .cp-card .face{width:64px;height:74px}.cp-id b{font-size:15px}.cp-ovr strong{font-size:30px}
+  .cp-row{grid-template-columns:64px minmax(0,1fr) 26px auto}.cp-btns button{min-width:36px;min-height:34px}
   #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
 }
-@media(max-width:620px){.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
+@media(max-width:620px){.cp{grid-template-columns:1fr}.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
 @media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
-  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(4,auto);gap:4px 8px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
-  .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
+  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
+  .s-cyc{grid-template-columns:28px minmax(0,1fr) 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
 </style>
 </head>
 <body>
@@ -477,16 +513,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     </section>
     <div class="tools">
       <button id="statsT" aria-expanded="false" aria-controls="statsP">Stats</button>
-      <button id="menuT" aria-expanded="false" aria-controls="menuP">View</button>
+      <button id="menuT" aria-haspopup="dialog" aria-label="Menu: pause, settings, leave">☰ Menu<kbd>Esc</kbd></button>
       <section id="statsP" class="panel pop" hidden aria-label="Match statistics"></section>
-      <section id="menuP" class="panel pop" hidden aria-label="View and settings">
-        <h3>CAMERA</h3><div class="row" id="camRow"></div>
-        <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
-        <h3>SESSION</h3><div class="row" id="phaseRow"></div>
-        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">Main menu</button></div>
-        <div class="row"><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
-        <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
-      </section>
     </div>
   </div>
   <div class="mid">
@@ -570,7 +598,20 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
 <div class="overlay" id="howto" hidden><div class="card howc"><h2>HOW TO PLAY</h2><dl class="ms-keys" id="howB"></dl><div class="acts"><button class="cta" id="howX">Got it ▶</button></div></div></div>
-<div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>
+<div class="overlay" id="pause" hidden role="dialog" aria-modal="true" aria-labelledby="pmTitle"><div class="card pm">
+  <header class="pm-h"><h2 id="pmTitle">PAUSED</h2><span id="pmWhere"></span></header>
+  <div class="pm-grid">
+    <section class="pm-col"><button class="cta" id="resume">Resume ▶<kbd>Esc</kbd></button><div id="pmActs" class="pm-acts"></div><button id="pmHow">How to play</button></section>
+    <section class="pm-col pm-set">
+      <h3>CAMERA</h3><div class="row" id="camRow"></div>
+      <div class="row"><button id="tl" aria-label="Turn left">⟲ Turn<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">Turn ⟳<kbd>E</kbd></button></div>
+      <h3>SESSION</h3><div class="row" id="phaseRow"></div>
+      <h3>PLAY</h3><div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="autoB" aria-pressed="false">Auto<kbd>Space</kbd></button><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
+      <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
+    </section>
+  </div>
+  <div class="pm-confirm" id="pmConfirm" hidden><p id="pmQ"></p><div class="pm-cb"><button id="pmNo">Cancel</button><button class="cta danger" id="pmYes">Yes</button></div></div>
+</div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script>
 (()=>{'use strict';
@@ -1143,7 +1184,7 @@ class Player extends Agent{
     this.cheer=0;this.sulk=0;this.split=0;this.ritual=0;this.ritualT=0;this.lastStep=0;this.ms=Player.freshStats();
     this.sta=new Stamina(profile);
   }
-  static freshStats(){return{aces:0,df:0,win:0,ue:0,sv1:0,sv1in:0,won1:0,sv2:0,won2:0,fast:0,pts:0,bpW:0,bpT:0};}
+  static freshStats(){return{aces:0,df:0,win:0,ue:0,sv1:0,sv1in:0,won1:0,sv2:0,won2:0,fast:0,pts:0,bpW:0,bpT:0,perfect:0};}
   get facing(){return this.s>0?PI:0;}
   resetRally(){this.plan=null;this.planAt=0;this.gx=this.x;this.gz=this.z;this.rush=false;this.leaving=false;}
   // time to cover d metres from rest at full effort
@@ -1285,7 +1326,7 @@ class Traits{
   static of(P){return TRAITS[P.st.trait]||Traits.NONE;}
 }
 
-// fitted — each player's numbers fitted to his real statistics by tools/fit-players.js (2026-11-16)
+// fitted — each player's numbers fitted to his real statistics by tools/fit-players.js (2026-11-17)
 // Derived from the Tennis Abstract Match Charting Project (https://github.com/JeffSackmann/tennis_MatchChartingProject),
 // licensed CC BY-NC-SA 4.0: these numbers are under the same licence, for non-commercial use with attribution.
 // s1 first-serve speed (m/s), set by aces · serr, serr2 first- and second-serve error scale, by first serves in and double
@@ -1293,38 +1334,38 @@ class Traits{
 // shot · aggr risk, from the aggression score ((winners + errors) per shot) · sv, net, drop, slice, lob: how often
 // he serve-volleys, comes in, drops, slices and lobs, by how often he really does. See docs/players.
 const FITTED={
- "Djokovic":{"s1":54.91,"serr":0.386,"serr2":0.483,"rerr":2.166,"err":2.22,"power":0.915,"aggr":0.398,"sv":0.03,"net":3,"drop":0.825,"slice":1.89,"lob":0.485},
- "Nadal":{"s1":51.29,"serr":0.422,"serr2":0.523,"rerr":0.876,"err":1.783,"power":0.989,"aggr":0.434,"sv":0.022,"net":3,"drop":0.324,"slice":1.839,"lob":0.351},
- "Alcaraz":{"s1":54.88,"serr":0.374,"serr2":0.423,"rerr":0.174,"err":2.05,"power":0.912,"aggr":0.567,"sv":0.069,"net":3,"drop":0.361,"slice":3,"lob":0.598},
- "Federer":{"s1":56.22,"serr":0.361,"serr2":0.392,"rerr":0.035,"err":2.195,"power":0.956,"aggr":0.57,"sv":0.12,"net":3,"drop":0.455,"slice":3,"lob":0.187},
- "Sinner":{"s1":55.68,"serr":0.413,"serr2":0.413,"rerr":0.471,"err":2.064,"power":0.918,"aggr":0.463,"sv":0.021,"net":3,"drop":1.029,"slice":0.259,"lob":0.044},
- "Medvedev":{"s1":56.05,"serr":0.467,"serr2":0.56,"rerr":0.842,"err":1.81,"power":0.885,"aggr":0.369,"sv":0.014,"net":3,"drop":0.566,"slice":0.726,"lob":0.297},
- "Zverev":{"s1":53.12,"serr":0.699,"serr2":0.674,"rerr":0.611,"err":1.282,"power":1.007,"aggr":0.458,"sv":0.032,"net":3,"drop":0.255,"slice":0.614,"lob":0.061},
- "de Minaur":{"s1":53.85,"serr":0.497,"serr2":0.476,"rerr":0.794,"err":1.584,"power":0.871,"aggr":0.402,"sv":0.014,"net":1.993,"drop":0.194,"slice":1.773,"lob":0.437},
- "Sampras":{"s1":55.97,"serr":0.442,"serr2":0.638,"rerr":0.064,"err":2.229,"power":0.997,"aggr":0.693,"sv":0.681,"net":0.085,"drop":0.105,"slice":3,"lob":0.295},
- "Borg":{"s1":52.03,"serr":0.506,"serr2":0.349,"rerr":0.627,"err":1.542,"power":0.929,"aggr":0.394,"sv":0.248,"net":3,"drop":0.019,"slice":0.793,"lob":1.114},
- "Agassi":{"s1":53.1,"serr":0.45,"serr2":0.356,"rerr":1.399,"err":1.713,"power":0.907,"aggr":0.491,"sv":0.023,"net":2.289,"drop":0.338,"slice":0.453,"lob":0.377},
- "Murray":{"s1":57.7,"serr":0.366,"serr2":0.334,"rerr":0.472,"err":2.282,"power":0.727,"aggr":0.404,"sv":0.027,"net":3,"drop":0.607,"slice":3,"lob":0.778},
- "McEnroe":{"s1":53.59,"serr":0.215,"serr2":0.236,"rerr":0,"err":3.87,"power":0.807,"aggr":0.686,"sv":0.963,"net":1.226,"drop":0.197,"slice":3,"lob":0.933},
+ "Djokovic":{"s1":54.62,"serr":0.528,"serr2":0.598,"rerr":2.674,"err":1.602,"power":0.99,"aggr":0.411,"sv":0.03,"net":1.328,"drop":0.514,"slice":1.087,"lob":0.328},
+ "Nadal":{"s1":52.37,"serr":0.569,"serr2":0.621,"rerr":1.341,"err":1.371,"power":0.999,"aggr":0.429,"sv":0.023,"net":0.804,"drop":0.175,"slice":1.787,"lob":0.283},
+ "Alcaraz":{"s1":54.78,"serr":0.374,"serr2":0.395,"rerr":0.049,"err":1.986,"power":0.94,"aggr":0.556,"sv":0.072,"net":2.946,"drop":0.192,"slice":2.389,"lob":0.397},
+ "Federer":{"s1":59.06,"serr":0.372,"serr2":0.326,"rerr":0.001,"err":2.065,"power":0.994,"aggr":0.56,"sv":0.124,"net":2.799,"drop":0.265,"slice":3,"lob":0.084},
+ "Sinner":{"s1":56.18,"serr":0.469,"serr2":0.509,"rerr":0.275,"err":1.774,"power":0.954,"aggr":0.466,"sv":0.02,"net":1.673,"drop":0.31,"slice":0.326,"lob":0.066},
+ "Medvedev":{"s1":56.71,"serr":0.645,"serr2":0.833,"rerr":1.009,"err":1.303,"power":0.949,"aggr":0.376,"sv":0.014,"net":2.008,"drop":0.342,"slice":0.57,"lob":0.222},
+ "Zverev":{"s1":54.29,"serr":0.854,"serr2":0.891,"rerr":0.889,"err":1.118,"power":0.981,"aggr":0.466,"sv":0.032,"net":3,"drop":0.176,"slice":0.869,"lob":0.193},
+ "de Minaur":{"s1":52.69,"serr":0.812,"serr2":0.784,"rerr":1.636,"err":1.028,"power":0.929,"aggr":0.397,"sv":0.014,"net":0.811,"drop":0.097,"slice":1.258,"lob":0.405},
+ "Sampras":{"s1":57.49,"serr":0.417,"serr2":0.608,"rerr":0.002,"err":2.284,"power":0.982,"aggr":0.667,"sv":0.7,"net":0.012,"drop":0.014,"slice":3,"lob":0.176},
+ "Borg":{"s1":53.2,"serr":0.674,"serr2":0.555,"rerr":0.893,"err":1.292,"power":0.989,"aggr":0.383,"sv":0.241,"net":1.307,"drop":0.021,"slice":0.78,"lob":1.72},
+ "Agassi":{"s1":53.28,"serr":0.632,"serr2":0.58,"rerr":2.074,"err":1.206,"power":0.967,"aggr":0.496,"sv":0.024,"net":0.828,"drop":0.081,"slice":0.392,"lob":0.439},
+ "Murray":{"s1":55.98,"serr":0.597,"serr2":0.621,"rerr":0.948,"err":1.426,"power":0.957,"aggr":0.396,"sv":0.026,"net":0.776,"drop":0.429,"slice":3,"lob":0.888},
+ "McEnroe":{"s1":52.8,"serr":0.231,"serr2":0.244,"rerr":0,"err":3.698,"power":0.79,"aggr":0.646,"sv":0.949,"net":0.512,"drop":0.065,"slice":3,"lob":0.368},
 };
 // the tour-average opponent the players were fitted against: the player card rates each number against it
-const FITTED_TOUR={"s1":58.628,"serr":0.482,"serr2":0.547,"rerr":0.66,"err":1.627,"power":1.012,"aggr":0.5,"sv":0.052,"net":1.357,"drop":0.314,"slice":1.784,"lob":0.154};
+const FITTED_TOUR={"s1":58.051,"serr":0.589,"serr2":0.654,"rerr":0.628,"err":1.281,"power":1.011,"aggr":0.5,"sv":0.052,"net":0.676,"drop":0.209,"slice":1.627,"lob":0.221};
 // each player's real statistics and the tour's (Match Charting Project), for the player card
 const MCP_RATES={
- "Djokovic":{"ace":0.0761,"df":0.0293,"firstIn":0.6475,"returnWon":0.4083,"snv":0.0247,"net":0.1168,"drop":0.0131,"slice":0.071,"lob":0.0103,"winners":0.0563,"errors":0.1074},
- "Nadal":{"ace":0.0472,"df":0.0254,"firstIn":0.6764,"returnWon":0.3795,"snv":0.0182,"net":0.0899,"drop":0.0059,"slice":0.0813,"lob":0.0082,"winners":0.0627,"errors":0.1154},
- "Alcaraz":{"ace":0.0626,"df":0.0285,"firstIn":0.6523,"returnWon":0.4066,"snv":0.0579,"net":0.1332,"drop":0.0252,"slice":0.1095,"lob":0.0138,"winners":0.0862,"errors":0.1469},
- "Federer":{"ace":0.1051,"df":0.0247,"firstIn":0.62,"returnWon":0.3976,"snv":0.0963,"net":0.1684,"drop":0.0089,"slice":0.1729,"lob":0.0083,"winners":0.0868,"errors":0.1473},
- "Sinner":{"ace":0.0947,"df":0.0268,"firstIn":0.6074,"returnWon":0.4043,"snv":0.0159,"net":0.1006,"drop":0.0112,"slice":0.0407,"lob":0.0051,"winners":0.0629,"errors":0.1274},
- "Medvedev":{"ace":0.1106,"df":0.0502,"firstIn":0.6283,"returnWon":0.3966,"snv":0.0113,"net":0.0962,"drop":0.0129,"slice":0.0571,"lob":0.0094,"winners":0.0474,"errors":0.1041},
- "Zverev":{"ace":0.1141,"df":0.0395,"firstIn":0.6955,"returnWon":0.3548,"snv":0.0267,"net":0.1224,"drop":0.0063,"slice":0.0671,"lob":0.0065,"winners":0.0602,"errors":0.1279},
- "de Minaur":{"ace":0.0483,"df":0.0308,"firstIn":0.5885,"returnWon":0.3852,"snv":0.0111,"net":0.1196,"drop":0.005,"slice":0.0924,"lob":0.0103,"winners":0.0468,"errors":0.1183},
- "Sampras":{"ace":0.1409,"df":0.0459,"firstIn":0.5832,"returnWon":0.3609,"snv":0.5271,"net":0.3483,"drop":0.0016,"slice":0.1626,"lob":0.0093,"winners":0.1123,"errors":0.1722},
- "Borg":{"ace":0.0444,"df":0.032,"firstIn":0.5727,"returnWon":0.4497,"snv":0.1897,"net":0.2333,"drop":0.0004,"slice":0.0515,"lob":0.0191,"winners":0.0671,"errors":0.0949},
- "Agassi":{"ace":0.0585,"df":0.0282,"firstIn":0.6294,"returnWon":0.3887,"snv":0.0191,"net":0.0945,"drop":0.0047,"slice":0.0416,"lob":0.0111,"winners":0.0749,"errors":0.1271},
- "Murray":{"ace":0.0814,"df":0.0338,"firstIn":0.5888,"returnWon":0.3869,"snv":0.02,"net":0.1089,"drop":0.0122,"slice":0.1225,"lob":0.0172,"winners":0.0503,"errors":0.1158},
- "McEnroe":{"ace":0.066,"df":0.0434,"firstIn":0.5792,"returnWon":0.3615,"snv":0.7252,"net":0.5125,"drop":0.0055,"slice":0.1487,"lob":0.0212,"winners":0.1091,"errors":0.1728},
- "Tour":{"ace":0.0914,"df":0.0351,"firstIn":0.6249,"returnWon":0.3531,"snv":0.0415,"net":0.1192,"drop":0.0114,"slice":0.1078,"lob":0.0105,"winners":0.0648,"errors":0.1406},
+ "Djokovic":{"ace":0.0761,"df":0.0293,"firstIn":0.6475,"returnWon":0.4083,"snv":0.0247,"net":0.1168,"drop":0.0121,"slice":0.0658,"lob":0.0095,"winners":0.0522,"errors":0.1386},
+ "Nadal":{"ace":0.0472,"df":0.0254,"firstIn":0.6764,"returnWon":0.3795,"snv":0.0182,"net":0.0899,"drop":0.0055,"slice":0.0749,"lob":0.0075,"winners":0.0578,"errors":0.1413},
+ "Alcaraz":{"ace":0.0626,"df":0.0285,"firstIn":0.6523,"returnWon":0.4066,"snv":0.0579,"net":0.1332,"drop":0.0228,"slice":0.0992,"lob":0.0125,"winners":0.0781,"errors":0.18},
+ "Federer":{"ace":0.1051,"df":0.0247,"firstIn":0.62,"returnWon":0.3976,"snv":0.0963,"net":0.1684,"drop":0.008,"slice":0.1567,"lob":0.0075,"winners":0.0787,"errors":0.1814},
+ "Sinner":{"ace":0.0947,"df":0.0268,"firstIn":0.6074,"returnWon":0.4043,"snv":0.0159,"net":0.1006,"drop":0.0102,"slice":0.0373,"lob":0.0047,"winners":0.0577,"errors":0.1584},
+ "Medvedev":{"ace":0.1106,"df":0.0502,"firstIn":0.6283,"returnWon":0.3966,"snv":0.0113,"net":0.0962,"drop":0.012,"slice":0.053,"lob":0.0087,"winners":0.044,"errors":0.1307},
+ "Zverev":{"ace":0.1141,"df":0.0395,"firstIn":0.6955,"returnWon":0.3548,"snv":0.0267,"net":0.1224,"drop":0.0057,"slice":0.0614,"lob":0.006,"winners":0.0551,"errors":0.1609},
+ "de Minaur":{"ace":0.0483,"df":0.0308,"firstIn":0.5885,"returnWon":0.3852,"snv":0.0111,"net":0.1196,"drop":0.0046,"slice":0.0853,"lob":0.0096,"winners":0.0432,"errors":0.1409},
+ "Sampras":{"ace":0.1409,"df":0.0459,"firstIn":0.5832,"returnWon":0.3609,"snv":0.5271,"net":0.3483,"drop":0.0014,"slice":0.144,"lob":0.0082,"winners":0.0995,"errors":0.2101},
+ "Borg":{"ace":0.0444,"df":0.032,"firstIn":0.5727,"returnWon":0.4497,"snv":0.1897,"net":0.2333,"drop":0.0004,"slice":0.0484,"lob":0.018,"winners":0.0631,"errors":0.1145},
+ "Agassi":{"ace":0.0585,"df":0.0282,"firstIn":0.6294,"returnWon":0.3887,"snv":0.0191,"net":0.0945,"drop":0.0043,"slice":0.038,"lob":0.0102,"winners":0.0684,"errors":0.1616},
+ "Murray":{"ace":0.0814,"df":0.0338,"firstIn":0.5888,"returnWon":0.3869,"snv":0.02,"net":0.1089,"drop":0.0114,"slice":0.1143,"lob":0.016,"winners":0.047,"errors":0.1368},
+ "McEnroe":{"ace":0.066,"df":0.0434,"firstIn":0.5792,"returnWon":0.3615,"snv":0.7252,"net":0.5125,"drop":0.0049,"slice":0.1308,"lob":0.0187,"winners":0.0959,"errors":0.204},
+ "Tour":{"ace":0.0914,"df":0.0351,"firstIn":0.6249,"returnWon":0.3531,"snv":0.0415,"net":0.1192,"drop":0.0104,"slice":0.0982,"lob":0.0095,"winners":0.0591,"errors":0.1729},
 };
 
 // roster — the players: eight of today's field and five legends. Where each number comes from (docs/players):
@@ -1641,6 +1682,8 @@ class Match{
   // timed ball is struck clean on the sweet spot: tiredness does not show in it, and less of the shock reaches the arm
   static TIMING={late:{text:'Late',err:1.2,v:.97,fat:1,arm:1},perfect:{text:'Perfect',err:.65,v:1.04,fat:0,arm:.5},good:{text:'Good',err:.85,v:1.02,fat:.5,arm:1},early:{text:'',err:1,v:1,fat:1,arm:1}};
   static timing(d){const T=Match.TIMING;return d<.05?T.late:d<=.35?T.perfect:d<=.7?T.good:T.early;}
+  // the shots of feel: a career player's trained touch (touchK) takes errors off these
+  static FINESSE=new Set(['drop','dropvolley','volley','putaway','slice','lob','angle']);
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -1717,6 +1760,17 @@ class Match{
   setServe(k,force=false){const C=this.control;C.serveType=!force&&C.serveType===k?null:k;}
   setZone(k){const C=this.control;C.zone=k;C.target=null;}
   setAuto(on){this.control.auto=on;if(on)this.control.decide=null;}
+  // a player retires (idx): the match ends at once, the other the winner; the score as it stood, marked "ret."
+  retire(idx){
+    const sc=this.score;if(!sc||this.result)return;const w=1-idx,W=this.players[w],L=this.players[idx],C=this.control;
+    this.tasks.length=0;this.live=false;this.cue=null;C.decide=null;C.serveWait=null;C.challenge=null;
+    if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.ball=null;}
+    const cur=sc.over?'':(sc.games[w]||sc.games[idx]?`${sc.games[w]}–${sc.games[idx]}`:'');
+    this.stage='over';sc.over=true;sc.winner=w;this.big=null;this.mood.matchOver(W);
+    for(const P of this.players){P.mode='walk';P.plan=null;P.swing=null;}
+    this.result={w,winner:W,loser:L,line:`${[sc.line(w),cur].filter(Boolean).join(' ')} ret.`.trim(),longest:this.longest,retired:true};
+    this.ev('matchOver',this.result);this.go(L,CHAIR.x,L.s*CHAIR.z,1.5);this.go(W,.3,W.s*4,1.5);
+  }
 
   // ──────── director ────────
   *director(){
@@ -2040,7 +2094,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed,fat=1){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35)*(st.rerr??1):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*(1+(P.sta.err-1)*fat);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35)*(st.rerr??1):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*(st.touchK&&Match.FINESSE.has(S.tac)?st.touchK:1)*(1+(P.sta.err-1)*fat);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -2058,7 +2112,7 @@ class Match{
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
-    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;
+    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;if(tq===Match.TIMING.perfect)P.ms.perfect++;
     if(human){C.target=null;C.shot=null;C.shotAt=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball
@@ -2317,7 +2371,9 @@ const CAREER_DATA={
 // kappa: a player rated E Elo plays with errors and placement spread multiplied by exp(kappa·(Ea − E)/400) next to
 // the roster player whose way of playing he shares (rated Ea, his peak). Fitted so that two such players, 200 Elo
 // apart, win best-of-three matches against each other as often as Elo says (76%). See docs/career.
-const LEVEL_FIT={kappa:0.1129,fitted:'2026-11-17'};
+const LEVEL_FIT={kappa:0.1009,fitted:'2026-11-17'};
+// attr: Elo a trained point is worth, measured by tools/fit-attributes.js (2026-11-17); attrRaw: [measured, 95% low, high]; see docs/career
+LEVEL_FIT.attr={"serve":4.2,"power":0,"speed":4.8,"spin":3.5,"control":39.7,"accuracy":26.5,"touch":12,"stamina":3.7};LEVEL_FIT.attrRaw={"serve":[4.2,0.4,8],"power":[-6.5,-10.4,-2.8],"speed":[4.8,1.1,8.6],"spin":[3.5,-0.2,7.3],"control":[39.7,34.1,47.4],"accuracy":[26.5,22,31.9],"touch":[12,8.2,16.2],"stamina":[3.7,0,7.5]};
 
 // EloModel — how likely one player is to beat another, from their Elo ratings, the way Tennis Abstract rates players
 // A gap of d points gives the stronger player 1/(1+10^(−d/400)) of best-of-three matches: 64% at 100 points, 76% at
@@ -2351,20 +2407,31 @@ class WorldRanking{
 // ranked below the thirteen. Each plays like one roster player (his archetype: the same fitted serve, shots,
 // movement and choices) at his own level: a level below the archetype's peak Elo multiplies errors and placement
 // spread by exp(kappa·(Ea − E)/400) (LEVEL_FIT, fitted by tools/fit-levels.js). No signature trait.
-// The card's bars: the archetype's, with control and accuracy moved by the same rules the card uses for everyone
-// (control: 40 points per doubling of errors; accuracy: from the placement spread)
+// The person's player can also be trained (o.train: rating points added to the card's bars). A point moves the number
+// behind its bar by one step of the card's own scale (PlayerProfile.ratings): serve 20/55 m/s of first-serve speed,
+// power 0.45/55 of shot power, speed 1.8/55 m/s of top speed and first step, spin 2100/55 rpm, control errors × 2^(−1/40),
+// accuracy 0.65/55 of placement spread, touch the errors of the shots of feel × 2^(−1/25), stamina 1/15 of a standard
+// deviation of endurance. What a point is worth in Elo is measured by tools/fit-attributes.js (LEVEL_FIT.attr).
+// The card's bars: the archetype's, with control and accuracy moved by the level, and the trained points on top
 class CareerProfile extends PlayerProfile{
-  // a: the archetype (a roster profile); E: this player's Elo; o: who he is (name, short, cc, look, face, hand, ohb, …)
+  static ATTRS=['serve','power','speed','spin','control','accuracy','touch','stamina'];
+  // a: the archetype (a roster profile); E: this player's Elo; o: who he is (name, short, cc, look, face, hand, ohb, train, …)
   static make(a,E,o){
-    const m=CareerProfile.mult(E,a),base=a.ratings;
+    const m=CareerProfile.mult(E,a),base=a.ratings,t=o.train||{},d=k=>t[k]||0,sp=d('speed')*1.8/55;
     return new CareerProfile({...a,trait:null,legend:false,fiveSets:undefined,end:1,...o,elo:E,m,base,
-      err:a.err*m,acc:(a.acc??1)*m,tkey:a.short,frozen:true,arch:a.short});
+      err:a.err*m*Math.pow(2,-d('control')/40),acc:Math.max(.3,(a.acc??1)*m-d('accuracy')*.65/55),tkey:a.short,frozen:true,arch:a.short,
+      s1:a.s1+d('serve')*20/55,power:a.power+d('power')*.45/55,v:a.v+sp*.6,a:a.a+sp*.4/.08,spin:a.spin+d('spin')*2100/55,
+      touchK:Math.pow(2,-d('touch')/25),end:1+d('stamina')*Stamina.SD/15});
   }
   static peak(a){return CAREER_DATA.PEAK_ELO[a.short]??2200;}
   static mult(E,a){return Math.exp(LEVEL_FIT.kappa*(CareerProfile.peak(a)-E)/400);}
+  // the Elo the trained points are worth, by the game's own measure of each (LEVEL_FIT.attr)
+  static trainedElo(t){let e=0;for(const k in t||{})e+=(t[k]||0)*((LEVEL_FIT.attr||{})[k]||0);return e;}
   get ratings(){
-    const b=this.base,r=v=>Math.round(clamp(v,45,100));
-    return{...b,control:r(b.control-40*Math.log2(this.m)),accuracy:r(45+55*clamp((1.25-(this.acc??1))/.65,0,1)),stamina:r(75+15*((this.end??1)-1)/Stamina.SD)};
+    const b=this.base,t=this.train||{},d=k=>t[k]||0,r=v=>Math.round(clamp(v,45,100));
+    return{serve:r(b.serve+d('serve')),power:r(b.power+d('power')),speed:r(b.speed+d('speed')),spin:r(b.spin+d('spin')),
+      control:r(b.control-40*Math.log2(this.m)+d('control')),accuracy:r(45+55*clamp((1.25-(this.acc??1))/.65,0,1)),
+      touch:r(b.touch+d('touch')),stamina:r(75+15*((this.end??1)-1)/Stamina.SD)};
   }
 }
 
@@ -2507,7 +2574,7 @@ class CareerEvent{
   get mine(){return this.d.rounds[this.d.round].find(m=>m.a==='me'||m.b==='me')||null;}
   get opponent(){const m=this.mine;return m?(m.a==='me'?m.b:m.a):null;}
   // Elo of anyone in the draw
-  elo(key){return key==='me'?this.c.level:this.c.entry(key).elo;}
+  elo(key){return key==='me'?this.c.strength:this.c.entry(key).elo;}
   rng(){return new Rng((this.d.seed*31+(++this.d.k)*7)|0);}
   // decide a match by Elo
   decide(m){const g=this.rng(),p=EloModel.win(this.elo(m.a)-this.elo(m.b),this.tier.sets);m.w=g.next()<p?m.a:m.b;}
@@ -2543,6 +2610,9 @@ class Career{
   static KEY='pto.career.v1';
   static START={year:2027,level:1452,points:[25,25,25,25,25,25],ceiling:2350,rate:.006};   // design; 1452: Elo at rank 300
   static XP={match:1,win:2,train:2};                                                         // design
+  // training points: a few to start with, then one for every two points of experience; a bar takes at most CAP of
+  // them above where the player's model put it, and never passes 99 (design)
+  static TRAIN={start:5,perXp:.5,cap:25};
   static MILESTONES=[
     ['firstWin','First win on the tour'],['firstTitle','First title'],['top200','Top 200'],['top100','Top 100'],['tourTitle','First ATP title'],
     ['gsMain','Into a Grand Slam draw'],['top50','Top 50'],['beatStar','Beat one of the thirteen'],['m1000Title','A Masters 1000 title'],
@@ -2553,9 +2623,9 @@ class Career{
     const S=Career.START,seed=(Date.now()&0x7fffffff)|1;
     // last season's results, so the career starts with a ranking; they drop off one by one over the first year
     const results=S.points.map((pts,i)=>({w:-50+i*8,ev:null,name:'Last season',tier:'c50',round:'',pts}));
-    return new Career({v:1,seed,me,w:0,xp:0,level:S.level,results,played:{w:0,l:0},titles:[],beat:{},best:null,fans:0,fmt,event:null,miles:{},news:[]});
+    return new Career({v:1,seed,me,w:0,xp:0,level:S.level,results,played:{w:0,l:0},titles:[],beat:{},best:null,fans:0,fmt,event:null,miles:{},news:[],train:{},court:{}});
   }
-  constructor(s){this.s=s;this.world=new CareerWorld(s.seed);this.best();}
+  constructor(s){this.s=s;s.train=s.train||{};s.court=s.court||{};this.world=new CareerWorld(s.seed);this.best();}
   // ──────── time ────────
   get year(){return Career.START.year+Math.floor(this.s.w/Calendar.WEEKS);}
   get week(){return this.s.w%Calendar.WEEKS+1;}
@@ -2563,15 +2633,28 @@ class Career{
   advance(n=1){this.s.w+=n;const wk=this.week,to=Calendar.nextPlayed(wk);this.s.w+=(to-wk+Calendar.WEEKS)%Calendar.WEEKS;this.best();}
   // ──────── ranking ────────
   // the points that count: what was won in the last 52 weeks
-  get points(){return this.s.results.reduce((a,r)=>a+(r.w>this.s.w-Calendar.WEEKS?r.pts:0),0);}
-  get rank(){return WorldRanking.rankOf(this.points);}
+  get rankPoints(){return this.s.results.reduce((a,r)=>a+(r.w>this.s.w-Calendar.WEEKS?r.pts:0),0);}
+  get rank(){return WorldRanking.rankOf(this.rankPoints);}
   best(){const r=this.rank;if(r!=null&&(this.s.best==null||r<this.s.best))this.s.best=r;this.check();}
   // results that drop out within the next weeks (to defend)
   expiring(weeks=4){return this.s.results.filter(r=>r.w>this.s.w-Calendar.WEEKS&&r.w<=this.s.w-Calendar.WEEKS+weeks&&r.pts>0);}
   // ──────── the player ────────
   get level(){return this.s.level;}
   get arch(){return ROSTER.find(p=>p.short===this.s.me.arch)||ROSTER[0];}
-  profile(){const me=this.s.me;return CareerProfile.make(this.arch,this.level,{...me,id:900,rank:this.rank??999,style:`${CareerWorld.ARCH[me.arch]||''} · plays like ${me.arch}`});}
+  profile(){const me=this.s.me;return CareerProfile.make(this.arch,this.level,{...me,id:900,rank:this.rank??999,train:this.s.train,style:`${CareerWorld.ARCH[me.arch]||''} · plays like ${me.arch}`});}
+  // the player's strength for the odds of a simulated match: his level and what his training is worth
+  get strength(){return this.level+CareerProfile.trainedElo(this.s.train);}
+  // ──────── training ────────
+  get spent(){return Object.values(this.s.train).reduce((a,b)=>a+b,0);}
+  get points(){return this.pointsEarned-this.spent;}
+  get pointsEarned(){return Career.TRAIN.start+Math.floor(this.s.xp*Career.TRAIN.perXp);}
+  // how far a bar can still go: CAP above the model's value, and 99 at most
+  room(k){const base=this.arch.ratings[k]??75,now=(this.s.train[k]||0);return Math.max(0,Math.min(Career.TRAIN.cap-now,99-base-now));}
+  train(k){if(this.points<=0||this.room(k)<=0||!CareerProfile.ATTRS.includes(k))return false;this.s.train[k]=(this.s.train[k]||0)+1;return true;}
+  untrain(k){if(!(this.s.train[k]>0))return false;this.s.train[k]--;return true;}
+  // what the player did in the matches he played on court (not the simulated ones)
+  record(ms,pts,won){const c=this.s.court;c.matches=(c.matches||0)+1;c.won=(c.won||0)+(won?1:0);c.pts=(c.pts||0)+pts;
+    for(const k of['aces','df','sv1','sv1in','won1','won2','sv2','win','ue','pts','perfect'])c[k==='pts'?'ptsWon':k]=(c[k==='pts'?'ptsWon':k]||0)+(ms[k]||0);c.fast=Math.max(c.fast||0,ms.fast||0);}
   gain(xp){const S=Career.START;this.s.xp+=xp;this.s.level=S.level+(S.ceiling-S.level)*(1-Math.pow(1-S.rate,this.s.xp));}
   // anyone in the world by key ('s<id>', 'g<place>')
   entry(key){if(key[0]==='s'){const id=+key.slice(1),p=this.world.stars.findIndex(q=>q.id===id);return this.world.at(p+1);}return this.world.at(+key.slice(1));}
@@ -4030,6 +4113,11 @@ class AudioEngine{
     setTimeout(()=>{try{g.disconnect();w.disconnect();if(p)p.disconnect();}catch(e){}},until*1000+250);
     return g;
   }
+  // a sound already rendered as samples (TennisSfx's chip sounds), placed and sent to the reverb like any other
+  play(data,pan=0,wet=.1){
+    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.copyToChannel(data,0);
+    s.buffer=b;s.connect(this.out(pan,wet,data.length/ac.sampleRate+.3));s.start(this.now);
+  }
   // a burst of noise through a filter, shaped by an attack and an exponential release
   burst(dest,t,{type='bandpass',f=1000,q=1,peak=.3,att=.002,rel=.05,pink=false,f2=null}){
     const ac=this.ac,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();
@@ -4045,46 +4133,130 @@ class AudioEngine{
   }
 }
 
-// TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court
+// SoundData — what the game's sounds are made of. The sounds of the ball come from descriptions and measurements of the
+// real thing; the sound chip that plays them is the NES's (its numbers from the NESdev wiki), which is what makes them
+// pixel sounds. Each group names its sources (keys of SOUND_SOURCES); a value marked "design" has no data behind it.
+// tools/sound-doc.js writes docs/sound/README.md from this file and data/sound-check.json.
+const SOUND_SOURCES={
+  chip:'NESdev wiki: APU Pulse, APU Noise, APU Mixer and CPU pages (nesdev.org/wiki), read 2026-11-17',
+  patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
+  hamori:'P. Hamori, 10,000 frames per second video, Tennisplayer forum post of 15 Sep 2021 — ball on the strings ~4.0 ms (poly), ~4.5 ms (gut)',
+  pate:'Paté et al. 2024, Vibration 7(4):47, abstract — flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little',
+  banwell:'G. Banwell 2013, Loughborough PhD thesis, abstract — a fast-dying impulsive part, then a much quieter ring that dies more slowly; shorter sounds are liked better',
+  russell:'D. Russell, Penn State, "Vibrational Modes of a Tennis Racket" (2014) — first string-bed mode 582 Hz, frame first bending 146 Hz',
+};
+// Every gain (design) is set so a sound carries the same energy as the one it replaced, which nobody found too loud or
+// too quiet: each rendered both ways in a browser and compared (2026-11-17)
+const SOUND={
+  // the NES's 2A03: CPU clock (Hz); noise clock dividers in CPU cycles (NTSC, $0–$F); the four pulse duty patterns as
+  // heard; the non-linear mixer's constants; the console's first-order output filters (Hz). Volume is 4 bits (0–15)
+  chip:{src:['chip'],cpu:1789773,noise:[4,8,16,32,64,96,128,160,202,254,380,508,762,1016,2034,4068],
+    duty:[[0,1,0,0,0,0,0,0],[0,1,1,0,0,0,0,0],[0,1,1,1,1,0,0,0],[1,0,0,1,1,1,1,1]],
+    pulseMix:[95.88,8128,100],tndMix:[159.79,8227,12241,100],highpass:90,lowpass:14000,timer:[8,2047]},
+  // every ball sound starts "from zero to significant levels within less than one millisecond" (patent)
+  onsetMs:{src:['patent'],v:1},
+  // a racket hit: "several cycles at around one kilohertz, followed by one cycle at around 250 Hertz (similar to a ball
+  // bounce) … then several decaying cycles at around one kilohertz leading to the upshifting twang" (patent). The first
+  // part lasts as long as the ball is on the strings (Hamori: poly, the tour's string now) and, with the 250-Hz cycle, is
+  // the impulsive part; the last is the quieter, slower ring (Banwell). A crack of noise marks the onset, 1 ms (design:
+  // spread over the whole contact it made a low pop, measured at 160 Hz, where the patent hears 1 kHz). Flat hits are
+  // louder and darker than spun ones (Paté, on serves: direction only, the sizes are design). Pace makes it louder: design
+  hit:{src:['patent','hamori','banwell','pate'],hiHz:1000,loHz:250,loCycles:1,contactMs:4.0,
+    design:{ringCycles:8,ringShare:.45,vol:[9,15],spinQuiet:2,crackPer:[6,4],gain:2.05,wet:.08}},
+  // a bounce: "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
+  // Hertz, with some higher harmonics, leading to the audible downshifting thump" (patent). Level by impact speed: design
+  bounce:{src:['patent'],hiHz:1000,hiCycles:2,loHz:250,design:{loCycles:5,vol:[2,13],gain:2.44,wet:.12}},
+  // the net: the patent only names it ("a whack"); the tape it calls less repeatable. All design
+  net:{src:['patent'],design:{meshPer:9,meshMs:70,meshHz:110,tapePer:3,tapeMs:14,tapeHz:[900,750,600],meshGain:1.7,tapeGain:0.61,wet:.2}},
+  // shoes and the menu: no data, all design (the squeak's pitch kept from the earlier sound)
+  squeak:{src:[],design:{hz:[2300,3000],rise:1.35,ms:[70,150],vibHz:[38,58],vibDepth:.04,vol:[3,7],gain:1.0,wet:.25}},
+  slide:{src:[],design:{per:10,ms:300,vol:7,gain:0.3,wet:.2}},
+  chime:{src:[],design:{notes:[[880,.22],[660,.3]],gap:.14,vol:8,gain:0.66,wet:.15}},
+  click:{src:[],design:{hz:[1200,900],ms:40,vol:6,gain:0.56,wet:.05}},
+};
+
+// ChipVoice — plays a short score the way the NES's sound chip would: two square-wave "pulse" channels with four duty
+// cycles and 16 volume steps, their pitch held to the chip's own timer grid; a noise channel from a 15-bit shift
+// register clocked at one of 16 rates (or its short, metallic loop); the chip's non-linear mixer; the console's output
+// filters (SOUND.chip). One liberty: notes and volume steps may change at any sample, where the real console steps its
+// envelopes at fractions of a video frame — otherwise a ball on the strings for 4 ms could not be heard as such.
+// A note: {ch:'p1'|'p2'|'noise', at, dur (s), vol (0–15), to (volume at the end, default vol)} and, for a pulse
+// channel, f (Hz) and duty (0–3); for noise, per (0–15) and short (the 93-step loop). Returns raw samples.
+class ChipVoice{
+  constructor(rate){this.rate=rate;}
+  // the pitch a pulse channel really plays nearest to f: CPU/(16(t+1)) for an 11-bit timer t (below 8 it is silent)
+  static pulseHz(f){const K=SOUND.chip,t=clamp(Math.round(K.cpu/(16*f)-1),K.timer[0],K.timer[1]);return K.cpu/(16*(t+1));}
+  render(notes,gain=1){
+    const r=this.rate,K=SOUND.chip,end=Math.max(...notes.map(n=>n.at+n.dur)),N=Math.ceil((end+.012)*r);
+    const L={p1:new Uint8Array(N),p2:new Uint8Array(N),noise:new Uint8Array(N)};
+    for(const n of notes){
+      const i0=Math.round(n.at*r),i1=Math.min(N,Math.round((n.at+n.dur)*r)),span=Math.max(1,i1-i0),v0=n.vol,v1=n.to??n.vol,out=L[n.ch];
+      const vol=i=>clamp(Math.round(v0+(v1-v0)*(i-i0)/span),0,15);
+      if(n.ch==='noise'){
+        // the shift register starts at 1 (power-up); feedback is bit 0 XOR bit 1, or bit 6 in the short mode; the
+        // channel sounds while bit 0 is clear
+        const step=K.cpu/K.noise[n.per]/r,fb=n.short?6:1;let reg=1,acc=0;
+        for(let i=i0;i<i1;i++){acc+=step;while(acc>=1){acc-=1;reg=(reg>>1)|(((reg^(reg>>fb))&1)<<14);}if(!(reg&1))out[i]=vol(i);}
+      }else{
+        const f=ChipVoice.pulseHz(n.f),seq=K.duty[n.duty??2];let ph=0;
+        for(let i=i0;i<i1;i++){if(seq[Math.floor(ph*8)&7])out[i]=vol(i);ph+=f/r;ph-=Math.floor(ph);}
+      }
+    }
+    // the mixer, then a first-order high-pass and low-pass as on the console's output
+    const[pa,pb,pc]=K.pulseMix,[ta,,tn,tc]=K.tndMix,dt=1/r,rh=1/(TAU*K.highpass),rl=1/(TAU*K.lowpass),ah=rh/(rh+dt),al=dt/(rl+dt),o=new Float32Array(N);
+    let xh=0,yh=0,yl=0;
+    for(let i=0;i<N;i++){
+      const p=L.p1[i]+L.p2[i],q=L.noise[i],x=(p?pa/(pb/p+pc):0)+(q?ta/(1/(q/tn)+tc):0);
+      yh=ah*(yh+x-xh);xh=x;yl+=al*(yh-yl);o[i]=yl*gain;
+    }
+    return o;
+  }
+}
+
+// TennisSfx — the sounds of the game itself, played on an 8-bit sound chip (ChipVoice): the strings, bounces, the net,
+// shoes, and the menu's two notes. What each sound is made of, and where each number comes from: SoundData.js
 class TennisSfx{
-  constructor(A){this.A=A;}
-  // a crack of broadband noise from the strings, the string bed ringing, and the frame's thump.
-  // Pace makes it louder and brighter; slice is duller and softer; a serve or smash carries the most.
-  hit(power,spin=0,stroke='fh',pan=0){
-    const A=this.A,t=A.now,o=A.out(pan,.2,.3),p=clamp(power,0,1),slice=spin<-.25||stroke==='slice',big=stroke==='serve'||stroke==='smash';
-    const k=(slice?.65:1)*(big?1.15:1);
-    A.burst(o,t,{f:(slice?1700:2500)+p*1500,q:1.3,peak:(.28+p*.5)*k,rel:.03+p*.025});
-    A.burst(o,t,{type:'highpass',f:5000,q:.7,peak:(.06+p*.12)*k,rel:.012});
-    A.tone(o,t,{type:'triangle',f:560+p*300-(slice?90:0),f2:400,peak:(.12+p*.1)*k,rel:.07});
-    A.tone(o,t,{f:180+p*50,f2:95,peak:.22*k,rel:.06});
+  constructor(A){this.A=A;this.v=null;}
+  get chip(){return this.v||(this.v=new ChipVoice(this.A.ac.sampleRate));}
+  play(notes,D,pan){this.A.play(this.chip.render(notes,D.gain),pan,D.wet);}
+  // the score of a racket hit (also used by tools/sound-check.js): the ball on the strings at about 1 kHz, with a crack of
+  // the shift register's noise over the first millisecond only; one cycle at 250 Hz; then the quieter ring at 1 kHz.
+  // Pace makes it louder; spin quieter and the crack brighter
+  static hitNotes(power,spin=0){
+    const H=SOUND.hit,D=H.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),c=H.contactMs/1000,lo=H.loCycles/H.loHz;
+    const v=clamp(Math.round(lerp(D.vol[0],D.vol[1],p)-s*D.spinQuiet),1,15),ring=Math.max(1,Math.round(v*D.ringShare));
+    return[{ch:'noise',at:0,dur:SOUND.onsetMs.v/1000,per:Math.round(lerp(D.crackPer[0],D.crackPer[1],s)),vol:v,to:0},
+      {ch:'p1',at:0,dur:c,f:H.hiHz,duty:2,vol:v},
+      {ch:'p1',at:c,dur:lo,f:H.loHz,duty:2,vol:v},
+      {ch:'p1',at:c+lo,dur:D.ringCycles/H.hiHz,f:H.hiHz,duty:2,vol:ring,to:0}];
   }
-  // the ball on the court: a low hollow "thock" and a short scuff, by impact speed
-  bounce(v,pan=0,soft=1){
-    const A=this.A,t=A.now,o=A.out(pan,.25,.3),g=clamp((v-1)/12,.08,1)*soft;
-    A.tone(o,t,{f:250+g*60,f2:125,peak:.3*g,rel:.07});
-    A.burst(o,t,{type:'lowpass',f:1800,q:.7,peak:.12*g,rel:.03});
+  // a bounce: a couple of cycles at 1 kHz, then the thump at 250 Hz dying away, louder the harder the ball lands
+  static bounceNotes(v,soft=1){
+    const B=SOUND.bounce,D=B.design,g=clamp((v-1)/12,.08,1)*soft,vol=Math.max(1,Math.round(lerp(D.vol[0],D.vol[1],g))),hi=B.hiCycles/B.hiHz;
+    return[{ch:'p1',at:0,dur:hi,f:B.hiHz,duty:2,vol},{ch:'p1',at:hi,dur:D.loCycles/B.loHz,f:B.loHz,duty:2,vol,to:0}];
   }
-  // into the mesh: a muffled thud and a rattle; off the tape: a tick and a shiver
+  hit(power,spin=0,stroke='fh',pan=0){this.play(TennisSfx.hitNotes(power,spin),SOUND.hit.design,pan);}
+  bounce(v,pan=0,soft=1){this.play(TennisSfx.bounceNotes(v,soft),SOUND.bounce.design,pan);}
+  // into the mesh: a dull whack of low noise over a low pulse; off the tape: a metallic tick and a falling blip
   net(mesh,v,pan=0){
-    const A=this.A,t=A.now,o=A.out(pan,.3,.5),g=clamp(v/25,.2,1);
-    if(mesh){A.tone(o,t,{f:120,f2:70,peak:.3*g,rel:.12});A.burst(o,t,{f:380,q:3,peak:.18*g,att:.004,rel:.22});}
-    else{A.burst(o,t,{type:'highpass',f:3200,q:1,peak:.2*g,rel:.015});A.tone(o,t,{type:'triangle',f:900,f2:600,peak:.08*g,rel:.06});A.burst(o,t+.01,{f:600,q:4,peak:.08*g,att:.003,rel:.16});}
+    const D=SOUND.net.design,g=clamp(v/25,.2,1),vol=Math.max(2,Math.round(14*g));
+    const n=mesh?[{ch:'noise',at:0,dur:D.meshMs/1000,per:D.meshPer,vol,to:0},{ch:'p2',at:0,dur:D.meshMs/2000,f:D.meshHz,duty:2,vol:Math.round(vol*.7),to:0}]
+      :[{ch:'noise',at:0,dur:D.tapeMs/1000,per:D.tapePer,short:true,vol,to:0},...D.tapeHz.map((f,i)=>({ch:'p2',at:.004+i*.012,dur:.012,f,duty:1,vol:Math.round(vol*.6*(1-i*.3))}))];
+    this.play(n,{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);
   }
-  // rubber on acrylic when a player stops or cuts hard: a short rising chirp with a wobble
+  // rubber on acrylic when a player stops or cuts hard: a thin rising chirp with a wobble
   squeak(a=1,pan=0){
-    const A=this.A,ac=A.ac,t=A.now,o=A.out(pan,.25,.4),d=.07+Math.random()*.08,f=2300+Math.random()*700,g=clamp(.03+a*.03,.03,.09);
-    const s=ac.createOscillator(),lfo=ac.createOscillator(),lg=ac.createGain(),eg=ac.createGain();
-    s.type='sawtooth';s.frequency.setValueAtTime(f,t);s.frequency.linearRampToValueAtTime(f*1.35,t+d*.6);s.frequency.linearRampToValueAtTime(f*1.2,t+d);
-    lfo.frequency.value=38+Math.random()*20;lg.gain.value=90;lfo.connect(lg).connect(s.frequency);
-    const hp=ac.createBiquadFilter();hp.type='bandpass';hp.frequency.value=f*1.2;hp.Q.value=2;
-    eg.gain.setValueAtTime(0,t);eg.gain.linearRampToValueAtTime(g,t+.01);eg.gain.setValueAtTime(g,t+d*.7);eg.gain.exponentialRampToValueAtTime(.0005,t+d);
-    s.connect(hp).connect(eg).connect(o);s.start(t);lfo.start(t);s.stop(t+d+.05);lfo.stop(t+d+.05);
+    const D=SOUND.squeak.design,f=lerp(D.hz[0],D.hz[1],Math.random()),d=lerp(D.ms[0],D.ms[1],Math.random())/1000,vib=lerp(D.vibHz[0],D.vibHz[1],Math.random());
+    const vol=Math.round(lerp(D.vol[0],D.vol[1],clamp(a,0,1))),st=.004,n=[];
+    for(let t=0;t<d;t+=st){const u=t/d,fq=f*(u<.6?lerp(1,D.rise,u/.6):lerp(D.rise,(1+D.rise)/2,(u-.6)/.4))*(1+D.vibDepth*Math.sin(TAU*vib*t));
+      n.push({ch:'p1',at:t,dur:st,f:fq,duty:0,vol:u<.7?vol:Math.round(vol*(1-u)/.3)});}
+    this.play(n,D,pan);
   }
-  // feet sliding on clay
-  slide(pan=0){const A=this.A,t=A.now,o=A.out(pan,.2,.5);A.burst(o,t,{type:'lowpass',f:1400,f2:350,q:.8,peak:.12,att:.02,rel:.28,pink:true});}
-  // two tones that say "your turn"
-  chime(){const A=this.A,t=A.now,o=A.out(0,.15,.6);A.tone(o,t,{f:880,peak:.07,rel:.22});A.tone(o,t+.14,{f:660,peak:.07,rel:.3});}
-  click(){const A=this.A,t=A.now,o=A.out(0,.05,.2);A.tone(o,t,{f:1200,f2:900,peak:.05,rel:.04});}
+  // feet sliding on clay: long low noise fading out
+  slide(pan=0){const D=SOUND.slide.design;this.play([{ch:'noise',at:0,dur:D.ms/1000,per:D.per,vol:D.vol,to:0}],D,pan);}
+  // two notes that say "your turn"
+  chime(){const D=SOUND.chime.design;this.play(D.notes.map(([f,d],i)=>({ch:i?'p2':'p1',at:i*D.gap,dur:d,f,duty:2,vol:D.vol,to:0})),D,0);}
+  click(){const D=SOUND.click.design,h=D.ms/2000;this.play([{ch:'p1',at:0,dur:h,f:D.hz[0],duty:1,vol:D.vol},{ch:'p1',at:h,dur:h,f:D.hz[1],duty:1,vol:D.vol,to:0}],D,0);}
 }
 
 // CrowdAudio — fifteen thousand people as filtered noise: the murmur, applause as many single claps,
@@ -4417,7 +4589,7 @@ class TouchShot{
   }
 }
 
-// SettingsMenu — camera, session, sound and pause
+// SettingsMenu — the settings in the in-match menu: camera, session, sound, Auto, quick walks, what was learned
 class SettingsMenu{
   constructor(game){
     this.g=game;
@@ -4426,19 +4598,51 @@ class SettingsMenu{
     CameraRig.MODES.forEach((n,i)=>$('cam-'+i).onclick=()=>game.setCam(i));
     for(const k in PHASES)$('ph-'+k).onclick=()=>game.setPhase(k);
     $('tl').onclick=()=>game.cam.turn(-1);$('tr').onclick=()=>game.cam.turn(1);
-    $('snd').onclick=()=>game.toggleSound();$('pauseB').onclick=()=>game.togglePause();$('newB').onclick=()=>game.openSetup();$('quickB').onclick=()=>game.toggleQuick();
+    $('snd').onclick=()=>game.toggleSound();$('quickB').onclick=()=>game.toggleQuick();$('autoB').onclick=()=>game.toggleAuto();
     // what the computer players learned from this person's matches: save it as a file, or forget it
     $('expB').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([Tactics.exportFile()],{type:'application/json'}));a.download='pixel-tennis-open-learning.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);};
     $('fgtB').onclick=()=>{Tactics.forget();Tactics.points=0;if(game.match)game.match.tactics.q=Tactics.load();this.update();game.say('Learning from your matches was reset.');};
-    const pop=(b,p,other)=>{$(b).onclick=()=>{const open=$(p).hidden;$(p).hidden=!open;$(b).setAttribute('aria-expanded',String(open));$(other[1]).hidden=true;$(other[0]).setAttribute('aria-expanded','false');};};
-    pop('statsT','statsP',['menuT','menuP']);pop('menuT','menuP',['statsT','statsP']);
+    $('statsT').onclick=()=>{const open=$('statsP').hidden;$('statsP').hidden=!open;$('statsT').setAttribute('aria-expanded',String(open));};
+    $('menuT').onclick=()=>{$('statsP').hidden=true;game.togglePause();};
   }
   update(){
     const on=(id,v)=>{const e=$(id);if(e)e.setAttribute('aria-pressed',String(v));};
     CameraRig.MODES.forEach((n,i)=>on('cam-'+i,this.g.cam.mode===i));for(const k in PHASES)on('ph-'+k,this.g.R.phaseKey===k);
-    on('snd',this.g.sound.on);on('quickB',this.g.quick);
+    on('snd',this.g.sound.on);on('quickB',this.g.quick);on('autoB',!!(this.g.match&&this.g.match.control.auto));
     const t=`${Tactics.points} points learned from in this browser`;if($('lrnN').textContent!==t)$('lrnN').textContent=t;
   }
+}
+
+// PauseMenu — the in-match menu: the match stops while it is open. Resume, How to play, the settings, and the ways
+// out, which depend on the match: in a career, step out (the match waits, to be taken up again from the event) or
+// retire (a loss, the score marked "ret."); in a tournament, retire or leave the tournament; in an exhibition, retire
+// or go back to the main menu. Leaving for good and retiring ask first.
+class PauseMenu{
+  constructor(game){this.g=game;this.ask=null;
+    $('resume').onclick=()=>this.close();$('pmHow').onclick=()=>game.howto.open();
+    $('pmNo').onclick=()=>this.confirm(null);$('pmYes').onclick=()=>{const f=this.ask;this.confirm(null);if(f)f();};}
+  get on(){return!$('pause').hidden;}
+  open(){
+    const g=this.g,m=g.match,H=m.human,career=g.flow.active,tour=!!g.tour&&!career,over=!!m.result;if(!H)return;
+    g.paused=true;$('pause').hidden=false;this.confirm(null);
+    const O=m.other(H),sc=m.score;
+    $('pmWhere').textContent=`${g.venue.name} · ${H.st.short} v ${O.st.short}${sc?` · ${sc.line(0)||''}${sc.over?'':` ${sc.games[0]}–${sc.games[1]}`}`:''}`.trim();
+    const act=(id,label,sub,danger=false)=>`<button id="${id}"${danger?' class="danger"':''}>${label}${sub?`<small>${sub}</small>`:''}</button>`;let h='';
+    if(career)h+=act('pmOut','Step out','The match waits: take it up again from the event')+(over?'':act('pmRet','Retire','You lose the match; the score is marked "ret."',true));
+    else if(tour)h+=(over?'':act('pmRet','Retire','You lose the match and go out of the tournament',true))+act('pmLeave','Leave the tournament','Back to the main menu; the draw is lost',true);
+    else h+=(over?'':act('pmRet','Retire','You lose the match',true))+act('pmMenu','Main menu','Leave this match');
+    $('pmActs').innerHTML=h;
+    const on=(id,f)=>{const b=$(id);if(b)b.onclick=f;};
+    on('pmOut',()=>{this.close();g.flow.suspend();});
+    on('pmRet',()=>this.confirm(`Retire from the match against ${O.st.name}? It counts as a loss.`,'Retire',()=>{this.close();g.retire();}));
+    on('pmLeave',()=>this.confirm('Leave the tournament? The draw so far is lost.','Leave',()=>{this.close();g.endTour();}));
+    on('pmMenu',()=>{this.close();g.openSetup();});
+    g.menu.update();$('resume').focus();
+  }
+  close(){if(!this.on)return;$('pause').hidden=true;this.g.paused=false;this.confirm(null);}
+  // a question over the menu; yes runs f
+  confirm(q,yes='Yes',f=null){this.ask=f;$('pmConfirm').hidden=!q;if(q){$('pmQ').textContent=q;$('pmYes').textContent=yes;$('pmNo').focus();}}
+  get asking(){return!$('pmConfirm').hidden;}
 }
 
 // Portrait — a pixel-art head-and-shoulders of a player, drawn from the roster's description of their face
@@ -4607,7 +4811,7 @@ class MainMenu{
     $('mList').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',String(i===this.i)));
     const k=MainMenu.ITEMS[this.i][0],legends=ROSTER.filter(p=>p.legend).length,side=$('mSide');
     if(k==='career'){const c=Career.load();side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>${c?'YOUR CAREER':'A CAREER ON TOUR'}</h3>
-      <ul>${c?`<li><b>${c.s.me.name}</b></li><li>Ranked <b>${WorldRanking.label(c.rank)}</b> · ${c.points} points · ${c.s.titles.length} titles</li><li>${c.year}, week ${c.week}</li>`:
+      <ul>${c?`<li><b>${c.s.me.name}</b></li><li>Ranked <b>${WorldRanking.label(c.rank)}</b> · ${c.rankPoints} points · ${c.s.titles.length} titles</li><li>${c.year}, week ${c.week}</li>`:
       `<li>Make your player and model his game on one of the thirteen</li><li>Challengers, ATP 250s and 500s, Masters 1000s and the four majors, on hard, clay and grass</li><li>Real ranking points, against the real ATP ranking</li><li>Get better with every match; beat all thirteen</li>`}</ul>`;}
     else if(k==='tour')side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>THE FOUR MAJORS</h3>
       <ul>${Venue.MAJORS.map(v=>`<li><b>${v.month}</b> ${v.name}: ${SURFACES[v.surface].name.toLowerCase()}${v.white?', players in white':''}${v.phase==='night'?', under the lights':''}</li>`).join('')}<li><b>8</b> players, seeded; an interview after every match, a ceremony for the champion</li></ul>`;
@@ -4857,10 +5061,14 @@ class CareerCreate{
   back(){this.f.g.sfx('click');this.close();this.f.g.mainMenu.open();}
 }
 
-// CareerHub — the career between events: this week's events to enter (or a week of training), the world ranking
-// around the player, and the career so far (record, titles, the thirteen beaten, milestones, settings)
+// CareerHub — the career between events: this week's events to enter (or a week of training), the player (his card,
+// his training, what he has done on court), the world ranking around him, and the career so far (record, titles, the
+// thirteen beaten, milestones, settings)
 class CareerHub{
-  static TABS=[['week','THIS WEEK'],['rank','RANKING'],['career','CAREER']];
+  static TABS=[['week','THIS WEEK'],['player','PLAYER'],['rank','RANKING'],['career','CAREER']];
+  // what a trained point does, in the words of each bar
+  static EFFECT={serve:'+1.3 km/h on the first serve',power:'more pace off the ground',speed:'faster to the ball, quicker first step',spin:'+38 rpm of topspin',
+    control:'1.7% fewer errors',accuracy:'lands closer to where you aim',touch:'2.7% fewer errors on drops, volleys, slices and lobs',stamina:'tires more slowly over a long match'};
   static FMTS=['tb','one','bo3'];
   constructor(flow){this.f=flow;this.tab='week';
     $('chTabs').innerHTML=CareerHub.TABS.map(([k,n])=>`<button data-t="${k}" aria-pressed="false">${n}</button>`).join('');
@@ -4876,20 +5084,23 @@ class CareerHub{
   render(){
     const c=this.c;if(!c)return;const me=c.profile();Portrait.cache.delete(900);
     $('chHead').innerHTML=`${Portrait.img(me,'face')}<div class="ch-id"><b>${c.s.me.name.toUpperCase()}</b><span>${c.s.me.cc} · ${CareerWorld.ARCH[c.s.me.arch]} · ${c.year}, week ${c.week}</span></div>
-      <div class="ch-stats"><div class="ch-stat"><small>RANK</small><b>${WorldRanking.label(c.rank)}</b></div><div class="ch-stat"><small>POINTS</small><b>${c.points}</b></div>
-      <div class="ch-stat"><small>LEVEL</small><b>${Math.round(c.level)}</b></div></div>`;
+      <div class="ch-stats"><div class="ch-stat"><small>RANK</small><b>${WorldRanking.label(c.rank)}</b></div><div class="ch-stat"><small>POINTS</small><b>${c.rankPoints}</b></div>
+      <div class="ch-stat"><small>LEVEL</small><b>${Math.round(c.strength)}</b></div>${c.points>0?`<button class="ch-stat pts" data-t="player"><small>TRAINING</small><b>+${c.points}</b></button>`:''}</div>`;
+    const pb=$('chHead').querySelector('.pts');if(pb)pb.onclick=()=>{this.tab='player';this.f.g.sfx('click');this.render();};
     $('chTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===this.tab)));
-    $('chBody').innerHTML=this.tab==='rank'?this.ranking():this.tab==='career'?this.record():this.week();
+    $('chBody').innerHTML=this.tab==='rank'?this.ranking():this.tab==='career'?this.record():this.tab==='player'?this.player():this.week();
     const B=$('chBody');B.querySelectorAll('[data-enter]').forEach(b=>b.onclick=()=>this.f.enter(Calendar.byId(+b.dataset.enter)));
     const rb=B.querySelector('#chRest');if(rb)rb.onclick=()=>this.f.rest();
     const cb=B.querySelector('#chCont');if(cb)cb.onclick=()=>this.f.showEvent();
+    B.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{if(c.train(b.dataset.up)){c.save();this.f.g.sfx('click');this.render();}});
+    B.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>{if(c.untrain(b.dataset.down)){c.save();this.f.g.sfx('click');this.render();}});
     B.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{c.s.fmt=b.dataset.fmt;c.save();this.f.g.sfx('click');this.render();});
     const del=B.querySelector('#chDel');if(del)del.onclick=()=>{if(del.dataset.sure){this.f.erase();return;}del.dataset.sure='1';del.textContent='Tap again to delete the career for good';};
     const n=c.s.news&&c.s.news[0];$('chNews').innerHTML=n?`<i>${n.big?'★':'›'}</i>${n.text}`:'';$('chNews').classList.toggle('big',!!(n&&n.big));
   }
   week(){
     const c=this.c,E=c.event;
-    if(E)return`<div class="ce-list"><button class="ce-card go" id="chCont"><span class="tier t-${E.ev.tier}">${E.tier.name.toUpperCase()}</span><b>${E.ev.name}</b><span>You are in the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}.</span><em>Continue ▶</em></button></div>`;
+    if(E)return`<div class="ce-list"><button class="ce-card go" id="chCont"><span class="tier t-${E.ev.tier}">${E.tier.name.toUpperCase()}</span><b>${E.ev.name}</b><span>${this.f.waiting?`Your ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} is waiting, as you left it.`:`You are in the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}.`}</span><em>${this.f.waiting?'Back to the match ▶':'Continue ▶'}</em></button></div>`;
     const evs=[...c.events].sort((a,b)=>(c.canEnter(b).ok?1:0)-(c.canEnter(a).ok?1:0)).map(ev=>{const T=CAREER_DATA.TIERS[ev.tier],can=c.canEnter(ev),P=CAREER_DATA.POINTS[ev.tier];
       return`<button class="ce-card${can.ok?'':' locked'}" ${can.ok?`data-enter="${ev.id}"`:'disabled'}><span class="tier t-${ev.tier}">${T.name.toUpperCase()}</span><b>${ev.name}</b>
         <span>${T.draw} players · ${T.sets===3?'best of five':'best of three'}${ev.len>1?' · two weeks':''} · ${ev.surface} court</span><span>Champion <strong>+${P.W}</strong> · final +${P.F} · semi-final +${P.SF}</span>
@@ -4898,10 +5109,32 @@ class CareerHub{
     return`<p class="ch-lead">Week ${c.week} of ${c.year}. Enter one event, or spend the week on the practice court.</p>${def}<div class="ce-list">${evs}
       <button class="ce-card rest" id="chRest"><span class="tier">TRAINING</span><b>A week of practice</b><span>No points, but you come back a better player (+${Career.XP.train} experience).</span><em>Train ▶</em></button></div>`;
   }
+  // the player: his card, the bars he can train, and his numbers from the matches he played on court
+  // what a trained point does to results, as tools/fit-attributes.js measured it (an interval taking in 0: no clear effect)
+  static worth(k){const r=(LEVEL_FIT.attrRaw||{})[k];if(!r)return'';const[v,lo,hi]=r;
+    return lo>0?` · worth about ${Math.round(v)} Elo`:hi<0?` · <span class="cp-neg">costs about ${Math.round(-v)} Elo</span>`:' · no clear effect on results';}
+  player(){
+    const c=this.c,me=c.profile(),r=me.ratings,b=c.arch.ratings,t=c.s.train,pts=c.points,N={serve:'Serve',power:'Power',speed:'Speed',spin:'Spin',control:'Control',accuracy:'Accuracy',touch:'Touch',stamina:'Stamina'};
+    const rows=CareerProfile.ATTRS.map(k=>{const tr=t[k]||0,v=r[k],baseV=Math.max(45,v-tr),pct=x=>((x-45)/55*100).toFixed(1),room=c.room(k);
+      return`<div class="cp-row"><span class="cp-n">${N[k]}</span><span class="cp-bar"><i style="width:${pct(baseV)}%"></i><u style="left:${pct(baseV)}%;width:${(pct(v)-pct(baseV)).toFixed(1)}%"></u></span><b class="cp-v">${v}</b>
+        <span class="cp-btns"><button data-down="${k}" ${tr>0?'':'disabled'} aria-label="Take a point off ${N[k]}">−</button><button data-up="${k}" ${pts>0&&room>0?'':'disabled'} aria-label="Train ${N[k]}">+</button></span>
+        <small class="cp-e">${tr?`<em>+${tr}</em> · `:''}Each point: ${CareerHub.EFFECT[k]}${CareerHub.worth(k)}${room<=0?' · at its limit':''}</small></div>`;}).join('');
+    const C=c.s.court,pc=(a,b)=>b?Math.round(a/b*100)+'%':'–',tile=(v,l)=>`<div class="cp-tile"><b>${v}</b><small>${l}</small></div>`;
+    const stats=C.matches?[tile(`${C.won}–${C.matches-C.won}`,'MATCHES ON COURT'),tile(pc(C.ptsWon,C.pts),'POINTS WON'),tile(pc(C.sv1in,C.sv1),'1ST SERVE IN'),tile(pc(C.won1,C.sv1in),'1ST SERVE PTS WON'),
+      tile(pc(C.won2,C.sv2),'2ND SERVE PTS WON'),tile(C.aces,'ACES'),tile(C.df,'DOUBLE FAULTS'),tile(C.win,'WINNERS'),tile(C.ue,'ERRORS'),tile(C.perfect,'PERFECT HITS'),tile(C.fast?C.fast+' km/h':'–','FASTEST SERVE')].join('')
+      :'<p class="ch-small">Play a match on court and your numbers start here (simulated matches are not counted).</p>';
+    return`<div class="cp"><div class="cp-l"><section class="cp-card" style="--kit:${hexs(c.s.me.look.shirt)}">${Portrait.img(me,'face')}<div class="cp-id"><small>${c.s.me.cc} · ${c.s.me.hand<0?'LEFT':'RIGHT'}-HANDED · ${c.s.me.ohb?'ONE':'TWO'}-HANDED BACKHAND</small>
+        <b>${c.s.me.name.toUpperCase()}</b><span>${CareerWorld.ARCH[c.s.me.arch]}: plays like ${c.arch.name}</span>
+        <div class="cp-ovr"><strong>${me.overall}</strong><span>OVERALL<br>LEVEL ${Math.round(c.strength)} · LIKE A NO. ${EloModel.rankAt(c.strength)}</span></div></div></section>
+      <section class="ch-box"><h3>ON COURT</h3><div class="cp-tiles">${stats}</div></section></div>
+      <section class="ch-box cp-train"><header><h3>TRAINING</h3><span class="cp-pts${pts>0?' on':''}"><b>${pts}</b> point${pts===1?'':'s'} to spend</span></header>
+        <p class="ch-small">A point for every two of experience: a match is worth ${Career.XP.match}, a win ${Career.XP.match+Career.XP.win}, a week of training ${Career.XP.train}. Each bar takes up to ${Career.TRAIN.cap} points; − takes one back.</p>
+        <div class="cp-rows">${rows}</div></section></div>`;
+  }
   ranking(){
     const c=this.c,r=c.rank,size=WorldRanking.SIZE,row=(pl,name,cc,pts,face,me)=>`<tr class="${me?'me':''}"><td>${pl}</td><td>${face}</td><td class="nm">${name}</td><td>${cc}</td><td>${pts}</td></tr>`;
     const world=p=>{const e=c.world.at(p),q=c.world.profile(e);return row(this.place(p),q.name,q.cc,WorldRanking.points(p),Portrait.img(q,'face'),false);};
-    const mine=row(WorldRanking.label(r),c.s.me.name,c.s.me.cc,c.points,Portrait.img(c.profile(),'face'),true);
+    const mine=row(WorldRanking.label(r),c.s.me.name,c.s.me.cc,c.rankPoints,Portrait.img(c.profile(),'face'),true);
     let rows='';for(let p=1;p<=10;p++){if(r!=null&&r===p)rows+=mine;rows+=world(p);}
     if(r==null||r>10){const from=Math.max(11,(r??size)-5),to=Math.min(size,(r??size)+4);if(from>11)rows+=`<tr class="gap"><td colspan="5">…</td></tr>`;
       for(let p=from;p<=to;p++){if(r===p)rows+=mine;rows+=world(p);}if(r==null||r>size)rows+=mine;}
@@ -4943,14 +5176,14 @@ class CareerEventScreen{
     let next;
     if(over){const res=E.result,ch=d.champion,cp=prof(ch);
       next=`<div class="d-next">${ch==='me'?Trophy.img('trophy small'):''}${Portrait.img(cp,'face big')}<div><small>${ch==='me'?'CHAMPION':`OUT IN THE ${CAREER_DATA.ROUND_NAMES[res.round].toUpperCase()}`}</small>
-        <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.points+res.pts))}</span></div></div>`;}
-    else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.level-E.elo(o),T.sets);
+        <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.rankPoints+res.pts))}</span></div></div>`;}
+    else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.strength-E.elo(o),T.sets);
       next=`<div class="d-next">${Portrait.img(c.profile(),'face big')}<i class="d-vs">VS</i>${Portrait.img(p,'face big')}<div><small>${CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase()}${E.lastRound?'':` · ${E.names.length-d.round-1} more to the title`}</small>
         <b>${p.name}${seed(o)}</b><span>${p.cc} · ranked ${rk(o)} · level ${Math.round(E.elo(o))} · ${p.style}</span>
         <span class="odds">Elo gives you <strong>${Math.round(pw*100)}%</strong> in a ${T.sets===3?'best-of-five':'best-of-three'} match</span></div></div>`;}
     $('ceNext').innerHTML=next;
     $('cePath').innerHTML=`<div><h3>YOUR ROAD</h3><ul class="ce-road">${road}</ul></div><div><h3>TOP SEEDS</h3><ul class="ce-seeds">${big}</ul></div>`;
-    $('ceSim').hidden=over;$('ceGo').innerHTML=over?'Continue ▶':`Play the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} ▶`;
+    const wait=!!this.f.waiting&&!over;$('ceSim').hidden=over||wait;$('ceGo').innerHTML=over?'Continue ▶':wait?'Back to the match ▶':`Play the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} ▶`;
     $('cevent').hidden=false;$('cevent').scrollTop=0;
   }
 }
@@ -4969,6 +5202,8 @@ class Input{
       if(g.flow.on){const F=g.flow;if(c==='Escape'){if(F.create.on)F.create.back();else if(F.screen.on){F.screen.close();F.hub.open();}else F.leave();e.preventDefault();}
         else if(c==='Enter'&&F.screen.on){F.primary();e.preventDefault();}return;}
       if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
+      // the in-match menu: Esc or P closes it (or a question over it); the rest of the keys wait
+      if(g.pauseMenu.on){if(c==='Escape'||c==='KeyP'){if(g.pauseMenu.asking)g.pauseMenu.confirm(null);else g.pauseMenu.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
       if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);
@@ -5006,7 +5241,7 @@ class Input{
 // CareerFlow — the career mode's screens and matches, from the main menu and back: making a player, the hub, an
 // event, its matches (played on court, or simulated by Elo), interviews after the big ones, the trophy ceremony
 class CareerFlow{
-  constructor(game){this.g=game;this.c=null;this.active=false;
+  constructor(game){this.g=game;this.c=null;this.active=false;this.waiting=null;
     this.create=new CareerCreate(this);this.hub=new CareerHub(this);this.screen=new CareerEventScreen(this);}
   get on(){return this.create.on||this.hub.on||this.screen.on;}
   // from the main menu: the saved career, or a new one
@@ -5018,7 +5253,7 @@ class CareerFlow{
   enter(ev){if(!this.c.enter(ev))return;this.c.save();this.g.sfx('chime');this.hub.close();this.showEvent();}
   showEvent(){this.hub.close();this.screen.open();}
   // the event screen's main button: play the next match, or once the event is over, back to the hub
-  primary(){const E=this.c.event;if(!E)return;if(E.d.done||E.d.out){this.c.finishEvent();this.c.save();this.screen.close();this.g.sfx('click');this.hub.open('week');return;}this.play();}
+  primary(){const E=this.c.event;if(!E)return;if(this.waiting){this.resume();return;}if(E.d.done||E.d.out){this.c.finishEvent();this.c.save();this.screen.close();this.g.sfx('click');this.hub.open('week');return;}this.play();}
   play(){
     const c=this.c,E=c.event,g=this.g,me=c.profile(),opp=c.profileOf(E.opponent);Portrait.cache.delete(900);
     const sub=`${E.ev.name} · ${MatchFormat.get(c.s.fmt).name} · ranked ${E.d.ranks[E.opponent]}`;
@@ -5031,8 +5266,12 @@ class CareerFlow{
     g.startMatch(g.last_);g.results.close();g.cam.setMode(CameraRig.FOLLOW);g.cam.k=0;g.speed=1;
     g.say(`${E.ev.name}, ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}: ${opp.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);g.rotateHint();
   }
+  // out of a match half-way: it waits, as it stood, until the person takes it up again from the event
+  suspend(){const g=this.g;if(!this.active)return;this.waiting={match:g.match,last:g.last_,venue:g.venue};this.active=false;g.demo();this.hub.open('week');}
+  resume(){const w=this.waiting;if(!w)return;this.waiting=null;this.screen.close();this.hub.close();this.active=true;this.g.sound.start();this.g.resumeMatch(w);
+    this.g.say('Back on court. The match goes on where it stood.');}
   simulate(){
-    const c=this.c,E=c.event;if(!E||E.d.done||E.d.out)return;const p=EloModel.win(c.level-E.elo(E.opponent),E.tier.sets);
+    const c=this.c,E=c.event;if(!E||E.d.done||E.d.out)return;const p=EloModel.win(c.strength-E.elo(E.opponent),E.tier.sets);
     const won=R()<p;c.matchDone(won,'sim');c.save();this.g.sfx(won?'chime':'click');this.screen.open();
   }
   // the person's match is over and its result card closed: an interview after the matches that matter, the trophy
@@ -5040,7 +5279,7 @@ class CareerFlow{
   afterMatch(){
     const g=this.g,m=g.match,c=this.c,E=c.event;if(!m.result||!E)return;g.results.close();
     const won=m.result.winner===m.human,opp=E.opponent,big=E.lastRound||E.roundName==='SF'||(won&&opp[0]==='s')||['gs','m1000'].includes(E.ev.tier)&&E.d.round>=E.names.length-3;
-    const done=()=>{this.active=false;c.matchDone(won,m.result.line);c.save();g.demo();this.screen.open();};
+    const done=()=>{this.active=false;c.record(m.human.ms,m.players[0].ms.pts+m.players[1].ms.pts,won);c.matchDone(won,m.result.line);c.save();g.demo();this.screen.open();};
     const t={round:E.lastRound?2:E.roundName==='SF'?1:0,label:CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()};
     const talk=()=>big?g.interview.open(m,t,fans=>{c.s.fans+=fans;done();}):done();
     if(won&&E.lastRound)g.ceremony(talk);else talk();
@@ -5059,14 +5298,13 @@ class Game{
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.quick=Prefs.get('quick',Prefs.touch);
-    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.pauseMenu=new PauseMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=Venue.MAJORS[0];this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
     this.input=new Input(this);
-    $('resume').onclick=()=>this.togglePause();
-    addEventListener('resize',()=>this.resize());this.resize();
+        addEventListener('resize',()=>this.resize());this.resize();
     window.__PTO=this;
     requestAnimationFrame(t=>this.frame(t));
   }
@@ -5125,7 +5363,7 @@ class Game{
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
   // a career match left half-way is not recorded: the event waits on its screen for the match to be played again
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.demo();this.mainMenu.open();}
+  openSetup(){this.results.close();this.pauseMenu.close();this.paused=false;this.flow.active=false;this.flow.waiting=null;this.demo();this.mainMenu.open();}
   // cfg.venue: where it is played (its surface, court and stands); the last venue when it has none
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
@@ -5148,7 +5386,16 @@ class Game{
   // between points of the person's match: nothing to decide and no ball in play, so the walks, the ball kids and the
   // changeovers can run at double speed when the person has asked for it
   get between(){const m=this.match,H=m.human,C=m.control;if(!H||m.stage!=='play'||m.live||C.serveWait||C.challenge)return false;return!(m.cue&&m.cue.who===H.idx&&!C.auto);}
-  togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}
+  // the in-match menu; outside a match of the person's, the game just stops
+  togglePause(){if(this.pauseMenu.on){this.pauseMenu.close();return;}if(this.match&&this.match.human)this.pauseMenu.open();else{this.paused=!this.paused;}}
+  // the person retires: the match ends at once, a loss, and goes on as any finished match would
+  retire(){const m=this.match;if(!m.human||m.result)return;m.retire(m.human.idx);this.say(`${m.human.st.short} retires.`);}
+  // back to a match that was left waiting (a career's step-out): the same match, where it stood
+  resumeMatch(w){
+    for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
+    this.venue=w.venue;this.stadium.dress(w.venue);this.match=w.match;this.last_=w.last;this.acc=0;this.board.key='';this.screenKey='';
+    $('sbEv').textContent=w.venue.name.toUpperCase();$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.results.close();
+    this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;this.paused=false;}
   toggleSound(){this.sound.toggle();this.menu.update();this.say(this.sound.on?'Sound on.':'Sound off.');}
   setCam(i){this.cam.setMode(i);this.menu.update();}
   setPhase(k,snap=false){this.R.phaseKey=k;if(snap)this.R.L=LightPhase.snapshot(k);this.menu.update();}
