@@ -4,16 +4,15 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..');
 const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(ROOT,'src','audio','SoundData.js'),'utf8')+';this.API={SOUND,SOUND_SOURCES};',ctx);
 const{SOUND,SOUND_SOURCES:SRC}=ctx.API,chk=JSON.parse(fs.readFileSync(path.join(ROOT,'data','sound-check.json'),'utf8'));
-const URL={chip:'https://www.nesdev.org/wiki/APU_Mixer',patent:'https://patents.google.com/patent/US5908361A/en',
+const URL={patent:'https://patents.google.com/patent/US5908361A/en',russell:'https://www.acs.psu.edu/drussell/Demos/tennis/tennis-1.html',
   hamori:'https://forum.tennisplayer.net/forum/tennisplayer/95194-contact-at-10-000-frames-per-second?p=95519',
-  pate:'https://www.mdpi.com/2571-631X/7/4/47',banwell:'https://consensus.app/papers/details/w:df397d76-ac02-4a3d-bb07-bb70d99c6b0e/',
-  russell:'https://www.acs.psu.edu/drussell/Demos/tennis/tennis-1.html'};
-const H=SOUND.hit,B=SOUND.bounce,K=SOUND.chip,yes=b=>b?'yes':'**no**',h=chk.hit,b=chk.bounce;
+  pate:'https://www.mdpi.com/2571-631X/7/4/47',banwell:'https://consensus.app/papers/details/w:df397d76-ac02-4a3d-bb07-bb70d99c6b0e/'};
+const H=SOUND.hit,HD=H.design,B=SOUND.bounce,BD=B.design,yes=b=>b?'yes':'**no**',h=chk.hit,b=chk.bounce,ms=x=>+(x*1000).toFixed(1);
 const md=`# Sounds
 
-The ball's sounds are built from what real ones are made of, then played on an 8-bit sound chip — the NES's — so they
-fit the pixel look. Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\`
-(\`node tools/sound-check.js\`, then \`node tools/sound-doc.js\`). A value with no data behind it is marked **design**.
+The ball's sounds are built from how real ones sound: each rings at measured frequencies, for as long as the sources
+say. Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\` (\`node tools/sound-check.js\`,
+then \`node tools/sound-doc.js\`). A value with no data behind it is marked **design**.
 
 ## Sources
 
@@ -21,22 +20,13 @@ ${Object.keys(SRC).map(k=>`- **${k}** — [${SRC[k].split(' — ')[0]}](${URL[k]
 
 Two papers could not be read in full (the publishers refused the download); only their abstracts are used, so from
 them the game takes directions, never sizes: Paté et al. (flat louder and darker than kick) and Banwell (a quick
-impulsive part, then a quieter, slower ring; short sounds are preferred).
+impulsive part, then a quieter, slower ring from the string bed; short sounds are preferred).
 
-## The chip
+## How a sound is made
 
-| Part | Value | Source |
-|---|---|---|
-| CPU clock | ${K.cpu.toLocaleString('en')} Hz (NTSC) | chip |
-| Pulse pitch | CPU ÷ (16 × (timer + 1)), timer ${K.timer[0]}–${K.timer[1]} (11 bits; under ${K.timer[0]} is silent) | chip |
-| Pulse duty cycles | 12.5%, 25%, 50%, 25% inverted | chip |
-| Volume | 16 steps (4 bits) | chip |
-| Noise | 15-bit shift register clocked every ${K.noise.join(', ')} CPU cycles; short loop on bit 6 | chip |
-| Mixer | pulse ${K.pulseMix[0]} ÷ (${K.pulseMix[1]} ÷ (p1 + p2) + ${K.pulseMix[2]}); noise ${K.tndMix[0]} ÷ (${K.tndMix[2]} ÷ n + ${K.tndMix[3]}) | chip |
-| Output filters | first-order high-pass ${K.highpass} Hz, low-pass ${K.lowpass/1000} kHz | chip |
-
-One liberty: notes and volume may change at any sample. A real console steps its envelopes only a few hundred times
-a second, too coarse to let the 4-ms contact of ball and strings be heard as its own part.
+Each sound is a sum of vibrations, each a sine at its frequency dying away at its own rate, plus a short burst of
+filtered noise for the moment of impact, softened by a gentle low-pass (\`src/audio/ImpactVoice.js\`). Sounds are
+rendered as samples and played through the stadium's mix.
 
 ## A racket hit
 
@@ -46,12 +36,16 @@ a second, too coarse to let the 4-ms contact of ball and strings be heard as its
 
 | Part | Value | Source |
 |---|---|---|
-| Ball on the strings | ${H.contactMs} ms at ~${H.hiHz} Hz (pulse, 50%) | hamori (poly strings; gut ~4.5 ms), patent |
-| Then | ${H.loCycles} cycle at ${H.loHz} Hz | patent |
-| Ring | ${H.design.ringCycles} cycles at ~${H.hiHz} Hz, from ${Math.round(H.design.ringShare*100)}% of the level down to silence | patent (pitch); count and level **design**, quieter than the start per banwell |
-| Crack | noise for the first ${SOUND.onsetMs.v} ms | **design**; length from the patent's onset |
-| Level | ${H.design.vol[0]}–${H.design.vol[1]} of 15 with pace; up to ${H.design.spinQuiet} steps quieter with spin | **design**; direction from pate |
-| Brightness | crack clocked every ${K.noise[H.design.crackPer[0]]} CPU cycles flat → ${K.noise[H.design.crackPer[1]]} with full spin | **design**; direction from pate |
+| String bed | modes at ${H.strings.join(', ')} Hz, around the patent's 1 kHz | russell (frequencies), patent; their sizes ${HD.amps.join(', ')} **design** |
+| While the ball is on the strings | ${H.contactMs} ms, the string modes at full strength, dying with a ${ms(HD.tau)}-ms time constant | hamori (poly strings; gut ~4.5 ms); the rate **design** |
+| The ball leaves | ${H.ballCycles} cycle at ${H.ballHz} Hz | patent |
+| Ring | the same modes at ${Math.round(HD.ring*100)}% of their strength, dying with a ${ms(HD.tau2)}-ms time constant | banwell (quieter, slower); sizes **design** |
+| Crack | noise around ${HD.crackHz[0]} Hz flat → ${HD.crackHz[1]} Hz with full spin, dying in ${ms(HD.crackTau)} ms | **design**; brighter with spin per pate |
+| Level | ${Math.round(HD.level[0]*100)}–100% with pace, up to ${Math.round(HD.spinQuiet*100)}% quieter with spin | **design**; direction from pate |
+| Low-pass | ${HD.lp/1000} kHz | **design** |
+
+The frame's own bending (${'146'} Hz, russell) is left out: the hand on the grip damps it, and a low thump is what made
+the game's first hit sound like a window shutting.
 
 ## A bounce
 
@@ -60,21 +54,22 @@ a second, too coarse to let the 4-ms contact of ball and strings be heard as its
 
 | Part | Value | Source |
 |---|---|---|
-| Start | ${B.hiCycles} cycles at ${B.hiHz} Hz | patent |
-| Thump | ${B.design.loCycles} cycles at ${B.loHz} Hz, dying away (a square wave, so with odd harmonics) | patent (pitch); count **design** |
-| Level | ${B.design.vol[0]}–${B.design.vol[1]} of 15 with the speed the ball lands at | **design** |
+| Start | ${B.hiCycles} cycles at ${B.hiHz} Hz, at full strength from the first | patent |
+| Thump | ${B.loHz} Hz and its overtones ${BD.overtones.map(([k,a,t])=>`×${k} (${Math.round(a*100)}%, ${ms(t)} ms)`).join(', ')} dying away | patent (pitch, harmonics); sizes and decays **design** |
+| Level | with the speed the ball lands at | **design** |
 
 The patent finds no difference between surfaces, and the game has none.
 
 ## The net, shoes and the menu
 
-The patent only names the net's sound ("a whack") and calls the tape's less repeatable; the squeak of shoes, the slide
-on clay and the menu's notes have no data. All of them are **design**, in the same chip.
+The patent only names the net's sound ("a whack") and calls the tape's less repeatable: both are **design**, made the
+same way. The squeak of shoes, the slide on clay and the menu's two notes are the game's first versions, kept as they
+were (**design**). Setting a target makes no sound.
 
 ## Loudness
 
-Each sound's gain (**design**) gives it the same energy as the sound it replaced, rendered both ways in a browser and
-compared — so nothing is louder or quieter than before, only different in kind.
+Each ball sound's gain (**design**) gives it the same energy as the game's first version of it, rendered both ways in
+a browser and compared — so the mix is as it was, only the sounds are different in kind.
 
 ## Measured: do the sounds come out as their sources describe?
 
@@ -91,16 +86,16 @@ Rendered at ${chk.rate/1000} kHz; the strongest frequency of each part from its 
 
 A hit lasts ${h.lengthMs} ms and a bounce ${b.lengthMs} ms (to 1% of their peak), short as Banwell's listeners preferred.
 
-## Where the sources and the game part
+## Where the sources and the game part, and what was tried
 
-- **The ring's pitch.** Russell measured the first string-bed mode of a racket hanging free at 582 Hz, and Banwell
-  names that mode as the main source of the ring; the patent hears the ring at about 1 kHz. The game follows the
-  patent, which describes hits recorded on court rather than a racket in a lab.
 - **One contact time for every stroke.** Hamori's figures (~4.0 ms poly, ~4.5 ms gut) do not say which stroke was
   filmed, so serves, volleys and groundstrokes all use ${H.contactMs} ms; the legends' gut strings are not modelled.
 - **Spin on every stroke.** Paté et al. compared flat and kick serves; the game applies the same direction to every
   stroke.
-- **The first build failed its own check.** With the crack spread over the whole contact, the hit's first part
-  measured 160 Hz, a low pop, where the patent hears 1 kHz. The crack now marks only the onset; nothing else changed.
+- **An 8-bit version was tried and dropped.** The same patent timings played on a model of the NES's sound chip
+  (square waves, a noise register) followed the pitches but crackled harshly and did not sound like tennis; a
+  bit-crushed version would add the same crackle. The sounds are now clean.
+- **The bounce's first build failed its check.** Built as a smooth pulse, its kilohertz rose too slowly: its level came
+  only with the thump, 2.3 ms in. It now starts at full strength.
 `;
 fs.mkdirSync(path.join(ROOT,'docs','sound'),{recursive:true});fs.writeFileSync(path.join(ROOT,'docs','sound','README.md'),md);console.log('written docs/sound/README.md');

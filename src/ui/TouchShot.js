@@ -50,6 +50,6 @@ class TouchShot{
       C.preview={x:clamp(p.x,b.x0+i,b.x1-i),z:clamp(p.z,b.z0+i,b.z1-i)};return;}
     if(m.stage!=='play')return;
     const u=clamp(-H.s*p.z,1.0,CT.L-.15),x=clamp(p.x,-CT.SW+.15,CT.SW-.15);
-    g.aim(x,-H.s*u,false);
+    g.aim(x,-H.s*u);
   }
 }

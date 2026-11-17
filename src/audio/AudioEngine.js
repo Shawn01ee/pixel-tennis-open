@@ -4,6 +4,7 @@ class AudioEngine{
   constructor(){this.ac=null;this.ready=false;this.muted=false;}
   start(){
     if(this.ac){this.resume();return;}
+    this.media();
     try{
       const ac=new(window.AudioContext||window.webkitAudioContext)();this.ac=ac;
       this.master=ac.createGain();this.master.gain.value=.85;
@@ -14,10 +15,24 @@ class AudioEngine{
       this.verb=ac.createConvolver();this.verb.buffer=this.impulse(2.4,2.8);this.send=ac.createGain();this.send.gain.value=.32;this.send.connect(this.verb).connect(this.master);
       this.white=this.noise(2,false);this.pink=this.noise(6,true);
       this.ready=true;
+      for(const k of['pointerup','touchend','keydown'])addEventListener(k,()=>this.resume(),{passive:true});
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){if(this.tag)this.tag.pause();}else if(!this.muted){this.resume();if(this.tag)this.tag.play().catch(()=>{});}});
     }catch(e){this.ac=null;}
   }
-  resume(){if(this.ac&&this.ac.state==='suspended')this.ac.resume();}
-  setMuted(m){this.muted=m;if(this.ready)this.master.gain.setTargetAtTime(m?0:.85,this.now,.05);}
+  // a phone can suspend the sound (iOS calls it "interrupted" after a call or the app going to the background): any touch
+  // or click brings it back
+  resume(){if(this.ac&&this.ac.state!=='running'&&this.ac.state!=='closed')this.ac.resume().catch(()=>{});}
+  // iPhones silence Web Audio when the ringer switch is on silent, unless the page plays like media. Newer Safari has a
+  // setting for that; older ones switch over once an <audio> element plays, so a silent one loops while the sound is on
+  media(){
+    try{if(navigator.audioSession){navigator.audioSession.type='playback';return;}}catch(e){}
+    if(!/iP(hone|ad|od)/.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform)))return;
+    try{const n=8000,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,s)=>{for(let i=0;i<s.length;i++)b[o+i]=s.charCodeAt(i);};
+      w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);
+      v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+      const el=new Audio(URL.createObjectURL(new Blob([b],{type:'audio/wav'})));el.loop=true;el.setAttribute('playsinline','');this.tag=el;el.play().catch(()=>{});}catch(e){}
+  }
+  setMuted(m){this.muted=m;if(this.ready)this.master.gain.setTargetAtTime(m?0:.85,this.now,.05);if(this.tag){if(m)this.tag.pause();else this.tag.play().catch(()=>{});}}
   get now(){return this.ac.currentTime;}
   // stereo noise with an exponential tail and a few early reflections
   impulse(sec,decay){

@@ -12,7 +12,7 @@
 | `career/atp-elo-by-rank-2026-11-16.json` | Overall Elo and ATP rank of every player in Tennis Abstract's ATP Elo list, last updated 16 November 2026 | from tennisabstract.com/reports/atp_elo_ratings.html; ranks and ratings only |
 | `career/level-fit.json` | The fit of how a player's Elo reaches the court, and its checks against Elo's odds | `node tools/fit-levels.js` |
 | `career/attribute-fit.json` | What a trained point in each of the career player's bars is worth in Elo, measured in the game | `node tools/fit-attributes.js` |
-| `sound-check.json` | The ball's sounds, rendered on the chip, measured against what their sources say | `node tools/sound-check.js` |
+| `sound-check.json` | The ball's sounds, rendered outside the browser, measured against what their sources say | `node tools/sound-check.js` |
 
 The real rally directions (59.3% cross-court, 26.5% middle, 14.2% down the line) and the rule they are counted by
 come from `python3 -I tools/mcp_directions.py <clone of the project>`, which also checks the rule by rebuilding the

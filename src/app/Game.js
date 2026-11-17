@@ -88,7 +88,7 @@ class Game{
   serve(k,force=false){const m=this.match;if(m.human){m.setServe(k,force);this.dock.update(m);}}
   zone(k){const m=this.match;if(m.human&&this.dock.serving(m)){m.setZone(k);this.dock.update(m);}}
   // a target on the court (x, z in metres); tick: the click sound, left out while a thumb slides the target along
-  aim(x,z,tick=true){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;if(tick&&this.sound.live)this.sound.sfx.click();this.dock.update(m);return true;}
+  aim(x,z){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;this.dock.update(m);return true;}
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
     if(!this.aim(p.x,p.z)&&m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
   challenge(){const q=this.match.control.challenge;if(q)q.go=true;}

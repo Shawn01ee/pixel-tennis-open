@@ -1,33 +1,33 @@
 {
  "rate": 48000,
  "hit": {
-  "onsetMs": 0.08,
+  "onsetMs": 0.15,
   "parts": {
-   "contact": 990,
-   "dip": 250,
-   "ring": 1010
+   "contact": 960,
+   "dip": 270,
+   "ring": 970
   },
   "upshift": true,
-  "ringVsCrackDb": -14.7,
-  "lengthMs": 18,
+  "ringVsCrackDb": -24.2,
+  "lengthMs": 33.4,
   "flat": {
-   "db": -20.1,
-   "centroid": 3713
+   "db": -25.3,
+   "centroid": 1317
   },
   "spun": {
-   "db": -21.2,
-   "centroid": 3820
+   "db": -26.7,
+   "centroid": 1440
   },
   "flatLouderDarker": true
  },
  "bounce": {
-  "onsetMs": 0.15,
+  "onsetMs": 0.23,
   "parts": {
-   "first": 1000,
+   "first": 980,
    "thump": 250
   },
   "downshift": true,
-  "lengthMs": 25
+  "lengthMs": 39.1
  },
  "onsetOk": true
 }

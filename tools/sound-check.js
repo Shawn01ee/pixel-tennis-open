@@ -1,5 +1,5 @@
-// Renders the game's ball sounds on the chip (outside the browser) and measures them against what the sources say real
-// ones are like (src/audio/SoundData.js): every ball sound reaches its level within a millisecond; a racket hit goes
+// Renders the game's ball sounds (outside the browser) and measures them against what the sources say real ones are
+// like (src/audio/SoundData.js): every ball sound reaches its level within a millisecond; a racket hit goes
 // ~1 kHz → one cycle at 250 Hz → ~1 kHz again ("upshifting twang"), a bounce ~1 kHz → 250 Hz ("downshifting thump");
 // a flat hit is louder and darker than a spun one; the ring is quieter than the crack. Nothing is tuned here — the
 // sounds are written from the sources and this reports whether they came out as written.
@@ -7,10 +7,10 @@
 //   node tools/sound-check.js [wav folder]
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..'),SRC=path.join(ROOT,'src');
 const ctx=vm.createContext({Math,console,Float32Array,Uint8Array,Object,Array,JSON});
-vm.runInContext(['core/constants.js','core/MathUtil.js','audio/SoundData.js','audio/ChipVoice.js','audio/TennisSfx.js'].map(f=>fs.readFileSync(path.join(SRC,f),'utf8')).join('\n')
-  +'\n;this.API={SOUND,ChipVoice,TennisSfx};',ctx);
-const{SOUND,ChipVoice,TennisSfx}=ctx.API,RATE=48000,chip=new ChipVoice(RATE),WAV=process.argv[2];
-const render=(notes,D)=>chip.render(notes,D.gain);
+vm.runInContext(['core/constants.js','core/MathUtil.js','audio/SoundData.js','audio/ImpactVoice.js','audio/TennisSfx.js'].map(f=>fs.readFileSync(path.join(SRC,f),'utf8')).join('\n')
+  +'\n;this.API={SOUND,ImpactVoice,TennisSfx};',ctx);
+const{SOUND,ImpactVoice,TennisSfx}=ctx.API,RATE=48000,voice=new ImpactVoice(RATE),WAV=process.argv[2];
+const render=(S,D)=>voice.render(S,D.gain);
 // the strongest frequency (Hz) in a stretch of the sound, from a zero-padded DFT, between 100 Hz and 4 kHz
 function peakHz(x,a,b){const s=x.slice(Math.round(a*RATE),Math.round(b*RATE)),m=s.reduce((q,v)=>q+v,0)/s.length;let best=0,bf=0;
   for(let f=100;f<=4000;f+=10){let re=0,im=0;for(let i=0;i<s.length;i++){const w=2*Math.PI*f*i/RATE;re+=(s[i]-m)*Math.cos(w);im-=(s[i]-m)*Math.sin(w);}const p=re*re+im*im;if(p>best){best=p;bf=f;}}
@@ -26,18 +26,18 @@ const lenMs=x=>{const t=peak(x)/100;let last=0;for(let i=0;i<x.length;i++)if(Mat
 function wav(name,x){if(!WAV)return;const n=x.length,b=Buffer.alloc(44+n*2);b.write('RIFF',0);b.writeUInt32LE(36+n*2,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);
   b.writeUInt32LE(RATE,24);b.writeUInt32LE(RATE*2,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(n*2,40);
   for(let i=0;i<n;i++)b.writeInt16LE(Math.max(-32767,Math.min(32767,Math.round(x[i]*.5*32767))),44+i*2);fs.writeFileSync(path.join(WAV,name+'.wav'),b);}
-const H=SOUND.hit,B=SOUND.bounce,c=H.contactMs/1000,lo=H.loCycles/H.loHz,ring=H.design.ringCycles/H.hiHz,near=(f,t)=>f>=t/1.4&&f<=t*1.4,out={rate:RATE};
+const H=SOUND.hit,B=SOUND.bounce,c=H.contactMs/1000,lo=H.ballCycles/H.ballHz,ring=.02,near=(f,t)=>f>=t/1.4&&f<=t*1.4,out={rate:RATE};
 // hits: a hard flat drive, the same with heavy spin, a soft one
-const hits={flat:TennisSfx.hitNotes(1,0),spun:TennisSfx.hitNotes(1,1),soft:TennisSfx.hitNotes(.2,.3)},X={};
+const hits={flat:TennisSfx.hitSound(1,0),spun:TennisSfx.hitSound(1,1),soft:TennisSfx.hitSound(.2,.3)},X={};
 for(const k in hits){X[k]=render(hits[k],H.design);wav('hit-'+k,X[k]);}
 const x=X.flat,parts=[peakHz(x,0,c),peakHz(x,c,c+lo),peakHz(x,c+lo,c+lo+ring)];
 out.hit={onsetMs:+onsetMs(x).toFixed(2),parts:{contact:parts[0],dip:parts[1],ring:parts[2]},
-  upshift:near(parts[0],H.hiHz)&&near(parts[1],H.loHz)&&near(parts[2],H.hiHz),
+  upshift:near(parts[0],1000)&&near(parts[1],H.ballHz)&&near(parts[2],1000),
   ringVsCrackDb:+(20*Math.log10(peak(x,c+lo,c+lo+ring)/peak(x,0,c))).toFixed(1),lengthMs:+lenMs(x).toFixed(1),
   flat:{db:+rmsDb(X.flat).toFixed(1),centroid:Math.round(centroid(X.flat))},spun:{db:+rmsDb(X.spun).toFixed(1),centroid:Math.round(centroid(X.spun))}};
 out.hit.flatLouderDarker=out.hit.flat.db>out.hit.spun.db&&out.hit.flat.centroid<out.hit.spun.centroid;
 // a bounce at 8 m/s down the court's normal (a groundstroke landing deep)
-const bo=render(TennisSfx.bounceNotes(8),B.design),bh=B.hiCycles/B.hiHz,bp=[peakHz(bo,0,bh),peakHz(bo,bh,bh+B.design.loCycles/B.loHz)];wav('bounce',bo);
+const bo=render(TennisSfx.bounceSound(8),B.design),bh=B.hiCycles/B.hiHz,bp=[peakHz(bo,0,bh),peakHz(bo,bh,bh+.02)];wav('bounce',bo);
 out.bounce={onsetMs:+onsetMs(bo).toFixed(2),parts:{first:bp[0],thump:bp[1]},downshift:near(bp[0],B.hiHz)&&near(bp[1],B.loHz),lengthMs:+lenMs(bo).toFixed(1)};
 out.onsetOk=out.hit.onsetMs<SOUND.onsetMs.v&&out.bounce.onsetMs<SOUND.onsetMs.v;
 fs.writeFileSync(path.join(ROOT,'data','sound-check.json'),JSON.stringify(out,null,1));

@@ -156,7 +156,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .m-side h3{font:700 16px var(--display);letter-spacing:.1em;color:var(--sky);margin:10px 0}
 .m-side ul{margin:0;padding:0;list-style:none;font-size:19px;color:var(--chalk)}.m-side li{padding:5px 0;border-bottom:1px dashed var(--deep)}.m-side li b{color:var(--ball);font-weight:400;margin-right:6px}
 .ms-cup{display:flex;justify-content:center;filter:drop-shadow(0 0 18px #f4d44a44)}.ms-trophy{width:160px;height:188px}
-.ms-faces{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ms-face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}
+.ms-faces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.ms-face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}
 .ms-keys{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:0;font-size:18px}.ms-keys dt{font:700 12px var(--display);color:var(--ball);padding-top:3px;white-space:nowrap}.ms-keys dd{margin:0;color:var(--chalk)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
 /* player select */
@@ -275,7 +275,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .meta{color:var(--mute);font-size:17px;margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta span{color:var(--ball)}
 .bars{display:grid;grid-template-columns:62px 1fr 26px;gap:3px 6px;align-items:center;font-size:16px;color:var(--mute);margin-bottom:9px}
 .bars i{display:block;height:8px;background:var(--deep)}.bars i u{display:block;height:100%;background:var(--sky)}.bars em{font-style:normal;color:var(--chalk);text-align:right}
-.picks{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.picks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .picks button{min-height:34px;padding:3px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:15px;overflow:hidden}
 .picks .face{width:33px;height:38px}.picks button.lg{border-bottom-color:var(--ball)}.picks button.lg span{color:var(--ball)}.picks button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ball)}
 .picks button b{width:6px;height:16px;flex:none}.picks button span{overflow:hidden;text-overflow:ellipsis}
@@ -293,7 +293,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .resf .lose .face{filter:grayscale(.7) brightness(.75)}
 .seg.mode{margin-bottom:10px;max-width:420px}
 .tinfo{grid-column:2/4}.tinfo p{margin:0 0 10px;color:var(--mute);font-size:18px;line-height:1.2}
-.tfield{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.tf{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--deep);border:2px solid var(--ink);padding:4px 2px 3px;font-size:15px;position:relative}
+.tfield{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.tf{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--deep);border:2px solid var(--ink);padding:4px 2px 3px;font-size:15px;position:relative}
 .tf .face{width:39px;height:45px}.tf .seed{position:absolute;left:3px;top:2px;color:var(--ball);font-size:14px}.tf.me{box-shadow:inset 0 0 0 2px var(--ball)}
 .bcols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:center}
 .bcol{display:flex;flex-direction:column;gap:10px;justify-content:space-around;height:100%}.bcol h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:0}
@@ -389,8 +389,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .ch-box h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:8px 0 6px}.ch-box h3:first-child{margin-top:0}.ch-box p{margin:0 0 6px;font-size:17px;color:var(--mute)}.ch-box p b{color:var(--ball);font-weight:400}
 .ch-titles,.ch-miles{list-style:none;margin:0;padding:0;font-size:17px}.ch-titles li{padding:2px 0;display:flex;gap:6px;align-items:center}.ch-titles span{color:var(--mute);margin-left:auto}.ch-titles .none{color:var(--mute)}
 .ch-miles li{color:var(--mute);padding:1px 0}.ch-miles li.done{color:var(--ball)}
-.ch-stars{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.ch-stars span{display:flex;flex-direction:column;align-items:center;gap:1px;filter:grayscale(1) brightness(.55)}.ch-stars span.won{filter:none}
-.ch-stars .face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}.ch-stars span.won .face{border-color:var(--ball)}.ch-stars i{font:700 8px var(--display);font-style:normal;color:var(--mute);white-space:nowrap;overflow:hidden;max-width:100%}
+.ch-stars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.ch-stars span{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;filter:grayscale(1) brightness(.55)}.ch-stars span.won{filter:none}
+.ch-stars .face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}.ch-stars span.won .face{border-color:var(--ball)}.ch-stars i{font:700 8px var(--display);font-style:normal;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:clip;max-width:100%;text-align:center}
 .ch-small{font-size:15px!important}.ch-box .seg{margin-bottom:6px}
 .ch-foot{width:min(1080px,100%);display:flex;align-items:center;gap:10px;margin-top:10px}.ch-news{flex:1;margin:0;color:var(--mute);font-size:17px;min-width:0}.ch-news i{font-style:normal;color:var(--sky);margin-right:6px}.ch-news.big{color:var(--ball)}
 .ce-path{width:min(1180px,100%);margin-top:12px;padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.ce-path h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:0 0 6px}
@@ -432,7 +432,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   #sbT .sv{width:14px;padding-left:5px}#sbT .set,#sbT .cur{width:18px}#sbT .pt{width:40px;padding:0 4px 0 2px}#sbT .en{left:18px}
   .sb-f{font-size:14px;min-height:15px;padding:0 6px 2px}.badge{font-size:10px;padding:2px 4px 1px}
   .tools{flex-direction:column;gap:4px}.tools>button{min-height:28px;font-size:16px;padding:0 8px}
-  .brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,1fr)}
+  .brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:520px){
   .hud{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
@@ -488,7 +488,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .cc-card h2{font-size:15px;margin:2px 0}.cc-card p{font-size:15px;margin-top:2px}.cc-opts{gap:4px 8px}.cc-opts .s-cyc{grid-template-columns:30px minmax(0,1fr) 30px;height:32px}.cc-opts .s-cyc button{height:32px}
   .cc-note{display:none}.ch-head{gap:8px}.ch-head .face{width:44px;height:51px}.ch-stat{padding:3px 6px;min-width:0}.ch-stat b{font-size:16px}
   .ch-tabs button{flex:1;padding:0 4px;font-size:10px}.ch-body{padding:10px}.ch-rank{font-size:16px}.ch-rank td{padding:2px 3px}
-  .ch-stars{grid-template-columns:repeat(5,1fr)}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
+  .ch-stars{grid-template-columns:repeat(5,minmax(0,1fr))}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
   #cevent .d-note{order:1;margin:0 0 10px}#cevent .ce-path{order:2;margin-top:0}#cevent .d-acts{order:3}
   .cp-card .face{width:64px;height:74px}.cp-id b{font-size:15px}.cp-ovr strong{font-size:30px}
   .cp-row{grid-template-columns:64px minmax(0,1fr) 26px auto}.cp-btns button{min-width:36px;min-height:34px}
@@ -4072,6 +4072,7 @@ class AudioEngine{
   constructor(){this.ac=null;this.ready=false;this.muted=false;}
   start(){
     if(this.ac){this.resume();return;}
+    this.media();
     try{
       const ac=new(window.AudioContext||window.webkitAudioContext)();this.ac=ac;
       this.master=ac.createGain();this.master.gain.value=.85;
@@ -4082,10 +4083,24 @@ class AudioEngine{
       this.verb=ac.createConvolver();this.verb.buffer=this.impulse(2.4,2.8);this.send=ac.createGain();this.send.gain.value=.32;this.send.connect(this.verb).connect(this.master);
       this.white=this.noise(2,false);this.pink=this.noise(6,true);
       this.ready=true;
+      for(const k of['pointerup','touchend','keydown'])addEventListener(k,()=>this.resume(),{passive:true});
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){if(this.tag)this.tag.pause();}else if(!this.muted){this.resume();if(this.tag)this.tag.play().catch(()=>{});}});
     }catch(e){this.ac=null;}
   }
-  resume(){if(this.ac&&this.ac.state==='suspended')this.ac.resume();}
-  setMuted(m){this.muted=m;if(this.ready)this.master.gain.setTargetAtTime(m?0:.85,this.now,.05);}
+  // a phone can suspend the sound (iOS calls it "interrupted" after a call or the app going to the background): any touch
+  // or click brings it back
+  resume(){if(this.ac&&this.ac.state!=='running'&&this.ac.state!=='closed')this.ac.resume().catch(()=>{});}
+  // iPhones silence Web Audio when the ringer switch is on silent, unless the page plays like media. Newer Safari has a
+  // setting for that; older ones switch over once an <audio> element plays, so a silent one loops while the sound is on
+  media(){
+    try{if(navigator.audioSession){navigator.audioSession.type='playback';return;}}catch(e){}
+    if(!/iP(hone|ad|od)/.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform)))return;
+    try{const n=8000,b=new Uint8Array(44+n),v=new DataView(b.buffer),w=(o,s)=>{for(let i=0;i<s.length;i++)b[o+i]=s.charCodeAt(i);};
+      w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);
+      v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);b.fill(128,44);
+      const el=new Audio(URL.createObjectURL(new Blob([b],{type:'audio/wav'})));el.loop=true;el.setAttribute('playsinline','');this.tag=el;el.play().catch(()=>{});}catch(e){}
+  }
+  setMuted(m){this.muted=m;if(this.ready)this.master.gain.setTargetAtTime(m?0:.85,this.now,.05);if(this.tag){if(m)this.tag.pause();else this.tag.play().catch(()=>{});}}
   get now(){return this.ac.currentTime;}
   // stereo noise with an exponential tail and a few early reflections
   impulse(sec,decay){
@@ -4133,130 +4148,111 @@ class AudioEngine{
   }
 }
 
-// SoundData — what the game's sounds are made of. The sounds of the ball come from descriptions and measurements of the
-// real thing; the sound chip that plays them is the NES's (its numbers from the NESdev wiki), which is what makes them
-// pixel sounds. Each group names its sources (keys of SOUND_SOURCES); a value marked "design" has no data behind it.
-// tools/sound-doc.js writes docs/sound/README.md from this file and data/sound-check.json.
+// SoundData — what the ball's sounds are made of, from descriptions and measurements of the real thing. Each group names
+// its sources (keys of SOUND_SOURCES); a value under "design" has no data behind it. tools/sound-doc.js writes
+// docs/sound/README.md from this file and data/sound-check.json.
 const SOUND_SOURCES={
-  chip:'NESdev wiki: APU Pulse, APU Noise, APU Mixer and CPU pages (nesdev.org/wiki), read 2026-11-17',
   patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
+  russell:'D. Russell, Penn State, "Vibrational Modes of a Tennis Racket" (2014) — string-bed modes 582, 936, 996, 1300, 1397 Hz; frame first bending 146 Hz',
   hamori:'P. Hamori, 10,000 frames per second video, Tennisplayer forum post of 15 Sep 2021 — ball on the strings ~4.0 ms (poly), ~4.5 ms (gut)',
   pate:'Paté et al. 2024, Vibration 7(4):47, abstract — flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little',
-  banwell:'G. Banwell 2013, Loughborough PhD thesis, abstract — a fast-dying impulsive part, then a much quieter ring that dies more slowly; shorter sounds are liked better',
-  russell:'D. Russell, Penn State, "Vibrational Modes of a Tennis Racket" (2014) — first string-bed mode 582 Hz, frame first bending 146 Hz',
+  banwell:'G. Banwell 2013, Loughborough PhD thesis, abstract — a fast-dying impulsive part, then a much quieter ring that dies more slowly, mostly from the first string-bed mode; shorter sounds are liked better',
 };
-// Every gain (design) is set so a sound carries the same energy as the one it replaced, which nobody found too loud or
-// too quiet: each rendered both ways in a browser and compared (2026-11-17)
+// Every gain (design) gives a sound the same energy as the game's first version of it, rendered both ways in a browser
+// and compared (2026-11-17), so the mix stays as it was
 const SOUND={
-  // the NES's 2A03: CPU clock (Hz); noise clock dividers in CPU cycles (NTSC, $0–$F); the four pulse duty patterns as
-  // heard; the non-linear mixer's constants; the console's first-order output filters (Hz). Volume is 4 bits (0–15)
-  chip:{src:['chip'],cpu:1789773,noise:[4,8,16,32,64,96,128,160,202,254,380,508,762,1016,2034,4068],
-    duty:[[0,1,0,0,0,0,0,0],[0,1,1,0,0,0,0,0],[0,1,1,1,1,0,0,0],[1,0,0,1,1,1,1,1]],
-    pulseMix:[95.88,8128,100],tndMix:[159.79,8227,12241,100],highpass:90,lowpass:14000,timer:[8,2047]},
   // every ball sound starts "from zero to significant levels within less than one millisecond" (patent)
   onsetMs:{src:['patent'],v:1},
   // a racket hit: "several cycles at around one kilohertz, followed by one cycle at around 250 Hertz (similar to a ball
-  // bounce) … then several decaying cycles at around one kilohertz leading to the upshifting twang" (patent). The first
-  // part lasts as long as the ball is on the strings (Hamori: poly, the tour's string now) and, with the 250-Hz cycle, is
-  // the impulsive part; the last is the quieter, slower ring (Banwell). A crack of noise marks the onset, 1 ms (design:
-  // spread over the whole contact it made a low pop, measured at 160 Hz, where the patent hears 1 kHz). Flat hits are
-  // louder and darker than spun ones (Paté, on serves: direction only, the sizes are design). Pace makes it louder: design
-  hit:{src:['patent','hamori','banwell','pate'],hiHz:1000,loHz:250,loCycles:1,contactMs:4.0,
-    design:{ringCycles:8,ringShare:.45,vol:[9,15],spinQuiet:2,crackPer:[6,4],gain:2.05,wet:.08}},
+  // bounce) … then several decaying cycles at around one kilohertz leading to the upshifting twang" (patent). The
+  // kilohertz is the string bed: its measured modes (Russell) cluster around it, and Banwell hears them in the ring.
+  // They ring hard while the ball is on the strings (Hamori: poly, the tour's string now), then as a quieter ring that
+  // dies more slowly (Banwell; sizes design). The frame's 146-Hz bending is left out: the hand damps it, and a low thump
+  // made the first version sound like a window shutting. Flat hits louder and darker than spun ones (Paté, on serves:
+  // direction only). Pace makes it louder: design
+  hit:{src:['patent','russell','hamori','banwell','pate'],strings:[582,936,996,1300,1397],ballHz:250,ballCycles:1,contactMs:4.0,
+    design:{amps:[.45,.8,1,.55,.35],tau:.0015,ring:.18,tau2:.012,ball:.9,crack:.5,crackHz:[2500,3800],crackTau:.0005,
+      level:[.45,1],spinQuiet:.15,lp:7000,gain:0.33,wet:.1}},
   // a bounce: "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
-  // Hertz, with some higher harmonics, leading to the audible downshifting thump" (patent). Level by impact speed: design
-  bounce:{src:['patent'],hiHz:1000,hiCycles:2,loHz:250,design:{loCycles:5,vol:[2,13],gain:2.44,wet:.12}},
+  // Hertz, with some higher harmonics, leading to the audible downshifting thump" (patent). The kilohertz starts at
+  // full strength and is gone in its two cycles (first built as a smooth pulse, it rose too slowly: its level came only
+  // with the thump, 2.3 ms in, where the patent hears every ball sound rise within 1 ms). Overtones, their sizes and
+  // decays, and the level by impact speed: design
+  bounce:{src:['patent'],hiHz:1000,hiCycles:2,loHz:250,design:{hi:1,overtones:[[1,1,.008],[2,.3,.006],[3,.12,.004]],lp:6000,gain:0.37,wet:.12}},
   // the net: the patent only names it ("a whack"); the tape it calls less repeatable. All design
-  net:{src:['patent'],design:{meshPer:9,meshMs:70,meshHz:110,tapePer:3,tapeMs:14,tapeHz:[900,750,600],meshGain:1.7,tapeGain:0.61,wet:.2}},
-  // shoes and the menu: no data, all design (the squeak's pitch kept from the earlier sound)
-  squeak:{src:[],design:{hz:[2300,3000],rise:1.35,ms:[70,150],vibHz:[38,58],vibDepth:.04,vol:[3,7],gain:1.0,wet:.25}},
-  slide:{src:[],design:{per:10,ms:300,vol:7,gain:0.3,wet:.2}},
-  chime:{src:[],design:{notes:[[880,.22],[660,.3]],gap:.14,vol:8,gain:0.66,wet:.15}},
-  click:{src:[],design:{hz:[1200,900],ms:40,vol:6,gain:0.56,wet:.05}},
+  net:{src:['patent'],design:{meshHz:110,meshTau:.03,meshNoise:600,tapeHz:[900,600],tapeTau:.02,tapeNoise:3000,lp:7000,meshGain:0.41,tapeGain:0.13,wet:.2}},
 };
 
-// ChipVoice — plays a short score the way the NES's sound chip would: two square-wave "pulse" channels with four duty
-// cycles and 16 volume steps, their pitch held to the chip's own timer grid; a noise channel from a 15-bit shift
-// register clocked at one of 16 rates (or its short, metallic loop); the chip's non-linear mixer; the console's output
-// filters (SOUND.chip). One liberty: notes and volume steps may change at any sample, where the real console steps its
-// envelopes at fractions of a video frame — otherwise a ball on the strings for 4 ms could not be heard as such.
-// A note: {ch:'p1'|'p2'|'noise', at, dur (s), vol (0–15), to (volume at the end, default vol)} and, for a pulse
-// channel, f (Hz) and duty (0–3); for noise, per (0–15) and short (the 93-step loop). Returns raw samples.
-class ChipVoice{
+// ImpactVoice — renders a struck object the way it really rings: a sum of decaying vibration modes (each a sine at a
+// measured frequency) and a burst of filtered noise for the moment of impact, softened by a gentle low-pass. No square
+// waves and no bit crushing: both were tried and made a harsh crackle.
+// A sound: {modes:[{f, a, t0, tau, tau2, a2, cycles}], noise:[{t0, a, f, q, tau}], lp (Hz)}. A mode starts at t0
+// (s) with amplitude a, dying with time constant tau, and an optional second, slower part a2/tau2 (the ring); with
+// cycles it is a single smooth pulse of that many cycles instead. Returns raw samples.
+class ImpactVoice{
   constructor(rate){this.rate=rate;}
-  // the pitch a pulse channel really plays nearest to f: CPU/(16(t+1)) for an 11-bit timer t (below 8 it is silent)
-  static pulseHz(f){const K=SOUND.chip,t=clamp(Math.round(K.cpu/(16*f)-1),K.timer[0],K.timer[1]);return K.cpu/(16*(t+1));}
-  render(notes,gain=1){
-    const r=this.rate,K=SOUND.chip,end=Math.max(...notes.map(n=>n.at+n.dur)),N=Math.ceil((end+.012)*r);
-    const L={p1:new Uint8Array(N),p2:new Uint8Array(N),noise:new Uint8Array(N)};
-    for(const n of notes){
-      const i0=Math.round(n.at*r),i1=Math.min(N,Math.round((n.at+n.dur)*r)),span=Math.max(1,i1-i0),v0=n.vol,v1=n.to??n.vol,out=L[n.ch];
-      const vol=i=>clamp(Math.round(v0+(v1-v0)*(i-i0)/span),0,15);
-      if(n.ch==='noise'){
-        // the shift register starts at 1 (power-up); feedback is bit 0 XOR bit 1, or bit 6 in the short mode; the
-        // channel sounds while bit 0 is clear
-        const step=K.cpu/K.noise[n.per]/r,fb=n.short?6:1;let reg=1,acc=0;
-        for(let i=i0;i<i1;i++){acc+=step;while(acc>=1){acc-=1;reg=(reg>>1)|(((reg^(reg>>fb))&1)<<14);}if(!(reg&1))out[i]=vol(i);}
-      }else{
-        const f=ChipVoice.pulseHz(n.f),seq=K.duty[n.duty??2];let ph=0;
-        for(let i=i0;i<i1;i++){if(seq[Math.floor(ph*8)&7])out[i]=vol(i);ph+=f/r;ph-=Math.floor(ph);}
-      }
-    }
-    // the mixer, then a first-order high-pass and low-pass as on the console's output
-    const[pa,pb,pc]=K.pulseMix,[ta,,tn,tc]=K.tndMix,dt=1/r,rh=1/(TAU*K.highpass),rl=1/(TAU*K.lowpass),ah=rh/(rh+dt),al=dt/(rl+dt),o=new Float32Array(N);
-    let xh=0,yh=0,yl=0;
-    for(let i=0;i<N;i++){
-      const p=L.p1[i]+L.p2[i],q=L.noise[i],x=(p?pa/(pb/p+pc):0)+(q?ta/(1/(q/tn)+tc):0);
-      yh=ah*(yh+x-xh);xh=x;yl+=al*(yh-yl);o[i]=yl*gain;
-    }
-    return o;
+  render(S,gain=1){
+    const r=this.rate,ends=[...(S.modes||[]).map(m=>m.t0+(m.cycles?m.cycles/m.f:7*Math.max(m.tau,m.tau2||0))),...(S.noise||[]).map(n=>n.t0+7*n.tau)];
+    const N=Math.ceil((Math.max(...ends)+.005)*r),o=new Float64Array(N),att=.0002;
+    for(const m of S.modes||[]){const i0=Math.round(m.t0*r),w=TAU*m.f/r,len=m.cycles?Math.round(m.cycles/m.f*r):N-i0;
+      for(let j=0;j<len&&i0+j<N;j++){const t=j/r,e=m.cycles?Math.sin(PI*j/len)**2:(1-Math.exp(-t/att))*(m.a*Math.exp(-t/m.tau)+(m.a2||0)*Math.exp(-t/(m.tau2||1)))/m.a;
+        o[i0+j]+=m.a*e*Math.sin(w*j);}}
+    // noise through a two-pole band-pass (RBJ cookbook), dying exponentially; a fixed seed, so a sound is the same each time
+    let seed=12345;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x3fffffff-1;};
+    for(const n of S.noise||[]){const i0=Math.round(n.t0*r),w0=TAU*n.f/r,al=Math.sin(w0)/(2*n.q),a0=1+al,b0=al/a0,b2=-al/a0,a1=-2*Math.cos(w0)/a0,a2=(1-al)/a0;
+      let x1=0,x2=0,y1=0,y2=0;for(let j=0;i0+j<N&&j<7*n.tau*r;j++){const x=rnd()*Math.exp(-j/r/n.tau),y=b0*x+b2*x2-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;o[i0+j]+=n.a*y;}}
+    // a first-order low-pass takes the edge off the top
+    const k=S.lp?1-Math.exp(-TAU*S.lp/r):1,out=new Float32Array(N);let y=0;
+    for(let i=0;i<N;i++){y+=k*(o[i]-y);out[i]=y*gain;}
+    return out;
   }
 }
 
-// TennisSfx — the sounds of the game itself, played on an 8-bit sound chip (ChipVoice): the strings, bounces, the net,
-// shoes, and the menu's two notes. What each sound is made of, and where each number comes from: SoundData.js
+// TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court, the menu's notes.
+// The ball's sounds ring at measured frequencies (ImpactVoice; what each is made of and where each number comes from:
+// SoundData.js); the shoes and the menu are built from oscillators and filtered noise (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
-  get chip(){return this.v||(this.v=new ChipVoice(this.A.ac.sampleRate));}
-  play(notes,D,pan){this.A.play(this.chip.render(notes,D.gain),pan,D.wet);}
-  // the score of a racket hit (also used by tools/sound-check.js): the ball on the strings at about 1 kHz, with a crack of
-  // the shift register's noise over the first millisecond only; one cycle at 250 Hz; then the quieter ring at 1 kHz.
-  // Pace makes it louder; spin quieter and the crack brighter
-  static hitNotes(power,spin=0){
-    const H=SOUND.hit,D=H.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),c=H.contactMs/1000,lo=H.loCycles/H.loHz;
-    const v=clamp(Math.round(lerp(D.vol[0],D.vol[1],p)-s*D.spinQuiet),1,15),ring=Math.max(1,Math.round(v*D.ringShare));
-    return[{ch:'noise',at:0,dur:SOUND.onsetMs.v/1000,per:Math.round(lerp(D.crackPer[0],D.crackPer[1],s)),vol:v,to:0},
-      {ch:'p1',at:0,dur:c,f:H.hiHz,duty:2,vol:v},
-      {ch:'p1',at:c,dur:lo,f:H.loHz,duty:2,vol:v},
-      {ch:'p1',at:c+lo,dur:D.ringCycles/H.hiHz,f:H.hiHz,duty:2,vol:ring,to:0}];
+  get voice(){return this.v||(this.v=new ImpactVoice(this.A.ac.sampleRate));}
+  play(S,D,pan){this.A.play(this.voice.render(S,D.gain),pan,D.wet);}
+  // a racket hit (also used by tools/sound-check.js): the string bed rings at its measured modes, hard while the ball is
+  // on the strings and then as a quieter, slower ring; the ball leaves with one cycle at 250 Hz; a soft crack marks the
+  // impact. Pace makes it louder; spin quieter, with a brighter crack
+  static hitSound(power,spin=0){
+    const H=SOUND.hit,D=H.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),g=lerp(D.level[0],1,p)*(1-D.spinQuiet*s),c=H.contactMs/1000;
+    return{lp:D.lp,
+      modes:[...H.strings.map((f,i)=>({f,a:D.amps[i]*g,t0:0,tau:D.tau,a2:D.amps[i]*g*D.ring,tau2:D.tau2})),{f:H.ballHz,a:D.ball*g,t0:c,cycles:H.ballCycles}],
+      noise:[{t0:0,a:D.crack*g,f:lerp(D.crackHz[0],D.crackHz[1],s),q:.7,tau:D.crackTau}]};
   }
-  // a bounce: a couple of cycles at 1 kHz, then the thump at 250 Hz dying away, louder the harder the ball lands
-  static bounceNotes(v,soft=1){
-    const B=SOUND.bounce,D=B.design,g=clamp((v-1)/12,.08,1)*soft,vol=Math.max(1,Math.round(lerp(D.vol[0],D.vol[1],g))),hi=B.hiCycles/B.hiHz;
-    return[{ch:'p1',at:0,dur:hi,f:B.hiHz,duty:2,vol},{ch:'p1',at:hi,dur:D.loCycles/B.loHz,f:B.loHz,duty:2,vol,to:0}];
+  // a bounce: a cycle or two at 1 kHz, then the ball's 250 Hz thump with its overtones dying away, by impact speed
+  static bounceSound(v,soft=1){
+    const B=SOUND.bounce,D=B.design,g=clamp((v-1)/12,.08,1)*soft,hi=B.hiCycles/B.hiHz;
+    return{lp:D.lp,modes:[{f:B.hiHz,a:D.hi*g,t0:0,tau:hi/2},...D.overtones.map(([k,a,tau])=>({f:B.loHz*k,a:a*g,t0:hi,tau}))]};
   }
-  hit(power,spin=0,stroke='fh',pan=0){this.play(TennisSfx.hitNotes(power,spin),SOUND.hit.design,pan);}
-  bounce(v,pan=0,soft=1){this.play(TennisSfx.bounceNotes(v,soft),SOUND.bounce.design,pan);}
-  // into the mesh: a dull whack of low noise over a low pulse; off the tape: a metallic tick and a falling blip
-  net(mesh,v,pan=0){
-    const D=SOUND.net.design,g=clamp(v/25,.2,1),vol=Math.max(2,Math.round(14*g));
-    const n=mesh?[{ch:'noise',at:0,dur:D.meshMs/1000,per:D.meshPer,vol,to:0},{ch:'p2',at:0,dur:D.meshMs/2000,f:D.meshHz,duty:2,vol:Math.round(vol*.7),to:0}]
-      :[{ch:'noise',at:0,dur:D.tapeMs/1000,per:D.tapePer,short:true,vol,to:0},...D.tapeHz.map((f,i)=>({ch:'p2',at:.004+i*.012,dur:.012,f,duty:1,vol:Math.round(vol*.6*(1-i*.3))}))];
-    this.play(n,{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);
+  // into the mesh: a dull whack; off the tape: a tick and a shiver
+  static netSound(mesh,v){
+    const D=SOUND.net.design,g=clamp(v/25,.2,1);
+    return mesh?{lp:D.lp,modes:[{f:D.meshHz,a:.6*g,t0:0,tau:D.meshTau}],noise:[{t0:0,a:g,f:D.meshNoise,q:.7,tau:D.meshTau}]}
+      :{lp:D.lp,modes:D.tapeHz.map((f,i)=>({f,a:.3*g,t0:.002,tau:D.tapeTau*(1+i)})),noise:[{t0:0,a:.8*g,f:D.tapeNoise,q:1,tau:.002}]};
   }
-  // rubber on acrylic when a player stops or cuts hard: a thin rising chirp with a wobble
+  hit(power,spin=0,stroke='fh',pan=0){this.play(TennisSfx.hitSound(power,spin),SOUND.hit.design,pan);}
+  bounce(v,pan=0,soft=1){this.play(TennisSfx.bounceSound(v,soft),SOUND.bounce.design,pan);}
+  net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
+  // rubber on acrylic when a player stops or cuts hard: a short rising chirp with a wobble
   squeak(a=1,pan=0){
-    const D=SOUND.squeak.design,f=lerp(D.hz[0],D.hz[1],Math.random()),d=lerp(D.ms[0],D.ms[1],Math.random())/1000,vib=lerp(D.vibHz[0],D.vibHz[1],Math.random());
-    const vol=Math.round(lerp(D.vol[0],D.vol[1],clamp(a,0,1))),st=.004,n=[];
-    for(let t=0;t<d;t+=st){const u=t/d,fq=f*(u<.6?lerp(1,D.rise,u/.6):lerp(D.rise,(1+D.rise)/2,(u-.6)/.4))*(1+D.vibDepth*Math.sin(TAU*vib*t));
-      n.push({ch:'p1',at:t,dur:st,f:fq,duty:0,vol:u<.7?vol:Math.round(vol*(1-u)/.3)});}
-    this.play(n,D,pan);
+    const A=this.A,ac=A.ac,t=A.now,o=A.out(pan,.25,.4),d=.07+Math.random()*.08,f=2300+Math.random()*700,g=clamp(.03+a*.03,.03,.09);
+    const s=ac.createOscillator(),lfo=ac.createOscillator(),lg=ac.createGain(),eg=ac.createGain();
+    s.type='sawtooth';s.frequency.setValueAtTime(f,t);s.frequency.linearRampToValueAtTime(f*1.35,t+d*.6);s.frequency.linearRampToValueAtTime(f*1.2,t+d);
+    lfo.frequency.value=38+Math.random()*20;lg.gain.value=90;lfo.connect(lg).connect(s.frequency);
+    const hp=ac.createBiquadFilter();hp.type='bandpass';hp.frequency.value=f*1.2;hp.Q.value=2;
+    eg.gain.setValueAtTime(0,t);eg.gain.linearRampToValueAtTime(g,t+.01);eg.gain.setValueAtTime(g,t+d*.7);eg.gain.exponentialRampToValueAtTime(.0005,t+d);
+    s.connect(hp).connect(eg).connect(o);s.start(t);lfo.start(t);s.stop(t+d+.05);lfo.stop(t+d+.05);
   }
-  // feet sliding on clay: long low noise fading out
-  slide(pan=0){const D=SOUND.slide.design;this.play([{ch:'noise',at:0,dur:D.ms/1000,per:D.per,vol:D.vol,to:0}],D,pan);}
-  // two notes that say "your turn"
-  chime(){const D=SOUND.chime.design;this.play(D.notes.map(([f,d],i)=>({ch:i?'p2':'p1',at:i*D.gap,dur:d,f,duty:2,vol:D.vol,to:0})),D,0);}
-  click(){const D=SOUND.click.design,h=D.ms/2000;this.play([{ch:'p1',at:0,dur:h,f:D.hz[0],duty:1,vol:D.vol},{ch:'p1',at:h,dur:h,f:D.hz[1],duty:1,vol:D.vol,to:0}],D,0);}
+  // feet sliding on clay
+  slide(pan=0){const A=this.A,t=A.now,o=A.out(pan,.2,.5);A.burst(o,t,{type:'lowpass',f:1400,f2:350,q:.8,peak:.12,att:.02,rel:.28,pink:true});}
+  // two tones that say "your turn"
+  chime(){const A=this.A,t=A.now,o=A.out(0,.15,.6);A.tone(o,t,{f:880,peak:.07,rel:.22});A.tone(o,t+.14,{f:660,peak:.07,rel:.3});}
+  click(){const A=this.A,t=A.now,o=A.out(0,.05,.2);A.tone(o,t,{f:1200,f2:900,peak:.05,rel:.04});}
 }
 
 // CrowdAudio — fifteen thousand people as filtered noise: the murmur, applause as many single claps,
@@ -4585,7 +4581,7 @@ class TouchShot{
       C.preview={x:clamp(p.x,b.x0+i,b.x1-i),z:clamp(p.z,b.z0+i,b.z1-i)};return;}
     if(m.stage!=='play')return;
     const u=clamp(-H.s*p.z,1.0,CT.L-.15),x=clamp(p.x,-CT.SW+.15,CT.SW-.15);
-    g.aim(x,-H.s*u,false);
+    g.aim(x,-H.s*u);
   }
 }
 
@@ -5376,7 +5372,7 @@ class Game{
   serve(k,force=false){const m=this.match;if(m.human){m.setServe(k,force);this.dock.update(m);}}
   zone(k){const m=this.match;if(m.human&&this.dock.serving(m)){m.setZone(k);this.dock.update(m);}}
   // a target on the court (x, z in metres); tick: the click sound, left out while a thumb slides the target along
-  aim(x,z,tick=true){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;if(tick&&this.sound.live)this.sound.sfx.click();this.dock.update(m);return true;}
+  aim(x,z){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;this.dock.update(m);return true;}
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
     if(!this.aim(p.x,p.z)&&m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
   challenge(){const q=this.match.control.challenge;if(q)q.go=true;}
