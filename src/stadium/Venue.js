@@ -17,8 +17,10 @@ class Venue{
   static COURTS={
     blue:{out:0x25468a,outS:[0x1a2c5c,0x3166b4],in:0x3166b4,inS:[0x25468a,0x4a8ed4],side:0x3166b4,name:0x4a8ed4},
     city:{out:0x2a6a34,outS:[0x1b4a2c,0x3f8a3c],in:0x25468a,inS:[0x1a2c5c,0x3166b4],side:0x3f8a3c,name:0x5ea644},
-    clay:{out:0xc8662c,outS:[0xa04c22,0xe08440,0x743719],in:0xc8662c,inS:[0xa04c22,0xe08440],side:0xa04c22,name:0xe08440,brush:0xa04c22},
-    grass:{out:0x3f8a3c,outS:[0x2a6a34,0x5ea644],in:0x3f8a3c,inS:[0x2a6a34,0x5ea644],side:0x2a6a34,name:0x5ea644,stripes:0x5ea644,worn:0xb8ae94,worn2:0x8a8270},
+    // clay and grass a step darker than their lit colour: sunlight lifts a court a step up the palette, and a step higher
+    // they glared and buried the white lines. Few specks (a sparing scale), only the nearest shades
+    clay:{out:0xa04c22,outS:[0xc8662c],in:0xa04c22,inS:[0xc8662c],side:0x743719,name:0xc8662c,brush:0x743719,specks:.35},
+    grass:{out:0x2a6a34,outS:[0x3f8a3c],in:0x2a6a34,inS:[0x3f8a3c],side:0x1b4a2c,name:0x3f8a3c,stripes:0x3f8a3c,worn:0x8a8270,worn2:0x3f8a3c,specks:.35},
   };
   static MAJORS=[
     {key:'pto',name:'Pixel Tennis Open',tag:'SUMMER OF TENNIS',sub:'Summer hard-court major',month:'January',surface:'hard',look:'blue',phase:'day'},

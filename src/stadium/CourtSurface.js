@@ -12,15 +12,15 @@ class CourtSurface{
   paint(venue=Venue.MAJORS[0]){
     const g=this.g,W=this.W,H=this.H,C=venue.court;this.venue=venue;this.name=venue.name.toUpperCase();this.end=null;
     const x0=this.u(-CT.DW),x1=this.u(CT.DW),y0=this.v(-CT.L),y1=this.v(CT.L),m=this.m;
-    g.fillStyle=hexs(C.out);g.fillRect(0,0,W,H);this.speck(0,0,W,H,C.outS,15000);
-    if(C.in!==C.out){g.fillStyle=hexs(C.in);g.fillRect(x0,y0,x1-x0,y1-y0);this.speck(x0,y0,x1-x0,y1-y0,C.inS,7000);}
+    const k=C.specks??1;g.fillStyle=hexs(C.out);g.fillRect(0,0,W,H);this.speck(0,0,W,H,C.outS,15000*k);
+    if(C.in!==C.out){g.fillStyle=hexs(C.in);g.fillRect(x0,y0,x1-x0,y1-y0);this.speck(x0,y0,x1-x0,y1-y0,C.inS,7000*k);}
     // grass: mowing stripes across the court, and the baselines worn to bare earth where the players stand
-    if(C.stripes){g.fillStyle=hexs(C.stripes);const band=1.83*m;for(let y=0,i=0;y<H;y+=band,i++)if(i%2)g.fillRect(0,y,W,band);this.speck(0,0,W,H,C.outS,9000);
+    if(C.stripes){g.fillStyle=hexs(C.stripes);const band=1.83*m;for(let y=0,i=0;y<H;y+=band,i++)if(i%2)g.fillRect(0,y,W,band);this.speck(0,0,W,H,C.outS,9000*k);
       // worn where the players stand and serve, from just inside the baseline (where the bounce goes dead) to 2 m behind it
-      for(const z of[-1,1])for(let i=0;i<2600;i++){const a=R()*TAU,r=Math.pow(R(),.7),px=this.u(Math.cos(a)*r*3),pz=this.v(z*(CT.L+.5)+Math.sin(a)*r*1.9);
+      for(const z of[-1,1])for(let i=0;i<1800;i++){const a=R()*TAU,r=Math.pow(R(),.7),px=this.u(Math.cos(a)*r*3),pz=this.v(z*(CT.L+.5)+Math.sin(a)*r*1.9);
         g.fillStyle=hexs(r<.55?C.worn:C.worn2);g.fillRect(px|0,pz|0,2,2);}}
     // clay: the arcs the sweeping net leaves, lighter and darker
-    if(C.brush){g.globalAlpha=.35;g.strokeStyle=hexs(C.brush);g.lineWidth=1;for(let i=0;i<46;i++){const cx=R()*W,cy=R()*H,r=40+R()*120;g.beginPath();g.arc(cx,cy,r,R()*TAU,R()*TAU+1.2);g.stroke();}g.globalAlpha=1;}
+    if(C.brush){g.globalAlpha=.2;g.strokeStyle=hexs(C.brush);g.lineWidth=1;for(let i=0;i<46;i++){const cx=R()*W,cy=R()*H,r=40+R()*120;g.beginPath();g.arc(cx,cy,r,R()*TAU,R()*TAU+1.2);g.stroke();}g.globalAlpha=1;}
     for(const sx of[-1,1]){g.save();g.translate(this.u(sx*(CT.DW+1.9)),this.v(0));g.rotate(-sx*PI/2);PixelFont.center(g,'CENTRE COURT',0,-6,hexs(C.side),3);g.restore();}
     // keep the bare court; the lettering behind the baselines is laid over it and can be turned
     this.base=document.createElement('canvas');this.base.width=W;this.base.height=H;this.base.getContext('2d').drawImage(this.cv,0,0);
