@@ -27,5 +27,10 @@ check((kinds.applause||0)>=points,`applause after every point (${kinds.applause|
 check((kinds.cheer||0)+(kinds.roar||0)>points*.2,`cheers or roars on ${((kinds.cheer||0)+(kinds.roar||0))} points`);
 check(dfs===0||dfGroans===dfs,`a groan for every double fault (${dfGroans}/${dfs})`);
 check(bigWins===0||bigRoars/bigWins>.9,`a roar when a big point is won (${bigRoars}/${bigWins})`);
-check(homeCheer/Math.max(1,homeN)>awayCheer/Math.max(1,awayN),`the home player gets more cheering per point won (${(homeCheer/Math.max(1,homeN)).toFixed(2)} vs ${(awayCheer/Math.max(1,awayN)).toFixed(2)})`);
+// the home bias on the same point won by each player (cheering per point over one set swings with who happens to hit
+// the winners, so that total is only reported)
+const cheerFor=i=>{const M=m.mood,P=m.players,out=[],emit=M.emit;M.emit=(k,p)=>{if(k==='cheer'||k==='roar')out.push(p);};
+  M.tension=0;M.point(P[i],P[1-i],{kind:'winner',by:i},4,null);M.emit=emit;return out[0]||0;};
+const hc=cheerFor(0),ac=cheerFor(1);
+check(hc>ac,`the home player is cheered louder for the same winner (${hc.toFixed(2)} vs ${ac.toFixed(2)}; per point won over the set ${(homeCheer/Math.max(1,homeN)).toFixed(2)} vs ${(awayCheer/Math.max(1,awayN)).toFixed(2)})`);
 console.log(fails?`\n${fails} FAILED`:'\nall crowd checks passed');process.exitCode=fails?1:0;
