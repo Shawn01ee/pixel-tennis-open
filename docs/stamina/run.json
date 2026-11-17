@@ -1,288 +1,288 @@
 {
- "matches": 90,
+ "matches": 100,
  "control": {
-  "serveFresh": 185.97,
+  "serveFresh": 187.85,
   "serveArm1": 183.12,
-  "change": -1.53
+  "change": -2.52
  },
  "calibration": {
-  "fiveSetters": 29,
-  "of": 90,
-  "work": 49645,
-  "cost": 1022,
-  "workMargin": 5.8,
-  "costMargin": 4.8,
+  "fiveSetters": 39,
+  "of": 100,
+  "work": 54178,
+  "cost": 1214,
+  "workMargin": 5.5,
+  "costMargin": 4.3,
   "LEGS": 48400,
   "ARM": 1010
  },
  "sets": {
   "all": [
    {
-    "serve": 184.9,
-    "firstIn": 63.1,
-    "errPerPoint": 0.344,
-    "mPerPoint": 11.1,
-    "pace": 1.316
+    "serve": 187.8,
+    "firstIn": 61,
+    "errPerPoint": 0.328,
+    "mPerPoint": 11.9,
+    "pace": 1.292
    },
    {
-    "serve": 184.6,
-    "firstIn": 61.4,
-    "errPerPoint": 0.339,
-    "mPerPoint": 11.5,
-    "pace": 1.328
+    "serve": 186.6,
+    "firstIn": 62.2,
+    "errPerPoint": 0.318,
+    "mPerPoint": 11.8,
+    "pace": 1.301
+   },
+   {
+    "serve": 186.4,
+    "firstIn": 65.8,
+    "errPerPoint": 0.322,
+    "mPerPoint": 11.7,
+    "pace": 1.305
+   },
+   {
+    "serve": 185,
+    "firstIn": 64.1,
+    "errPerPoint": 0.311,
+    "mPerPoint": 11.8,
+    "pace": 1.304
    },
    {
     "serve": 184.7,
-    "firstIn": 61.5,
-    "errPerPoint": 0.341,
-    "mPerPoint": 11.3,
-    "pace": 1.332
-   },
-   {
-    "serve": 183.6,
-    "firstIn": 62.4,
-    "errPerPoint": 0.331,
-    "mPerPoint": 11.1,
-    "pace": 1.325
-   },
-   {
-    "serve": 182.5,
-    "firstIn": 63.3,
-    "errPerPoint": 0.331,
-    "mPerPoint": 11.4,
-    "pace": 1.336
+    "firstIn": 62.2,
+    "errPerPoint": 0.316,
+    "mPerPoint": 12.3,
+    "pace": 1.315
    }
   ],
   "winners": [
    {
-    "serve": 184.6,
-    "firstIn": 63.2,
-    "errPerPoint": 0.332,
-    "mPerPoint": 11.1,
-    "pace": 1.316
+    "serve": 187.8,
+    "firstIn": 61.3,
+    "errPerPoint": 0.329,
+    "mPerPoint": 11.9,
+    "pace": 1.292
    },
    {
-    "serve": 184.4,
-    "firstIn": 62.2,
-    "errPerPoint": 0.322,
-    "mPerPoint": 11.5,
-    "pace": 1.328
+    "serve": 186.2,
+    "firstIn": 61.1,
+    "errPerPoint": 0.32,
+    "mPerPoint": 11.7,
+    "pace": 1.301
    },
    {
-    "serve": 184.7,
-    "firstIn": 61.2,
-    "errPerPoint": 0.351,
-    "mPerPoint": 11.3,
-    "pace": 1.332
+    "serve": 186,
+    "firstIn": 66.1,
+    "errPerPoint": 0.323,
+    "mPerPoint": 11.8,
+    "pace": 1.305
    },
    {
-    "serve": 183.5,
-    "firstIn": 62,
-    "errPerPoint": 0.319,
-    "mPerPoint": 11.1,
-    "pace": 1.325
+    "serve": 185.4,
+    "firstIn": 65.5,
+    "errPerPoint": 0.307,
+    "mPerPoint": 11.7,
+    "pace": 1.304
    },
    {
-    "serve": 182.5,
-    "firstIn": 63,
-    "errPerPoint": 0.305,
-    "mPerPoint": 11.3,
-    "pace": 1.336
+    "serve": 184.9,
+    "firstIn": 63.4,
+    "errPerPoint": 0.281,
+    "mPerPoint": 12.4,
+    "pace": 1.315
    }
   ],
   "losers": [
    {
-    "serve": 185.1,
-    "firstIn": 63.1,
-    "errPerPoint": 0.357,
-    "mPerPoint": 11.1,
-    "pace": 1.316
+    "serve": 187.8,
+    "firstIn": 60.7,
+    "errPerPoint": 0.328,
+    "mPerPoint": 11.8,
+    "pace": 1.292
    },
    {
-    "serve": 184.8,
-    "firstIn": 60.5,
-    "errPerPoint": 0.356,
-    "mPerPoint": 11.4,
-    "pace": 1.328
+    "serve": 186.9,
+    "firstIn": 63.3,
+    "errPerPoint": 0.317,
+    "mPerPoint": 11.8,
+    "pace": 1.301
+   },
+   {
+    "serve": 186.8,
+    "firstIn": 65.6,
+    "errPerPoint": 0.321,
+    "mPerPoint": 11.7,
+    "pace": 1.305
    },
    {
     "serve": 184.6,
-    "firstIn": 61.7,
-    "errPerPoint": 0.331,
-    "mPerPoint": 11.3,
-    "pace": 1.332
-   },
-   {
-    "serve": 183.7,
     "firstIn": 62.7,
-    "errPerPoint": 0.342,
-    "mPerPoint": 11,
-    "pace": 1.325
+    "errPerPoint": 0.316,
+    "mPerPoint": 11.8,
+    "pace": 1.304
    },
    {
-    "serve": 182.6,
-    "firstIn": 63.8,
-    "errPerPoint": 0.356,
-    "mPerPoint": 11.4,
-    "pace": 1.336
+    "serve": 184.4,
+    "firstIn": 61,
+    "errPerPoint": 0.351,
+    "mPerPoint": 12.3,
+    "pace": 1.315
    }
   ]
  },
  "trace": {
   "on": {
-   "matches": 29,
-   "overall": -1.26,
+   "matches": 39,
+   "overall": -1.67,
    "overallCI": [
-    -1.98,
-    -0.55
+    -2.24,
+    -1.1
    ],
-   "within": -1.53,
+   "within": -1.91,
    "withinCI": [
-    -1.94,
-    -1.11
+    -2.41,
+    -1.41
    ],
-   "gap": -0.19,
+   "gap": -0.28,
    "gapCI": [
-    -1.22,
-    0.73
+    -1.25,
+    0.57
    ],
-   "arm1": 0.107,
-   "arm5": 0.891,
-   "expected": -1.4,
+   "arm1": 0.136,
+   "arm5": 1.06,
+   "expected": -1.65,
    "mix": [
     {
      "kind": "Flat",
-     "set1": 66,
-     "set5": 68
-    },
-    {
-     "kind": "Kick",
-     "set1": 4.3,
-     "set5": 4
+     "set1": 65.1,
+     "set5": 66.2
     },
     {
      "kind": "Slice",
-     "set1": 29.7,
-     "set5": 28
+     "set1": 30.8,
+     "set5": 30.4
+    },
+    {
+     "kind": "Kick",
+     "set1": 4.1,
+     "set5": 3.4
     }
    ]
   },
   "off": {
-   "matches": 43,
-   "overall": -0.37,
+   "matches": 35,
+   "overall": 0.15,
    "overallCI": [
-    -0.93,
-    0.15
+    -0.44,
+    0.85
    ],
-   "within": -0.31,
+   "within": -0.17,
    "withinCI": [
-    -0.71,
-    0.05
+    -0.58,
+    0.24
    ],
-   "gap": -0.07,
+   "gap": -0.68,
    "gapCI": [
-    -0.82,
-    0.78
+    -1.53,
+    0.2
    ],
-   "arm1": 0.111,
-   "arm5": 1.004,
+   "arm1": 0.154,
+   "arm5": 1.281,
    "expected": 0,
    "mix": [
     {
      "kind": "Flat",
-     "set1": 67.8,
-     "set5": 68.1
-    },
-    {
-     "kind": "Kick",
-     "set1": 3.9,
-     "set5": 4.5
+     "set1": 67,
+     "set5": 67.9
     },
     {
      "kind": "Slice",
-     "set1": 28.3,
-     "set5": 27.4
+     "set1": 28.2,
+     "set5": 28.4
+    },
+    {
+     "kind": "Kick",
+     "set1": 4.9,
+     "set5": 3.6
     }
    ]
   }
  },
  "sowhat": {
   "on": {
-   "fiveSetters": 29,
-   "ranMoreWonFifth": 58.6,
+   "fiveSetters": 39,
+   "ranMoreWonFifth": 48.7,
    "all": {
-    "serve": -1.3,
-    "firstIn": 0.2,
-    "err": -3.8,
-    "pace": 1.5
+    "serve": -1.65,
+    "firstIn": 1.2,
+    "err": -3.7,
+    "pace": 1.8
    },
    "winners": {
-    "serve": -1.14,
-    "firstIn": -0.2,
-    "err": -8.1,
-    "pace": 1.5
+    "serve": -1.54,
+    "firstIn": 2.1,
+    "err": -14.6,
+    "pace": 1.8
    },
    "losers": {
-    "serve": -1.35,
-    "firstIn": 0.7,
-    "err": -0.3,
-    "pace": 1.5
+    "serve": -1.81,
+    "firstIn": 0.3,
+    "err": 7,
+    "pace": 1.8
    }
   },
   "off": {
-   "fiveSetters": 43,
-   "ranMoreWonFifth": 65.1,
+   "fiveSetters": 35,
+   "ranMoreWonFifth": 54.3,
    "all": {
-    "serve": -0.37,
-    "firstIn": -3.7,
-    "err": 0.9,
-    "pace": 0.4
+    "serve": 0.16,
+    "firstIn": -1,
+    "err": 1,
+    "pace": 0
    },
    "winners": {
-    "serve": -0.32,
-    "firstIn": -4.4,
-    "err": -4.2,
-    "pace": 0.4
+    "serve": 0.48,
+    "firstIn": 0,
+    "err": -10.4,
+    "pace": 0
    },
    "losers": {
-    "serve": -0.43,
-    "firstIn": -3,
-    "err": 6,
-    "pace": 0.4
+    "serve": -0.16,
+    "firstIn": -1.9,
+    "err": 13,
+    "pace": 0
    }
   },
   "endurance": {
-   "matches": 45,
-   "fitterWon": 55.6,
-   "fiveSetters": 16,
-   "fitterWonFifth": 43.8,
-   "energyGapAtEnd": 3.4
+   "matches": 50,
+   "fitterWon": 54,
+   "fiveSetters": 17,
+   "fitterWonFifth": 52.9,
+   "energyGapAtEnd": 3.3
   }
  },
  "match": {
-  "seed": 6,
-  "line": "6–4 6–7(4) 7–6(4) 4–6 6–4",
+  "seed": 2,
+  "line": "6–4 3–6 3–6 6–4 6–3",
   "winner": "Medvedev",
   "sets": [
-   63,
-   140,
-   225,
-   281
+   57,
+   125,
+   182,
+   236
   ],
-  "points": 342,
+  "points": 295,
   "players": [
    {
     "short": "Zverev",
-    "dist": 3205,
-    "energy": 48,
-    "legs": 0.89,
-    "arm": 1.06
+    "dist": 3489,
+    "energy": 33,
+    "legs": 0.97,
+    "arm": 1.18
    },
    {
     "short": "Medvedev",
-    "dist": 3128,
-    "energy": 49,
-    "legs": 0.88,
+    "dist": 3429,
+    "energy": 34,
+    "legs": 0.96,
     "arm": 1.06
    }
   ]

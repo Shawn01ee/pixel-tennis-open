@@ -39,32 +39,38 @@ Real oblique bounces come back higher than vertical ones: Cross (2003) gives COR
 
 ## How the game plays on each
 
-252 one-set matches between the roster's players, 84 on each surface, against every charted
+252 one-set matches between two copies of the game's tour-average player (the player fitted to the
+real tour on hard courts by `tools/fit-players.js`), 84 on each surface, against every charted
 men's match since 2010 on that surface in the Match Charting Project (hard 3581 matches, clay 1469 matches, grass 532 matches).
-Game figures with their 95% interval (bootstrap over the matches); **bold** where the real figure falls outside it.
+Counted the same way on both sides: net points by the project's own rule (`tools/netpoints.js`); winners and errors
+per ball struck after the serve, every error counted, forced or not, the return's too (the project's shot tables
+leave out a hitter's forced errors, and forced errors on the return sit in its serve table, so
+`tools/mcp_surfaces.py` adds them back: the game cannot tell a forced error from an unforced one); shots per point
+are every ball struck plus one serve. Game figures with their 95% interval (bootstrap over the matches); **bold**
+where the real figure falls outside it.
 Nothing here was tuned: the courts are set from the measurements above and this is how they play.
 
 | | Hard: game | real | Clay: game | real | Grass: game | real |
 |---|---|---|---|---|---|---|
-| Aces (of serve points) | **7.1% [6.2–7.9]** | 9.1% | 5.6% [4.9–6.3] | 5.4% | **7.7% [6.6–8.7]** | 10.6% |
-| Double faults | 3.1% [2.6–3.6] | 3.5% | 3.2% [2.8–3.7] | 3.2% | 3.6% [3.2–4.1] | 3.4% |
-| First serves in | 63.5% [62.3–64.6] | 62.5% | 62.8% [61.4–64] | 63% | 62.3% [61–64] | 64% |
-| Points won behind the first serve | 72.6% [70.8–74.1] | 73% | **70.8% [69.3–72.3]** | 68.8% | 75.4% [74–76.8] | 75% |
-| Points won behind the second serve | 52.6% [50–55] | 50.9% | **53.1% [51.4–55]** | 50.2% | **55.3% [53.3–57.4]** | 52.8% |
-| Points a player comes to the net | **18.4% [16.7–19.8]** | 11.9% | **18% [16.2–19.6]** | 11.1% | **16.9% [15.3–18.5]** | 14.6% |
-| Winners per rally shot | 6.6% [6.1–7.1] | 6.5% | **7.4% [6.8–8]** | 6.6% | **5.8% [5.2–6.4]** | 8% |
-| Errors per rally shot (a missed return not counted) | **12.1% [11.6–12.5]** | 14.1% | **11.7% [11.3–12.2]** | 13.7% | **13.7% [13.4–14.2]** | 15.9% |
-| Shots per point | **4.86 [4.73–4.98]** | 4.43 | 4.82 [4.69–4.95] | 4.82 | **4.73 [4.62–4.88]** | 3.77 |
+| Aces (of serve points) | 9.5% [8.8–10.2] | 9.1% | **7.7% [7.1–8.3]** | 5.4% | 9.8% [9.1–10.7] | 10.6% |
+| Double faults | 3.4% [3–3.7] | 3.5% | 3.2% [2.9–3.8] | 3.2% | 3.6% [3–4.1] | 3.4% |
+| First serves in | 63.2% [61.9–64.2] | 62.5% | 63% [61.7–64.3] | 63% | 62.8% [61.6–64.3] | 64% |
+| Points won behind the first serve | 72.2% [71–73.8] | 73% | 70.2% [68.7–72] | 68.8% | 74.8% [73.2–76.4] | 75% |
+| Points won behind the second serve | **53.2% [51.1–55.4]** | 50.9% | 52% [49.8–54.4] | 50.2% | 54.9% [52.8–57.2] | 52.8% |
+| Net points (the project's own rule) | 12.4% [11.9–12.9] | 11.9% | **11.9% [11.3–12.5]** | 11.1% | **10.3% [9.7–10.8]** | 14.6% |
+| Winners per ball struck | 5.8% [5.5–6.1] | 5.9% | **7% [6.7–7.5]** | 6.1% | **5.3% [5–5.6]** | 7.1% |
+| Errors per ball struck | 17.2% [16.7–17.7] | 17.3% | **16.8% [16.3–17.3]** | 16% | **20.8% [20.3–21.4]** | 20.3% |
+| Shots per point | 4.77 [4.67–4.88] | 4.76 | **4.73 [4.62–4.82]** | 5.14 | **4.29 [4.2–4.38]** | 4.14 |
 
 How each surface differs from the hard court (reproduced when the game moves the same way, by at least half and at most
 twice the real change):
 
-- Aces: Clay -3.7 points real, -1.5 in the game (**not reproduced**); Grass +1.5 points real, +0.6 in the game (**not reproduced**).
-- Points won behind the first serve: Clay -4.2 points real, -1.8 in the game (**not reproduced**); Grass +2.0 points real, +2.8 in the game.
-- Shots per point: Clay +0.39 real, -0.04 in the game (**not reproduced**); Grass -0.66 real, -0.13 in the game (**not reproduced**).
-- Winners per rally shot: Clay +0.1 points real, +0.8 in the game (**not reproduced**); Grass +1.5 points real, -0.8 in the game (**not reproduced**).
+- Aces: Clay -3.7 points real, -1.8 in the game (**not reproduced**); Grass +1.5 points real, +0.3 in the game (**not reproduced**).
+- Points won behind the first serve: Clay -4.2 points real, -2.0 in the game (**not reproduced**); Grass +2.0 points real, +2.6 in the game.
+- Shots per point: Clay +0.38 real, -0.04 in the game (**not reproduced**); Grass -0.62 real, -0.48 in the game.
+- Winners per ball struck: Clay +0.2 points real, +1.2 in the game (**not reproduced**); Grass +1.2 points real, -0.5 in the game (**not reproduced**).
 
-Outside the interval: hard aces (of serve points), hard points a player comes to the net, hard errors per rally shot (a missed return not counted), hard shots per point, clay points won behind the first serve, clay points won behind the second serve, clay points a player comes to the net, clay winners per rally shot, clay errors per rally shot (a missed return not counted), grass aces (of serve points), grass points won behind the second serve, grass points a player comes to the net, grass winners per rally shot, grass errors per rally shot (a missed return not counted), grass shots per point.
+Outside the interval: hard points won behind the second serve, clay aces (of serve points), clay net points (the project's own rule), clay winners per ball struck, clay errors per ball struck, clay shots per point, grass net points (the project's own rule), grass winners per ball struck, grass errors per ball struck, grass shots per point.
 
 What the game does not have yet, and so cannot reproduce:
 

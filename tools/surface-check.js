@@ -1,28 +1,34 @@
 // The three courts, against the real tour on each surface (data/mcp-surfaces.json, the Match Charting Project since
-// 2010): aces, double faults, first serves in, points won behind the first and second serve, net play, winners and
-// errors per shot (a missed return of serve is not counted as an error, as in tools/fit-players.js), rally length. One-set matches between the roster's players on each surface; the 95% interval of
-// each game figure is a bootstrap over the matches. Nothing is fitted here: the courts are set from measurements of
+// 2010): aces, double faults, first serves in, points won behind the first and second serve, net points (by the
+// project's own rule, tools/netpoints.js), winners and errors per ball struck after the serve (every error, forced or
+// not, the return's too — data/mcp-surfaces.json is made on that footing), balls struck per point plus one serve. One-set matches between two
+// copies of the game's tour-average player (fitted to the tour on hard courts by tools/fit-players.js), so the game is
+// set against the tour itself; the 95% interval of each game figure is a bootstrap over the matches. Nothing is fitted here: the courts are set from measurements of
 // real courts (src/physics/Surface.js) and this reports how the game then plays on them. It also measures each
 // court's bounce the way Cross (2003) measured real ones: a ball without spin at 30 m/s, 16° to the court.
 // Writes data/surface-check.json.
 //   node tools/surface-check.js [matches per worker per surface, default 6]
 const fs=require('fs'),path=require('path'),cp=require('child_process'),ROOT=path.join(__dirname,'..');
 const{loadSim}=require(path.join(ROOT,'tests','load'));
+const{NetPointCounter}=require('./netpoints');
 const SURF=['hard','clay','grass'];
+// the game's tour-average player, as tools/fit-players.js left it (data/fit-report.json)
+function tourPlayer(API,id){const{ROSTER,PlayerProfile}=API,T=JSON.parse(fs.readFileSync(path.join(ROOT,'data','fit-report.json'),'utf8')).tour;
+  return Object.assign(Object.create(PlayerProfile.prototype),{...ROSTER[4]},T,{id,name:'Tour Average',short:'Tour'+id,trait:null,tkey:'__tour',noLearn:true,legend:false,rank:50,hand:1,ohb:false,end:1});}
 function play(API,surface,n,seed){
-  const{Match,ROSTER,MatchFormat,rng}=API,rows=[];
-  for(let k=0;k<n;k++){rng.s=seed+k*7919;const a=ROSTER[(seed+k)%ROSTER.length],b=ROSTER[(seed+k*5+3)%ROSTER.length];if(a===b)continue;
-    const m=new Match({a,b,format:MatchFormat.get('one'),surface});let t=0,inPt=0,net=[false,false];const r={pts:0,shots:0,rally:0,net:0,win:0,err:0};
+  const{Match,MatchFormat,rng,CT}=API,rows=[],a=tourPlayer(API,1),b=tourPlayer(API,2);
+  for(let k=0;k<n;k++){rng.s=seed+k*7919;
+    const m=new Match({a,b,format:MatchFormat.get('one'),surface});let t=0,inPt=0;const NC=new NetPointCounter(CT),r={pts:0,shots:0,rally:0,net:0,win:0,err:0};
     while(!(m.stage==='over'&&m.result&&m.tasks.length===0)&&t<150*60*60){m.tick();t++;
-      for(const P of m.players)if(m.live&&P.rush)net[P.idx]=true;
-      for(const e of m.events){if(e.type==='hit'){inPt++;if(e.kind!=='serve')r.shots++;}
-        else if(e.type==='scored'){r.pts++;r.rally+=inPt;inPt=0;r.net+=(net[0]?1:0)+(net[1]?1:0);net=[false,false];const h=m.how;if(h&&h.kind==='winner')r.win++;else if(h&&(h.kind==='error'||h.kind==='net')&&m.rallyLen!==2)r.err++;}}
+      NC.events(m,m.events,(x,y)=>{r.net+=(x?1:0)+(y?1:0);});
+      for(const e of m.events){if(e.type==='hit'){if(e.kind!=='serve'){inPt++;r.shots++;}}
+        else if(e.type==='scored'){r.pts++;r.rally+=inPt+1;inPt=0;const h=m.how;if(h&&h.kind==='winner')r.win++;else if(h&&(h.kind==='error'||h.kind==='net'))r.err++;}}
       m.events.length=0;}
     for(const P of m.players){const s=P.ms;for(const k of['aces','df','sv1','sv1in','won1','won2','sv2'])r[k]=(r[k]||0)+s[k];}
     rows.push(r);}
   return rows;
 }
-if(process.argv[2]==='--worker'){const API=loadSim(['Match','ROSTER','MatchFormat','rng']);process.on('message',t=>process.send({id:t.id,rows:play(API,t.surface,t.n,t.seed)}));return;}
+if(process.argv[2]==='--worker'){const API=loadSim(['Match','ROSTER','MatchFormat','rng','CT','PlayerProfile']);process.on('message',t=>process.send({id:t.id,rows:play(API,t.surface,t.n,t.seed)}));return;}
 // the bounce, measured as on a real court
 function bounce(){
   const{Ball,BallPhysics,SURFACES,HIT,DT}=loadSim(['Ball','BallPhysics','SURFACES','HIT','DT']),out={};

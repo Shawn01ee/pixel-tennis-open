@@ -10,10 +10,10 @@ const row=a=>`| ${a.join(' | ')} |`,sep=n=>row(Array(n).fill('---'));
 const cell=(g,r)=>{const d=Math.abs(g-r),tol=Math.max(1.5,r*.15);return d<=tol?`${g} / ${r}`:`**${g}** / ${r}`;};
 // the rally figures: off when more than 15% from the real figure, or outside it when the real figure is a range
 const ROWS=[['Rally balls cross-court','cross','%','Match Charting Project, hard courts since 2010'],['… down the middle','middle','%',''],['… down the line','line','%',''],
-  ['Overheads, share of shots','overhead','%',''],['Volleys, share of shots','volley','%',''],['Points a player comes to the net','net','%',''],
+  ['Overheads, share of shots','overhead','%',''],['Volleys, share of shots','volley','%',''],['Points a player comes to the net','net','%','the thirteen players\' own average'],
   ['Rally-ending shots that are winners','winnerShare','%',''],['Metres between a player\'s shots','cycle',' m','Armstrong et al. 2024 (Australian Open, Hawk-Eye)'],
   ['… share over 4.5 m','cycleOver45','%',''],['Metres per point','distance',' m','Armstrong et al. 2024; Cui et al. 2020'],['Seconds between shots','gap',' s','Carboch & Sklenářik 2018'],
-  ['Shots per point, serve included','rally','','Match Charting Project']];
+  ['Shots per point, serve included','rally','','Match Charting Project, the thirteen players\' own average']];
 const rallyOff=k=>{const g=RC.game[k],r=RC.real[k];if(typeof r==='string'){const[lo,hi]=r.split('–').map(Number);return g<lo||g>hi;}return Math.abs(g/r-1)>.15;};
 const DIR=(s=>({middle:+s.match(/DIR=\{middle:([0-9.]+)/)[1],line:+s.match(/line:([0-9.]+)\};/)[1]}))(fs.readFileSync(path.join(ROOT,'src','players','ShotPlanner.js'),'utf8'));
 function stillOff(){
@@ -42,7 +42,7 @@ ${row(['','Before','Now','Real','Real source'])}
 ${row(['---','---','---','---','---'])}
 ${ROWS.map(([n,k,u,s])=>row([n,RB?`${RB.game[k]}${u}`:'—',rallyOff(k)?`**${RC.game[k]}${u}**`:`${RC.game[k]}${u}`,`${RC.real[k]}${u}`,s])).join('\n')}
 
-"Before" is the previous version of the game, measured the same way. Three causes were found and fixed:
+"Before" is the previous version of the game, measured the same way, except that its shots per point counted a faulted first serve as a shot; now, as in the real figure, every point has one serve. Three causes were found and fixed:
 
 1. **Winners were mostly failed reaches.** Nearly every winner was a ball the defender had planned to reach and
    then failed to. A volleyer was allowed to cover the last 0.45 m with arm and racket, but a groundstroke player was
@@ -82,8 +82,11 @@ ${sep(19)}
 ${[...P.map(k=>[k,T.players[k]]),['Tour',T.tour]].map(([k,r])=>row([k==='Tour'?'**Tour**':k,r.matches,r.points.toLocaleString('en'),r.surface,r.years,pc(r.ace),pc(r.df),pc(r.firstIn),pc(r.firstWon),pc(r.secondWon),pc(r.returnWon),pc(r.snv),pc(r.net),pc(r.drop),pc(r.slice),pc(r.lob),pc(r.winners),pc(r.errors),pc(AS(r))])).join('\n')}
 
 All in percent. Aces, double faults, first serves in and serve-and-volley are per serve point. At the net is per
-point played. Drops, slices, lobs, winners and errors are per shot, serves excluded. Errors include those the
-opponent forced. Aggression is Tennis Abstract's aggression score, (winners + errors) per shot.
+point played. Drops, slices, lobs, winners and errors are per ball struck, serves excluded, counted as the game
+counts them: errors include those the opponent forced, the return's too (the project's shot tables leave a hitter's
+forced errors out, and forced errors on the return sit in its serve table; \`tools/mcp_targets.py\` adds them back,
+since the game cannot tell a forced error from an unforced one). Aggression is Tennis Abstract's aggression score,
+(winners + errors) per shot.
 
 ## How the numbers are fitted
 

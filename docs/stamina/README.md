@@ -8,8 +8,8 @@ into the game's value, and what the game then does compared with real Grand Slam
 <!-- RESULTS -->
 ## What it does in the game
 
-Measured by `node tools/stamina.js 90`: 90 best-of-five matches, each player against an identical copy of himself.
-Skill is equal, so whatever separates the two late in a match is what the match took out of them. 29 went five
+Measured by `node tools/stamina.js 100`: 100 best-of-five matches, each player against an identical copy of himself.
+Skill is equal, so whatever separates the two late in a match is what the match took out of them. 39 went five
 sets. The same matches were then played again with every fatigue effect switched off. The numbers below are as
 measured. Nothing was tuned after looking at them.
 
@@ -17,32 +17,32 @@ measured. Nothing was tuned after looking at them.
 
 |  | Set 1 | Set 5 | Change | Fatigue off | Real five-setters |
 | --- | --- | --- | --- | --- | --- |
-| First-serve speed, everyone | 184.9 km/h | 182.5 km/h | -1.26% | -0.37% | −1.2% (Martin 2019), −2.4% (Cui 2020), −0.5% (Maquirriain 2016) |
-| First-serve speed, match winners | 184.6 km/h | 182.5 km/h | -1.14% | -0.32% | +0.2% (Martin 2019) |
-| First-serve speed, match losers | 185.1 km/h | 182.6 km/h | -1.35% | -0.43% | −2.4% (Martin 2019) |
-| First serves in | 63.1% | 63.3% | +0.2 pts | -3.7 pts | +1.6, +2, −0.8 pts (Cui 2020; Martin 2019; Maquirriain 2016) |
-| Errors per point, everyone | 0.344 | 0.331 | -3.8% | +0.9% | no significant change across sets (Cui 2020) |
-| Errors per point, winners / losers | 0.332 / 0.357 | 0.305 / 0.356 | -8.1% / -0.3% | -4.2% / +6.0% | — |
-| Distance per point | 11.1 m | 11.4 m | +2.7% | — | 10.3 → 10.6 m (Cui 2020); no difference between sets (Armstrong 2024) |
-| Time between shots | 1.316 s | 1.336 s | +1.5% | +0.4% | 1.19 → 1.23 s, +3.4% (Carboch 2018) |
+| First-serve speed, everyone | 187.8 km/h | 184.7 km/h | -1.67% | +0.15% | −1.2% (Martin 2019), −2.4% (Cui 2020), −0.5% (Maquirriain 2016) |
+| First-serve speed, match winners | 187.8 km/h | 184.9 km/h | -1.54% | +0.48% | +0.2% (Martin 2019) |
+| First-serve speed, match losers | 187.8 km/h | 184.4 km/h | -1.81% | -0.16% | −2.4% (Martin 2019) |
+| First serves in | 61% | 62.2% | +1.2 pts | -1.0 pts | +1.6, +2, −0.8 pts (Cui 2020; Martin 2019; Maquirriain 2016) |
+| Errors per point, everyone | 0.328 | 0.316 | -3.7% | +1.0% | no significant change across sets (Cui 2020) |
+| Errors per point, winners / losers | 0.329 / 0.328 | 0.281 / 0.351 | -14.6% / +7.0% | -10.4% / +13.0% | — |
+| Distance per point | 11.9 m | 12.3 m | +3.4% | — | 10.3 → 10.6 m (Cui 2020); no difference between sets (Armstrong 2024) |
+| Time between shots | 1.292 s | 1.315 s | +1.8% | +0.0% | 1.19 → 1.23 s, +3.4% (Carboch 2018) |
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="serve-dark.svg"><img src="serve-light.svg" alt="First-serve speed by set against the first set, for match winners and losers, in the game and in the 2014 Grand Slam five-setters"></picture>
 
 **What the numbers say:**
-- **Serve speed.** The game's first serves change by -1.26% from set 1 to set 5 (95% interval over the 29 five-setters: -1.98% to -0.55%). The real five-setters show −0.5% to −2.4%, −1.43% combined, the figure the game is built on. The game's change is inside their range, and −1.43% is inside the game's interval.
-  *Where the change comes from.* Within each type of serve, at the set-1 mix of types, first serves change by -1.53% (-1.94% to -1.11%), and by -0.31% (-0.71% to +0.05%) with fatigue off. The server's arm store averages 0.107 at the first serves of set 1 and 0.891 in set 5, so the model expects -1.40%, inside the within-type interval. The rest of the overall change, +0.27 points, is the change in the mix of serves (share of first serves, set 1 → set 5: Flat 66% → 68%, Kick 4.3% → 4%, Slice 29.7% → 28%). In a controlled check (the same matches with the arm store held at 0 and at 1, all else equal), first serves change by -1.53% at 1 (185.97 → 183.12 km/h).
-  Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by -1.14% and the losers by -1.35%. The losers' change minus the winners' is -0.19 points (95% interval -1.22% to +0.73 points), so this sample cannot tell whether winners or losers slow more.
-- **First serves in** change by +0.2 points (-3.7 points with fatigue off). The real datasets move by −0.8 to +2 points.
-- **Errors per point** change by -3.8% overall (+0.9% with fatigue off). Real Grand Slam data show no significant change. The eventual winner's change is -8.1% and the loser's -0.3%; with fatigue off they are -4.2% and +6.0%.
-- **Distance per point** changes by +2.7% and **time between shots** by +1.5% (+0.4% with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance per point, 11.1, 11.5, 11.3, 11.1, 11.4 m in sets 1 to 5, is above the published range (6.46–10.7 m) in every set.
-- **Who wins the fifth set.** The player who had run further in sets 1–4 won 58.6% of 29 fifth sets, within chance at this sample size (50% ± 18). With fatigue off: 65.1%.
-- **A fitter player.** A copy one standard deviation fitter (Stamina 90) beat his average copy in 55.6% of 45 matches, within chance at this sample size (50% ± 15), and in 43.8% of the 16 that reached a fifth set, within chance at this sample size (50% ± 25). He ended with 3.4 points more energy.
+- **Serve speed.** The game's first serves change by -1.67% from set 1 to set 5 (95% interval over the 39 five-setters: -2.24% to -1.10%). The real five-setters show −0.5% to −2.4%, −1.43% combined, the figure the game is built on. The game's change is inside their range, and −1.43% is inside the game's interval.
+  *Where the change comes from.* Within each type of serve, at the set-1 mix of types, first serves change by -1.91% (-2.41% to -1.41%), and by -0.17% (-0.58% to +0.24%) with fatigue off. The server's arm store averages 0.136 at the first serves of set 1 and 1.06 in set 5, so the model expects -1.65%, inside the within-type interval. The rest of the overall change, +0.24 points, is the change in the mix of serves (share of first serves, set 1 → set 5: Flat 65.1% → 66.2%, Slice 30.8% → 30.4%, Kick 4.1% → 3.4%). In a controlled check (the same matches with the arm store held at 0 and at 1, all else equal), first serves change by -2.52% at 1 (187.85 → 183.12 km/h).
+  Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by -1.54% and the losers by -1.81%. The losers' change minus the winners' is -0.28 points (95% interval -1.25% to +0.57 points), so this sample cannot tell whether winners or losers slow more.
+- **First serves in** change by +1.2 points (-1.0 points with fatigue off). The real datasets move by −0.8 to +2 points.
+- **Errors per point** change by -3.7% overall (+1.0% with fatigue off). Real Grand Slam data show no significant change. The eventual winner's change is -14.6% and the loser's +7.0%; with fatigue off they are -10.4% and +13.0%.
+- **Distance per point** changes by +3.4% and **time between shots** by +1.8% (+0.0% with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance per point, 11.9, 11.8, 11.7, 11.8, 12.3 m in sets 1 to 5, is above the published range (6.46–10.7 m) in every set.
+- **Who wins the fifth set.** The player who had run further in sets 1–4 won 48.7% of 39 fifth sets, within chance at this sample size (50% ± 16). With fatigue off: 54.3%.
+- **A fitter player.** A copy one standard deviation fitter (Stamina 90) beat his average copy in 54% of 50 matches, within chance at this sample size (50% ± 14), and in 52.9% of the 17 that reached a fifth set, within chance at this sample size (50% ± 24). He ended with 3.3 points more energy.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="energy-dark.svg"><img src="energy-light.svg" alt="Energy left after each point of a five-set match"></picture>
 
-One five-setter from the run, Medvedev winning 6–4 6–7(4) 7–6(4) 4–6 6–4: Zverev ran 3.21 km, Medvedev ran 3.13 km. Each dip is a long rally. The line comes back between points as the breath does.
+One five-setter from the run, Medvedev winning 6–4 3–6 3–6 6–4 6–3: Zverev ran 3.49 km, Medvedev ran 3.43 km. Each dip is a long rally. The line comes back between points as the breath does.
 
-Calibration in this run: an average five-setter took 49,645 J/kg of running and 1,022 of stroke cost. The game uses Stamina.LEGS 48,400 and ARM 1,010, set from an earlier run of the same measurement. This run differs from them by +2.6% and +1.2%, against a 95% margin of ±5.8% and ±4.8% on this run's averages: both inside it.
+Calibration in this run: an average five-setter took 54,178 J/kg of running and 1,214 of stroke cost. The game uses Stamina.LEGS 48,400 and ARM 1,010, set from an earlier run of the same measurement. This run differs from them by +11.9% and +20.2%, against a 95% margin of ±5.5% and ±4.3% on this run's averages: outside it, so the constants are due to be set again from this measurement.
 <!-- /RESULTS -->
 
 ## How a measurement becomes a game value

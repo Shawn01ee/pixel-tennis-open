@@ -1,18 +1,18 @@
 {
  "game": {
-  "cross": 55.7,
-  "middle": 28.4,
-  "line": 15.9,
+  "cross": 48.2,
+  "middle": 41.4,
+  "line": 10.4,
   "overhead": 0.7,
-  "volley": 4.6,
-  "net": 15.5,
-  "winnerShare": 24.2,
-  "cycle": 5.07,
-  "cycleOver45": 54.7,
-  "distance": 10.5,
-  "gap": 1.306,
-  "rally": 4.74,
-  "points": 1578
+  "volley": 3.8,
+  "net": 16.7,
+  "winnerShare": 26.7,
+  "cycle": 4.62,
+  "cycleOver45": 46.6,
+  "distance": 11.9,
+  "gap": 1.297,
+  "rally": 5.22,
+  "points": 1554
  },
  "real": {
   "cross": 59.3,
@@ -20,12 +20,12 @@
   "line": 14.2,
   "overhead": 0.93,
   "volley": 2.66,
-  "net": 11.9,
-  "winnerShare": 31.6,
+  "net": 17.3,
+  "winnerShare": 28.7,
   "cycle": 4.57,
   "cycleOver45": 51,
   "distance": "6.46–10.7",
   "gap": 1.21,
-  "rally": 4.43
+  "rally": 4.95
  }
 }

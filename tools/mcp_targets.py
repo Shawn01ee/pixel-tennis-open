@@ -15,12 +15,15 @@ def num(x):
 ov = {(r['match_id'], r['player']): r for r in rd('charting-m-stats-Overview.csv') if r['set'] == 'Total'}
 snv = {(r['match_id'], r['player']): r for r in rd('charting-m-stats-SnV.csv') if r['row'] == 'SnV'}
 net = {(r['match_id'], r['player']): r for r in rd('charting-m-stats-NetPoints.csv') if r['row'] == 'NetPoints'}
+# serves that drew a forced error on the return, or were touched and not returned: the project leaves these returns
+# out of the returner's shot table (no shot is charted, or the hitter's forced error is not counted as his shot)
+sb = {(r['match_id'], r['player']): r for r in rd('charting-m-stats-ServeBasics.csv') if r['row'] == 'Total'}
 st = collections.defaultdict(dict)
 for r in rd('charting-m-stats-ShotTypes.csv'):
   if r['row'] in ('Total', 'Dr', 'Sl', 'Lo', 'Vo', 'Ov'): st[(r['match_id'], r['player'])][r['row']] = r
 players_in = collections.defaultdict(list)
 for k in ov: players_in[k[0]].append(k[1])
-FIELDS = ['matches','serve_pts','aces','dfs','first_in','first_won','second_pts','second_won','return_pts','return_won','snv','net_pts','shots','drop','slice','lob','winners','unforced','forced','opp_shots']
+FIELDS = ['matches','serve_pts','aces','dfs','first_in','first_won','second_pts','second_won','return_pts','return_won','snv','net_pts','shots','drop','slice','lob','winners','unforced','forced','opp_shots','forced_ret','opp_forced','opp_forced_ret']
 def add(acc, mid, p):
   o = ov.get((mid, p)); s = st.get((mid, p), {})
   opp = [q for q in players_in[mid] if q != p]
@@ -35,17 +38,26 @@ def add(acc, mid, p):
   acc['snv'] += num(snv.get((mid, p), {}).get('snv_pts', 0)); acc['net_pts'] += num(net.get((mid, p), {}).get('net_pts', 0))
   T = s['Total']; acc['shots'] += num(T['shots']); acc['winners'] += num(T['winners']); acc['unforced'] += num(T['unforced'])
   acc['forced'] += num(so['Total']['induced_forced']); acc['opp_shots'] += num(so['Total']['shots'])
+  # his forced errors on returns (from the server's table), and the opponent's forced errors, for the rally length
+  sbo = sb.get((mid, opp[0]), {}); sbp = sb.get((mid, p), {})
+  acc['forced_ret'] += num(sbo.get('forced_err', 0)) + num(sbo.get('unret', 0))
+  acc['opp_forced'] += num(s['Total']['induced_forced']); acc['opp_forced_ret'] += num(sbp.get('forced_err', 0)) + num(sbp.get('unret', 0))
   for row, key in (('Dr', 'drop'), ('Sl', 'slice'), ('Lo', 'lob')): acc[key] += num(s.get(row, {}).get('shots', 0))
   return True
 def rates(a):
   pts = a['serve_pts'] + a['return_pts']
+  # every ball he struck after the serve: the shot table's shots, plus his forced errors in rallies and on returns, which
+  # it leaves out; errors are all of them, forced and unforced, returns included (the game cannot tell them apart)
+  sh = a['shots'] + a['forced'] + a['forced_ret']
+  osh = a['opp_shots'] + a['opp_forced'] + a['opp_forced_ret']
   return {'matches': int(a['matches']), 'points': int(pts),
     'ace': a['aces'] / a['serve_pts'], 'df': a['dfs'] / a['serve_pts'], 'firstIn': a['first_in'] / a['serve_pts'],
     'firstWon': a['first_won'] / a['first_in'], 'secondWon': a['second_won'] / a['second_pts'], 'returnWon': a['return_won'] / a['return_pts'],
-    'snv': a['snv'] / a['serve_pts'], 'net': a['net_pts'] / pts, 'drop': a['drop'] / a['shots'], 'slice': a['slice'] / a['shots'], 'lob': a['lob'] / a['shots'],
-    'winners': a['winners'] / a['shots'], 'unforced': a['unforced'] / a['shots'], 'errors': (a['unforced'] + a['forced']) / a['shots'],
-    'rally': (a['shots'] + a['opp_shots'] + a['serve_pts'] + a['return_pts']) / pts}
+    'snv': a['snv'] / a['serve_pts'], 'net': a['net_pts'] / pts, 'drop': a['drop'] / sh, 'slice': a['slice'] / sh, 'lob': a['lob'] / sh,
+    'winners': a['winners'] / sh, 'unforced': a['unforced'] / sh, 'errors': (a['unforced'] + a['forced'] + a['forced_ret']) / sh,
+    'rally': (sh + osh + pts) / pts}
 out = {'source': 'Tennis Abstract Match Charting Project, https://github.com/JeffSackmann/tennis_MatchChartingProject (CC BY-NC-SA 4.0)',
+  'basis': 'drop, slice, lob, winners, unforced and errors are per ball struck after the serve, as the game counts them: the shot table\'s shots plus the forced errors it leaves out (in rallies, and on returns from the serve table: forced_err and unret); errors include every forced error. rally is every ball struck per point plus one serve',
   'rule': 'hard-court matches if a player has 20 or more, else all surfaces', 'players': {}}
 for short, full in NAMES.items():
   mids = [m for m, r in matches.items() if full.lower() in (r['Player 1'].strip().lower(), r['Player 2'].strip().lower())]

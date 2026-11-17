@@ -11,7 +11,7 @@ const vsrc=fs.readFileSync(path.join(ROOT,'src','stadium','Venue.js'),'utf8');
 const majors=[...vsrc.matchAll(/\{key:'(\w+)',name:'([^']+)',tag:'[^']*',sub:'([^']+)',month:'([^']+)',surface:'(\w+)',look:'\w+',phase:'(\w+)'(,white:true)?\}/g)].map(m=>({name:m[2],sub:m[3],month:m[4],surface:m[5],phase:m[6],white:!!m[7]}));
 const S=['hard','clay','grass'],N={hard:'Hard',clay:'Clay',grass:'Grass'},B=chk.bounce;
 const LABEL={ace:'Aces (of serve points)',df:'Double faults',firstIn:'First serves in',firstWon:'Points won behind the first serve',secondWon:'Points won behind the second serve',
-  net:'Points a player comes to the net',winners:'Winners per rally shot',errors:'Errors per rally shot (a missed return not counted)',rally:'Shots per point'};
+  net:'Net points (the project\'s own rule)',winners:'Winners per ball struck',errors:'Errors per ball struck',rally:'Shots per point'};
 const fmt=(k,v)=>k==='rally'?v.toFixed(2):v.toFixed(1)+'%';
 const cell=q=>q.inside?`${q.game}${'%'} [${q.lo}–${q.hi}]`:`**${q.game}% [${q.lo}–${q.hi}]**`;
 const cellK=(k,q)=>{const u=k==='rally'?'':'%',t=`${q.game}${u} [${q.lo}–${q.hi}]`;return q.inside?t:`**${t}**`;};
@@ -58,9 +58,15 @@ Real oblique bounces come back higher than vertical ones: Cross (2003) gives COR
 
 ## How the game plays on each
 
-${chk.surfaces.hard.matches*3} one-set matches between the roster's players, ${chk.surfaces.hard.matches} on each surface, against every charted
+${chk.surfaces.hard.matches*3} one-set matches between two copies of the game's tour-average player (the player fitted to the
+real tour on hard courts by \`tools/fit-players.js\`), ${chk.surfaces.hard.matches} on each surface, against every charted
 men's match since 2010 on that surface in the Match Charting Project (${S.map(s=>`${N[s].toLowerCase()} ${JSON.parse(fs.readFileSync(path.join(ROOT,'data','mcp-surfaces.json'),'utf8')).surfaces[s].matches} matches`).join(', ')}).
-Game figures with their 95% interval (bootstrap over the matches); **bold** where the real figure falls outside it.
+Counted the same way on both sides: net points by the project's own rule (\`tools/netpoints.js\`); winners and errors
+per ball struck after the serve, every error counted, forced or not, the return's too (the project's shot tables
+leave out a hitter's forced errors, and forced errors on the return sit in its serve table, so
+\`tools/mcp_surfaces.py\` adds them back: the game cannot tell a forced error from an unforced one); shots per point
+are every ball struck plus one serve. Game figures with their 95% interval (bootstrap over the matches); **bold**
+where the real figure falls outside it.
 Nothing here was tuned: the courts are set from the measurements above and this is how they play.
 
 | | Hard: game | real | Clay: game | real | Grass: game | real |
@@ -73,7 +79,7 @@ twice the real change):
 - Aces: ${diff('ace')}.
 - Points won behind the first serve: ${diff('firstWon')}.
 - Shots per point: ${diff('rally')}.
-- Winners per rally shot: ${diff('winners')}.
+- Winners per ball struck: ${diff('winners')}.
 
 ${outside.length?`Outside the interval: ${outside.join(', ')}.`:'Every figure is inside its interval.'}
 

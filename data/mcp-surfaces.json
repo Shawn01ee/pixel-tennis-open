@@ -1,5 +1,6 @@
 {
  "source": "Tennis Abstract Match Charting Project, https://github.com/JeffSackmann/tennis_MatchChartingProject (CC BY-NC-SA 4.0)",
+ "basis": "drop, slice, lob, winners, unforced and errors are per ball struck after the serve, as the game counts them: the shot table's shots plus the forced errors it leaves out (in rallies, and on returns from the serve table: forced_err and unret); errors include every forced error. rally is every ball struck per point plus one serve",
  "rule": "every charted men's match since 2010 on the surface, both players; counted as in tools/mcp_targets.py",
  "surfaces": {
   "hard": {
@@ -12,12 +13,13 @@
    "secondWon": 0.5089239324280679,
    "snv": 0.04146411259811693,
    "net": 0.11915884979134517,
-   "drop": 0.011415048374747685,
-   "slice": 0.10775971486945164,
-   "lob": 0.01046208836426615,
-   "winners": 0.0648125401758114,
-   "errors": 0.14062915832442813,
-   "rally": 4.430317011381652
+   "drop": 0.010407392683095266,
+   "slice": 0.09824729876272227,
+   "lob": 0.009538554574418644,
+   "winners": 0.05909125693157363,
+   "unforced": 0.084648722500014,
+   "errors": 0.1729230476339793,
+   "rally": 4.762444237281887
   },
   "clay": {
    "matches": 1469,
@@ -29,12 +31,13 @@
    "secondWon": 0.5023540928584748,
    "snv": 0.02970634413982298,
    "net": 0.11087363481081454,
-   "drop": 0.02075871787112771,
-   "slice": 0.07653344654559578,
-   "lob": 0.011585814744391703,
-   "winners": 0.06554380275774233,
-   "errors": 0.13651411615397469,
-   "rally": 4.82016597939923
+   "drop": 0.01916697421398204,
+   "slice": 0.07066499027316457,
+   "lob": 0.010697433908603194,
+   "winners": 0.060518013932414655,
+   "unforced": 0.08369874124532685,
+   "errors": 0.1603770634339795,
+   "rally": 5.137416104487655
   },
   "grass": {
    "matches": 532,
@@ -46,12 +49,13 @@
    "secondWon": 0.5280497450023182,
    "snv": 0.08567389533000207,
    "net": 0.145995111080569,
-   "drop": 0.016705819087512737,
-   "slice": 0.14087088192007247,
-   "lob": 0.013001669874334881,
-   "winners": 0.08043345975319824,
-   "errors": 0.15929964338276917,
-   "rally": 3.7748642784916995
+   "drop": 0.014766309548379833,
+   "slice": 0.12451607657716819,
+   "lob": 0.011492204064018612,
+   "winners": 0.0710953086790376,
+   "unforced": 0.08663089229537622,
+   "errors": 0.20272873395000343,
+   "rally": 4.1393342037835135
   }
  }
 }

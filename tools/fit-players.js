@@ -8,31 +8,37 @@
 //   2. Each player then plays one-set matches against it, and after every round each of his numbers is moved toward
 //      the value that would give his real statistic: serve speed by aces, first- and second-serve accuracy by first
 //      serves in and double faults, and how often he serve-volleys, comes in, drops, slices and lobs by how often he
-//      really does. Winners and errors are matched as a ratio to the tour: the game's points end in winners more often
-//      than real ones (a property of movement and reach, not of any one player), so a player who really hits 1.3 times
-//      the tour's winners per shot is fitted to hit 1.3 times the game tour's. Shot power is the lever for winners and
-//      the error scale for errors, and the return error scale for return points won. Risk-taking is not fitted but read off directly: Tennis Abstract's aggression score,
-//      (winners + errors) per shot, against the tour's, with the tour at 0.5.
+//      really does. Winners and errors are matched as a ratio to the tour, so that whatever the game's movement and
+//      reach do to every player alike does not leak into each one: a player who really hits 1.3 times the tour's
+//      winners per shot is fitted to hit 1.3 times the game tour's. Counted as the Match Charting Project counts them:
+//      net points by its own rule (tools/netpoints.js), and every rate per ball struck after the serve with every error,
+//      forced or not, the return's too (data/mcp-players.json is made on that footing by tools/mcp_targets.py: the game
+//      cannot tell a forced error from an unforced one). Shot power is the lever for winners, the error scale for errors,
+//      and the return error scale for return points won. Risk-taking is not fitted but read off directly: Tennis
+//      Abstract's aggression score, (winners + errors) per shot, against the tour's, with the tour at 0.5.
 //   Each round's step shrinks (Robbins–Monro), so the noise of a round's sample settles instead of throwing it about.
 // The players run in parallel, one process each.
 const fs=require('fs'),path=require('path'),cp=require('child_process'),ROOT=path.join(__dirname,'..');
 const{loadSim}=require(path.join(ROOT,'tests','load'));
+const{NetPointCounter}=require('./netpoints');
 // ── one measurement: px plays pr in one-set matches; px's statistics as counts ──
 function measure(API,px,pr,sets,seed){
-  const{Match,MatchFormat,PlayerProfile,rng}=API,mk=o=>Object.assign(Object.create(PlayerProfile.prototype),o);
+  const{Match,MatchFormat,PlayerProfile,rng,CT}=API,mk=o=>Object.assign(Object.create(PlayerProfile.prototype),o);
   const A=mk(px),B=mk(pr),c={sv1:0,in1:0,won1:0,sv2:0,won2:0,ace:0,df:0,ret:0,retWon:0,snv:0,net:0,shots:0,drop:0,slice:0,lob:0,win:0,err:0,pts:0};
   for(let k=0;k<sets;k++){
-    rng.s=seed+k*7919;const m=new Match({a:A,b:B,format:MatchFormat.get('one')});let n=0,atNet=false,snv=false,servedBy=-1;
+    rng.s=seed+k*7919;const m=new Match({a:A,b:B,format:MatchFormat.get('one')});let n=0,snv=false;const NC=new NetPointCounter(CT);
     while(!(m.stage==='over'&&m.result&&m.tasks.length===0)&&n<150*60*60){
       m.tick();n++;const P=m.players[0];
-      if(m.live&&P.rush)atNet=true;
+      // net points by the Match Charting Project's own rule (tools/netpoints.js)
+      NC.events(m,m.events,me=>{if(me)c.net++;});
       for(const e of m.events){
-        if(e.type==='hit'&&e.kind==='serve'){servedBy=e.who;snv=e.who===0&&P.rush;}
+        if(e.type==='hit'&&e.kind==='serve'){snv=e.who===0&&P.rush;}
         else if(e.type==='hit'&&e.who===0){
           {c.shots++;if(e.kind==='drop')c.drop++;else if(e.kind==='slice')c.slice++;else if(e.kind==='lob')c.lob++;}
         }else if(e.type==='scored'){
-          c.pts++;if(atNet)c.net++;if(snv)c.snv++;atNet=false;snv=false;const h=m.how;
-          if(h&&h.by===0){if(h.kind==='winner')c.win++;else if((h.kind==='error'||h.kind==='net')&&!(servedBy===1&&m.rallyLen===2))c.err++;}
+          c.pts++;if(snv)c.snv++;snv=false;const h=m.how;
+          // every error counts, the returns' too, as in the Match Charting Project's shot tables
+          if(h&&h.by===0){if(h.kind==='winner')c.win++;else if(h.kind==='error'||h.kind==='net')c.err++;}
         }
       }
       m.events.length=0;
@@ -47,7 +53,7 @@ const rates=c=>({ace:c.ace/c.sv1,df:c.df/c.sv1,firstIn:c.in1/c.sv1,firstWon:c.wo
   winners:c.win/c.shots,errors:c.err/c.shots,points:c.pts});
 const sum=(a,b)=>{const o={...a};for(const k in b)o[k]=(o[k]||0)+b[k];return o;};
 if(process.argv[2]==='--worker'){
-  const API=loadSim(['Match','MatchFormat','PlayerProfile','rng']);
+  const API=loadSim(['Match','MatchFormat','PlayerProfile','rng','CT']);
   process.on('message',t=>process.send({id:t.id,c:measure(API,t.px,t.pr,t.sets,t.seed)}));
   return;
 }
