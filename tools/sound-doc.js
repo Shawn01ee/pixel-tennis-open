@@ -86,7 +86,7 @@ The strongest frequency of each part from its spectrum; the recorded hits from t
 | A bounce goes ~1 kHz → 250 Hz | patent | ${b.parts.first} → ${b.parts.thump} Hz | ${yes(b.downshift)} |
 | A flat hit is louder than a spun one | pate | level ${h.flatGain} against ${h.spunGain} | ${yes(h.flatLouder)} |
 
-The recorded hits start low (${Math.min(...R.map(r=>r.parts[0]))}–${Math.max(...R.map(r=>r.parts[0]))} Hz) and rise, rather than the patent's 1 kHz first${(()=>{const n=R.filter(r=>r.onsetMs>=SOUND.onsetMs.v).length;return n?`; and ${n} of them take a little over a millisecond to reach half their peak`:'';})()}. The recording is the real thing, so the game keeps it; the patent described the
+The recorded hits start low (${Math.min(...R.map(r=>r.parts[0]))}–${Math.max(...R.map(r=>r.parts[0]))} Hz) and rise, rather than the patent's 1 kHz first${(()=>{const n=R.filter(r=>r.onsetMs>=SOUND.onsetMs.v).length;return n?`; and ${n===1?"one of them takes":n+" of them take"} a little over a millisecond to reach half their peak`:'';})()}. The recording is the real thing, so the game keeps it; the patent described the
 hits its microphones picked up around a court in the 1990s, with the rackets and balls of the day.
 
 ## Where the sources and the game part, and what was tried

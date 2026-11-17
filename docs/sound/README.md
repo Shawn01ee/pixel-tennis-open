@@ -85,7 +85,7 @@ The strongest frequency of each part from its spectrum; the recorded hits from t
 | A bounce goes ~1 kHz → 250 Hz | patent | 980 → 250 Hz | yes |
 | A flat hit is louder than a spun one | pate | level 1.33 against 1.131 | yes |
 
-The recorded hits start low (340–380 Hz) and rise, rather than the patent's 1 kHz first; and 1 of them take a little over a millisecond to reach half their peak. The recording is the real thing, so the game keeps it; the patent described the
+The recorded hits start low (340–380 Hz) and rise, rather than the patent's 1 kHz first; and one of them takes a little over a millisecond to reach half their peak. The recording is the real thing, so the game keeps it; the patent described the
 hits its microphones picked up around a court in the 1990s, with the rackets and balls of the day.
 
 ## Where the sources and the game part, and what was tried
