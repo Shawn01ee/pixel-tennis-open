@@ -62,8 +62,18 @@ class AudioEngine{
   }
   // a sound already rendered as samples (TennisSfx's chip sounds), placed and sent to the reverb like any other
   play(data,pan=0,wet=.1){
-    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.copyToChannel(data,0);
+    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.getChannelData(0).set(data);
     s.buffer=b;s.connect(this.out(pan,wet,data.length/ac.sampleRate+.3));s.start(this.now);
+  }
+  // a recording (16-bit PCM in base64) into a buffer at its own rate; the browser resamples it as it plays
+  decode(b64,rate){
+    const s=atob(b64),n=s.length>>1,b=this.ac.createBuffer(1,n,rate),d=b.getChannelData(0);
+    for(let i=0;i<n;i++){let v=s.charCodeAt(2*i)|s.charCodeAt(2*i+1)<<8;if(v>32767)v-=65536;d[i]=v/32768;}
+    return b;
+  }
+  playBuffer(buf,pan=0,wet=.1,gain=1){
+    const ac=this.ac,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;g.gain.value=gain;
+    s.connect(g).connect(this.out(pan,wet,buf.duration+.3));s.start(this.now);
   }
   // a burst of noise through a filter, shaped by an attack and an exponential release
   burst(dest,t,{type='bandpass',f=1000,q=1,peak=.3,att=.002,rel=.05,pink=false,f2=null}){

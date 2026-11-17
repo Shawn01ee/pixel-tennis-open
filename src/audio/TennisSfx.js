@@ -1,19 +1,11 @@
 // TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court, the menu's notes.
-// The ball's sounds ring at measured frequencies (ImpactVoice; what each is made of and where each number comes from:
-// SoundData.js); the shoes and the menu are built from oscillators and filtered noise (design).
+// A racket hit is a real one, recorded (hitSamples.js). The bounce and the net ring at measured frequencies
+// (ImpactVoice; what each is made of and where each number comes from: SoundData.js); the shoes and the menu are built
+// from oscillators and filtered noise (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
   get voice(){return this.v||(this.v=new ImpactVoice(this.A.ac.sampleRate));}
   play(S,D,pan){this.A.play(this.voice.render(S,D.gain),pan,D.wet);}
-  // a racket hit (also used by tools/sound-check.js): the string bed rings at its measured modes, hard while the ball is
-  // on the strings and then as a quieter, slower ring; the ball leaves with one cycle at 250 Hz; a soft crack marks the
-  // impact. Pace makes it louder; spin quieter, with a brighter crack
-  static hitSound(power,spin=0){
-    const H=SOUND.hit,D=H.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),g=lerp(D.level[0],1,p)*(1-D.spinQuiet*s),c=H.contactMs/1000;
-    return{lp:D.lp,
-      modes:[...H.strings.map((f,i)=>({f,a:D.amps[i]*g,t0:0,tau:D.tau,a2:D.amps[i]*g*D.ring,tau2:D.tau2})),{f:H.ballHz,a:D.ball*g,t0:c,cycles:H.ballCycles}],
-      noise:[{t0:0,a:D.crack*g,f:lerp(D.crackHz[0],D.crackHz[1],s),q:.7,tau:D.crackTau}]};
-  }
   // a bounce: a cycle or two at 1 kHz, then the ball's 250 Hz thump with its overtones dying away, by impact speed
   static bounceSound(v,soft=1){
     const B=SOUND.bounce,D=B.design,g=clamp((v-1)/12,.08,1)*soft,hi=B.hiCycles/B.hiHz;
@@ -25,7 +17,16 @@ class TennisSfx{
     return mesh?{lp:D.lp,modes:[{f:D.meshHz,a:.6*g,t0:0,tau:D.meshTau}],noise:[{t0:0,a:g,f:D.meshNoise,q:.7,tau:D.meshTau}]}
       :{lp:D.lp,modes:D.tapeHz.map((f,i)=>({f,a:.3*g,t0:.002,tau:D.tapeTau*(1+i)})),noise:[{t0:0,a:.8*g,f:D.tapeNoise,q:1,tau:.002}]};
   }
-  hit(power,spin=0,stroke='fh',pan=0){this.play(TennisSfx.hitSound(power,spin),SOUND.hit.design,pan);}
+  // a racket hit: one of the recorded hits, softest to hardest by the shot's pace; pace sets its level and spin takes a
+  // little off it (Paté: flat louder than spun; the sizes design)
+  static hitClip(power,spin=0){
+    const D=SOUND.hit.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),n=HIT_SAMPLES.clips.length;
+    return{i:Math.min(n-1,Math.floor(p*n)),gain:D.gain*lerp(D.level[0],1,p)*(1-D.spinQuiet*s)};
+  }
+  hit(power,spin=0,stroke='fh',pan=0){
+    const h=TennisSfx.hitClip(power,spin),c=this.clips||(this.clips=[]);
+    this.A.playBuffer(c[h.i]||(c[h.i]=this.A.decode(HIT_SAMPLES.clips[h.i].data,HIT_SAMPLES.rate)),pan,SOUND.hit.design.wet,h.gain);
+  }
   bounce(v,pan=0,soft=1){this.play(TennisSfx.bounceSound(v,soft),SOUND.bounce.design,pan);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
   // rubber on acrylic when a player stops or cuts hard: a short rising chirp with a wobble

@@ -48,9 +48,9 @@ next to real Grand Slam five-setters, is in **[docs/stamina](docs/stamina/README
 
 The ☰ Menu (or Esc) pauses a match: step out of a career match and come back to it later, retire, or leave.
 
-The sounds of the ball are built from how real ones sound: a racket hit rings at the string bed's measured
-frequencies, around 1 kHz, while the ball is on the strings, drops through one cycle at 250 Hz as it leaves, then rings
-on more quietly; a bounce drops from 1 kHz to a 250 Hz thump: **[docs/sound](docs/sound/README.md)**.
+A racket hit is a real one: three hits recorded from a professional hitting (public domain), the harder the shot the
+harder the hit. The bounce drops from 1 kHz to a 250 Hz thump, as a line-calling patent hears it on court:
+**[docs/sound](docs/sound/README.md)**.
 
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.

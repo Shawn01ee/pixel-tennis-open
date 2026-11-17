@@ -1,27 +1,56 @@
 {
  "rate": 48000,
+ "hits": [
+  {
+   "peak": 0.566,
+   "centroid": 2304,
+   "dominant": 1314,
+   "fall20ms": 17.3,
+   "fall40ms": 96,
+   "onsetMs": 0.36,
+   "parts": [
+    310,
+    860,
+    1310
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.71,
+   "centroid": 2340,
+   "dominant": 1314,
+   "fall20ms": 13.6,
+   "fall40ms": 92.1,
+   "onsetMs": 1.22,
+   "parts": [
+    330,
+    860,
+    1300
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.921,
+   "centroid": 2504,
+   "dominant": 388,
+   "fall20ms": 11.8,
+   "fall40ms": 72.1,
+   "onsetMs": 1.68,
+   "parts": [
+    380,
+    430,
+    3200
+   ],
+   "patentLike": false
+  }
+ ],
  "hit": {
-  "onsetMs": 0.15,
-  "parts": {
-   "contact": 960,
-   "dip": 270,
-   "ring": 970
-  },
-  "upshift": true,
-  "ringVsCrackDb": -24.2,
-  "lengthMs": 33.4,
-  "flat": {
-   "db": -25.3,
-   "centroid": 1317
-  },
-  "spun": {
-   "db": -26.7,
-   "centroid": 1440
-  },
-  "flatLouderDarker": true
+  "flatLouder": true,
+  "flatGain": 0.93,
+  "spunGain": 0.79
  },
  "bounce": {
-  "onsetMs": 0.23,
+  "onsetMs": 0.17,
   "parts": {
    "first": 980,
    "thump": 250
@@ -29,5 +58,5 @@
   "downshift": true,
   "lengthMs": 39.1
  },
- "onsetOk": true
+ "onsetOk": false
 }
