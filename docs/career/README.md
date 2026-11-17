@@ -72,13 +72,13 @@ where *E* is his Elo and *Ea* the roster player's peak. κ is fitted by `tools/f
 model, 0–1000 Elo below its peak, one 200 points below the other, play best-of-three matches; the target, fixed before
 any match was played, is Elo's **76.0%** for the stronger.
 
-Result (2026-11-17): **κ = 0.1129**. At the end:
+Result (2026-11-17): **κ = 0.1009**. At the end:
 
-- 200 points apart (the target): 74.4% against Elo's 76.0%: inside the measurement's ±4.7 points, over 336 matches.
-- 100 points apart: 63.7% against Elo's 64.0%: inside the measurement's ±5.1 points, over 336 matches.
-- 400 points apart: 92.9% against Elo's 90.9%: inside the measurement's ±2.8 points, over 336 matches.
+- 200 points apart (the target): 75.9% against Elo's 76.0%: inside the measurement's ±4.6 points, over 336 matches.
+- 100 points apart: **69.9% against Elo's 64.0%: 5.9 points more than Elo, outside the measurement's ±4.9**, over 336 matches.
+- 400 points apart: 93.2% against Elo's 90.9%: inside the measurement's ±2.7 points, over 336 matches.
 
-Both checks the fit was not aimed at agree with Elo within their margins, so one number carries the whole range.
+Where a check falls outside its margin, the single exponential does not carry Elo's odds across the whole range; it is reported here as measured and not adjusted.
 
 The bars on a player card follow from the same numbers: accuracy from the placement spread, control 40 points lower
 for every doubling of errors (the card's own scale).
@@ -94,6 +94,43 @@ for every doubling of errors (the card's own scale).
 
 Your level is what decides how your player plays on court (as above) and the odds when you simulate. On court you
 choose the shots, and timing and aim can beat the odds: that is the game.
+
+## Training
+
+Experience also earns training points: 5 to start with, then one for every 2 points of
+experience (**design**). Each goes into one of the eight bars on the player card, at most 25 into one bar
+(**design**), and can be taken back out. A point moves the bar by one on the card, and the game's number behind the
+bar by as much as one point of the card's own scale stands for:
+
+| Bar | One point | From the card's scale |
+|---|---|---|
+| Serve | +1.3 km/h on the first serve | 55 points span 40–60 m/s |
+| Power | +0.0082 of shot power | 55 points span 0.75–1.2 |
+| Speed | +0.020 m/s top speed and the matching acceleration | 55 points span 6.6–8.4 |
+| Spin | +38 rpm | 55 points span 1200–3300 rpm |
+| Control | errors × 2^(−1/40) | 40 points halve the errors |
+| Accuracy | placement spread −0.0118 | 55 points span 0.65 |
+| Touch | errors on drops, volleys, slices, lobs and angles × 2^(−1/25) | 25 points halve them |
+| Stamina | endurance +1/15 of a standard deviation | 15 points per standard deviation |
+
+What a point is worth in results is measured, not set: `node tools/fit-attributes.js` plays two copies of the same
+player, one with 10 points more in one bar, 336 best-of-three matches a bar, and turns the share the trained
+one wins into Elo (95% interval in brackets):
+
+| Bar | Trained copy won | Elo a point |
+|---|---|---|
+| Serve | 56% | **4.2** [0.4, 8] |
+| Power | 40.8% | **-6.5** [-10.4, -2.8] |
+| Speed | 56.8% | **4.8** [1.1, 8.6] |
+| Spin | 55.1% | 3.5 [-0.2, 7.3] |
+| Control | 90.8% | **39.7** [34.1, 47.4] |
+| Accuracy | 82.1% | **26.5** [22, 31.9] |
+| Touch | 66.7% | **12** [8.2, 16.2] |
+| Stamina | 55.4% | 3.7 [0, 7.5] |
+
+Clearly worth training: serve, speed, control, accuracy, touch. **Clearly harmful in the game as it plays now: power** (kept as measured, not corrected). No clear effect either way at this sample: spin, stamina.
+The training screen says the same for each bar. A simulated match counts each trained point at its measured value, or
+0 where that is below zero; on court, the bar itself does the work.
 
 ## Limits
 

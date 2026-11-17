@@ -10,14 +10,13 @@ class Game{
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.quick=Prefs.get('quick',Prefs.touch);
-    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.pauseMenu=new PauseMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=Venue.MAJORS[0];this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
     this.input=new Input(this);
-    $('resume').onclick=()=>this.togglePause();
-    addEventListener('resize',()=>this.resize());this.resize();
+        addEventListener('resize',()=>this.resize());this.resize();
     window.__PTO=this;
     requestAnimationFrame(t=>this.frame(t));
   }
@@ -76,7 +75,7 @@ class Game{
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
   // a career match left half-way is not recorded: the event waits on its screen for the match to be played again
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.demo();this.mainMenu.open();}
+  openSetup(){this.results.close();this.pauseMenu.close();this.paused=false;this.flow.active=false;this.flow.waiting=null;this.demo();this.mainMenu.open();}
   // cfg.venue: where it is played (its surface, court and stands); the last venue when it has none
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
@@ -99,7 +98,16 @@ class Game{
   // between points of the person's match: nothing to decide and no ball in play, so the walks, the ball kids and the
   // changeovers can run at double speed when the person has asked for it
   get between(){const m=this.match,H=m.human,C=m.control;if(!H||m.stage!=='play'||m.live||C.serveWait||C.challenge)return false;return!(m.cue&&m.cue.who===H.idx&&!C.auto);}
-  togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}
+  // the in-match menu; outside a match of the person's, the game just stops
+  togglePause(){if(this.pauseMenu.on){this.pauseMenu.close();return;}if(this.match&&this.match.human)this.pauseMenu.open();else{this.paused=!this.paused;}}
+  // the person retires: the match ends at once, a loss, and goes on as any finished match would
+  retire(){const m=this.match;if(!m.human||m.result)return;m.retire(m.human.idx);this.say(`${m.human.st.short} retires.`);}
+  // back to a match that was left waiting (a career's step-out): the same match, where it stood
+  resumeMatch(w){
+    for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
+    this.venue=w.venue;this.stadium.dress(w.venue);this.match=w.match;this.last_=w.last;this.acc=0;this.board.key='';this.screenKey='';
+    $('sbEv').textContent=w.venue.name.toUpperCase();$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.results.close();
+    this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;this.paused=false;}
   toggleSound(){this.sound.toggle();this.menu.update();this.say(this.sound.on?'Sound on.':'Sound off.');}
   setCam(i){this.cam.setMode(i);this.menu.update();}
   setPhase(k,snap=false){this.R.phaseKey=k;if(snap)this.R.L=LightPhase.snapshot(k);this.menu.update();}

@@ -12,6 +12,8 @@ class Match{
   // timed ball is struck clean on the sweet spot: tiredness does not show in it, and less of the shock reaches the arm
   static TIMING={late:{text:'Late',err:1.2,v:.97,fat:1,arm:1},perfect:{text:'Perfect',err:.65,v:1.04,fat:0,arm:.5},good:{text:'Good',err:.85,v:1.02,fat:.5,arm:1},early:{text:'',err:1,v:1,fat:1,arm:1}};
   static timing(d){const T=Match.TIMING;return d<.05?T.late:d<=.35?T.perfect:d<=.7?T.good:T.early;}
+  // the shots of feel: a career player's trained touch (touchK) takes errors off these
+  static FINESSE=new Set(['drop','dropvolley','volley','putaway','slice','lob','angle']);
   // cfg: a, b (profiles), human (0, or -1 for two computer players), format, surface, walkOn, loop
   constructor(cfg){
     this.cfg=Object.assign({human:-1,format:MatchFormat.ALL[0],surface:'hard',walkOn:false,loop:false},cfg);
@@ -88,6 +90,17 @@ class Match{
   setServe(k,force=false){const C=this.control;C.serveType=!force&&C.serveType===k?null:k;}
   setZone(k){const C=this.control;C.zone=k;C.target=null;}
   setAuto(on){this.control.auto=on;if(on)this.control.decide=null;}
+  // a player retires (idx): the match ends at once, the other the winner; the score as it stood, marked "ret."
+  retire(idx){
+    const sc=this.score;if(!sc||this.result)return;const w=1-idx,W=this.players[w],L=this.players[idx],C=this.control;
+    this.tasks.length=0;this.live=false;this.cue=null;C.decide=null;C.serveWait=null;C.challenge=null;
+    if(this.ball){this.ball.mode='free';this.loose.push(this.ball);this.ball=null;}
+    const cur=sc.over?'':(sc.games[w]||sc.games[idx]?`${sc.games[w]}–${sc.games[idx]}`:'');
+    this.stage='over';sc.over=true;sc.winner=w;this.big=null;this.mood.matchOver(W);
+    for(const P of this.players){P.mode='walk';P.plan=null;P.swing=null;}
+    this.result={w,winner:W,loser:L,line:`${[sc.line(w),cur].filter(Boolean).join(' ')} ret.`.trim(),longest:this.longest,retired:true};
+    this.ev('matchOver',this.result);this.go(L,CHAIR.x,L.s*CHAIR.z,1.5);this.go(W,.3,W.s*4,1.5);
+  }
 
   // ──────── director ────────
   *director(){
@@ -411,7 +424,7 @@ class Match{
   // incoming ball, a low ball, a return of serve and swinging harder than the player's power allows
   shotError(P,p,S,v,aimed,fat=1){
     const st=P.st,lowB=p.y<(this.surface.key==='grass'?.62:.42)?.55:0,T=Traits.of(P),c=this.shotContext(P,p,S);
-    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35)*(st.rerr??1):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*(1+(P.sta.err-1)*fat);
+    return st.err*S.risk*(1+1.25*p.stretch*p.stretch*(T.stretchK??1)+.5*c.pace*(T.paceK??1)+.25*clamp((c.spinIn-3200)/2600,0,1)+lowB+(this.isServe?Match.RETURN.err*(this.serveNo===1?1:.35)*(st.rerr??1):0)+(v/(38*st.power))**3*.35*(T.overhitK??1))*(aimed?.9:1)*(T.error?T.error(c):1)*(st.touchK&&Match.FINESSE.has(S.tac)?st.touchK:1)*(1+(P.sta.err-1)*fat);
   }
   // about where the person's aimed shot will land: the spread across and along its line (one standard deviation, m)
   // and the line's direction. Along the line it is close to three times wider: depth is harder than direction.
@@ -429,7 +442,7 @@ class Match{
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
-    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;
+    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;if(tq===Match.TIMING.perfect)P.ms.perfect++;
     if(human){C.target=null;C.shot=null;C.shotAt=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball

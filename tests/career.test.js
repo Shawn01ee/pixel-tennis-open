@@ -24,11 +24,11 @@ ok(draws,'draws: every event full, no one twice, seeds 1 and 2 at the ends');
 {const c=Career.create({name:'T T',short:'T',cc:'AUS',hand:1,ohb:false,arch:'Sinner',look:{},face:{}});
   const ev=c.events.find(e=>c.canEnter(e).ok);c.enter(ev);let n=0;while(!c.event.d.done&&n<10){c.matchDone(true,'6–4 6–4');n++;}
   const r=c.event.result;ok(r.round==='W'&&r.pts===P[ev.tier].W&&n===CAREER_DATA.ROUNDS[c.event.d.n].length,`event: five wins take the ${ev.name} title and ${P[ev.tier].W} points`);
-  c.finishEvent();ok(c.points===150+P[ev.tier].W&&c.s.titles.length===1,'event: the points go on the ranking, the title in the cabinet');
+  c.finishEvent();ok(c.rankPoints===150+P[ev.tier].W&&c.s.titles.length===1,'event: the points go on the ranking, the title in the cabinet');
   const ev2=c.events.find(e=>c.canEnter(e).ok);c.enter(ev2);c.matchDone(false,'4–6 4–6');ok(c.event.result.round===CAREER_DATA.ROUNDS[c.event.d.n][0]&&c.event.d.champion!=null,'event: a first-round loss ends it, and the draw still finds its champion');c.finishEvent();
   // a year on, everything from before has dropped off
-  const pts=c.points;c.s.w+=60;ok(c.points===0&&pts>0,'ranking: points count for 52 weeks only');
-  const s=JSON.parse(JSON.stringify(c.s)),c2=new Career(s);ok(c2.points===c.points&&c2.level===c.level&&c2.s.titles.length===1,'saving: a career survives being written out and read back');}
+  const pts=c.rankPoints;c.s.w+=60;ok(c.rankPoints===0&&pts>0,'ranking: points count for 52 weeks only');
+  const s=JSON.parse(JSON.stringify(c.s)),c2=new Career(s);ok(c2.rankPoints===c.rankPoints&&c2.level===c.level&&c2.s.titles.length===1,'saving: a career survives being written out and read back');}
 // a player at the archetype's own peak plays with its numbers
 {const a=ROSTER[0],p=CareerProfile.make(a,CareerProfile.peak(a),{name:'X',short:'X',id:2001});ok(near(p.err,a.err,1e-9)&&near(p.acc??1,a.acc??1,1e-9)&&p.trait===null,'level: at the archetype\'s peak, its own errors and accuracy, no trait');
   const q=CareerProfile.make(a,CareerProfile.peak(a)-400,{name:'Y',short:'Y',id:2002});ok(q.err>p.err&&q.overall<p.overall,'level: 400 Elo lower, more errors and a lower overall');}

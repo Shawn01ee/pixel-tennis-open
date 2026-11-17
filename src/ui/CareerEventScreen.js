@@ -19,14 +19,14 @@ class CareerEventScreen{
     let next;
     if(over){const res=E.result,ch=d.champion,cp=prof(ch);
       next=`<div class="d-next">${ch==='me'?Trophy.img('trophy small'):''}${Portrait.img(cp,'face big')}<div><small>${ch==='me'?'CHAMPION':`OUT IN THE ${CAREER_DATA.ROUND_NAMES[res.round].toUpperCase()}`}</small>
-        <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.points+res.pts))}</span></div></div>`;}
-    else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.level-E.elo(o),T.sets);
+        <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.rankPoints+res.pts))}</span></div></div>`;}
+    else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.strength-E.elo(o),T.sets);
       next=`<div class="d-next">${Portrait.img(c.profile(),'face big')}<i class="d-vs">VS</i>${Portrait.img(p,'face big')}<div><small>${CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase()}${E.lastRound?'':` · ${E.names.length-d.round-1} more to the title`}</small>
         <b>${p.name}${seed(o)}</b><span>${p.cc} · ranked ${rk(o)} · level ${Math.round(E.elo(o))} · ${p.style}</span>
         <span class="odds">Elo gives you <strong>${Math.round(pw*100)}%</strong> in a ${T.sets===3?'best-of-five':'best-of-three'} match</span></div></div>`;}
     $('ceNext').innerHTML=next;
     $('cePath').innerHTML=`<div><h3>YOUR ROAD</h3><ul class="ce-road">${road}</ul></div><div><h3>TOP SEEDS</h3><ul class="ce-seeds">${big}</ul></div>`;
-    $('ceSim').hidden=over;$('ceGo').innerHTML=over?'Continue ▶':`Play the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} ▶`;
+    const wait=!!this.f.waiting&&!over;$('ceSim').hidden=over||wait;$('ceGo').innerHTML=over?'Continue ▶':wait?'Back to the match ▶':`Play the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} ▶`;
     $('cevent').hidden=false;$('cevent').scrollTop=0;
   }
 }

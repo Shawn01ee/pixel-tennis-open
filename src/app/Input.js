@@ -12,6 +12,8 @@ class Input{
       if(g.flow.on){const F=g.flow;if(c==='Escape'){if(F.create.on)F.create.back();else if(F.screen.on){F.screen.close();F.hub.open();}else F.leave();e.preventDefault();}
         else if(c==='Enter'&&F.screen.on){F.primary();e.preventDefault();}return;}
       if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
+      // the in-match menu: Esc or P closes it (or a question over it); the rest of the keys wait
+      if(g.pauseMenu.on){if(c==='Escape'||c==='KeyP'){if(g.pauseMenu.asking)g.pauseMenu.confirm(null);else g.pauseMenu.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
       if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);

@@ -191,10 +191,10 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 @keyframes ping{to{inset:-12px;opacity:0}}
 .s-foot{width:min(1180px,100%);margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 12px}
 /* three settings in equal columns, each: label, a fixed-width stepper, two lines of description */
-.s-opts{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 22px;align-items:start}
+.s-opts{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;align-items:start}
 .s-opt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.s-opt>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
-.s-cyc{display:grid;grid-template-columns:34px 150px 34px;height:34px}.s-cyc button{min-height:0;height:34px;padding:0;font-size:15px}.s-cyc b{display:flex;align-items:center;justify-content:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);white-space:nowrap;overflow:hidden}
-.s-opt small{font-size:15px;line-height:1.2;color:var(--mute);min-height:2.4em;max-width:250px}
+.s-cyc{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;width:100%;max-width:300px;height:34px}.s-cyc button{min-height:0;height:34px;padding:0;font-size:15px}.s-cyc b{display:flex;align-items:center;justify-content:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.s-opt small{font-size:15px;line-height:1.2;color:var(--mute);max-width:340px}
 .s-foot .cta kbd{background:var(--navy);color:var(--ball)}
 /* versus */
 .vs-scr{justify-content:center;background:radial-gradient(ellipse at 50% 50%,#101a3add 0%,#0e0f1af5 75%);cursor:pointer}
@@ -334,7 +334,18 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .res td{padding:2px 0;border-top:2px solid var(--deep);color:var(--mute)}.res td:first-child,.res td:last-child{color:var(--chalk);width:30%}.res td:last-child{text-align:right}.res td:nth-child(2){text-align:center}
 .res .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
 #howto{z-index:10}.howc{width:min(620px,100%)}.howc h2{font:700 18px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 12px}.howc .ms-keys dd{font-size:17px;line-height:1.2}.howc .acts{display:flex;justify-content:flex-end;margin-top:14px}
-#pause .card{width:auto;text-align:center}#pause h2{font:700 26px var(--display);margin:0 0 6px}
+#pause{z-index:9}.pm{width:min(760px,100%);position:relative}
+.pm-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--deep);padding-bottom:8px;margin-bottom:12px}
+.pm-h h2{margin:0;font:700 22px var(--display);letter-spacing:.12em}.pm-h span{color:var(--mute);font-size:17px}
+.pm-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px}
+.pm-col{display:flex;flex-direction:column;gap:8px;min-width:0}.pm-col>button{min-height:42px;width:100%;white-space:normal}
+.pm-acts{display:flex;flex-direction:column;gap:8px}.pm-acts button{min-height:42px;width:100%;text-align:left;padding:4px 12px;white-space:normal;line-height:1.1}
+.pm-acts button small{display:block;color:var(--mute);font-size:14px;margin-top:2px}.pm-acts button.danger{box-shadow:inset 0 0 0 2px #f0664a88}
+.pm-set h3{font:500 12px var(--display);letter-spacing:.08em;color:var(--sky);margin:4px 0 0}.pm-set .row{display:flex;flex-wrap:wrap;gap:4px}.pm-set .row button{min-height:34px}
+.pm-set .lrn{margin:0;color:var(--mute);font-size:15px}
+.pm-confirm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;background:#0e0f1af2;text-align:center}
+.pm-confirm p{margin:0;font-size:20px;max-width:440px;line-height:1.2}.pm-cb{display:flex;gap:10px}.pm-cb button{min-height:44px;min-width:120px}
+.cta.danger{background:var(--coral);color:var(--chalk)}.cta.danger:hover{background:#ff7a59}
 #nogl{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:var(--navy);z-index:9;font-size:22px}
 
 @media (max-width:820px){
@@ -387,6 +398,28 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .ce-road .none{color:var(--mute)}.ce-seeds span{color:var(--lime);margin-left:6px}.ce-seeds li.out{color:var(--mute)}.ce-seeds li.out span{color:var(--coral)}
 .d-next .odds{margin-top:4px;color:var(--chalk)}.d-next .odds strong{color:var(--ball);font-weight:400}
 #cevent .d-note{width:min(1180px,100%)}
+/* career: the player tab */
+.ch-stat.pts{cursor:pointer;border-color:var(--ball);background:#f4d44a1a;min-height:0;font:inherit;padding:4px 10px 3px}.ch-stat.pts b{color:var(--ball)}.ch-stat.pts:hover{background:#f4d44a33}
+.cp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px;align-items:start}.cp-l{display:grid;gap:12px;min-width:0}
+.cp-card{position:relative;overflow:hidden;display:flex;gap:12px;padding:12px;background:#0e0f1ae6;border:2px solid var(--deep)}
+.cp-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--kit)}
+.cp-card .face{width:96px;height:111px;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep),3px 3px 0 #0009;flex:none}
+.cp-id{min-width:0;display:flex;flex-direction:column;gap:3px}.cp-id small{font:700 9px/1.3 var(--display);letter-spacing:.1em;color:var(--sky)}
+.cp-id b{font:700 18px/1.1 var(--display);text-shadow:0 3px 0 var(--ink);overflow-wrap:anywhere}.cp-id>span{color:var(--mute);font-size:16px;line-height:1.1}
+.cp-ovr{margin-top:auto;display:flex;align-items:center;gap:8px}.cp-ovr strong{font:700 40px/1 var(--display);color:var(--ball);text-shadow:0 3px 0 var(--ink)}
+.cp-ovr span{font:700 9px/1.5 var(--display);letter-spacing:.1em;color:var(--mute)}
+.cp-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:6px}.cp-tile{background:var(--navy);border:2px solid var(--deep);padding:6px 6px 5px;text-align:center}
+.cp-tile b{display:block;font:700 16px/1.1 var(--display);color:var(--chalk)}.cp-tile small{display:block;margin-top:3px;font:700 8px/1.3 var(--display);letter-spacing:.08em;color:var(--sky)}
+.cp-train header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}.cp-train header h3{margin:0}
+.cp-pts{font-size:17px;color:var(--mute)}.cp-pts b{font:700 18px var(--display);color:var(--chalk);margin-right:4px}.cp-pts.on b{color:var(--ball);animation:pulse 1s steps(2) infinite}
+.cp-rows{display:grid;gap:8px;margin-top:8px}
+.cp-row{display:grid;grid-template-columns:76px minmax(0,1fr) 30px auto;grid-template-rows:auto auto;gap:3px 8px;align-items:center}
+.cp-n{font-size:17px;color:var(--chalk)}.cp-v{font:700 15px var(--display);color:var(--ball);text-align:right}
+.cp-bar{position:relative;height:10px;background:var(--ink);box-shadow:inset 0 0 0 1px var(--deep)}.cp-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--azure),var(--sky))}
+.cp-bar u{position:absolute;top:0;bottom:0;background:var(--ball);box-shadow:0 0 6px #f4d44a88}
+.cp-btns{display:flex;gap:4px}.cp-btns button{min-width:32px;min-height:30px;padding:0;font:700 16px var(--display)}.cp-btns button[data-up]:not(:disabled){background:var(--ball);color:var(--navy);border-color:var(--ink)}
+.cp-btns button:disabled{opacity:.3;cursor:default}
+.cp-e{grid-column:1/-1;font-size:14px;color:var(--mute);line-height:1.15}.cp-e em{font-style:normal;color:var(--ball)}.cp-e .cp-neg{color:var(--coral)}
 /* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
 .shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
@@ -449,6 +482,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .fe>.d-acts{position:sticky;bottom:0;padding:8px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(#0e0f1a00,#0e0f1af2 30%);z-index:2}
   .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
   .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
+  .pm-grid{grid-template-columns:1fr}.pm{padding:12px}
   .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
   .cc-main{grid-template-columns:minmax(0,1fr)}.cc-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:2px 10px;text-align:left;padding:10px}.cc-card .face{grid-row:1/6;width:72px;height:83px;margin:0}
   .cc-card h2{font-size:15px;margin:2px 0}.cc-card p{font-size:15px;margin-top:2px}.cc-opts{gap:4px 8px}.cc-opts .s-cyc{grid-template-columns:30px minmax(0,1fr) 30px;height:32px}.cc-opts .s-cyc button{height:32px}
@@ -456,12 +490,14 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .ch-tabs button{flex:1;padding:0 4px;font-size:10px}.ch-body{padding:10px}.ch-rank{font-size:16px}.ch-rank td{padding:2px 3px}
   .ch-stars{grid-template-columns:repeat(5,1fr)}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
   #cevent .d-note{order:1;margin:0 0 10px}#cevent .ce-path{order:2;margin-top:0}#cevent .d-acts{order:3}
+  .cp-card .face{width:64px;height:74px}.cp-id b{font-size:15px}.cp-ovr strong{font-size:30px}
+  .cp-row{grid-template-columns:64px minmax(0,1fr) 26px auto}.cp-btns button{min-width:36px;min-height:34px}
   #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
 }
-@media(max-width:620px){.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
+@media(max-width:620px){.cp{grid-template-columns:1fr}.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
 @media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
-  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(4,auto);gap:4px 8px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
-  .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
+  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
+  .s-cyc{grid-template-columns:28px minmax(0,1fr) 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
 </style>
 </head>
 <body>
@@ -477,16 +513,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     </section>
     <div class="tools">
       <button id="statsT" aria-expanded="false" aria-controls="statsP">Stats</button>
-      <button id="menuT" aria-expanded="false" aria-controls="menuP">View</button>
+      <button id="menuT" aria-haspopup="dialog" aria-label="Menu: pause, settings, leave">☰ Menu<kbd>Esc</kbd></button>
       <section id="statsP" class="panel pop" hidden aria-label="Match statistics"></section>
-      <section id="menuP" class="panel pop" hidden aria-label="View and settings">
-        <h3>CAMERA</h3><div class="row" id="camRow"></div>
-        <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
-        <h3>SESSION</h3><div class="row" id="phaseRow"></div>
-        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">Main menu</button></div>
-        <div class="row"><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
-        <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
-      </section>
     </div>
   </div>
   <div class="mid">
@@ -570,7 +598,20 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
 <div class="overlay" id="howto" hidden><div class="card howc"><h2>HOW TO PLAY</h2><dl class="ms-keys" id="howB"></dl><div class="acts"><button class="cta" id="howX">Got it ▶</button></div></div></div>
-<div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>
+<div class="overlay" id="pause" hidden role="dialog" aria-modal="true" aria-labelledby="pmTitle"><div class="card pm">
+  <header class="pm-h"><h2 id="pmTitle">PAUSED</h2><span id="pmWhere"></span></header>
+  <div class="pm-grid">
+    <section class="pm-col"><button class="cta" id="resume">Resume ▶<kbd>Esc</kbd></button><div id="pmActs" class="pm-acts"></div><button id="pmHow">How to play</button></section>
+    <section class="pm-col pm-set">
+      <h3>CAMERA</h3><div class="row" id="camRow"></div>
+      <div class="row"><button id="tl" aria-label="Turn left">⟲ Turn<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">Turn ⟳<kbd>E</kbd></button></div>
+      <h3>SESSION</h3><div class="row" id="phaseRow"></div>
+      <h3>PLAY</h3><div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="autoB" aria-pressed="false">Auto<kbd>Space</kbd></button><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
+      <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
+    </section>
+  </div>
+  <div class="pm-confirm" id="pmConfirm" hidden><p id="pmQ"></p><div class="pm-cb"><button id="pmNo">Cancel</button><button class="cta danger" id="pmYes">Yes</button></div></div>
+</div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script>
 /*__APP__*/

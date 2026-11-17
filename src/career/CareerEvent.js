@@ -39,7 +39,7 @@ class CareerEvent{
   get mine(){return this.d.rounds[this.d.round].find(m=>m.a==='me'||m.b==='me')||null;}
   get opponent(){const m=this.mine;return m?(m.a==='me'?m.b:m.a):null;}
   // Elo of anyone in the draw
-  elo(key){return key==='me'?this.c.level:this.c.entry(key).elo;}
+  elo(key){return key==='me'?this.c.strength:this.c.entry(key).elo;}
   rng(){return new Rng((this.d.seed*31+(++this.d.k)*7)|0);}
   // decide a match by Elo
   decide(m){const g=this.rng(),p=EloModel.win(this.elo(m.a)-this.elo(m.b),this.tier.sets);m.w=g.next()<p?m.a:m.b;}

@@ -84,6 +84,7 @@
  "ui/ControlDock.js",
  "ui/TouchShot.js",
  "ui/SettingsMenu.js",
+ "ui/PauseMenu.js",
  "ui/Portrait.js",
  "ui/Trophy.js",
  "ui/TitleScreen.js",

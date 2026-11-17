@@ -6,6 +6,7 @@ const fs=require('fs'),path=require('path'),ROOT=path.join(__dirname,'..');
 const{loadSim}=require(path.join(ROOT,'tests','load'));
 const{CAREER_DATA:D,Career,CareerEvent,Calendar,EloModel,WorldRanking,LEVEL_FIT}=loadSim(['CAREER_DATA','Career','CareerEvent','Calendar','EloModel','WorldRanking','LEVEL_FIT']);
 const fit=JSON.parse(fs.readFileSync(path.join(ROOT,'data','career','level-fit.json'),'utf8'));
+const AF=JSON.parse(fs.readFileSync(path.join(ROOT,'data','career','attribute-fit.json'),'utf8'));
 const pc=x=>x.toFixed(1)+'%',T=D.TIERS,P=D.POINTS,E=D.ELO_RANK,S=Career.START;
 const startPts=S.points.reduce((a,b)=>a+b,0),startRank=WorldRanking.rankOf(startPts);
 // the fit, judged by its own margins
@@ -103,6 +104,38 @@ for every doubling of errors (the card's own scale).
 
 Your level is what decides how your player plays on court (as above) and the odds when you simulate. On court you
 choose the shots, and timing and aim can beat the odds: that is the game.
+
+## Training
+
+Experience also earns training points: ${Career.TRAIN.start} to start with, then one for every ${1/Career.TRAIN.perXp} points of
+experience (**design**). Each goes into one of the eight bars on the player card, at most ${Career.TRAIN.cap} into one bar
+(**design**), and can be taken back out. A point moves the bar by one on the card, and the game's number behind the
+bar by as much as one point of the card's own scale stands for:
+
+| Bar | One point | From the card's scale |
+|---|---|---|
+| Serve | +${(20/55*3.6).toFixed(1)} km/h on the first serve | 55 points span 40–60 m/s |
+| Power | +${(.45/55).toFixed(4)} of shot power | 55 points span 0.75–1.2 |
+| Speed | +${(1.8/55*.6).toFixed(3)} m/s top speed and the matching acceleration | 55 points span 6.6–8.4 |
+| Spin | +${Math.round(2100/55)} rpm | 55 points span 1200–3300 rpm |
+| Control | errors × 2^(−1/40) | 40 points halve the errors |
+| Accuracy | placement spread −${(.65/55).toFixed(4)} | 55 points span 0.65 |
+| Touch | errors on drops, volleys, slices, lobs and angles × 2^(−1/25) | 25 points halve them |
+| Stamina | endurance +1/15 of a standard deviation | 15 points per standard deviation |
+
+What a point is worth in results is measured, not set: \`node tools/fit-attributes.js\` plays two copies of the same
+player, one with ${AF.points} points more in one bar, ${AF.attributes.serve.n} best-of-three matches a bar, and turns the share the trained
+one wins into Elo (95% interval in brackets):
+
+| Bar | Trained copy won | Elo a point |
+|---|---|---|
+${Object.entries(AF.attributes).map(([k,v])=>`| ${k[0].toUpperCase()+k.slice(1)} | ${v.won}% | ${v.lo>0||v.hi<0?`**${v.eloPerPoint}**`:v.eloPerPoint} [${v.lo}, ${v.hi}] |`).join('\n')}
+
+${(()=>{const A=AF.attributes,K=Object.keys(A),pos=K.filter(k=>A[k].lo>0),neg=K.filter(k=>A[k].hi<0),none=K.filter(k=>A[k].lo<=0&&A[k].hi>=0);
+  return[pos.length?`Clearly worth training: ${pos.join(', ')}.`:'',neg.length?`**Clearly harmful in the game as it plays now: ${neg.join(', ')}** (kept as measured, not corrected).`:'',
+    none.length?`No clear effect either way at this sample: ${none.join(', ')}.`:''].filter(Boolean).join(' ');})()}
+The training screen says the same for each bar. A simulated match counts each trained point at its measured value, or
+0 where that is below zero; on court, the bar itself does the work.
 
 ## Limits
 

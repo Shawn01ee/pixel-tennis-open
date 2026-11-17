@@ -1,0 +1,62 @@
+{
+ "date": "2026-11-17",
+ "points": 10,
+ "attributes": {
+  "serve": {
+   "won": 56,
+   "n": 336,
+   "eloPerPoint": 4.2,
+   "lo": 0.4,
+   "hi": 8
+  },
+  "power": {
+   "won": 40.8,
+   "n": 336,
+   "eloPerPoint": -6.5,
+   "lo": -10.4,
+   "hi": -2.8
+  },
+  "speed": {
+   "won": 56.8,
+   "n": 336,
+   "eloPerPoint": 4.8,
+   "lo": 1.1,
+   "hi": 8.6
+  },
+  "spin": {
+   "won": 55.1,
+   "n": 336,
+   "eloPerPoint": 3.5,
+   "lo": -0.2,
+   "hi": 7.3
+  },
+  "control": {
+   "won": 90.8,
+   "n": 336,
+   "eloPerPoint": 39.7,
+   "lo": 34.1,
+   "hi": 47.4
+  },
+  "accuracy": {
+   "won": 82.1,
+   "n": 336,
+   "eloPerPoint": 26.5,
+   "lo": 22,
+   "hi": 31.9
+  },
+  "touch": {
+   "won": 66.7,
+   "n": 336,
+   "eloPerPoint": 12,
+   "lo": 8.2,
+   "hi": 16.2
+  },
+  "stamina": {
+   "won": 55.4,
+   "n": 336,
+   "eloPerPoint": 3.7,
+   "lo": 0,
+   "hi": 7.5
+  }
+ }
+}

@@ -8,7 +8,7 @@ class Player extends Agent{
     this.cheer=0;this.sulk=0;this.split=0;this.ritual=0;this.ritualT=0;this.lastStep=0;this.ms=Player.freshStats();
     this.sta=new Stamina(profile);
   }
-  static freshStats(){return{aces:0,df:0,win:0,ue:0,sv1:0,sv1in:0,won1:0,sv2:0,won2:0,fast:0,pts:0,bpW:0,bpT:0};}
+  static freshStats(){return{aces:0,df:0,win:0,ue:0,sv1:0,sv1in:0,won1:0,sv2:0,won2:0,fast:0,pts:0,bpW:0,bpT:0,perfect:0};}
   get facing(){return this.s>0?PI:0;}
   resetRally(){this.plan=null;this.planAt=0;this.gx=this.x;this.gz=this.z;this.rush=false;this.leaving=false;}
   // time to cover d metres from rest at full effort
