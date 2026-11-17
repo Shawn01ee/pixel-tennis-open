@@ -342,6 +342,51 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .dock{flex-wrap:wrap;justify-content:center}.sep{display:none}
   .versus{grid-template-columns:1fr}.vs{justify-self:center}.opts{grid-template-columns:1fr}
 }
+/* ── career: making the player, the hub, an event ── */
+.swatch{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;box-shadow:0 0 0 2px var(--ink)}
+.cc-main{width:min(1000px,100%);display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:14px;align-items:start}
+.cc-card{padding:16px;text-align:center;position:relative;overflow:hidden}.cc-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--kit)}
+.cc-card .face{width:130px;height:150px;margin:0 auto 10px;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep),4px 4px 0 #0009}
+.cc-card small{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky)}.cc-card h2{font:700 20px/1.1 var(--display);margin:6px 0;text-shadow:0 3px 0 var(--ink)}
+.cc-card p{margin:6px 0 0;color:var(--mute);font-size:17px;line-height:1.15}.cc-card p b{color:var(--ball);font-weight:400}.cc-card .cc-game{color:var(--chalk)}
+.cc-form{padding:12px 14px}.cc-form>span{display:block;font:700 11px var(--display);letter-spacing:.12em;color:var(--sky);margin-bottom:5px}
+.cc-names{display:flex;gap:6px;margin-bottom:12px}.cc-names input{flex:1;min-width:0;font:20px var(--data);background:var(--ink);color:var(--chalk);border:2px solid var(--deep);padding:5px 8px}
+.cc-names input:focus{outline:2px solid var(--ball);outline-offset:0}
+.cc-opts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:center}.cc-opts>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
+.cc-opts .s-cyc{grid-template-columns:34px minmax(0,240px) 34px}
+.cc-note{flex:1;margin:0;color:var(--mute);font-size:17px;min-width:200px}
+.ch-head{width:min(1080px,100%);display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ch-head .face{width:58px;height:67px;border:2px solid var(--ink);box-shadow:3px 3px 0 #0009}
+.ch-id{flex:1;min-width:0}.ch-id b{display:block;font:700 clamp(16px,2.4vw,24px)/1.1 var(--display);text-shadow:0 3px 0 var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ch-id span{color:var(--mute);font-size:17px}
+.ch-stats{display:flex;gap:6px}.ch-stat{background:#0e0f1ae6;border:2px solid var(--deep);padding:4px 10px 3px;text-align:center;min-width:64px}
+.ch-stat small{display:block;font:700 9px var(--display);letter-spacing:.12em;color:var(--sky)}.ch-stat b{display:block;font:700 20px/1.1 var(--display);color:var(--ball)}
+.ch-tabs{width:min(1080px,100%);display:flex;position:relative;z-index:1}.ch-tabs button{font:700 12px var(--display);letter-spacing:.1em;min-height:36px;padding:0 14px;margin-right:-2px}
+.ch-body{width:min(1080px,100%);padding:12px 14px 14px}
+.ch-lead{margin:0 0 10px;color:var(--mute);font-size:17px}.ch-def{margin:-4px 0 10px;color:var(--coral);font-size:17px}
+.ce-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ce-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:10px 12px;background:#0e0f1ae6;border:2px solid var(--deep);text-align:left;white-space:normal;min-height:0;box-shadow:3px 3px 0 #0008}
+.ce-card:hover{background:var(--deep)}.ce-card b{font:700 15px/1.15 var(--display);letter-spacing:.03em}.ce-card span{color:var(--mute);font-size:16px;line-height:1.1}.ce-card strong{color:var(--ball);font-weight:400}
+.ce-card em{margin-top:auto;padding-top:4px;font:700 12px var(--display);letter-spacing:.08em;font-style:normal;color:var(--ball)}
+.ce-card.locked{opacity:.55;cursor:not-allowed}.ce-card.locked em{color:var(--coral);font:16px var(--data);letter-spacing:0}
+.ce-card.go{border-color:var(--ball)}.ce-card.rest{border-style:dashed}
+.tier{font:700 10px var(--display);letter-spacing:.12em;padding:3px 6px 2px;background:var(--deep);color:var(--ice);font-style:normal}
+.tier.t-gs{background:var(--ball);color:var(--navy)}.tier.t-m1000{background:var(--coral);color:var(--chalk)}.tier.t-a500{background:var(--lime);color:var(--navy)}.tier.t-a250{background:var(--sky);color:var(--navy)}
+.ch-rank{width:100%;border-collapse:collapse;font-size:18px;font-variant-numeric:tabular-nums}.ch-rank th{font:700 10px var(--display);letter-spacing:.12em;color:var(--sky);text-align:left;padding:0 6px 4px}
+.ch-rank td{padding:2px 6px;border-top:1px solid var(--deep);color:var(--chalk)}.ch-rank td:first-child{color:var(--mute);width:44px;text-align:right}.ch-rank td:nth-child(4){color:var(--sky);font-size:15px}.ch-rank td:last-child{text-align:right;width:70px}
+.ch-rank .face{width:19px;height:22px}.ch-rank td:nth-child(2){width:24px}.ch-rank tr.me td{background:#f4d44a22;color:var(--ball)}.ch-rank tr.gap td{color:var(--mute);text-align:center}
+.ch-rec{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.ch-box{background:#0e0f1ae6;border:2px solid var(--deep);padding:10px 12px}
+.ch-box h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:8px 0 6px}.ch-box h3:first-child{margin-top:0}.ch-box p{margin:0 0 6px;font-size:17px;color:var(--mute)}.ch-box p b{color:var(--ball);font-weight:400}
+.ch-titles,.ch-miles{list-style:none;margin:0;padding:0;font-size:17px}.ch-titles li{padding:2px 0;display:flex;gap:6px;align-items:center}.ch-titles span{color:var(--mute);margin-left:auto}.ch-titles .none{color:var(--mute)}
+.ch-miles li{color:var(--mute);padding:1px 0}.ch-miles li.done{color:var(--ball)}
+.ch-stars{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.ch-stars span{display:flex;flex-direction:column;align-items:center;gap:1px;filter:grayscale(1) brightness(.55)}.ch-stars span.won{filter:none}
+.ch-stars .face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}.ch-stars span.won .face{border-color:var(--ball)}.ch-stars i{font:700 8px var(--display);font-style:normal;color:var(--mute);white-space:nowrap;overflow:hidden;max-width:100%}
+.ch-small{font-size:15px!important}.ch-box .seg{margin-bottom:6px}
+.ch-foot{width:min(1080px,100%);display:flex;align-items:center;gap:10px;margin-top:10px}.ch-news{flex:1;margin:0;color:var(--mute);font-size:17px;min-width:0}.ch-news i{font-style:normal;color:var(--sky);margin-right:6px}.ch-news.big{color:var(--ball)}
+.ce-path{width:min(1180px,100%);margin-top:12px;padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.ce-path h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:0 0 6px}
+.ce-road,.ce-seeds{list-style:none;margin:0;padding:0;font-size:17px}.ce-road li,.ce-seeds li{padding:2px 0}.ce-road i{display:inline-block;width:42px;font:700 10px var(--display);font-style:normal;color:var(--sky)}.ce-road em{font-style:normal;color:var(--ball);margin-left:6px}
+.ce-road .none{color:var(--mute)}.ce-seeds span{color:var(--lime);margin-left:6px}.ce-seeds li.out{color:var(--mute)}.ce-seeds li.out span{color:var(--coral)}
+.d-next .odds{margin-top:4px;color:var(--chalk)}.d-next .odds strong{color:var(--ball);font-weight:400}
+#cevent .d-note{width:min(1180px,100%)}
 /* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
 .shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
@@ -405,8 +450,15 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
   .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
   .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
+  .cc-main{grid-template-columns:minmax(0,1fr)}.cc-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:2px 10px;text-align:left;padding:10px}.cc-card .face{grid-row:1/6;width:72px;height:83px;margin:0}
+  .cc-card h2{font-size:15px;margin:2px 0}.cc-card p{font-size:15px;margin-top:2px}.cc-opts{gap:4px 8px}.cc-opts .s-cyc{grid-template-columns:30px minmax(0,1fr) 30px;height:32px}.cc-opts .s-cyc button{height:32px}
+  .cc-note{display:none}.ch-head{gap:8px}.ch-head .face{width:44px;height:51px}.ch-stat{padding:3px 6px;min-width:0}.ch-stat b{font-size:16px}
+  .ch-tabs button{flex:1;padding:0 4px;font-size:10px}.ch-body{padding:10px}.ch-rank{font-size:16px}.ch-rank td{padding:2px 3px}
+  .ch-stars{grid-template-columns:repeat(5,1fr)}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
+  #cevent .d-note{order:1;margin:0 0 10px}#cevent .ce-path{order:2;margin-top:0}#cevent .d-acts{order:3}
   #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
 }
+@media(max-width:620px){.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
 @media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
   .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(3,auto);gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
   .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
@@ -419,7 +471,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="hud">
   <div class="top">
     <section class="panel sb" aria-label="Scoreboard">
-      <header class="sb-h"><span class="ev">PIXEL TENNIS OPEN</span><span id="sbMode">Centre Court</span></header>
+      <header class="sb-h"><span class="ev" id="sbEv">PIXEL TENNIS OPEN</span><span id="sbMode">Centre Court</span></header>
       <table id="sbT"></table>
       <footer class="sb-f"><span id="sbBadge" class="badge" hidden></span><span id="sbSpeed"></span></footer>
     </section>
@@ -487,6 +539,27 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   <section class="d-sheet panel"><div id="brCols" class="d-draw"></div></section>
   <section id="brNote" class="d-note panel"></section>
   <div class="d-acts"><button id="brQuit">Leave the tournament</button><button class="cta" id="brGo">Play ▶</button></div>
+</div>
+<div class="fe" id="ccreate" hidden>
+  <div class="fe-shade"></div>
+  <header class="s-head"><button id="ccBack" class="s-back">◀ Back<kbd>Esc</kbd></button><h1>NEW CAREER</h1><span class="s-mode">CAREER</span></header>
+  <div class="cc-main"><section class="panel cc-card" id="ccPrev"></section>
+    <section class="panel cc-form"><span>NAME</span><div class="cc-names"><input id="ccFirst" maxlength="14" placeholder="First name" autocomplete="off" aria-label="First name"><input id="ccLast" maxlength="16" placeholder="Last name" autocomplete="off" aria-label="Last name"></div><div class="cc-opts" id="ccOpts"></div></section></div>
+  <footer class="s-foot panel"><p class="cc-note">Your game is modelled on the player you pick: his serve, his shots, how he moves. Your level starts low and grows with every match.</p><button class="cta" id="ccGo">START CAREER ▶</button></footer>
+</div>
+<div class="fe" id="chub" hidden>
+  <div class="fe-shade"></div>
+  <header class="ch-head" id="chHead"></header>
+  <nav class="ch-tabs" id="chTabs" aria-label="Career"></nav>
+  <section class="panel ch-body" id="chBody"></section>
+  <footer class="ch-foot"><p class="ch-news" id="chNews"></p><button id="chMenu">◀ Main menu</button></footer>
+</div>
+<div class="fe" id="cevent" hidden>
+  <div class="fe-shade"></div>
+  <header class="d-head"><div class="d-brand"><b id="ceName"></b><span id="ceTier"></span></div><div class="d-stat"><span id="ceRound" class="d-round"></span></div></header>
+  <section class="d-note panel" id="ceNext"></section>
+  <section class="panel ce-path" id="cePath"></section>
+  <div class="d-acts"><button id="ceSim" title="Decide the match by the Elo odds, without playing it">Simulate</button><button class="cta" id="ceGo">Play ▶</button></div>
 </div>
 <div class="overlay" id="interview" hidden>
   <div class="card iv"><div id="ivWho" class="ivwho"></div><p id="ivQ" class="ivq"></p><div id="ivA" class="iva"></div><p id="ivR" class="ivr" hidden></p>
@@ -1137,9 +1210,10 @@ class Tactics{
     this.trail[P.idx].push(sit,tac);return tac;
   }
   begin(){this.trail=[[],[]];}
-  // the point went to player w: credit and blame, latest choice first
+  // the point went to player w: credit and blame, latest choice first. A frozen player (the career's players, who
+  // borrow a roster player's table) plays what was learned but does not change it
   reward(w,players){
-    for(const P of players){if(P.st.noLearn)continue;
+    for(const P of players){if(P.st.noLearn||P.st.frozen)continue;
       const tr=this.trail[P.idx],r=P.idx===w?1:-1,T=this.table(P);let g=1;
       for(let k=tr.length-2;k>=0;k-=2){const s=T[tr[k]]||(T[tr[k]]={}),t=tr[k+1],v=s[t]||0;s[t]=clamp(v+Tactics.ALPHA*g*(r-v),-1,1);g*=Tactics.GAMMA;}
     }
@@ -2142,9 +2216,10 @@ class Tournament{
 // Two questions drawn from what happened (the round, the score, the opponent, the numbers), each with three ways to
 // answer: gracious, confident or playful. The crowd reacts, and the player's following grows with every answer.
 class Interview{
-  // m: the finished match; t: the tournament (or null); returns [{q, options:[{text, tone, fans, react}]}]
+  // m: the finished match; t: the tournament (or null; t.label names the round when it is not one of the last three);
+  // returns [{q, options:[{text, tone, fans, react}]}]
   static build(m,t){
-    const H=m.human,O=m.other(H),won=m.result.winner===H,ms=H.ms,name=O.st.short,round=t?['quarter-final','semi-final','final'][Math.min(t.round,2)]:'match';
+    const H=m.human,O=m.other(H),won=m.result.winner===H,ms=H.ms,name=O.st.short,round=t?(t.label||['quarter-final','semi-final','final'][Math.min(t.round,2)]):'match';
     const close=/5–3|7–6|6–7|3–5|7–5|5–7/.test(m.result.line),aces=ms.aces,long=m.result.longest||0;
     const opt=(text,tone,fans,react)=>({text,tone,fans,react});
     const Q=[];
@@ -2169,6 +2244,335 @@ class Interview{
     }
     return Q;
   }
+}
+
+// CareerData — the real figures the career mode rests on. docs/career gives each source and how it is used; values
+// with no data behind them are marked "design".
+const CAREER_DATA={
+  // ATP ranking points by the round a player goes out in, rules since 2024 (ATP Rankings FAQ, as tabled in Wikipedia's
+  // "ATP rankings"). R32 in a 32-player draw and R128 in a 128 draw: the first round
+  POINTS:{
+    gs:   {W:2000,F:1300,SF:800,QF:400,R16:200,R32:100,R64:50,R128:10},
+    m1000:{W:1000,F:650,SF:400,QF:200,R16:100,R32:50,R64:10},        // the 56-player draw's figures, on a 64 draw
+    a500: {W:500,F:330,SF:200,QF:100,R16:50,R32:0},
+    a250: {W:250,F:165,SF:100,QF:50,R16:25,R32:0},
+    c175: {W:175,F:90,SF:50,QF:25,R16:13,R32:0},
+    c125: {W:125,F:64,SF:35,QF:16,R16:8,R32:0},
+    c100: {W:100,F:50,SF:25,QF:14,R16:7,R32:0},
+    c75:  {W:75,F:44,SF:22,QF:12,R16:6,R32:0},
+    c50:  {W:50,F:25,SF:14,QF:8,R16:4,R32:0},
+  },
+  // the official ATP singles ranking of 16 November 2026: points held by the players ranked 1 to 500
+  // (data/career/atp-ranking-points-2026-11-16.json)
+  RANK_POINTS:[9320,7950,6100,5170,3820,3680,3625,3390,3300,3234,3170,2940,2925,2540,2500,2500,2465,2435,2360,2220,2160,2145,2085,1980,1885,1790,1785,1640,1640,1625,1595,1507,1495,1492,1480,1430,1321,1320,1296,1280,1241,1237,1223,1220,1214,1200,1197,1146,1095,1075,1055,1045,1040,1015,968,959,941,920,909,899,898,879,875,871,845,836,835,831,828,825,822,822,820,807,787,773,772,759,751,735,732,725,693,692,688,680,671,670,663,661,657,647,646,638,638,620,619,616,613,609,609,590,588,579,575,571,570,566,540,539,530,527,521,521,521,512,510,505,504,497,496,493,493,491,487,477,461,457,448,446,444,438,431,429,422,421,419,418,415,411,406,404,403,403,401,400,393,389,386,386,380,363,362,361,360,355,354,354,353,349,348,346,343,343,341,339,339,338,334,333,327,325,324,322,322,321,321,320,319,317,314,308,307,307,307,304,302,301,300,297,290,290,290,288,288,288,288,286,285,284,280,279,278,278,278,274,272,269,269,269,269,268,267,266,264,264,262,262,261,261,259,259,256,256,255,254,254,253,253,250,247,246,245,244,242,242,241,241,240,240,236,233,233,232,228,227,226,225,224,224,223,223,223,222,221,221,220,220,219,218,218,217,217,216,215,214,213,213,211,211,210,207,202,201,201,200,200,199,199,198,197,197,196,196,194,194,193,191,191,188,188,187,187,187,186,186,185,185,182,181,180,179,178,176,175,175,173,173,173,172,172,171,171,171,170,170,170,169,169,169,168,168,167,165,164,163,163,163,162,161,160,160,160,159,159,159,158,158,157,156,152,152,152,151,151,150,150,150,149,148,148,148,148,148,147,146,146,145,144,144,143,143,143,143,143,142,140,140,139,139,138,138,138,138,136,136,136,136,133,133,133,132,131,131,130,130,129,129,129,129,128,127,127,127,127,127,126,126,125,125,124,124,123,123,122,121,121,120,119,118,118,118,117,117,117,117,116,116,115,115,113,113,113,113,112,110,110,110,109,108,108,108,108,108,107,107,107,106,106,105,104,103,103,103,103,102,102,102,102,102,101,101,101,100,100,100,100,100,100,100,100,99,98,98,98,98,98,98,98,97,97,96,96,96,95,95,95,95,94,94,94,93,92,92,92,91,91,91,91,90,89,89,89,89,88,88,88,87,87,87],
+  // Elo by ATP rank: Elo = A − B·ln(rank), least squares over the 463 players ranked 1–500 in Tennis Abstract's ATP
+  // Elo list of 16 November 2026, with the scatter about that line (one standard deviation)
+  // (data/career/atp-elo-by-rank-2026-11-16.json)
+  ELO_RANK:{A:2442.4,B:173.66,SD:90.9},
+  // each roster player at his best: peak Elo from Tennis Abstract (The Tennis 128 for the retired; the ATP Elo list of
+  // 16 November 2026 for the active, its "Peak Elo" column)
+  PEAK_ELO:{Djokovic:2470,Borg:2473,McEnroe:2442,Federer:2383,Nadal:2370,Murray:2347,Sampras:2319,Agassi:2282,
+    Sinner:2339.8,Alcaraz:2308.5,Medvedev:2201.2,Zverev:2176.5,'de Minaur':2053.1},
+  // the tournament categories. draw: players; sets: sets to win (Grand Slam men's singles best of five, the rest best of
+  // three); real figures. cut: the worst ranking that gets in directly — 104 for a Grand Slam is the rule (104
+  // direct acceptances of 128); the others are design, near typical entry lists. top: the best ranking that usually
+  // plays the category (design)
+  TIERS:{
+    gs:   {name:'Grand Slam',short:'GS',draw:128,sets:3,cut:104,top:1},
+    m1000:{name:'ATP Masters 1000',short:'1000',draw:64,sets:2,cut:80,top:1},
+    a500: {name:'ATP 500',short:'500',draw:32,sets:2,cut:55,top:3},
+    a250: {name:'ATP 250',short:'250',draw:32,sets:2,cut:95,top:8},
+    c175: {name:'Challenger 175',short:'CH175',draw:32,sets:2,cut:150,top:40},
+    c125: {name:'Challenger 125',short:'CH125',draw:32,sets:2,cut:220,top:60},
+    c100: {name:'Challenger 100',short:'CH100',draw:32,sets:2,cut:280,top:80},
+    c75:  {name:'Challenger 75',short:'CH75',draw:32,sets:2,cut:380,top:110},
+    c50:  {name:'Challenger 50',short:'CH50',draw:32,sets:2,cut:9999,top:150},
+  },
+  ROUNDS:{128:['R128','R64','R32','R16','QF','SF','F'],64:['R64','R32','R16','QF','SF','F'],32:['R32','R16','QF','SF','F']},
+  ROUND_NAMES:{R128:'First round',R64:'Second round',R32:'Round of 32',R16:'Round of 16',QF:'Quarter-final',SF:'Semi-final',F:'Final',W:'Champion'},
+};
+
+// levelFit — how a player's level reaches the match: written by tools/fit-levels.js (2026-11-17)
+// kappa: a player rated E Elo plays with errors and placement spread multiplied by exp(kappa·(Ea − E)/400) next to
+// the roster player whose way of playing he shares (rated Ea, his peak). Fitted so that two such players, 200 Elo
+// apart, win best-of-three matches against each other as often as Elo says (76%). See docs/career.
+const LEVEL_FIT={kappa:0.1129,fitted:'2026-11-17'};
+
+// EloModel — how likely one player is to beat another, from their Elo ratings, the way Tennis Abstract rates players
+// A gap of d points gives the stronger player 1/(1+10^(−d/400)) of best-of-three matches: 64% at 100 points, 76% at
+// 200, 85% at 300, 91% at 400 (Tennis Abstract's own figures for its ratings). A best-of-five match is played as the
+// same chance of winning each set, over five sets.
+class EloModel{
+  static bo3(d){return 1/(1+Math.pow(10,-d/400));}
+  // the chance of winning a set that gives a best-of-three chance p (p = s²(3 − 2s)), by bisection
+  static setChance(p){let lo=0,hi=1;for(let i=0;i<40;i++){const s=(lo+hi)/2;if(s*s*(3-2*s)<p)lo=s;else hi=s;}return(lo+hi)/2;}
+  // the chance of winning a match of `sets` sets to win (1, 2 or 3) with a rating gap d
+  static win(d,sets=2){const p=EloModel.bo3(d);if(sets===2)return p;const s=EloModel.setChance(p);return sets===1?s:s*s*s*(10-15*s+6*s*s);}
+  // the Elo a player of this ATP ranking has, on the line through the real list (CareerData.ELO_RANK)
+  static atRank(r){const E=CAREER_DATA.ELO_RANK;return E.A-E.B*Math.log(Math.max(1,r));}
+  // the ranking that an Elo rating sits at on the same line
+  static rankAt(e){const E=CAREER_DATA.ELO_RANK;return Math.max(1,Math.round(Math.exp((E.A-e)/E.B)));}
+}
+
+// WorldRanking — points and places on the real ATP ranking of 16 November 2026 (CareerData.RANK_POINTS)
+// Everyone else in the career's world holds the points of his place on that list; the person's own points place him
+// one behind everyone holding as many points or more.
+class WorldRanking{
+  static get SIZE(){return CAREER_DATA.RANK_POINTS.length;}
+  static points(r){const P=CAREER_DATA.RANK_POINTS;return r>=1&&r<=P.length?P[r-1]:0;}
+  // the place a total would have: one behind everyone holding as many or more; SIZE + 1 below the whole list, null
+  // with no points at all
+  static rankOf(pts){if(!(pts>0))return null;const P=CAREER_DATA.RANK_POINTS;let lo=0,hi=P.length;while(lo<hi){const m=(lo+hi)>>1;if(P[m]>=pts)lo=m+1;else hi=m;}return lo+1;}
+  static label(r){return r==null?'Unranked':r>WorldRanking.SIZE?`${WorldRanking.SIZE}+`:`${r}`;}
+}
+
+// CareerProfile — a player of the career's world who is not on the roster: the person's own player, and everyone
+// ranked below the thirteen. Each plays like one roster player (his archetype: the same fitted serve, shots,
+// movement and choices) at his own level: a level below the archetype's peak Elo multiplies errors and placement
+// spread by exp(kappa·(Ea − E)/400) (LEVEL_FIT, fitted by tools/fit-levels.js). No signature trait.
+// The card's bars: the archetype's, with control and accuracy moved by the same rules the card uses for everyone
+// (control: 40 points per doubling of errors; accuracy: from the placement spread)
+class CareerProfile extends PlayerProfile{
+  // a: the archetype (a roster profile); E: this player's Elo; o: who he is (name, short, cc, look, face, hand, ohb, …)
+  static make(a,E,o){
+    const m=CareerProfile.mult(E,a),base=a.ratings;
+    return new CareerProfile({...a,trait:null,legend:false,fiveSets:undefined,end:1,...o,elo:E,m,base,
+      err:a.err*m,acc:(a.acc??1)*m,tkey:a.short,frozen:true,arch:a.short});
+  }
+  static peak(a){return CAREER_DATA.PEAK_ELO[a.short]??2200;}
+  static mult(E,a){return Math.exp(LEVEL_FIT.kappa*(CareerProfile.peak(a)-E)/400);}
+  get ratings(){
+    const b=this.base,r=v=>Math.round(clamp(v,45,100));
+    return{...b,control:r(b.control-40*Math.log2(this.m)),accuracy:r(45+55*clamp((1.25-(this.acc??1))/.65,0,1)),stamina:r(75+15*((this.end??1)-1)/Stamina.SD)};
+  }
+}
+
+// CareerWorld — everyone on the career's ranking: the thirteen roster players at the top, at their best (peak Elo),
+// and below them invented players for every place down to 500. An invented player ranked r has the Elo of that place
+// on the line through the real Elo list, give or take its real scatter (CareerData.ELO_RANK), and plays like one of
+// the thirteen (CareerProfile). Names, countries, looks and who plays like whom are drawn from the career's seed: the
+// same world every time the career is loaded.
+class CareerWorld{
+  static FIRST=['Luca','Mateo','Jonas','Tomas','Hugo','Leo','Marco','Felix','Adrian','Nico','Elias','Oscar','Pablo','Ivan','Kai','Theo','Bruno','Dario','Emil','Viktor','Rafael','Simon','Arne','Milan','Yuto','Ren','Diego','Sami','Aaron','Lukas','Noah','Erik','Matias','Andrej','Kenji','Omar','Filip','Henri','Joel','Ruben'];
+  static PRE=['Bar','Cor','Dal','Fen','Gar','Hal','Kel','Lor','Mar','Nor','Ost','Pel','Ros','Sal','Tor','Val','Wes','Zan','Bren','Cas','Dov','Fal','Gre','Iv','Jar','Kas','Lin','Mor','Nav','Pra','Rav','Ser','Tal','Vor','Wal','Yar','Bel','Cad','Ell','Hov'];
+  static SUF=['ani','berg','dahl','enko','esco','ford','ini','ski','vic','sson','ard','ier','ez','ston','ley','mann','etti','olo','ade','ov','ens','aux','ero','unen','holm','ac','ida','ura','an','well'];
+  static CC=['FRA','ITA','ESP','USA','ARG','GER','AUS','GBR','SRB','CZE','JPN','CHI','CAN','NED','BEL','POR','POL','SUI','SWE','NOR','DEN','AUT','BRA','COL','KAZ','CHN','KOR','HUN','CRO','GRE','FIN','RSA','IND','MEX'];
+  static SHIRT=[0x3166b4,0xdc4a3c,0x4f9a3e,0xf4d44a,0x8a3ea0,0x2a8088,0xf0664a,0x1f2f6a,0x7bb8ea,0x4a5a70,0xf4f3ec,0x2b2f44,0xd9a514,0xb4dc68];
+  static HAIR=[0x241a16,0x3a2418,0x5a4636,0x9a7a54,0xd8b060,0xc8602a,0x1c1410,0x4a3020];
+  static STYLES=['short','fade','wavy','curly','crop','long','thin','bald'];
+  // a few words for the way of playing each roster player stands for
+  static ARCH={Djokovic:'All-round baseliner',Nadal:'Heavy topspin baseliner',Alcaraz:'All-court, drop shots',Federer:'Attacking all-court',
+    Sinner:'Flat first strike',Medvedev:'Deep defender',Zverev:'Big server',"de Minaur":'Counterpuncher',Sampras:'Serve and volley',
+    Borg:'Topspin baseliner',Agassi:'Early-ball hitter',Murray:'Defender, lobs and passes',McEnroe:'Serve and volley, soft hands'};
+  constructor(seed){this.seed=seed;this.cache=new Map();
+    // the thirteen, by their roster ranking
+    this.stars=[...ROSTER].sort((a,b)=>a.rank-b.rank);
+  }
+  get size(){return WorldRanking.SIZE;}
+  // the player at a place on the ranking: {rank, kind:'star'|'gen', elo, profile()}
+  at(r){
+    let e=this.cache.get(r);if(e)return e;
+    if(r<=this.stars.length){const p=this.stars[r-1];e={rank:r,kind:'star',key:'s'+p.id,elo:CareerProfile.peak(p),p};}
+    else{const g=new Rng((this.seed*7919+r*104729)|0),A=ROSTER[Math.floor(g.next()*ROSTER.length)],elo=EloModel.atRank(r)+g.normal(CAREER_DATA.ELO_RANK.SD);
+      const pick=a=>a[Math.floor(g.next()*a.length)],last=pick(CareerWorld.PRE)+pick(CareerWorld.SUF),first=pick(CareerWorld.FIRST),lefty=g.next()<.12,ohb=g.next()<.12;
+      const skin=pick([SKIN.fair,SKIN.tan,SKIN.olive,SKIN.bronze]),hair=pick(CareerWorld.HAIR);
+      const o={id:1000+r,name:`${first} ${last}`,short:last,cc:pick(CareerWorld.CC),rank:r,hand:lefty?-1:1,ohb,
+        face:{hair:pick(CareerWorld.STYLES),brow:1+(g.next()<.5?1:0),shape:pick(['oval','long','square']),beard:pick(['none','none','stubble','moustache'])},
+        look:{shirt:pick(CareerWorld.SHIRT),shorts:g.next()<.5?WHITE:INK,skin,hair,band:g.next()<.2?WHITE:null,racket:pick([WHITE,INK,0xdc4a3c,0x3166b4])},
+        style:`${CareerWorld.ARCH[A.short]||'Baseliner'} · plays like ${A.short}`};
+      e={rank:r,kind:'gen',key:'g'+r,elo,arch:A,o};}
+    this.cache.set(r,e);return e;
+  }
+  // the match profile of a player of the world (built once)
+  profile(e){if(e.kind==='star')return e.p;return e.prof||(e.prof=CareerProfile.make(e.arch,e.elo,e.o));}
+}
+
+// Calendar — the career's year: the weeks of the hard-court season and the events played in each
+// The weeks follow the shape of the real ATP year on hard courts: a January swing to the summer major (the Pixel
+// Tennis Open, two weeks), February indoor and Gulf events, the two-week March Masters, the North American summer, the
+// autumn in Asia and indoors. The clay and grass months (weeks 15–28) and the off-season are not played: the tour is
+// elsewhere. Several events share a week, at different levels; a player enters one. Event names are invented.
+// Each entry: [week, tier, name, weeks it lasts]
+class Calendar{
+  static EVENTS=[
+    [1,'a250','Coral Coast International'],[1,'a250','Southern Cross Classic'],[1,'c125','Velmont Challenger'],[1,'c75','Saltmarsh Challenger'],
+    [2,'a250','Lakeshore Open'],[2,'a250','Harbour Lights Classic'],[2,'c100','Duneholm Challenger'],[2,'c50','Kestrel Bay Challenger'],
+    [3,'gs','Pixel Tennis Open',2],[3,'c100','Orchard Hill Challenger'],[3,'c50','Fernhollow Challenger'],
+    [5,'c125','Greywater Challenger'],[5,'c75','Lindmere Challenger'],
+    [6,'a250','Highland Indoor'],[6,'a250','Pinewood Open'],[6,'c100','Copperfield Challenger'],
+    [7,'a500','Crown City Open'],[7,'a250','Northwind Indoor'],[7,'c125','Westhaven Challenger'],
+    [8,'a500','Jade Coast Championships'],[8,'a250','Seaview Classic'],[8,'c75','Stonebrook Challenger'],
+    [9,'a500','Midland Indoor Championships'],[9,'a500','Old Port Open'],[9,'c100','Marrowind Challenger'],
+    [10,'m1000','Desert Masters',2],[10,'c125','Elmhaven Challenger'],[11,'c75','Brimvale Challenger'],
+    [12,'m1000','Bayside Masters',2],[12,'c100','Ravenmoor Challenger'],[13,'c50','Tidewell Challenger'],
+    [14,'c75','Ashgrove Challenger'],[14,'c50','Millbank Challenger'],
+    [29,'a250','Redrock Open'],[29,'c125','Silverlake Challenger'],
+    [30,'a500','Capital Summer Open'],[30,'c100','Cindervale Challenger'],
+    [31,'m1000','Northern Masters',2],[31,'c75','Harrowgate Challenger'],
+    [33,'m1000','Riverside Masters',2],[33,'c100','Glenwick Challenger'],
+    [35,'a250','Summit Classic'],[35,'c125','Larkspur Challenger'],
+    [36,'c125','Quarry Bay Challenger'],[36,'c75','Wrenfield Challenger'],[37,'c100','Moorcroft Challenger'],[37,'c50','Ebbtide Challenger'],
+    [38,'c125','Starling Challenger'],[38,'c75','Hollowmere Challenger'],
+    [39,'a250','Ironbridge Indoor'],[39,'a250','Silk Road Open'],[39,'c100','Brackenridge Challenger'],
+    [40,'a500','Lantern Bay Championships'],[40,'a500','Starlight Classic'],[40,'c125','Coldwater Challenger'],
+    [41,'m1000','Eastern Masters',2],[41,'c100','Driftwood Challenger'],
+    [43,'a250','Frostline Indoor'],[43,'a250','Amberley Open'],[43,'c75','Netherby Challenger'],
+    [44,'a500','Twin Rivers Indoor'],[44,'a500','Northgate Open'],[44,'c125','Ironmoor Challenger'],
+    [45,'m1000','Capital Indoor Masters'],[45,'c100','Pebblecove Challenger'],
+    [46,'a250','Winterbourne Indoor'],[46,'c125','Highmoor Challenger'],
+    [47,'c100','Thistledown Challenger'],[47,'c75','Rookwood Challenger'],[48,'c75','Calderbank Challenger'],[48,'c50','Mistral Point Challenger'],
+  ].map(([wk,tier,name,len=1],i)=>({id:i,wk,tier,name,len}));
+  static WEEKS=52;
+  // the events that start in a week of the year (1–52)
+  static of(wk){return Calendar.EVENTS.filter(e=>e.wk===wk);}
+  // the next week of the year, from wk, in which something is played
+  static nextPlayed(wk){for(let k=0;k<Calendar.WEEKS;k++){const w=(wk-1+k)%Calendar.WEEKS+1;if(Calendar.of(w).length)return w;}return wk;}
+  static byId(id){return Calendar.EVENTS[id];}
+}
+
+// CareerEvent — one event the person has entered: its draw, played round by round
+// The field is drawn from the band of the ranking that plays this kind of event, from the best ranking that usually
+// plays it to a little past its entry cut-off (CareerData.TIERS, design), everyone in the band equally likely to
+// enter, so fields differ week to week. It is seeded like a real draw: a quarter of the draw seeded by ranking, in the
+// standard places (1 at the top, 2 at the bottom, 3 and 4 in the other halves…), the rest drawn at random into the
+// remaining places. The person's matches are played (or simulated); every other match is decided by the players'
+// Elo ratings (EloModel), best of three sets, or five at a Grand Slam. Plain data, so it is saved with the career.
+// key: 'me' the person · 's<id>' a roster player · 'g<place>' an invented player at that place of the ranking
+class CareerEvent{
+  // the standard draw: seed number at each position, top to bottom — 1 on the top line, 2 on the bottom one, 3 and 4
+  // at the foot of the top half and the head of the bottom half… (eight: 1 8 5 4 3 6 7 2)
+  static order(n){let o=[1];while(o.length<n){const m=o.length*2;o=o.flatMap((s,i)=>i%2?[m+1-s,s]:[s,m+1-s]);}return o;}
+  // a new draw for calendar event ev, the person entering with ranking myRank (null: unranked)
+  static make(ev,year,myRank,seed){
+    const T=CAREER_DATA.TIERS[ev.tier],n=T.draw,g=new Rng(seed|0),size=WorldRanking.SIZE;
+    // who enters: n − 1 places drawn from the band, without repeats. The person's place pushes everyone from it down by one
+    const hi=Math.min(size,Math.max(T.top+n,Math.round(T.cut*1.15))),band=[];for(let p=T.top;p<=hi;p++)band.push(p);
+    for(let i=band.length-1;i>0;i--){const j=Math.floor(g.next()*(i+1));[band[i],band[j]]=[band[j],band[i]];}
+    const field=[{key:'me',rank:myRank??size+1}];
+    for(const p of band.slice(0,n-1)){const r=myRank!=null&&p>=myRank?p+1:p;field.push({key:p<=13?'s'+CareerEvent.starAt(p):'g'+p,rank:r});}
+    field.sort((a,b)=>a.rank-b.rank);
+    // seeds in their places; everyone else shuffled into what is left
+    const seeds=n/4,ord=CareerEvent.order(n),rest=field.slice(seeds);
+    for(let i=rest.length-1;i>0;i--){const j=Math.floor(g.next()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+    const slots=ord.map(s=>s<=seeds?field[s-1]:rest.shift());
+    const r0=[];for(let i=0;i<n;i+=2)r0.push({a:slots[i].key,b:slots[i+1].key,w:null,line:''});
+    return{ev:ev.id,year,seed:seed|0,n,seeds:Object.fromEntries(field.slice(0,seeds).map((f,i)=>[f.key,i+1])),ranks:Object.fromEntries(field.map(f=>[f.key,f.rank])),
+      rounds:[r0],round:0,out:false,champion:null,done:false,k:0};
+  }
+  // which roster player holds a place in the top thirteen
+  static starAt(p){return[...ROSTER].sort((a,b)=>a.rank-b.rank)[p-1].id;}
+  constructor(d,career){this.d=d;this.c=career;}
+  get ev(){return Calendar.byId(this.d.ev);}
+  get tier(){return CAREER_DATA.TIERS[this.ev.tier];}
+  get names(){return CAREER_DATA.ROUNDS[this.d.n];}
+  get roundName(){return this.names[this.d.round];}
+  get lastRound(){return this.d.round===this.names.length-1;}
+  // the person's match in the round being played
+  get mine(){return this.d.rounds[this.d.round].find(m=>m.a==='me'||m.b==='me')||null;}
+  get opponent(){const m=this.mine;return m?(m.a==='me'?m.b:m.a):null;}
+  // Elo of anyone in the draw
+  elo(key){return key==='me'?this.c.level:this.c.entry(key).elo;}
+  rng(){return new Rng((this.d.seed*31+(++this.d.k)*7)|0);}
+  // decide a match by Elo
+  decide(m){const g=this.rng(),p=EloModel.win(this.elo(m.a)-this.elo(m.b),this.tier.sets);m.w=g.next()<p?m.a:m.b;}
+  // the person's match is over (won or lost; line: the score). The rest of the round is decided, and the draw moves on
+  record(won,line){
+    const d=this.d,m=this.mine;if(!m)return;m.w=won?'me':this.opponent;m.line=line||'';
+    for(const q of d.rounds[d.round])if(q.w==null)this.decide(q);
+    if(!won)d.out=true;
+    this.next();
+    // out: the rest of the event is decided at once, so the draw shows its champion
+    if(d.out)while(!d.done){for(const q of d.rounds[d.round])if(q.w==null)this.decide(q);this.next();}
+  }
+  // the next round from this one's winners, or the champion after the final
+  next(){
+    const d=this.d,r=d.rounds[d.round];if(r.some(q=>q.w==null))return;
+    if(r.length===1){d.champion=r[0].w;d.done=true;return;}
+    const nr=[];for(let i=0;i<r.length;i+=2)nr.push({a:r[i].w,b:r[i+1].w,w:null,line:''});d.rounds.push(nr);d.round++;
+  }
+  // the round the person went out in ('W' for the title) and the ranking points it is worth
+  get result(){const d=this.d;if(!d.done&&!d.out)return null;
+    let k=d.rounds.findIndex(r=>r.some(q=>(q.a==='me'||q.b==='me')&&q.w!=null&&q.w!=='me'));
+    const r=d.champion==='me'?'W':this.names[k<0?0:k];return{round:r,pts:CAREER_DATA.POINTS[this.ev.tier][r]||0};}
+}
+
+// Career — the person's own player, from outside the top 300 to wherever the results take him
+// What is real: the ranking points per round and the 52 weeks they count for (ATP rules), the points the rest of the
+// ranking holds (16 November 2026), how strong a player of each ranking is (Elo), and how often a stronger player wins.
+// What is design (docs/career): where the career starts, how fast the player improves, how often players enter which
+// events, and the entry cut-offs below the Grand Slams.
+// A player's level is an Elo rating: it decides how the player plays (CareerProfile) and the odds of a simulated match.
+// It rises with experience — matches, more for wins, and training weeks — toward a ceiling, ever more slowly.
+class Career{
+  static KEY='pto.career.v1';
+  static START={year:2027,level:1452,points:[25,25,25,25,25,25],ceiling:2350,rate:.006};   // design; 1452: Elo at rank 300
+  static XP={match:1,win:2,train:2};                                                         // design
+  static MILESTONES=[
+    ['firstWin','First win on the tour'],['firstTitle','First title'],['top200','Top 200'],['top100','Top 100'],['tourTitle','First ATP title'],
+    ['gsMain','Into a Grand Slam draw'],['top50','Top 50'],['beatStar','Beat one of the thirteen'],['m1000Title','A Masters 1000 title'],
+    ['top10','Top 10'],['gsTitle','Grand Slam champion'],['no1','World No. 1'],['beatAll','Beaten all thirteen'],
+  ];
+  // a new career. me: {name, short, cc, hand, ohb, arch (a roster player's short name), look, face}
+  static create(me,fmt='one'){
+    const S=Career.START,seed=(Date.now()&0x7fffffff)|1;
+    // last season's results, so the career starts with a ranking; they drop off one by one over the first year
+    const results=S.points.map((pts,i)=>({w:-50+i*8,ev:null,name:'Last season',tier:'c50',round:'',pts}));
+    return new Career({v:1,seed,me,w:0,xp:0,level:S.level,results,played:{w:0,l:0},titles:[],beat:{},best:null,fans:0,fmt,event:null,miles:{},news:[]});
+  }
+  constructor(s){this.s=s;this.world=new CareerWorld(s.seed);this.best();}
+  // ──────── time ────────
+  get year(){return Career.START.year+Math.floor(this.s.w/Calendar.WEEKS);}
+  get week(){return this.s.w%Calendar.WEEKS+1;}
+  // on to the next week in which something is played
+  advance(n=1){this.s.w+=n;const wk=this.week,to=Calendar.nextPlayed(wk);this.s.w+=(to-wk+Calendar.WEEKS)%Calendar.WEEKS;this.best();}
+  // ──────── ranking ────────
+  // the points that count: what was won in the last 52 weeks
+  get points(){return this.s.results.reduce((a,r)=>a+(r.w>this.s.w-Calendar.WEEKS?r.pts:0),0);}
+  get rank(){return WorldRanking.rankOf(this.points);}
+  best(){const r=this.rank;if(r!=null&&(this.s.best==null||r<this.s.best))this.s.best=r;this.check();}
+  // results that drop out within the next weeks (to defend)
+  expiring(weeks=4){return this.s.results.filter(r=>r.w>this.s.w-Calendar.WEEKS&&r.w<=this.s.w-Calendar.WEEKS+weeks&&r.pts>0);}
+  // ──────── the player ────────
+  get level(){return this.s.level;}
+  get arch(){return ROSTER.find(p=>p.short===this.s.me.arch)||ROSTER[0];}
+  profile(){const me=this.s.me;return CareerProfile.make(this.arch,this.level,{...me,id:900,rank:this.rank??999,style:`${CareerWorld.ARCH[me.arch]||''} · plays like ${me.arch}`});}
+  gain(xp){const S=Career.START;this.s.xp+=xp;this.s.level=S.level+(S.ceiling-S.level)*(1-Math.pow(1-S.rate,this.s.xp));}
+  // anyone in the world by key ('s<id>', 'g<place>')
+  entry(key){if(key[0]==='s'){const id=+key.slice(1),p=this.world.stars.findIndex(q=>q.id===id);return this.world.at(p+1);}return this.world.at(+key.slice(1));}
+  profileOf(key){return key==='me'?this.profile():this.world.profile(this.entry(key));}
+  // ──────── events ────────
+  get events(){return Calendar.of(this.week);}
+  canEnter(ev){const T=CAREER_DATA.TIERS[ev.tier],r=this.rank;
+    if(this.s.event)return{ok:false,why:'Already in an event'};
+    if(T.cut<9999&&(r==null||r>T.cut))return{ok:false,why:`Entry cut-off: ranked ${T.cut} or better`};return{ok:true};}
+  enter(ev){if(!this.canEnter(ev).ok)return null;this.s.event=CareerEvent.make(ev,this.year,this.rank,(this.s.seed^(this.s.w*2654435761))|0);
+    if(ev.tier==='gs')this.mile('gsMain');return this.event;}
+  get event(){return this.s.event?new CareerEvent(this.s.event,this):null;}
+  // a week of training instead of an event
+  rest(){this.gain(Career.XP.train);this.news(`Week ${this.week}: a week on the practice court.`);this.advance(1);}
+  // the person's match in the current event is over
+  matchDone(won,line){
+    const E=this.event;if(!E)return;const opp=E.opponent;E.record(won,line);
+    this.s.played[won?'w':'l']++;this.gain(Career.XP.match+(won?Career.XP.win:0));
+    if(won){this.mile('firstWin');if(opp&&opp[0]==='s'){this.s.beat[opp]=1;this.mile('beatStar');if(Object.keys(this.s.beat).length>=13)this.mile('beatAll');}}
+  }
+  // the event is over: its points go on the ranking, a title goes in the cabinet, and the weeks it took go by
+  finishEvent(){
+    const E=this.event;if(!E||!E.result)return null;const ev=E.ev,res=E.result;
+    this.s.results.push({w:this.s.w,ev:ev.id,name:ev.name,tier:ev.tier,round:res.round,pts:res.pts});
+    if(res.round==='W'){this.s.titles.push({w:this.s.w,year:this.year,ev:ev.id,name:ev.name,tier:ev.tier});this.mile('firstTitle');
+      if(ev.tier[0]!=='c')this.mile('tourTitle');if(ev.tier==='m1000')this.mile('m1000Title');if(ev.tier==='gs')this.mile('gsTitle');}
+    this.news(`${ev.name}: ${res.round==='W'?'champion':CAREER_DATA.ROUND_NAMES[res.round].toLowerCase()}, +${res.pts} points.`);
+    this.s.event=null;this.advance(ev.len||1);return res;
+  }
+  // ──────── milestones and news ────────
+  check(){const r=this.rank;if(r==null)return;if(r<=200)this.mile('top200');if(r<=100)this.mile('top100');if(r<=50)this.mile('top50');if(r<=10)this.mile('top10');if(r<=1)this.mile('no1');}
+  mile(k){if(this.s.miles[k])return;this.s.miles[k]={w:this.s.w};const m=Career.MILESTONES.find(q=>q[0]===k);if(m)this.news(`Milestone: ${m[1]}.`,true);}
+  news(text,big=false){(this.s.news||(this.s.news=[])).unshift({w:this.s.w,text,big});if(this.s.news.length>30)this.s.news.length=30;}
+  // ──────── saving ────────
+  save(){try{localStorage.setItem(Career.KEY,JSON.stringify(this.s));}catch(_){}}
+  static load(){try{const s=JSON.parse(localStorage.getItem(Career.KEY)||'null');return s&&s.v===1?new Career(s):null;}catch(_){return null;}}
+  static erase(){try{localStorage.removeItem(Career.KEY);}catch(_){}}
 }
 
 // Palette — the 64-colour palette and its OKLab lookup table
@@ -4088,7 +4492,8 @@ class HowToPlay{
 
 // MainMenu — tournament, exhibition, how to play; a preview of the highlighted choice beside the list
 class MainMenu{
-  static ITEMS=[['tour','TOURNAMENT','Eight players, three rounds. Win three matches and lift the cup.'],
+  static ITEMS=[['career','CAREER','Your own player, from outside the top 300 to the top of the real ranking.'],
+    ['tour','TOURNAMENT','Eight players, three rounds. Win three matches and lift the cup.'],
     ['exh','EXHIBITION','One match, against anyone in the field.'],['how','HOW TO PLAY','Shots, aiming, serving and challenges.']];
   constructor(game){
     this.g=game;this.i=0;
@@ -4100,12 +4505,15 @@ class MainMenu{
   close(){$('menu').hidden=true;}
   hi(i){if(i===this.i)return;this.i=i;this.g.sfx('click');this.render();}
   move(d){this.hi((this.i+d+MainMenu.ITEMS.length)%MainMenu.ITEMS.length);}
-  choose(){const k=MainMenu.ITEMS[this.i][0];this.g.sfx('chime');if(k==='how'){this.g.howto.open();return;}this.close();this.g.setup.open(k);}
+  choose(){const k=MainMenu.ITEMS[this.i][0];this.g.sfx('chime');if(k==='how'){this.g.howto.open();return;}this.close();if(k==='career'){this.g.flow.open();return;}this.g.setup.open(k);}
   back(){this.g.sfx('click');this.close();this.g.title.open();}
   render(){
     $('mList').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',String(i===this.i)));
     const k=MainMenu.ITEMS[this.i][0],legends=ROSTER.filter(p=>p.legend).length,side=$('mSide');
-    if(k==='tour')side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>THE PIXEL TENNIS OPEN CUP</h3>
+    if(k==='career'){const c=Career.load();side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>${c?'YOUR CAREER':'A CAREER ON TOUR'}</h3>
+      <ul>${c?`<li><b>${c.s.me.name}</b></li><li>Ranked <b>${WorldRanking.label(c.rank)}</b> · ${c.points} points · ${c.s.titles.length} titles</li><li>${c.year}, week ${c.week}</li>`:
+      `<li>Make your player and model his game on one of the thirteen</li><li>Challengers, ATP 250s and 500s, Masters 1000s and the Pixel Tennis Open</li><li>Real ranking points, against the real ATP ranking</li><li>Get better with every match; beat all thirteen</li>`}</ul>`;}
+    else if(k==='tour')side.innerHTML=`<div class="ms-cup">${Trophy.img('trophy ms-trophy')}</div><h3>THE PIXEL TENNIS OPEN CUP</h3>
       <ul><li><b>8</b> players, seeded: yours and seven from the field</li><li><b>3</b> rounds: quarter-final, semi-final, final</li><li><b>${legends}</b> legends can turn up in the draw</li><li>An interview after every match; a trophy ceremony for the champion</li></ul>`;
     else if(k==='exh'){const pick=[...ROSTER].sort((a,b)=>a.rank-b.rank).slice(0,6);
       side.innerHTML=`<div class="ms-faces">${pick.map(p=>Portrait.img(p,'face ms-face')).join('')}</div><h3>ANY TWO PLAYERS</h3>
@@ -4185,7 +4593,7 @@ class SetupScreen{
 
 // ResultScreen — the end-of-match card, and the bar that stays once the card is put away to look at the court
 class ResultScreen{
-  constructor(game){this.g=game;const next=()=>game.tour?game.continueTour():game.rematch();
+  constructor(game){this.g=game;const next=()=>game.flow.active?game.flow.afterMatch():game.tour?game.continueTour():game.rematch();
     $('resAgain').onclick=next;$('resNew').onclick=()=>game.openSetup();$('resView').onclick=()=>this.watch();
     $('aftGo').onclick=next;$('aftNew').onclick=()=>game.openSetup();$('aftRes').onclick=()=>{if(this.last)this.open(...this.last);};}
   open(m,rows){
@@ -4196,12 +4604,12 @@ class ResultScreen{
     $('resF').innerHTML=`<div class="win">${Portrait.img(r.winner.st,'face big')}<span>WINNER</span></div><div class="lose">${Portrait.img(r.loser.st,'face big')}</div>`;$('resL').textContent=r.line+(r.longest>=8?`  ·  longest rally ${r.longest}`:'');
     const[a,b]=m.players;$('resT').innerHTML=`<tr><th>${a.st.name}</th><th></th><th>${b.st.name}</th></tr>`+rows.map(q=>`<tr><td>${q[0]}</td><td>${q[1]}</td><td>${q[2]}</td></tr>`).join('');
     // in a tournament the only way on is through the draw
-    const tour=!!this.g.tour;$('resNew').hidden=tour;$('resAgain').textContent=tour?'Continue ▶':'Rematch';
+    const tour=!!this.g.tour||this.g.flow.active;$('resNew').hidden=tour;$('resAgain').textContent=tour?'Continue ▶':'Rematch';
     $('result').hidden=false;
   }
   // the card goes, the way on stays: a bar at the foot of the screen with the same choices (Enter = the main one)
   watch(){
-    $('result').hidden=true;if(!this.last)return;const[m]=this.last,tour=!!this.g.tour,H=m.human,won=H&&m.result.winner===H;
+    $('result').hidden=true;if(!this.last)return;const[m]=this.last,tour=!!this.g.tour||this.g.flow.active,H=m.human,won=H&&m.result.winner===H;
     $('aftW').textContent=`${won?'You win':m.result.winner.st.short+' wins'} ${m.result.line}`;
     $('aftNew').hidden=tour;$('aftGo').innerHTML=(tour?'Continue ▶':'Rematch ▶')+'<kbd>Enter</kbd>';$('after').hidden=false;
   }
@@ -4296,6 +4704,157 @@ class InterviewScreen{
   close(){$('interview').hidden=true;}
 }
 
+// CareerCreate — making the career's player: a name, a country, which hand, the backhand, whose game to model his own
+// on (one of the thirteen: his serve, shots, movement and choices, at the career's starting level), and a look
+class CareerCreate{
+  static CC=['ARG','AUS','AUT','BEL','BRA','CAN','CHI','CHN','COL','CRO','CZE','DEN','ESP','FIN','FRA','GBR','GER','GRE','HUN','IND','ITA','JPN','KAZ','KOR','MEX','NED','NOR','POL','POR','RSA','SRB','SUI','SWE','USA'];
+  static SKINS=[['Fair',SKIN.fair],['Tan',SKIN.tan],['Olive',SKIN.olive],['Bronze',SKIN.bronze]];
+  static BEARD=['none','stubble','moustache','beard'];
+  static BAND=[['None',null],['White',WHITE],['Red',0xdc4a3c],['Navy',0x1f2f6a]];
+  constructor(flow){
+    this.f=flow;this.v={cc:'ARG',hand:1,ohb:0,arch:'Sinner',shirt:0,shorts:0,skin:1,style:0,hair:0,beard:0,band:0};
+    const L=(a,f)=>a.map((x,i)=>[i,f(x,i)]);
+    this.opts=[
+      ['cc','COUNTRY',()=>CareerCreate.CC.map(c=>[c,c])],
+      ['hand','PLAYS',()=>[[1,'Right-handed'],[-1,'Left-handed']]],
+      ['ohb','BACKHAND',()=>[[0,'Two-handed'],[1,'One-handed']]],
+      ['arch','GAME',()=>[...ROSTER].sort((a,b)=>a.rank-b.rank).map(p=>[p.short,`Like ${p.short}`])],
+      ['shirt','SHIRT',()=>L(CareerWorld.SHIRT,(c,i)=>`<i class="swatch" style="background:${hexs(c)}"></i>Kit ${i+1}`)],
+      ['shorts','SHORTS',()=>[[0,'White'],[1,'Dark']]],
+      ['skin','SKIN',()=>L(CareerCreate.SKINS,s=>s[0])],
+      ['style','HAIR',()=>L(CareerWorld.STYLES,s=>s[0].toUpperCase()+s.slice(1))],
+      ['hair','HAIR COLOUR',()=>L(CareerWorld.HAIR,(c,i)=>`<i class="swatch" style="background:${hexs(c)}"></i>Shade ${i+1}`)],
+      ['beard','FACE',()=>L(CareerCreate.BEARD,s=>s==='none'?'Clean-shaven':s[0].toUpperCase()+s.slice(1))],
+      ['band','HEADBAND',()=>L(CareerCreate.BAND,b=>b[0])],
+    ];
+    $('ccOpts').innerHTML=this.opts.map(([k,n],i)=>`<span>${n}</span><div class="s-cyc"><button data-o="${i}" data-d="-1" aria-label="Previous ${n.toLowerCase()}">◀</button><b id="cco-${k}"></b><button data-o="${i}" data-d="1" aria-label="Next ${n.toLowerCase()}">▶</button></div>`).join('');
+    $('ccOpts').querySelectorAll('button').forEach(b=>b.onclick=()=>this.cycle(+b.dataset.o,+b.dataset.d));
+    $('ccFirst').oninput=$('ccLast').oninput=()=>this.preview();
+    $('ccGo').onclick=()=>this.go();$('ccBack').onclick=()=>this.back();
+  }
+  get on(){return!$('ccreate').hidden;}
+  open(){this.render();$('ccreate').hidden=false;}
+  close(){$('ccreate').hidden=true;}
+  cycle(i,d){const[k,,list]=this.opts[i],L=list(),j=Math.max(0,L.findIndex(q=>q[0]===this.v[k]));this.v[k]=L[(j+d+L.length)%L.length][0];this.f.g.sfx('click');this.render();}
+  // what the form says, as the career's record of its player
+  me(){
+    const v=this.v,clean=s=>s.replace(/[^\p{L}\p{N} .'\-]/gu,'').trim(),first=clean($('ccFirst').value)||'Alex',last=clean($('ccLast').value)||'Rookie';
+    return{name:`${first} ${last}`,short:last,cc:v.cc,hand:v.hand,ohb:!!v.ohb,arch:v.arch,
+      look:{shirt:CareerWorld.SHIRT[v.shirt],shorts:v.shorts?INK:WHITE,skin:CareerCreate.SKINS[v.skin][1],hair:CareerWorld.HAIR[v.hair],band:CareerCreate.BAND[v.band][1],racket:WHITE},
+      face:{hair:CareerWorld.STYLES[v.style],brow:1,shape:'oval',beard:CareerCreate.BEARD[v.beard]}};
+  }
+  render(){for(const[k,,list]of this.opts){const it=list().find(q=>q[0]===this.v[k]);$('cco-'+k).innerHTML=it?it[1]:'';}this.preview();}
+  preview(){
+    const me=this.me(),A=ROSTER.find(p=>p.short===me.arch),p=CareerProfile.make(A,Career.START.level,{...me,id:900,rank:999});Portrait.cache.delete(900);
+    const r=WorldRanking.rankOf(Career.START.points.reduce((a,b)=>a+b,0));
+    $('ccPrev').style.setProperty('--kit',hexs(me.look.shirt));
+    $('ccPrev').innerHTML=`${Portrait.img(p,'face')}<small>YOUR PLAYER</small><h2>${me.name.toUpperCase()}</h2>
+      <p><b>${me.cc}</b> · ${me.hand<0?'Left':'Right'}-handed · ${me.ohb?'one':'two'}-handed backhand</p>
+      <p class="cc-game">${CareerWorld.ARCH[A.short]}: plays like ${A.name}, at the level of a player ranked about ${EloModel.rankAt(Career.START.level)}</p>
+      <p>Starts ranked <b>${r}</b> with ${Career.START.points.reduce((a,b)=>a+b,0)} points from last season</p>`;
+  }
+  go(){this.f.g.sfx('chime');this.close();this.f.start(this.me());}
+  back(){this.f.g.sfx('click');this.close();this.f.g.mainMenu.open();}
+}
+
+// CareerHub — the career between events: this week's events to enter (or a week of training), the world ranking
+// around the player, and the career so far (record, titles, the thirteen beaten, milestones, settings)
+class CareerHub{
+  static TABS=[['week','THIS WEEK'],['rank','RANKING'],['career','CAREER']];
+  static FMTS=['tb','one','bo3'];
+  constructor(flow){this.f=flow;this.tab='week';
+    $('chTabs').innerHTML=CareerHub.TABS.map(([k,n])=>`<button data-t="${k}" aria-pressed="false">${n}</button>`).join('');
+    $('chTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{this.tab=b.dataset.t;this.f.g.sfx('click');this.render();});
+    $('chMenu').onclick=()=>this.f.leave();
+  }
+  get on(){return!$('chub').hidden;}
+  open(tab){if(tab)this.tab=tab;this.render();$('chub').hidden=false;$('chub').scrollTop=0;}
+  close(){$('chub').hidden=true;}
+  get c(){return this.f.c;}
+  // a world player's place as it stands with the person on the ranking: one lower from the person's place down
+  place(p){const r=this.c.rank;return r!=null&&p>=r?p+1:p;}
+  render(){
+    const c=this.c;if(!c)return;const me=c.profile();Portrait.cache.delete(900);
+    $('chHead').innerHTML=`${Portrait.img(me,'face')}<div class="ch-id"><b>${c.s.me.name.toUpperCase()}</b><span>${c.s.me.cc} · ${CareerWorld.ARCH[c.s.me.arch]} · ${c.year}, week ${c.week}</span></div>
+      <div class="ch-stats"><div class="ch-stat"><small>RANK</small><b>${WorldRanking.label(c.rank)}</b></div><div class="ch-stat"><small>POINTS</small><b>${c.points}</b></div>
+      <div class="ch-stat"><small>LEVEL</small><b>${Math.round(c.level)}</b></div></div>`;
+    $('chTabs').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===this.tab)));
+    $('chBody').innerHTML=this.tab==='rank'?this.ranking():this.tab==='career'?this.record():this.week();
+    const B=$('chBody');B.querySelectorAll('[data-enter]').forEach(b=>b.onclick=()=>this.f.enter(Calendar.byId(+b.dataset.enter)));
+    const rb=B.querySelector('#chRest');if(rb)rb.onclick=()=>this.f.rest();
+    const cb=B.querySelector('#chCont');if(cb)cb.onclick=()=>this.f.showEvent();
+    B.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>{c.s.fmt=b.dataset.fmt;c.save();this.f.g.sfx('click');this.render();});
+    const del=B.querySelector('#chDel');if(del)del.onclick=()=>{if(del.dataset.sure){this.f.erase();return;}del.dataset.sure='1';del.textContent='Tap again to delete the career for good';};
+    const n=c.s.news&&c.s.news[0];$('chNews').innerHTML=n?`<i>${n.big?'★':'›'}</i>${n.text}`:'';$('chNews').classList.toggle('big',!!(n&&n.big));
+  }
+  week(){
+    const c=this.c,E=c.event;
+    if(E)return`<div class="ce-list"><button class="ce-card go" id="chCont"><span class="tier t-${E.ev.tier}">${E.tier.name.toUpperCase()}</span><b>${E.ev.name}</b><span>You are in the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}.</span><em>Continue ▶</em></button></div>`;
+    const evs=[...c.events].sort((a,b)=>(c.canEnter(b).ok?1:0)-(c.canEnter(a).ok?1:0)).map(ev=>{const T=CAREER_DATA.TIERS[ev.tier],can=c.canEnter(ev),P=CAREER_DATA.POINTS[ev.tier];
+      return`<button class="ce-card${can.ok?'':' locked'}" ${can.ok?`data-enter="${ev.id}"`:'disabled'}><span class="tier t-${ev.tier}">${T.name.toUpperCase()}</span><b>${ev.name}</b>
+        <span>${T.draw} players · ${T.sets===3?'best of five':'best of three'}${ev.len>1?' · two weeks':''} · hard court</span><span>Champion <strong>+${P.W}</strong> · final +${P.F} · semi-final +${P.SF}</span>
+        <em>${can.ok?'Enter ▶':can.why}</em></button>`;}).join('');
+    const exp=c.expiring(4),def=exp.length?`<p class="ch-def">Points dropping off in the next four weeks: ${exp.map(r=>`${r.pts} (${r.name})`).join(', ')}.</p>`:'';
+    return`<p class="ch-lead">Week ${c.week} of ${c.year}. Enter one event, or spend the week on the practice court.</p>${def}<div class="ce-list">${evs}
+      <button class="ce-card rest" id="chRest"><span class="tier">TRAINING</span><b>A week of practice</b><span>No points, but you come back a better player (+${Career.XP.train} experience).</span><em>Train ▶</em></button></div>`;
+  }
+  ranking(){
+    const c=this.c,r=c.rank,size=WorldRanking.SIZE,row=(pl,name,cc,pts,face,me)=>`<tr class="${me?'me':''}"><td>${pl}</td><td>${face}</td><td class="nm">${name}</td><td>${cc}</td><td>${pts}</td></tr>`;
+    const world=p=>{const e=c.world.at(p),q=c.world.profile(e);return row(this.place(p),q.name,q.cc,WorldRanking.points(p),Portrait.img(q,'face'),false);};
+    const mine=row(WorldRanking.label(r),c.s.me.name,c.s.me.cc,c.points,Portrait.img(c.profile(),'face'),true);
+    let rows='';for(let p=1;p<=10;p++){if(r!=null&&r===p)rows+=mine;rows+=world(p);}
+    if(r==null||r>10){const from=Math.max(11,(r??size)-5),to=Math.min(size,(r??size)+4);if(from>11)rows+=`<tr class="gap"><td colspan="5">…</td></tr>`;
+      for(let p=from;p<=to;p++){if(r===p)rows+=mine;rows+=world(p);}if(r==null||r>size)rows+=mine;}
+    return`<p class="ch-lead">The ranking counts the points won over the last 52 weeks. Everyone else holds the points of his place on the real ATP ranking of 16 November 2026.</p>
+      <table class="ch-rank"><tr><th>#</th><th></th><th>PLAYER</th><th></th><th>POINTS</th></tr>${rows}</table>`;
+  }
+  record(){
+    const c=this.c,s=c.s,stars=[...ROSTER].sort((a,b)=>a.rank-b.rank);
+    const titles=s.titles.length?s.titles.map(t=>`<li><i class="tier t-${t.tier}">${CAREER_DATA.TIERS[t.tier].short}</i>${t.name} <span>${t.year}</span></li>`).join(''):'<li class="none">No titles yet.</li>';
+    const miles=Career.MILESTONES.map(([k,n])=>`<li class="${s.miles[k]?'done':''}">${s.miles[k]?'★':'☆'} ${n}</li>`).join('');
+    const fmt=CareerHub.FMTS.map(k=>`<button data-fmt="${k}" aria-pressed="${s.fmt===k}">${MatchFormat.get(k).name}</button>`).join('');
+    return`<div class="ch-rec"><div class="ch-box"><h3>RECORD</h3><p><b>${s.played.w}–${s.played.l}</b> in matches · best ranking <b>${WorldRanking.label(s.best)}</b> · ${s.titles.length} title${s.titles.length===1?'':'s'}${s.fans?` · ${s.fans}k fans`:''}</p>
+      <p>Level <b>${Math.round(c.level)}</b> Elo — the level of a player ranked about ${EloModel.rankAt(c.level)}. It rises with every match, more with wins, and with training.</p><h3>TITLES</h3><ul class="ch-titles">${titles}</ul></div>
+      <div class="ch-box"><h3>THE THIRTEEN</h3><div class="ch-stars">${stars.map(p=>`<span class="${s.beat['s'+p.id]?'won':''}" title="${p.name}">${Portrait.img(p,'face')}<i>${p.short}</i></span>`).join('')}</div>
+      <h3>MILESTONES</h3><ul class="ch-miles">${miles}</ul></div>
+      <div class="ch-box"><h3>YOUR MATCHES</h3><p>Played as</p><div class="seg">${fmt}</div><p class="ch-small">Every other match on the tour is played to the real format, decided by the players' Elo ratings.</p>
+      <h3>CAREER</h3><button id="chDel">Delete this career</button></div></div>`;
+  }
+}
+
+// CareerEventScreen — an event the person is in: the next opponent and the odds Elo gives, the road so far, the
+// biggest names still in the draw; play the match or simulate it. When the event is over: how far the person went,
+// the points, the new ranking, and the champion.
+class CareerEventScreen{
+  constructor(flow){this.f=flow;$('ceGo').onclick=()=>this.f.primary();$('ceSim').onclick=()=>this.f.simulate();}
+  get on(){return!$('cevent').hidden;}
+  close(){$('cevent').hidden=true;}
+  open(){
+    const c=this.f.c,E=c.event;if(!E)return;const ev=E.ev,T=E.tier,d=E.d;
+    $('ceName').textContent=ev.name.toUpperCase();$('ceTier').textContent=`${T.name.toUpperCase()} · ${d.n} PLAYERS · ${ev.year||c.year}`;
+    const over=d.done||d.out;$('ceRound').textContent=over?(d.champion==='me'?'CHAMPION':'EVENT OVER'):CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase();
+    const prof=k=>c.profileOf(k),rk=k=>k==='me'?WorldRanking.label(c.rank):d.ranks[k],seed=k=>d.seeds[k]?` [${d.seeds[k]}]`:'';
+    // the road: the person's matches so far
+    const road=d.rounds.map((r,i)=>{const m=r.find(q=>q.a==='me'||q.b==='me');if(!m||m.w==null)return'';const o=m.a==='me'?m.b:m.a,p=prof(o);
+      return`<li><i>${E.names[i]}</i>${m.w==='me'?'d.':'lost to'} ${p.name}${seed(o)} <em>${m.line==='sim'?'simulated':m.line}</em></li>`;}).filter(Boolean).join('')||'<li class="none">Your first match is next.</li>';
+    // the top seeds' fate this far
+    const alive=new Set(d.rounds[d.round].flatMap(q=>[q.a,q.b]).filter(k=>k)),seeds=Object.entries(d.seeds).filter(([k])=>k!=='me').sort((a,b)=>a[1]-b[1]).slice(0,4);
+    const big=seeds.map(([k,s])=>{const p=prof(k),out=!alive.has(k)||d.done&&d.champion!==k;return`<li class="${out?'out':''}">[${s}] ${p.name} <span>${d.champion===k?'champion':out?'out':'in'}</span></li>`;}).join('');
+    let next;
+    if(over){const res=E.result,ch=d.champion,cp=prof(ch);
+      next=`<div class="d-next">${ch==='me'?Trophy.img('trophy small'):''}${Portrait.img(cp,'face big')}<div><small>${ch==='me'?'CHAMPION':`OUT IN THE ${CAREER_DATA.ROUND_NAMES[res.round].toUpperCase()}`}</small>
+        <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.points+res.pts))}</span></div></div>`;}
+    else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.level-E.elo(o),T.sets);
+      next=`<div class="d-next">${Portrait.img(c.profile(),'face big')}<i class="d-vs">VS</i>${Portrait.img(p,'face big')}<div><small>${CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase()}${E.lastRound?'':` · ${E.names.length-d.round-1} more to the title`}</small>
+        <b>${p.name}${seed(o)}</b><span>${p.cc} · ranked ${rk(o)} · level ${Math.round(E.elo(o))} · ${p.style}</span>
+        <span class="odds">Elo gives you <strong>${Math.round(pw*100)}%</strong> in a ${T.sets===3?'best-of-five':'best-of-three'} match</span></div></div>`;}
+    $('ceNext').innerHTML=next;
+    $('cePath').innerHTML=`<div><h3>YOUR ROAD</h3><ul class="ce-road">${road}</ul></div><div><h3>TOP SEEDS</h3><ul class="ce-seeds">${big}</ul></div>`;
+    $('ceSim').hidden=over;$('ceGo').innerHTML=over?'Continue ▶':`Play the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()} ▶`;
+    $('cevent').hidden=false;$('cevent').scrollTop=0;
+  }
+}
+
 // Input — keyboard, mouse and touch
 class Input{
   constructor(game){
@@ -4303,8 +4862,12 @@ class Input{
     // physical key codes, so the shortcuts survive a Korean or any other keyboard layout
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
+      // typing a name: the keys are the text's, not the game's
+      if(e.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))return;
       // the front end: title, menu, player select, versus, the draw
       if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.flow.on){const F=g.flow;if(c==='Escape'){if(F.create.on)F.create.back();else if(F.screen.on){F.screen.close();F.hub.open();}else F.leave();e.preventDefault();}
+        else if(c==='Enter'&&F.screen.on){F.primary();e.preventDefault();}return;}
       if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
@@ -4340,6 +4903,50 @@ class Input{
   }
 }
 
+// CareerFlow — the career mode's screens and matches, from the main menu and back: making a player, the hub, an
+// event, its matches (played on court, or simulated by Elo), interviews after the big ones, the trophy ceremony
+class CareerFlow{
+  constructor(game){this.g=game;this.c=null;this.active=false;
+    this.create=new CareerCreate(this);this.hub=new CareerHub(this);this.screen=new CareerEventScreen(this);}
+  get on(){return this.create.on||this.hub.on||this.screen.on;}
+  // from the main menu: the saved career, or a new one
+  open(){this.c=this.c||Career.load();if(this.c)this.hub.open('week');else this.create.open();}
+  start(me){this.c=Career.create(me);this.c.save();this.hub.open('week');}
+  leave(){this.g.sfx('click');this.hub.close();this.screen.close();this.g.mainMenu.open();}
+  erase(){Career.erase();this.c=null;this.hub.close();this.g.sfx('click');this.create.open();}
+  rest(){this.c.rest();this.c.save();this.g.sfx('click');this.hub.open('week');}
+  enter(ev){if(!this.c.enter(ev))return;this.c.save();this.g.sfx('chime');this.hub.close();this.showEvent();}
+  showEvent(){this.hub.close();this.screen.open();}
+  // the event screen's main button: play the next match, or once the event is over, back to the hub
+  primary(){const E=this.c.event;if(!E)return;if(E.d.done||E.d.out){this.c.finishEvent();this.c.save();this.screen.close();this.g.sfx('click');this.hub.open('week');return;}this.play();}
+  play(){
+    const c=this.c,E=c.event,g=this.g,me=c.profile(),opp=c.profileOf(E.opponent);Portrait.cache.delete(900);
+    const sub=`${E.ev.name} · ${MatchFormat.get(c.s.fmt).name} · ranked ${E.d.ranks[E.opponent]}`;
+    this.screen.close();g.sfx('chime');
+    g.vs.open(me,opp,CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase(),sub,()=>this.startMatch(me,opp));
+  }
+  startMatch(me,opp){
+    const c=this.c,E=c.event,g=this.g;g.sound.start();this.active=true;g.venue=E.ev.name.toUpperCase();
+    g.last_={a:me,b:opp,human:0,format:MatchFormat.get(c.s.fmt),walkOn:true,final:E.lastRound};
+    g.startMatch(g.last_);g.results.close();g.cam.setMode(CameraRig.FOLLOW);g.cam.k=0;g.speed=1;
+    g.say(`${E.ev.name}, ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}: ${opp.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);g.rotateHint();
+  }
+  simulate(){
+    const c=this.c,E=c.event;if(!E||E.d.done||E.d.out)return;const p=EloModel.win(c.level-E.elo(E.opponent),E.tier.sets);
+    const won=R()<p;c.matchDone(won,'sim');c.save();this.g.sfx(won?'chime':'click');this.screen.open();
+  }
+  // the person's match is over and its result card closed: an interview after the matches that matter, the trophy
+  // ceremony after a final won, then back to the event
+  afterMatch(){
+    const g=this.g,m=g.match,c=this.c,E=c.event;if(!m.result||!E)return;g.results.close();
+    const won=m.result.winner===m.human,opp=E.opponent,big=E.lastRound||E.roundName==='SF'||(won&&opp[0]==='s')||['gs','m1000'].includes(E.ev.tier)&&E.d.round>=E.names.length-3;
+    const done=()=>{this.active=false;g.venue=null;c.matchDone(won,m.result.line);c.save();g.demo();this.screen.open();};
+    const t={round:E.lastRound?2:E.roundName==='SF'?1:0,label:CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()};
+    const talk=()=>big?g.interview.open(m,t,fans=>{c.s.fans+=fans;done();}):done();
+    if(won&&E.lastRound)g.ceremony(talk);else talk();
+  }
+}
+
 // Game — owns the renderer, stadium and match; runs the frame loop
 class Game{
   constructor(){
@@ -4353,7 +4960,7 @@ class Game{
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.quick=Prefs.get('quick',Prefs.touch);
     this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
-    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
+    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=null;this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
@@ -4374,7 +4981,7 @@ class Game{
   // menu sounds, once sound is on (the title screen's key or tap turns it on)
   sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
   // is a front-end screen up? The HUD hides behind it and the stadium camera turns slowly, a quarter at a time
-  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||!$('bracket').hidden;}
+  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||this.flow.on||!$('bracket').hidden;}
   exhibition(a,b,fmt,phase,level){this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level));}
   // ──────── matches ────────
   // two computer players behind the setup screen, on a loop
@@ -4417,11 +5024,12 @@ class Game{
   endTour(){this.tour=null;this.tourRun=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.mainMenu.open();}
+  // a career match left half-way is not recorded: the event waits on its screen for the match to be played again
+  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.venue=null;this.demo();this.mainMenu.open();}
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
-    $('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
+    $('sbEv').textContent=this.venue||'PIXEL TENNIS OPEN';$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
   shot(k,force=false){const m=this.match;if(m.human){m.setShot(k,force);this.dock.update(m);}}
@@ -4500,7 +5108,7 @@ class Game{
         case'replay':this.replay.show(e,m.t);break;
         case'ace':this.ledFlash(['ACE!',`${e.kmh} KM/H`,'ACE!'],3,true);break;
         case'bigPoint':this.ledFlash([e.label.toUpperCase(),e.label.toUpperCase()],5,true);break;
-        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),'PIXEL TENNIS OPEN'],12,true);break;}
+        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),this.venue||'PIXEL TENNIS OPEN'],12,true);break;}
         case'ceremonyEnd':this.endCeremony();break;
         case'matchOver':{const H=m.human;this.ledFlash(['GAME SET MATCH',e.winner.short.toUpperCase()],12,true);
           if(!H||e.winner===H)this.fx.confetti(220);this.resultAt=m.t+4.5;break;}
@@ -4510,7 +5118,7 @@ class Game{
   }
   updateLed(){const m=this.match,L=this.stadium.led;
     if(this.led.msgs&&this.tc<this.led.until)L.draw(this.led.msgs,this.led.hot);
-    else L.draw([`${m.A.short} V ${m.B.short}`,'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
+    else L.draw([`${m.A.short} V ${m.B.short}`,this.venue||'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
   updateScreens(){
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';

@@ -11,7 +11,7 @@ class Game{
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.quick=Prefs.get('quick',Prefs.touch);
     this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
-    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
+    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=null;this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
@@ -32,7 +32,7 @@ class Game{
   // menu sounds, once sound is on (the title screen's key or tap turns it on)
   sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
   // is a front-end screen up? The HUD hides behind it and the stadium camera turns slowly, a quarter at a time
-  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||!$('bracket').hidden;}
+  get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||this.flow.on||!$('bracket').hidden;}
   exhibition(a,b,fmt,phase,level){this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level));}
   // ──────── matches ────────
   // two computer players behind the setup screen, on a loop
@@ -75,11 +75,12 @@ class Game{
   endTour(){this.tour=null;this.tourRun=null;this.openSetup();}
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.demo();this.mainMenu.open();}
+  // a career match left half-way is not recorded: the event waits on its screen for the match to be played again
+  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.venue=null;this.demo();this.mainMenu.open();}
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
-    $('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
+    $('sbEv').textContent=this.venue||'PIXEL TENNIS OPEN';$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
   shot(k,force=false){const m=this.match;if(m.human){m.setShot(k,force);this.dock.update(m);}}
@@ -158,7 +159,7 @@ class Game{
         case'replay':this.replay.show(e,m.t);break;
         case'ace':this.ledFlash(['ACE!',`${e.kmh} KM/H`,'ACE!'],3,true);break;
         case'bigPoint':this.ledFlash([e.label.toUpperCase(),e.label.toUpperCase()],5,true);break;
-        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),'PIXEL TENNIS OPEN'],12,true);break;}
+        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),this.venue||'PIXEL TENNIS OPEN'],12,true);break;}
         case'ceremonyEnd':this.endCeremony();break;
         case'matchOver':{const H=m.human;this.ledFlash(['GAME SET MATCH',e.winner.short.toUpperCase()],12,true);
           if(!H||e.winner===H)this.fx.confetti(220);this.resultAt=m.t+4.5;break;}
@@ -168,7 +169,7 @@ class Game{
   }
   updateLed(){const m=this.match,L=this.stadium.led;
     if(this.led.msgs&&this.tc<this.led.until)L.draw(this.led.msgs,this.led.hot);
-    else L.draw([`${m.A.short} V ${m.B.short}`,'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
+    else L.draw([`${m.A.short} V ${m.B.short}`,this.venue||'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
   updateScreens(){
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';

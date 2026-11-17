@@ -6,12 +6,18 @@ A pixel-art tennis match in a 45° isometric stadium, running in the browser. Yo
 the shot and where it goes, and the player moves, times the swing and recovers on their own. An Auto mode plays the
 whole match for you.
 
-This is the first playable piece of a planned career game (tour, matches, growth, ranking, majors). For now it is
-one match on a blue hard court.
+It is a career game in the making: the career (tour, growth, the real ranking) is playable on hard courts; clay,
+grass and the other three majors are still to come.
 
 ## Play
 
-Two modes: a **Tournament** (eight players, quarter-final to final, with an on-court interview after each of your
+**Career**: make your own player (name, country, hand, backhand, looks) and model his game on one of the thirteen.
+He starts ranked 349 and climbs through Challengers, ATP 250s and 500s and the Masters 1000s to the Pixel Tennis Open.
+The ranking points are the ATP's, the rest of the ranking is the real one of 16 November 2026, and how strong every
+player is comes from real Elo ratings; your level rises with every match. Play each match on court, or simulate it by
+the Elo odds. How it all works, and what is real and what is design, is in **[docs/career](docs/career/README.md)**.
+
+Two more modes: a **Tournament** (eight players, quarter-final to final, with an on-court interview after each of your
 matches) or a single **Exhibition match** against the opponent of your choice. The opponent level decides how much
 of what the computer players have learned is used against you.
 
@@ -62,6 +68,7 @@ node tests/crowd.test.js              # crowd reactions (statistical; can fail o
 node tests/physics-realism.test.js    # ball flight and bounce against real-world figures
 node tests/stamina.test.js            # the fatigue model against the declines measured in long matches
 node tests/score.test.js              # Grand Slam scoring: tiebreaks, best of 3 and 5, the match tiebreak
+node tests/career.test.js             # the career: Elo odds, the ranking, the points table, draws, 52 weeks, saving
 
 node tools/train.js 6                 # self-play: the computer players learn which tactics win, saved to src/players/learned.js
 node tools/train.js eval              # each trained player against an untrained twin
@@ -72,6 +79,8 @@ node tools/fit-players.js             # fits every player's numbers to his real 
 node tools/rally-check.js 24 data/rally-check.json  # how points are played (directions, net play, running) against real figures
 node tools/fit-directions.js          # fits how often rally balls go down the middle and down the line
 node tools/players-doc.js             # rewrites docs/players from the fit and the rally check
+node tools/fit-levels.js              # fits how a player's Elo reaches the court, against Elo's odds
+node tools/career-doc.js              # rewrites docs/career from the career's data and the level fit
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.

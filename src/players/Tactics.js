@@ -48,9 +48,10 @@ class Tactics{
     this.trail[P.idx].push(sit,tac);return tac;
   }
   begin(){this.trail=[[],[]];}
-  // the point went to player w: credit and blame, latest choice first
+  // the point went to player w: credit and blame, latest choice first. A frozen player (the career's players, who
+  // borrow a roster player's table) plays what was learned but does not change it
   reward(w,players){
-    for(const P of players){if(P.st.noLearn)continue;
+    for(const P of players){if(P.st.noLearn||P.st.frozen)continue;
       const tr=this.trail[P.idx],r=P.idx===w?1:-1,T=this.table(P);let g=1;
       for(let k=tr.length-2;k>=0;k-=2){const s=T[tr[k]]||(T[tr[k]]={}),t=tr[k+1],v=s[t]||0;s[t]=clamp(v+Tactics.ALPHA*g*(r-v),-1,1);g*=Tactics.GAMMA;}
     }

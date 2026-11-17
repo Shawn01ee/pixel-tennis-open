@@ -342,6 +342,51 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .dock{flex-wrap:wrap;justify-content:center}.sep{display:none}
   .versus{grid-template-columns:1fr}.vs{justify-self:center}.opts{grid-template-columns:1fr}
 }
+/* ── career: making the player, the hub, an event ── */
+.swatch{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;box-shadow:0 0 0 2px var(--ink)}
+.cc-main{width:min(1000px,100%);display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:14px;align-items:start}
+.cc-card{padding:16px;text-align:center;position:relative;overflow:hidden}.cc-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--kit)}
+.cc-card .face{width:130px;height:150px;margin:0 auto 10px;border:2px solid var(--ink);box-shadow:inset 0 0 0 2px var(--deep),4px 4px 0 #0009}
+.cc-card small{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky)}.cc-card h2{font:700 20px/1.1 var(--display);margin:6px 0;text-shadow:0 3px 0 var(--ink)}
+.cc-card p{margin:6px 0 0;color:var(--mute);font-size:17px;line-height:1.15}.cc-card p b{color:var(--ball);font-weight:400}.cc-card .cc-game{color:var(--chalk)}
+.cc-form{padding:12px 14px}.cc-form>span{display:block;font:700 11px var(--display);letter-spacing:.12em;color:var(--sky);margin-bottom:5px}
+.cc-names{display:flex;gap:6px;margin-bottom:12px}.cc-names input{flex:1;min-width:0;font:20px var(--data);background:var(--ink);color:var(--chalk);border:2px solid var(--deep);padding:5px 8px}
+.cc-names input:focus{outline:2px solid var(--ball);outline-offset:0}
+.cc-opts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:center}.cc-opts>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
+.cc-opts .s-cyc{grid-template-columns:34px minmax(0,240px) 34px}
+.cc-note{flex:1;margin:0;color:var(--mute);font-size:17px;min-width:200px}
+.ch-head{width:min(1080px,100%);display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.ch-head .face{width:58px;height:67px;border:2px solid var(--ink);box-shadow:3px 3px 0 #0009}
+.ch-id{flex:1;min-width:0}.ch-id b{display:block;font:700 clamp(16px,2.4vw,24px)/1.1 var(--display);text-shadow:0 3px 0 var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ch-id span{color:var(--mute);font-size:17px}
+.ch-stats{display:flex;gap:6px}.ch-stat{background:#0e0f1ae6;border:2px solid var(--deep);padding:4px 10px 3px;text-align:center;min-width:64px}
+.ch-stat small{display:block;font:700 9px var(--display);letter-spacing:.12em;color:var(--sky)}.ch-stat b{display:block;font:700 20px/1.1 var(--display);color:var(--ball)}
+.ch-tabs{width:min(1080px,100%);display:flex;position:relative;z-index:1}.ch-tabs button{font:700 12px var(--display);letter-spacing:.1em;min-height:36px;padding:0 14px;margin-right:-2px}
+.ch-body{width:min(1080px,100%);padding:12px 14px 14px}
+.ch-lead{margin:0 0 10px;color:var(--mute);font-size:17px}.ch-def{margin:-4px 0 10px;color:var(--coral);font-size:17px}
+.ce-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ce-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:10px 12px;background:#0e0f1ae6;border:2px solid var(--deep);text-align:left;white-space:normal;min-height:0;box-shadow:3px 3px 0 #0008}
+.ce-card:hover{background:var(--deep)}.ce-card b{font:700 15px/1.15 var(--display);letter-spacing:.03em}.ce-card span{color:var(--mute);font-size:16px;line-height:1.1}.ce-card strong{color:var(--ball);font-weight:400}
+.ce-card em{margin-top:auto;padding-top:4px;font:700 12px var(--display);letter-spacing:.08em;font-style:normal;color:var(--ball)}
+.ce-card.locked{opacity:.55;cursor:not-allowed}.ce-card.locked em{color:var(--coral);font:16px var(--data);letter-spacing:0}
+.ce-card.go{border-color:var(--ball)}.ce-card.rest{border-style:dashed}
+.tier{font:700 10px var(--display);letter-spacing:.12em;padding:3px 6px 2px;background:var(--deep);color:var(--ice);font-style:normal}
+.tier.t-gs{background:var(--ball);color:var(--navy)}.tier.t-m1000{background:var(--coral);color:var(--chalk)}.tier.t-a500{background:var(--lime);color:var(--navy)}.tier.t-a250{background:var(--sky);color:var(--navy)}
+.ch-rank{width:100%;border-collapse:collapse;font-size:18px;font-variant-numeric:tabular-nums}.ch-rank th{font:700 10px var(--display);letter-spacing:.12em;color:var(--sky);text-align:left;padding:0 6px 4px}
+.ch-rank td{padding:2px 6px;border-top:1px solid var(--deep);color:var(--chalk)}.ch-rank td:first-child{color:var(--mute);width:44px;text-align:right}.ch-rank td:nth-child(4){color:var(--sky);font-size:15px}.ch-rank td:last-child{text-align:right;width:70px}
+.ch-rank .face{width:19px;height:22px}.ch-rank td:nth-child(2){width:24px}.ch-rank tr.me td{background:#f4d44a22;color:var(--ball)}.ch-rank tr.gap td{color:var(--mute);text-align:center}
+.ch-rec{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.ch-box{background:#0e0f1ae6;border:2px solid var(--deep);padding:10px 12px}
+.ch-box h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:8px 0 6px}.ch-box h3:first-child{margin-top:0}.ch-box p{margin:0 0 6px;font-size:17px;color:var(--mute)}.ch-box p b{color:var(--ball);font-weight:400}
+.ch-titles,.ch-miles{list-style:none;margin:0;padding:0;font-size:17px}.ch-titles li{padding:2px 0;display:flex;gap:6px;align-items:center}.ch-titles span{color:var(--mute);margin-left:auto}.ch-titles .none{color:var(--mute)}
+.ch-miles li{color:var(--mute);padding:1px 0}.ch-miles li.done{color:var(--ball)}
+.ch-stars{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.ch-stars span{display:flex;flex-direction:column;align-items:center;gap:1px;filter:grayscale(1) brightness(.55)}.ch-stars span.won{filter:none}
+.ch-stars .face{width:100%;height:auto;aspect-ratio:26/30;border:2px solid var(--deep)}.ch-stars span.won .face{border-color:var(--ball)}.ch-stars i{font:700 8px var(--display);font-style:normal;color:var(--mute);white-space:nowrap;overflow:hidden;max-width:100%}
+.ch-small{font-size:15px!important}.ch-box .seg{margin-bottom:6px}
+.ch-foot{width:min(1080px,100%);display:flex;align-items:center;gap:10px;margin-top:10px}.ch-news{flex:1;margin:0;color:var(--mute);font-size:17px;min-width:0}.ch-news i{font-style:normal;color:var(--sky);margin-right:6px}.ch-news.big{color:var(--ball)}
+.ce-path{width:min(1180px,100%);margin-top:12px;padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.ce-path h3{font:700 11px var(--display);letter-spacing:.14em;color:var(--sky);margin:0 0 6px}
+.ce-road,.ce-seeds{list-style:none;margin:0;padding:0;font-size:17px}.ce-road li,.ce-seeds li{padding:2px 0}.ce-road i{display:inline-block;width:42px;font:700 10px var(--display);font-style:normal;color:var(--sky)}.ce-road em{font-style:normal;color:var(--ball);margin-left:6px}
+.ce-road .none{color:var(--mute)}.ce-seeds span{color:var(--lime);margin-left:6px}.ce-seeds li.out{color:var(--mute)}.ce-seeds li.out span{color:var(--coral)}
+.d-next .odds{margin-top:4px;color:var(--chalk)}.d-next .odds strong{color:var(--ball);font-weight:400}
+#cevent .d-note{width:min(1180px,100%)}
 /* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
 .shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
@@ -405,8 +450,15 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
   .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
   .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
+  .cc-main{grid-template-columns:minmax(0,1fr)}.cc-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:2px 10px;text-align:left;padding:10px}.cc-card .face{grid-row:1/6;width:72px;height:83px;margin:0}
+  .cc-card h2{font-size:15px;margin:2px 0}.cc-card p{font-size:15px;margin-top:2px}.cc-opts{gap:4px 8px}.cc-opts .s-cyc{grid-template-columns:30px minmax(0,1fr) 30px;height:32px}.cc-opts .s-cyc button{height:32px}
+  .cc-note{display:none}.ch-head{gap:8px}.ch-head .face{width:44px;height:51px}.ch-stat{padding:3px 6px;min-width:0}.ch-stat b{font-size:16px}
+  .ch-tabs button{flex:1;padding:0 4px;font-size:10px}.ch-body{padding:10px}.ch-rank{font-size:16px}.ch-rank td{padding:2px 3px}
+  .ch-stars{grid-template-columns:repeat(5,1fr)}.ce-path{grid-template-columns:1fr;padding:10px}.ch-foot{flex-wrap:wrap}
+  #cevent .d-note{order:1;margin:0 0 10px}#cevent .ce-path{order:2;margin-top:0}#cevent .d-acts{order:3}
   #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
 }
+@media(max-width:620px){.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
 @media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
   .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(3,auto);gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
   .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
@@ -419,7 +471,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="hud">
   <div class="top">
     <section class="panel sb" aria-label="Scoreboard">
-      <header class="sb-h"><span class="ev">PIXEL TENNIS OPEN</span><span id="sbMode">Centre Court</span></header>
+      <header class="sb-h"><span class="ev" id="sbEv">PIXEL TENNIS OPEN</span><span id="sbMode">Centre Court</span></header>
       <table id="sbT"></table>
       <footer class="sb-f"><span id="sbBadge" class="badge" hidden></span><span id="sbSpeed"></span></footer>
     </section>
@@ -487,6 +539,27 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   <section class="d-sheet panel"><div id="brCols" class="d-draw"></div></section>
   <section id="brNote" class="d-note panel"></section>
   <div class="d-acts"><button id="brQuit">Leave the tournament</button><button class="cta" id="brGo">Play ▶</button></div>
+</div>
+<div class="fe" id="ccreate" hidden>
+  <div class="fe-shade"></div>
+  <header class="s-head"><button id="ccBack" class="s-back">◀ Back<kbd>Esc</kbd></button><h1>NEW CAREER</h1><span class="s-mode">CAREER</span></header>
+  <div class="cc-main"><section class="panel cc-card" id="ccPrev"></section>
+    <section class="panel cc-form"><span>NAME</span><div class="cc-names"><input id="ccFirst" maxlength="14" placeholder="First name" autocomplete="off" aria-label="First name"><input id="ccLast" maxlength="16" placeholder="Last name" autocomplete="off" aria-label="Last name"></div><div class="cc-opts" id="ccOpts"></div></section></div>
+  <footer class="s-foot panel"><p class="cc-note">Your game is modelled on the player you pick: his serve, his shots, how he moves. Your level starts low and grows with every match.</p><button class="cta" id="ccGo">START CAREER ▶</button></footer>
+</div>
+<div class="fe" id="chub" hidden>
+  <div class="fe-shade"></div>
+  <header class="ch-head" id="chHead"></header>
+  <nav class="ch-tabs" id="chTabs" aria-label="Career"></nav>
+  <section class="panel ch-body" id="chBody"></section>
+  <footer class="ch-foot"><p class="ch-news" id="chNews"></p><button id="chMenu">◀ Main menu</button></footer>
+</div>
+<div class="fe" id="cevent" hidden>
+  <div class="fe-shade"></div>
+  <header class="d-head"><div class="d-brand"><b id="ceName"></b><span id="ceTier"></span></div><div class="d-stat"><span id="ceRound" class="d-round"></span></div></header>
+  <section class="d-note panel" id="ceNext"></section>
+  <section class="panel ce-path" id="cePath"></section>
+  <div class="d-acts"><button id="ceSim" title="Decide the match by the Elo odds, without playing it">Simulate</button><button class="cta" id="ceGo">Play ▶</button></div>
 </div>
 <div class="overlay" id="interview" hidden>
   <div class="card iv"><div id="ivWho" class="ivwho"></div><p id="ivQ" class="ivq"></p><div id="ivA" class="iva"></div><p id="ivR" class="ivr" hidden></p>

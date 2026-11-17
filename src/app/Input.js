@@ -5,8 +5,12 @@ class Input{
     // physical key codes, so the shortcuts survive a Korean or any other keyboard layout
     addEventListener('keydown',e=>{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
+      // typing a name: the keys are the text's, not the game's
+      if(e.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName))return;
       // the front end: title, menu, player select, versus, the draw
       if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.flow.on){const F=g.flow;if(c==='Escape'){if(F.create.on)F.create.back();else if(F.screen.on){F.screen.close();F.hub.open();}else F.leave();e.preventDefault();}
+        else if(c==='Enter'&&F.screen.on){F.primary();e.preventDefault();}return;}
       if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}

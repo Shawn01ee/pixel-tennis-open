@@ -2,9 +2,10 @@
 // Two questions drawn from what happened (the round, the score, the opponent, the numbers), each with three ways to
 // answer: gracious, confident or playful. The crowd reacts, and the player's following grows with every answer.
 class Interview{
-  // m: the finished match; t: the tournament (or null); returns [{q, options:[{text, tone, fans, react}]}]
+  // m: the finished match; t: the tournament (or null; t.label names the round when it is not one of the last three);
+  // returns [{q, options:[{text, tone, fans, react}]}]
   static build(m,t){
-    const H=m.human,O=m.other(H),won=m.result.winner===H,ms=H.ms,name=O.st.short,round=t?['quarter-final','semi-final','final'][Math.min(t.round,2)]:'match';
+    const H=m.human,O=m.other(H),won=m.result.winner===H,ms=H.ms,name=O.st.short,round=t?(t.label||['quarter-final','semi-final','final'][Math.min(t.round,2)]):'match';
     const close=/5–3|7–6|6–7|3–5|7–5|5–7/.test(m.result.line),aces=ms.aces,long=m.result.longest||0;
     const opt=(text,tone,fans,react)=>({text,tone,fans,react});
     const Q=[];
