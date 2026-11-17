@@ -2,7 +2,8 @@
 // its sources (keys of SOUND_SOURCES); a value under "design" has no data behind it. tools/sound-doc.js writes
 // docs/sound/README.md from this file and data/sound-check.json.
 const SOUND_SOURCES={
-  recording:'jacklilley, "Tennis Ball being hit", Freesound 338122 (CC0 1.0) — a professional hitting, recorded with a Rode microphone and a Zoom H4n',
+  recording:'jamesdrake89, "Tennis Serves 3", Freesound 662266 (CC0 1.0) — six serves, recorded outdoors',
+  games:'CC0 tennis hits made for games, set against it: Freesound 710041, 709678 and 412863 — most of their energy between 300 Hz and 1 kHz, little above 3 kHz',
   patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
   pate:'Paté et al. 2024, Vibration 7(4):47, abstract — flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little',
   banwell:'G. Banwell 2013, Loughborough PhD thesis, abstract — a fast-dying impulsive part, then a much quieter ring that dies more slowly, mostly from the first string-bed mode; shorter sounds are liked better',
@@ -12,11 +13,12 @@ const SOUND_SOURCES={
 const SOUND={
   // every ball sound starts "from zero to significant levels within less than one millisecond" (patent)
   onsetMs:{src:['patent'],v:1},
-  // a racket hit: a real one. Three hits from a recording of a professional hitting (Freesound 338122, public domain;
-  // cut by tools/sound-samples.py into hitSamples.js), softest to hardest by the shot's pace. Made-up hits — tones on
-  // a sound chip, the string bed's modes, a noise pop — each sounded like something else (a beep, a wood block, a tick).
-  // Flat louder than spun (Paté, on serves: direction only); the level by pace: design
-  hit:{src:['recording','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.93,wet:.1}},
+  // a racket hit: a real one. Six serves from a recording (Freesound 662266, public domain; cut by
+  // tools/sound-samples.py into hitSamples.js), softest to hardest by the shot's pace. Chosen because they carry their
+  // energy where tennis hits made for games do (300 Hz–1 kHz, little above 3 kHz); a brighter, closer recording sounded
+  // hard and clacky, and made-up hits each sounded like something else. A little more of the stadium's echo than the
+  // other sounds (design). Flat louder than spun (Paté, on serves: direction only); the level by pace: design
+  hit:{src:['recording','games','pate'],design:{level:[.45,1],spinQuiet:.15,gain:1.33,wet:.16}},
   // a bounce: "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz, with some higher harmonics, leading to the audible downshifting thump" (patent). The kilohertz starts at
   // full strength and is gone in its two cycles (first built as a smooth pulse, it rose too slowly: its level came only

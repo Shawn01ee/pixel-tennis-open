@@ -4,7 +4,7 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..');
 const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(ROOT,'src','audio','SoundData.js'),'utf8')+';this.API={SOUND,SOUND_SOURCES};',ctx);
 const{SOUND,SOUND_SOURCES:SRC}=ctx.API,chk=JSON.parse(fs.readFileSync(path.join(ROOT,'data','sound-check.json'),'utf8'));
-const URL={recording:'https://freesound.org/people/jacklilley/sounds/338122/',patent:'https://patents.google.com/patent/US5908361A/en',russell:'https://www.acs.psu.edu/drussell/Demos/tennis/tennis-1.html',
+const URL={recording:'https://freesound.org/people/jamesdrake89/sounds/662266/',games:'https://freesound.org/people/kletton97/sounds/710041/',patent:'https://patents.google.com/patent/US5908361A/en',russell:'https://www.acs.psu.edu/drussell/Demos/tennis/tennis-1.html',
   hamori:'https://forum.tennisplayer.net/forum/tennisplayer/95194-contact-at-10-000-frames-per-second?p=95519',
   pate:'https://www.mdpi.com/2571-631X/7/4/47',banwell:'https://consensus.app/papers/details/w:df397d76-ac02-4a3d-bb07-bb70d99c6b0e/'};
 const HD=SOUND.hit.design,B=SOUND.bounce,BD=B.design,yes=b=>b?'yes':'**no**',h=chk.hit,b=chk.bounce,R=chk.hits,ms=x=>+(x*1000).toFixed(1);
@@ -23,15 +23,22 @@ impulsive part, then a quieter, slower ring from the string bed; short sounds ar
 
 ## A racket hit
 
-Three hits cut from a recording of a professional hitting ([Freesound 338122](https://freesound.org/people/jacklilley/sounds/338122/),
+Six serves cut from a recording made outdoors ([Freesound 662266](https://freesound.org/people/jamesdrake89/sounds/662266/),
 public domain) by \`tools/sound-samples.py\`: from 3 ms before each peak to 160 ms after, a high-pass at 80 Hz for wind
-and handling, 22.05 kHz, a 30-ms fade. Nothing else is changed. A shot plays the soft, middle or hard one by its pace,
-and pace sets the level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté: flat louder than
-spun; the size **design**).
+and traffic, 22.05 kHz, a 30-ms fade. Nothing else is changed. A shot plays one of them by its pace, softest to
+hardest, and pace sets the level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté:
+flat louder than spun; the size **design**).
+
+Why these: measured over each hit's first 60 ms, they carry 38–70% of their energy between 300 Hz and 1 kHz and about
+1% above 3 kHz — the balance of the public-domain tennis hits made for games they were set against
+([710041](https://freesound.org/people/kletton97/sounds/710041/), [709678](https://freesound.org/people/rvdw2004/sounds/709678/),
+[412863](https://freesound.org/people/gprosser/sounds/412863/): 42–92% and up to 16%). The recording the game used first
+([338122](https://freesound.org/people/jacklilley/sounds/338122/), closer and brighter: 27–36% and 13–22%) sounded hard
+and clacky.
 
 | Hit | Peak | Spectral centroid | Strongest | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
-${R.map((r,i)=>`| ${['soft','middle','hard'][i]||i} | ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.fall20ms} ms | ${r.fall40ms} ms |`).join('\n')}
+${R.map((r,i)=>`| ${i+1} of ${R.length} | ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.fall20ms} ms | ${r.fall40ms} ms |`).join('\n')}
 
 Made-up hits came first, and each sounded like something else: the first a low thump with an echo (a window shutting),
 then square waves on a model of the NES's sound chip (a crackling beep), the string bed's measured modes struck as
@@ -79,15 +86,14 @@ The strongest frequency of each part from its spectrum; the recorded hits from t
 | A bounce goes ~1 kHz → 250 Hz | patent | ${b.parts.first} → ${b.parts.thump} Hz | ${yes(b.downshift)} |
 | A flat hit is louder than a spun one | pate | level ${h.flatGain} against ${h.spunGain} | ${yes(h.flatLouder)} |
 
-The recorded hits start low (300–400 Hz) and rise, rather than the patent's 1 kHz first; and two take a little over a
-millisecond to reach half their peak. The recording is the real thing, so the game keeps it; the patent described the
+The recorded hits start low (${Math.min(...R.map(r=>r.parts[0]))}–${Math.max(...R.map(r=>r.parts[0]))} Hz) and rise, rather than the patent's 1 kHz first${(()=>{const n=R.filter(r=>r.onsetMs>=SOUND.onsetMs.v).length;return n?`; and ${n} of them take a little over a millisecond to reach half their peak`:'';})()}. The recording is the real thing, so the game keeps it; the patent described the
 hits its microphones picked up around a court in the 1990s, with the rackets and balls of the day.
 
 ## Where the sources and the game part, and what was tried
 
 - **Spin on every stroke.** Paté et al. compared flat and kick serves; the game applies the louder-when-flat direction
   to every stroke (not the darker sound: a recording is played as it is).
-- **One recording.** All three hits are one player's, on one court, with one racket.
+- **One recording.** All six hits are one player's serves, on one court, with one racket.
 - **The bounce's first build failed its check.** Built as a smooth pulse, its kilohertz rose too slowly: its level came
   only with the thump, 2.3 ms in. It now starts at full strength.
 `;

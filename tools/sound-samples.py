@@ -1,8 +1,12 @@
 # Cuts the racket hits out of a real recording and writes them into the game (src/audio/hitSamples.js).
-# Source: "Tennis Ball being hit" by jacklilley, Freesound 338122 (a professional hitting, Rode microphone and Zoom H4n),
-# Creative Commons 0. Its preview is what is used: https://cdn.freesound.org/previews/338/338122_2527347-hq.mp3,
-# decoded to 44.1 kHz mono 16-bit WAV (on a Mac: afconvert -f WAVE -d LEI16@44100 -c 1 in.mp3 out.wav).
-# Each hit: from 3 ms before its peak to 160 ms after, a high-pass at 80 Hz (wind and handling), halved to 22.05 kHz
+# Source: "Tennis Serves 3" by jamesdrake89, Freesound 662266 (tennis serves recorded outdoors for a project),
+# Creative Commons 0. Chosen over a closer, brighter recording (Freesound 338122, which the game used first and sounded
+# hard and clacky) because its hits have the balance of tennis hits made for games: measured over each hit's first
+# 60 ms, 38–70% of the energy between 300 Hz and 1 kHz and about 1% above 3 kHz, like the CC0 game-style hits it was set
+# against (Freesound 710041, 709678, 412863), where 338122 had 27–36% and 13–22%. Its preview is what is used:
+# https://cdn.freesound.org/previews/662/662266_4980667-hq.mp3, decoded to 44.1 kHz mono 16-bit WAV (on a Mac:
+# afconvert -f WAVE -d LEI16@44100 -c 1 in.mp3 out.wav).
+# Each hit: from 3 ms before its peak to 160 ms after, a high-pass at 80 Hz (wind and traffic), halved to 22.05 kHz
 # behind a low-pass at 10 kHz, a 30-ms fade at the end. Nothing else is changed: the level, spectrum and decay are the
 # recording's. Also measures each hit (peak, spectral centroid and strongest frequency over 30 ms, the time to fall
 # 20 and 40 dB), for docs/sound.
@@ -35,7 +39,7 @@ for k in hits:
     clips.append({'at': round(k / r, 3), 'peak': round(float(np.abs(s).max()), 3), 'centroid': round(float((f[b] * S[b]).sum() / S[b].sum())),
                   'dominant': round(float(f[b][np.argmax(S[b])])), 'fall20ms': fall(20), 'fall40ms': fall(40), 'data': base64.b64encode(q.tobytes()).decode()})
 clips.sort(key=lambda c: c['peak'])
-meta = {'source': 'Freesound 338122, "Tennis Ball being hit" by jacklilley (CC0 1.0)', 'url': 'https://freesound.org/people/jacklilley/sounds/338122/', 'rate': r // 2}
+meta = {'source': 'Freesound 662266, "Tennis Serves 3" by jamesdrake89 (CC0 1.0)', 'url': 'https://freesound.org/people/jamesdrake89/sounds/662266/', 'rate': r // 2}
 js = ("// hitSamples — real racket hits, cut from a recording by tools/sound-samples.py (do not edit by hand). " + meta['source'] + ",\n"
       "// " + meta['url'] + " — public domain. 16-bit PCM at " + str(meta['rate']) + " Hz, base64; softest first. Each with what it measures.\n"
       "const HIT_SAMPLES={source:" + json.dumps(meta['source']) + ",url:" + json.dumps(meta['url']) + ",rate:" + str(meta['rate']) + ",clips:[\n" +

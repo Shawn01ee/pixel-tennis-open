@@ -2,52 +2,94 @@
  "rate": 48000,
  "hits": [
   {
-   "peak": 0.566,
-   "centroid": 2304,
-   "dominant": 1314,
-   "fall20ms": 17.3,
-   "fall40ms": 96,
+   "peak": 0.302,
+   "centroid": 1366,
+   "dominant": 807,
+   "fall20ms": 7.5,
+   "fall40ms": 42,
+   "onsetMs": 0.77,
+   "parts": [
+    360,
+    900,
+    570
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.316,
+   "centroid": 1450,
+   "dominant": 1001,
+   "fall20ms": 8.6,
+   "fall40ms": 33.7,
+   "onsetMs": 1.18,
+   "parts": [
+    350,
+    980,
+    560
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.353,
+   "centroid": 1350,
+   "dominant": 937,
+   "fall20ms": 6.9,
+   "fall40ms": 51.8,
+   "onsetMs": 0.41,
+   "parts": [
+    340,
+    910,
+    560
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.381,
+   "centroid": 1491,
+   "dominant": 872,
+   "fall20ms": 7.4,
+   "fall40ms": 47,
+   "onsetMs": 0.68,
+   "parts": [
+    370,
+    850,
+    580
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.492,
+   "centroid": 1586,
+   "dominant": 969,
+   "fall20ms": 7.3,
+   "fall40ms": 32.8,
+   "onsetMs": 0.59,
+   "parts": [
+    370,
+    960,
+    550
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.497,
+   "centroid": 1385,
+   "dominant": 1034,
+   "fall20ms": 15.1,
+   "fall40ms": 76.7,
    "onsetMs": 0.36,
    "parts": [
-    310,
-    860,
-    1310
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.71,
-   "centroid": 2340,
-   "dominant": 1314,
-   "fall20ms": 13.6,
-   "fall40ms": 92.1,
-   "onsetMs": 1.22,
-   "parts": [
-    330,
-    860,
-    1300
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.921,
-   "centroid": 2504,
-   "dominant": 388,
-   "fall20ms": 11.8,
-   "fall40ms": 72.1,
-   "onsetMs": 1.68,
-   "parts": [
     380,
-    430,
-    3200
+    980,
+    580
    ],
    "patentLike": false
   }
  ],
  "hit": {
   "flatLouder": true,
-  "flatGain": 0.93,
-  "spunGain": 0.79
+  "flatGain": 1.33,
+  "spunGain": 1.131
  },
  "bounce": {
   "onsetMs": 0.17,
