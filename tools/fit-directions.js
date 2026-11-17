@@ -1,15 +1,14 @@
-// Fits ShotPlanner.DIR so the game's rally shots go where real ones do, by thirds of the court as the Match Charting
-// Project codes them: 59.2% cross-court (including inside-out), 26.5% down the middle, 14.2% down the line (including
-// inside-in), over 1.38 million shots on hard courts since 2010. Writes the result into src/players/ShotPlanner.js.
+// Fits ShotPlanner.DIR so the game's rally shots go where real ones do, counted by the Match Charting Project's own
+// rule (tools/directions.js): 59.3% cross-court (including inside-out), 26.5% down the middle, 14.2% down the line
+// (including inside-in), over 1.38 million shots on hard courts since 2010. Writes the result into
+// src/players/ShotPlanner.js.
 //   node tools/fit-directions.js [rounds, default 6] [sets per round, default 14]
 const fs=require('fs'),path=require('path'),ROOT=path.join(__dirname,'..');
 const{loadSim}=require(path.join(ROOT,'tests','load'));
 const API=loadSim(['Match','ROSTER','MatchFormat','rng','CT','ShotPlanner']),{Match,ROSTER,MatchFormat,rng,CT,ShotPlanner}=API;
-const REAL={cross:.592,middle:.265,line:.142};
-// a rally shot's direction: the middle third of the court, else across from where it is hit, else along the line
+const{direction,REAL:R100}=require('./directions'),REAL={cross:R100.cross/100,middle:R100.middle/100,line:R100.line/100};
 const count={cross:0,middle:0,line:0},orig=Match.prototype.contact;
-Match.prototype.contact=function(P){const p=P.plan;if(p&&p.shot&&!this.isServe){const tx=p.shot.t.x;
-  count[Math.abs(tx)<CT.SW/3?'middle':Math.sign(tx)===-Math.sign(P.x||1e-9)?'cross':'line']++;}return orig.call(this,P);};
+Match.prototype.contact=function(P){const d=direction(P,P.plan,this.isServe,CT);if(d)count[d]++;return orig.call(this,P);};
 function measure(sets,seed){for(const k in count)count[k]=0;
   for(let k=0;k<sets;k++){rng.s=seed+k;const a=ROSTER[k%ROSTER.length],b=ROSTER[(k*5+3)%ROSTER.length],m=new Match({a,b,format:MatchFormat.get('one')});let n=0;
     while(!(m.stage==='over'&&m.result&&m.tasks.length===0)&&n<150*60*60){m.tick();n++;m.events.length=0;}}

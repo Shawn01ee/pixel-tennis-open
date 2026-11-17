@@ -4,9 +4,10 @@ const SWING={fh:{r:.93,f:.42},bh:{r:.58,f:.52},slice:{r:.62,f:.5},volley:{r:.76,
 // reads the precomputed path of the ball, picks where and how to meet it, and what to do with it
 class ShotPlanner{
   // how much more often a rally ball goes down the middle or down the line than the base weights say: set so the
-  // game's rally shots go where real ones do — 59.2% cross-court, 26.5% down the middle, 14.2% down the line
-  // (Match Charting Project, hard courts since 2010; tools/fit-directions.js)
-  static DIR={middle:9.928,line:0.036};
+  // game's rally shots go where real ones do — 59.3% cross-court, 26.5% down the middle, 14.2% down the line
+  // (Match Charting Project, hard courts since 2010, counted by its own rule: tools/directions.js;
+  // tools/fit-directions.js)
+  static DIR={middle:8.700,line:0.028};
   constructor(match){this.m=match;}
   want(P){const C=this.m.control;return C.is(P)?C.shot:null;}
   makePlan(P){

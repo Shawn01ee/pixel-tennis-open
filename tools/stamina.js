@@ -62,11 +62,13 @@ function serveTrace(rows,e){
     const all=s=>[].concat(...Object.values(g[s].by));
     return{overall:(mean(all(1))/mean(all(0))-1)*100,within:(a/b-1)*100,arm1:g[0].arm,arm5:g[1].arm,g};
   };
-  const est=one(rows),boot={overall:[],within:[]};let seed=12345;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
-  for(let k=0;k<400;k++){const q=one(rows.map(()=>rows[Math.floor(rnd()*rows.length)]));boot.overall.push(q.overall);boot.within.push(q.within);}
+  // how much more the match losers' serve changes than the winners' (Martin 2019: losers −2.4%, winners +0.2%)
+  const gap=rs=>{const ch=lose=>{const a=[[],[]];for(const r of rs){const i=lose?1-r.w:r.w;a[0].push(...r.sets[0][i].sv);a[1].push(...r.sets[4][i].sv);}return(mean(a[1])/mean(a[0])-1)*100;};return ch(true)-ch(false);};
+  const est=one(rows),boot={overall:[],within:[],gap:[]};let seed=12345;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+  for(let k=0;k<400;k++){const rs=rows.map(()=>rows[Math.floor(rnd()*rows.length)]),q=one(rs);boot.overall.push(q.overall);boot.within.push(q.within);boot.gap.push(gap(rs));}
   const ci=a=>{a.sort((p,q)=>p-q);return[+a[Math.floor(.025*a.length)].toFixed(2),+a[Math.ceil(.975*a.length)-1].toFixed(2)];};
   const kinds=[...new Set([...Object.keys(est.g[0].by),...Object.keys(est.g[1].by)])];
-  return{matches:rows.length,overall:+est.overall.toFixed(2),overallCI:ci(boot.overall),within:+est.within.toFixed(2),withinCI:ci(boot.within),
+  return{matches:rows.length,overall:+est.overall.toFixed(2),overallCI:ci(boot.overall),within:+est.within.toFixed(2),withinCI:ci(boot.within),gap:+gap(rows).toFixed(2),gapCI:ci(boot.gap),
     arm1:+est.arm1.toFixed(3),arm5:+est.arm5.toFixed(3),expected:+(((1-e*est.arm5)/(1-e*est.arm1)-1)*100).toFixed(2),
     mix:kinds.map(k=>({kind:k,set1:+((est.g[0].by[k]||[]).length/est.g[0].n*100).toFixed(1),set5:+((est.g[1].by[k]||[]).length/est.g[1].n*100).toFixed(1)}))};
 }
@@ -201,7 +203,7 @@ ${row(['Time between shots',`${A[0].pace} s`,`${A[4].pace} s`,fmt(ch(A,'pace')),
 
 **What the numbers say:**
 ${serveText(run,fmt)}
-  Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by ${fmt(svW,2)} and the losers by ${fmt(svL,2)}, ${Math.abs(svL)>Math.abs(svW)?'the same order':'the opposite order'}.
+  Real winners keep their speed and real losers lose it (Martin 2019). In the game the winners change by ${fmt(svW,2)} and the losers by ${fmt(svL,2)}${T&&T.on.gapCI?`. The losers' change minus the winners' is ${fmt(T.on.gap,2,' points')} (95% interval ${fmt(T.on.gapCI[0],2)} to ${fmt(T.on.gapCI[1],2,' points')}), so ${T.on.gapCI[1]<0?'the game\'s losers slow more, as the real ones do':T.on.gapCI[0]>0?'the game\'s winners slow more, the opposite of the real ones':'this sample cannot tell whether winners or losers slow more'}`:`, ${Math.abs(svL)>Math.abs(svW)?'the same order':'the opposite order'}`}.
 - **First serves in** change by ${fmt(pp(A,'firstIn'),1,' points')} (${fmt(S.off.all.firstIn,1,' points')} with fatigue off). The real datasets move by −0.8 to +2 points.
 - **Errors per point** change by ${fmt(ch(A,'errPerPoint'))} overall (${fmt(S.off.all.err)} with fatigue off). Real Grand Slam data show no significant change. The eventual winner's change is ${fmt(ch(W,'errPerPoint'))} and the loser's ${fmt(ch(L,'errPerPoint'))}; with fatigue off they are ${fmt(S.off.winners.err)} and ${fmt(S.off.losers.err)}.
 - **Distance per point** changes by ${fmt(ch(A,'mPerPoint'))} and **time between shots** by ${fmt(ch(A,'pace'))} (${fmt(S.off.all.pace)} with fatigue off). Carboch & Sklenářik measured +3.4% for the time between shots. The game's distance per point, ${A.map(s=>s.mPerPoint).join(', ')} m in sets 1 to 5, is ${A.every(s=>s.mPerPoint>10.7)?'above the published range (6.46–10.7 m) in every set':A.every(s=>s.mPerPoint>=6.46&&s.mPerPoint<=10.7)?'inside the published range (6.46–10.7 m) in every set':'outside the published range (6.46–10.7 m) in some sets'}.

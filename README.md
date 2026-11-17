@@ -62,7 +62,9 @@ node tools/accuracy.js                # where each player's aimed shots land
 node tools/balance.js                 # aces, double faults, serve percentages and rally length over many sets
 node tools/stamina.js 100             # best-of-five matches headless: calibrates fatigue, checks it set by set, redraws docs/stamina
 node tools/fit-players.js             # fits every player's numbers to his real statistics (data/mcp-players.json)
-node tools/players-doc.js             # rewrites docs/players from the fit
+node tools/rally-check.js 24 data/rally-check.json  # how points are played (directions, net play, running) against real figures
+node tools/fit-directions.js          # fits how often rally balls go down the middle and down the line
+node tools/players-doc.js             # rewrites docs/players from the fit and the rally check
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.

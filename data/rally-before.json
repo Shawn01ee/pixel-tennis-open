@@ -1,8 +1,8 @@
 {
  "game": {
-  "cross": 62.3,
-  "middle": 4.2,
-  "line": 33.5,
+  "cross": 71.9,
+  "middle": 5.7,
+  "line": 22.3,
   "overhead": 8,
   "volley": 8.1,
   "net": 22.7,
@@ -15,7 +15,7 @@
   "points": 1595
  },
  "real": {
-  "cross": 59.2,
+  "cross": 59.3,
   "middle": 26.5,
   "line": 14.2,
   "overhead": 0.93,

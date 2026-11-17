@@ -57,6 +57,13 @@ ${ROWS.map(([n,k,u,s])=>row([n,RB?`${RB.game[k]}${u}`:'—',rallyOff(k)?`**${RC.
 
 ${stillOff()}
 
+Directions are counted by the Match Charting Project's own rule (\`tools/directions.js\`). Only rally groundstrokes
+count, and a ball hit from the middle third is never down the line: down the line means from a side third, straight
+along the same side. That rule was found by rebuilding the project's direction table from its raw shot codes, which
+comes out exactly equal for 98.1% of player-match rows (\`tools/mcp_directions.py\`). An earlier version of this page
+counted direction by which side of the centre line the player stood. By that count the game sent 24.6% of rally balls
+down the line; the same build, counted by the real rule, sent 14.4%. Both columns of the table use the real rule.
+
 A ball taken 1.4 m or more inside the baseline now counts as a chance to come in (it was 2.7 m). That threshold is a
 design choice with no data behind it. How often each player takes the chance is fitted to how often he really comes
 in.

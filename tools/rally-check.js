@@ -3,15 +3,17 @@
 //   node tools/rally-check.js [one-set matches, default 24] [out.json]
 // The real figures are the Match Charting Project's (hard courts since 2010, data/mcp-players.json and the shot
 // direction and shot type tables) and published tracking: 4.57 m between a player's shots and 6.46–10.7 m a point
-// (Armstrong 2024; Cui 2020), 1.21 s between shots (Carboch 2018).
+// (Armstrong 2024; Cui 2020), 1.21 s between shots (Carboch 2018). Directions are counted by the Match Charting
+// Project's own rule (tools/directions.js).
 const fs=require('fs'),path=require('path'),ROOT=path.join(__dirname,'..');
 const{loadSim}=require(path.join(ROOT,'tests','load'));
 const{Match,ROSTER,MatchFormat,rng,CT}=loadSim(['Match','ROSTER','MatchFormat','rng','CT']);
-const REAL={cross:59.2,middle:26.5,line:14.2,overhead:.93,volley:2.66,net:11.9,winnerShare:31.6,cycle:4.57,cycleOver45:51,distance:'6.46–10.7',gap:1.21,rally:4.43};
+const{direction,REAL:DIRS}=require('./directions');
+const REAL={...DIRS,overhead:.93,volley:2.66,net:11.9,winnerShare:31.6,cycle:4.57,cycleOver45:51,distance:'6.46–10.7',gap:1.21,rally:4.43};
 const N=+(process.argv[2]||24),out=process.argv[3];
 const c={dir:{cross:0,middle:0,line:0},shots:0,overhead:0,volley:0,pts:0,netPts:0,win:0,err:0,dist:0,cycle:[],gaps:[],rallyShots:0};
 const orig=Match.prototype.contact;
-Match.prototype.contact=function(P){const p=P.plan;if(p&&p.shot&&!this.isServe){const tx=p.shot.t.x;c.dir[Math.abs(tx)<CT.SW/3?'middle':Math.sign(tx)===-Math.sign(P.x||1e-9)?'cross':'line']++;}return orig.call(this,P);};
+Match.prototype.contact=function(P){const d=direction(P,P.plan,this.isServe,CT);if(d)c.dir[d]++;return orig.call(this,P);};
 for(let k=0;k<N;k++){
   rng.s=4100+k;const a=ROSTER[k%ROSTER.length],b=ROSTER[(k*5+3)%ROSTER.length],m=new Match({a,b,format:MatchFormat.get('one')});let n=0;
   const P=m.players,prev=P.map(p=>[p.x,p.z]),cyc=[0,0],hit=[false,false],net=[false,false];let lastHit=null,shotsInPoint=0;
