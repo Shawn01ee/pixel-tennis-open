@@ -187,9 +187,16 @@ class Stadium{
     this.ledMat=Shading.cutOnly(new THREE.MeshBasicMaterial({map:this.led.tex}),'led');
     this.root.add(new THREE.Mesh(g,this.ledMat));
   }
+  // how wide screen i looks in the render target (pixels), from the length of its top edge on screen
+  screenPixels(i,cam,RW,RH){
+    const S=this.screenAt[i],a=Stadium.tmpA||(Stadium.tmpA=new THREE.Vector3()),b=Stadium.tmpB||(Stadium.tmpB=new THREE.Vector3());
+    a.set(-S.w/2,S.y,S.z).project(cam);b.set(S.w/2,S.y,S.z).project(cam);return Math.hypot((a.x-b.x)/2*RW,(a.y-b.y)/2*RH);
+  }
   buildScreens(G){
     this.screenMat=[];
-    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),h=4.8,w=h*BigScreen.W/BigScreen.H,y=7.6;
+    // 5.8 m tall: large enough to be seen at least texel for pixel in every view at every window size (BigScreen)
+    this.screenAt=[];
+    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),h=5.8,w=h*BigScreen.W/BigScreen.H,y=7.6;this.screenAt.push({w,y:y+h,z:z-s*.09});
       const g=new THREE.PlaneGeometry(w,h);g.setAttribute('cut',new THREE.Float32BufferAttribute(new Array(4).fill([0,s,10.2]).flat(),3));
       const m=Shading.cutOnly(new THREE.MeshBasicMaterial({map:sc.tex}),'scr'+i),me=new THREE.Mesh(g,m);
       me.position.set(0,y+h/2,z-s*.09);if(s>0)me.rotation.y=PI;this.root.add(me);this.screenMat.push(m);

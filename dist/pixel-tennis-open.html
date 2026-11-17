@@ -3596,16 +3596,26 @@ class LedBoards{
 // BigScreen — the video screens at each end of the bowl, laid out like a stadium scoreboard
 // A top band with the event and the set; a row per player (kit colour, serve marker, country, surname, the games of
 // each set, the point score in a white box); a bottom band with the serve speed, or the big point in yellow.
-// Lettering is Silkscreen at whole multiples of its 8-pixel grid, thresholded to hard edges so it stays pixel-crisp.
+// The game renders to a small target, and a screen spans anything from some 60 to 280 of its pixels across depending
+// on the view and the window. Drawn larger than it is seen, a board's letters are averaged into a blur (smoothed) or
+// lose strokes (not), so it is drawn at about the size it is seen and shown texel for pixel, with no smoothing: 160×64
+// in Silkscreen at its own 8-pixel grid when it is seen at least that big, else 110×44 in the game's 3×5 pixel type.
 class BigScreen{
-  static W=320;static H=128;static NAME_X=70;
+  static W=160;static H=64;static NAME_X=35;
+  static MODES={big:[160,64],small:[110,44]};
   constructor(){
-    this.cv=document.createElement('canvas');this.cv.width=BigScreen.W;this.cv.height=BigScreen.H;this.g=this.cv.getContext('2d');
-    // hard pixels close up; seen from the far end (smaller than the canvas) it is averaged down, so no stroke of a letter drops out
-    this.tex=new THREE.CanvasTexture(this.cv);this.tex.magFilter=THREE.NearestFilter;this.tex.minFilter=THREE.LinearMipmapLinearFilter;this.tex.generateMipmaps=true;
+    this.cv=document.createElement('canvas');this.cv.width=BigScreen.W;this.cv.height=BigScreen.H;this.g=this.cv.getContext('2d');this.mode='big';
+    this.tex=new THREE.CanvasTexture(this.cv);this.tex.magFilter=THREE.NearestFilter;this.tex.minFilter=THREE.NearestFilter;this.tex.generateMipmaps=false;
     this.last=null;
     // the first draw may come before the web font has loaded: draw again once it has
-    if(typeof document!=='undefined'&&document.fonts)document.fonts.load('700 16px Silkscreen').then(()=>{if(this.last)this.draw(this.last);}).catch(()=>{});
+    if(typeof document!=='undefined'&&document.fonts)document.fonts.load('700 8px Silkscreen').then(()=>{if(this.last)this.draw(this.last);}).catch(()=>{});
+  }
+  // the size the screen is seen at, in pixels of the render target: switches the layout (with some slack, so it does not
+  // flicker at the edge) and redraws; true when it switched
+  fit(px){
+    const want=this.mode==='big'?(px<BigScreen.MODES.big[0]*.94?'small':'big'):(px>BigScreen.MODES.big[0]*1.06?'big':'small');
+    if(want===this.mode)return false;this.mode=want;const[w,h]=BigScreen.MODES[want];this.cv.width=w;this.cv.height=h;this.tex.dispose();
+    if(this.last)this.draw(this.last);return true;
   }
   // text with hard pixel edges: drawn alone, alpha thresholded, coloured, then placed; shrunk to fit maxW if needed
   text(str,x,y,size,col,align='left',maxW=1e9){
@@ -3618,29 +3628,46 @@ class BigScreen{
     const X=align==='center'?x-w/2:align==='right'?x-w:x;this.g.drawImage(t,Math.round(X)-1,Math.round(y+(size-px)/2));
   }
   // s: {title, rows:[{name,cc,col,sets:[…],pt,serve}], foot, hot}
-  // One size of lettering throughout (16 px, twice the font's grid), so the board reads as one piece. Every surname is
-  // set at that size, never squeezed to fit: the name column is wide enough for the longest one (DE MINAUR, 116 px)
+  // One size of lettering throughout (8 px, the font's own grid), so the board reads as one piece. Every surname is set
+  // at that size, never squeezed to fit: the name column is wide enough for the longest one (DE MINAUR, 58 px)
   draw(s){
-    this.last=s;const g=this.g,W=BigScreen.W,H=BigScreen.H,ink='#0b1530',F=16;
+    this.last=s;if(this.mode==='small'){this.drawSmall(s);this.tex.needsUpdate=true;return;}
+    const g=this.g,W=BigScreen.W,H=BigScreen.H,ink='#0b1530',F=8;
     g.fillStyle='#0c1838';g.fillRect(0,0,W,H);
     // top band: the set
-    g.fillStyle='#1d4590';g.fillRect(0,0,W,24);g.fillStyle='#f4d44a';g.fillRect(0,24,W,2);
-    this.text(s.title,W/2,4,F,'#f4d44a','center',W-12);
+    g.fillStyle='#1d4590';g.fillRect(0,0,W,12);g.fillStyle='#f4d44a';g.fillRect(0,12,W,1);
+    this.text(s.title,W/2,2,F,'#f4d44a','center',W-6);
     // players: kit colour, serve marker, country, surname, finished sets, the set in play, the points
-    s.rows.forEach((r,i)=>{const y=29+i*34;
-      if(i)g.fillStyle='#1f3c78',g.fillRect(4,y-2,W-8,1);
-      g.fillStyle=hexs(r.col);g.fillRect(3,y+1,5,29);
-      if(r.serve){g.fillStyle=ink;g.fillRect(11,y+11,9,9);g.fillStyle='#f4d44a';g.fillRect(12,y+12,7,7);}
-      this.text(r.cc||'',22,y+7,F,'#7bb8ea');
-      this.text((r.name||'').toUpperCase(),BigScreen.NAME_X,y+7,F,'#f4f3ec');
+    s.rows.forEach((r,i)=>{const y=14+i*17;
+      if(i)g.fillStyle='#1f3c78',g.fillRect(2,y-1,W-4,1);
+      g.fillStyle=hexs(r.col);g.fillRect(1,y+1,3,14);
+      if(r.serve){g.fillStyle=ink;g.fillRect(5,y+5,5,5);g.fillStyle='#f4d44a';g.fillRect(6,y+6,3,3);}
+      this.text(r.cc||'',12,y+4,F,'#7bb8ea');
+      this.text((r.name||'').toUpperCase(),BigScreen.NAME_X,y+4,F,'#f4f3ec');
       // up to four finished sets (best of five) to the left of the set in play
-      const n=r.sets.length,done=r.sets.slice(0,-1);done.forEach((v,j)=>this.text(String(v),242-(done.length-1-j)*14,y+7,F,'#6f93c8','center'));
-      if(n)this.text(String(r.sets[n-1]),262,y+7,F,'#f4f3ec','center');
-      g.fillStyle=r.pt?'#f4f3ec':'#16305f';g.fillRect(276,y+2,40,27);if(r.pt)this.text(r.pt,296,y+7,F,'#0c1838','center',38);});
+      const n=r.sets.length,done=r.sets.slice(0,-1);done.forEach((v,j)=>this.text(String(v),121-(done.length-1-j)*7,y+4,F,'#6f93c8','center'));
+      if(n)this.text(String(r.sets[n-1]),131,y+4,F,'#f4f3ec','center');
+      g.fillStyle=r.pt?'#f4f3ec':'#16305f';g.fillRect(138,y+1,20,14);if(r.pt)this.text(r.pt,148,y+4,F,'#0c1838','center',19);});
     // bottom band
-    g.fillStyle=s.hot?'#f4d44a':'#13285a';g.fillRect(0,98,W,30);g.fillStyle=s.hot?'#c9a62a':'#1f3c78';g.fillRect(0,98,W,2);
-    this.text(s.foot||'',W/2,106,F,s.hot?'#0c1838':'#b0dcf6','center',W-12);
+    g.fillStyle=s.hot?'#f4d44a':'#13285a';g.fillRect(0,49,W,15);g.fillStyle=s.hot?'#c9a62a':'#1f3c78';g.fillRect(0,49,W,1);
+    this.text(s.foot||'',W/2,53,F,s.hot?'#0c1838':'#b0dcf6','center',W-6);
     this.tex.needsUpdate=true;
+  }
+  // the same board at 110×44 in the 3×5 type (4 pixels a letter): a surname keeps its first nine letters
+  drawSmall(s){
+    const g=this.g,W=110,P=PixelFont,cut=(t,n)=>String(t||'').toUpperCase().slice(0,n);
+    g.fillStyle='#0c1838';g.fillRect(0,0,W,44);
+    g.fillStyle='#1d4590';g.fillRect(0,0,W,9);g.fillStyle='#f4d44a';g.fillRect(0,9,W,1);P.center(g,cut(s.title,27),W/2,2,'#f4d44a');
+    s.rows.forEach((r,i)=>{const y=11+i*11;
+      if(i){g.fillStyle='#1f3c78';g.fillRect(2,y-1,W-4,1);}
+      g.fillStyle=hexs(r.col);g.fillRect(1,y,2,10);
+      if(r.serve){g.fillStyle='#f4d44a';g.fillRect(4,y+3,3,3);}
+      P.draw(g,cut(r.cc,3),9,y+3,'#7bb8ea');P.draw(g,cut(r.name,9),24,y+3,'#f4f3ec');
+      const n=r.sets.length,done=r.sets.slice(0,-1);done.forEach((v,j)=>P.center(g,String(v),79-(done.length-1-j)*6,y+3,'#6f93c8'));
+      if(n)P.center(g,String(r.sets[n-1]),86,y+3,'#f4f3ec');
+      g.fillStyle=r.pt?'#f4f3ec':'#16305f';g.fillRect(92,y,17,10);if(r.pt)P.center(g,cut(r.pt,4),101,y+3,'#0c1838');});
+    g.fillStyle=s.hot?'#f4d44a':'#13285a';g.fillRect(0,34,W,10);g.fillStyle=s.hot?'#c9a62a':'#1f3c78';g.fillRect(0,34,W,1);
+    P.center(g,cut(s.foot,27),W/2,37,s.hot?'#0c1838':'#b0dcf6');
   }
 }
 
@@ -3844,9 +3871,16 @@ class Stadium{
     this.ledMat=Shading.cutOnly(new THREE.MeshBasicMaterial({map:this.led.tex}),'led');
     this.root.add(new THREE.Mesh(g,this.ledMat));
   }
+  // how wide screen i looks in the render target (pixels), from the length of its top edge on screen
+  screenPixels(i,cam,RW,RH){
+    const S=this.screenAt[i],a=Stadium.tmpA||(Stadium.tmpA=new THREE.Vector3()),b=Stadium.tmpB||(Stadium.tmpB=new THREE.Vector3());
+    a.set(-S.w/2,S.y,S.z).project(cam);b.set(S.w/2,S.y,S.z).project(cam);return Math.hypot((a.x-b.x)/2*RW,(a.y-b.y)/2*RH);
+  }
   buildScreens(G){
     this.screenMat=[];
-    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),h=4.8,w=h*BigScreen.W/BigScreen.H,y=7.6;
+    // 5.8 m tall: large enough to be seen at least texel for pixel in every view at every window size (BigScreen)
+    this.screenAt=[];
+    this.screens.forEach((sc,i)=>{const s=i?1:-1,z=s*(Stadium.B+7.4),h=5.8,w=h*BigScreen.W/BigScreen.H,y=7.6;this.screenAt.push({w,y:y+h,z:z-s*.09});
       const g=new THREE.PlaneGeometry(w,h);g.setAttribute('cut',new THREE.Float32BufferAttribute(new Array(4).fill([0,s,10.2]).flat(),3));
       const m=Shading.cutOnly(new THREE.MeshBasicMaterial({map:sc.tex}),'scr'+i),me=new THREE.Mesh(g,m);
       me.position.set(0,y+h/2,z-s*.09);if(s>0)me.rotation.y=PI;this.root.add(me);this.screenMat.push(m);
@@ -4130,8 +4164,18 @@ class AudioEngine{
   }
   // a sound already rendered as samples (TennisSfx's chip sounds), placed and sent to the reverb like any other
   play(data,pan=0,wet=.1){
-    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.copyToChannel(data,0);
+    const ac=this.ac,b=ac.createBuffer(1,data.length,ac.sampleRate),s=ac.createBufferSource();b.getChannelData(0).set(data);
     s.buffer=b;s.connect(this.out(pan,wet,data.length/ac.sampleRate+.3));s.start(this.now);
+  }
+  // a recording (16-bit PCM in base64) into a buffer at its own rate; the browser resamples it as it plays
+  decode(b64,rate){
+    const s=atob(b64),n=s.length>>1,b=this.ac.createBuffer(1,n,rate),d=b.getChannelData(0);
+    for(let i=0;i<n;i++){let v=s.charCodeAt(2*i)|s.charCodeAt(2*i+1)<<8;if(v>32767)v-=65536;d[i]=v/32768;}
+    return b;
+  }
+  playBuffer(buf,pan=0,wet=.1,gain=1){
+    const ac=this.ac,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;g.gain.value=gain;
+    s.connect(g).connect(this.out(pan,wet,buf.duration+.3));s.start(this.now);
   }
   // a burst of noise through a filter, shaped by an attack and an exponential release
   burst(dest,t,{type='bandpass',f=1000,q=1,peak=.3,att=.002,rel=.05,pink=false,f2=null}){
@@ -4152,27 +4196,21 @@ class AudioEngine{
 // its sources (keys of SOUND_SOURCES); a value under "design" has no data behind it. tools/sound-doc.js writes
 // docs/sound/README.md from this file and data/sound-check.json.
 const SOUND_SOURCES={
+  recording:'jacklilley, "Tennis Ball being hit", Freesound 338122 (CC0 1.0) — a professional hitting, recorded with a Rode microphone and a Zoom H4n',
   patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
-  russell:'D. Russell, Penn State, "Vibrational Modes of a Tennis Racket" (2014) — string-bed modes 582, 936, 996, 1300, 1397 Hz; frame first bending 146 Hz',
-  hamori:'P. Hamori, 10,000 frames per second video, Tennisplayer forum post of 15 Sep 2021 — ball on the strings ~4.0 ms (poly), ~4.5 ms (gut)',
   pate:'Paté et al. 2024, Vibration 7(4):47, abstract — flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little',
   banwell:'G. Banwell 2013, Loughborough PhD thesis, abstract — a fast-dying impulsive part, then a much quieter ring that dies more slowly, mostly from the first string-bed mode; shorter sounds are liked better',
 };
 // Every gain (design) gives a sound the same energy as the game's first version of it, rendered both ways in a browser
-// and compared (2026-11-17), so the mix stays as it was
+// and compared (2026-11-17), so the mix stays as it was — except the hit, 4 dB stronger, asked for more punch
 const SOUND={
   // every ball sound starts "from zero to significant levels within less than one millisecond" (patent)
   onsetMs:{src:['patent'],v:1},
-  // a racket hit: "several cycles at around one kilohertz, followed by one cycle at around 250 Hertz (similar to a ball
-  // bounce) … then several decaying cycles at around one kilohertz leading to the upshifting twang" (patent). The
-  // kilohertz is the string bed: its measured modes (Russell) cluster around it, and Banwell hears them in the ring.
-  // They ring hard while the ball is on the strings (Hamori: poly, the tour's string now), then as a quieter ring that
-  // dies more slowly (Banwell; sizes design). The frame's 146-Hz bending is left out: the hand damps it, and a low thump
-  // made the first version sound like a window shutting. Flat hits louder and darker than spun ones (Paté, on serves:
-  // direction only). Pace makes it louder: design
-  hit:{src:['patent','russell','hamori','banwell','pate'],strings:[582,936,996,1300,1397],ballHz:250,ballCycles:1,contactMs:4.0,
-    design:{amps:[.45,.8,1,.55,.35],tau:.0015,ring:.18,tau2:.012,ball:.9,crack:.5,crackHz:[2500,3800],crackTau:.0005,
-      level:[.45,1],spinQuiet:.15,lp:7000,gain:0.33,wet:.1}},
+  // a racket hit: a real one. Three hits from a recording of a professional hitting (Freesound 338122, public domain;
+  // cut by tools/sound-samples.py into hitSamples.js), softest to hardest by the shot's pace. Made-up hits — tones on
+  // a sound chip, the string bed's modes, a noise pop — each sounded like something else (a beep, a wood block, a tick).
+  // Flat louder than spun (Paté, on serves: direction only); the level by pace: design
+  hit:{src:['recording','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.93,wet:.1}},
   // a bounce: "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz, with some higher harmonics, leading to the audible downshifting thump" (patent). The kilohertz starts at
   // full strength and is gone in its two cycles (first built as a smooth pulse, it rose too slowly: its level came only
@@ -4186,44 +4224,44 @@ const SOUND={
 // ImpactVoice — renders a struck object the way it really rings: a sum of decaying vibration modes (each a sine at a
 // measured frequency) and a burst of filtered noise for the moment of impact, softened by a gentle low-pass. No square
 // waves and no bit crushing: both were tried and made a harsh crackle.
-// A sound: {modes:[{f, a, t0, tau, tau2, a2, cycles}], noise:[{t0, a, f, q, tau}], lp (Hz)}. A mode starts at t0
-// (s) with amplitude a, dying with time constant tau, and an optional second, slower part a2/tau2 (the ring); with
-// cycles it is a single smooth pulse of that many cycles instead. Returns raw samples.
+// A sound: {modes:[{f, a, t0, tau, tau2, a2, cycles, f2, glide}], noise:[{t0, a, f, q, tau}], lp (Hz), drive}. A mode
+// starts at t0 (s) with amplitude a, dying with time constant tau, and an optional second, slower part a2/tau2 (the
+// ring); with cycles it is a single smooth pulse of that many cycles instead; with f2 its pitch falls from f toward f2
+// with time constant glide. drive > 0 rounds the peaks off (tanh), which packs a short sound denser. Returns samples.
 class ImpactVoice{
   constructor(rate){this.rate=rate;}
   render(S,gain=1){
     const r=this.rate,ends=[...(S.modes||[]).map(m=>m.t0+(m.cycles?m.cycles/m.f:7*Math.max(m.tau,m.tau2||0))),...(S.noise||[]).map(n=>n.t0+7*n.tau)];
     const N=Math.ceil((Math.max(...ends)+.005)*r),o=new Float64Array(N),att=.0002;
-    for(const m of S.modes||[]){const i0=Math.round(m.t0*r),w=TAU*m.f/r,len=m.cycles?Math.round(m.cycles/m.f*r):N-i0;
+    for(const m of S.modes||[]){const i0=Math.round(m.t0*r),len=m.cycles?Math.round(m.cycles/m.f*r):N-i0;let ph=0;
       for(let j=0;j<len&&i0+j<N;j++){const t=j/r,e=m.cycles?Math.sin(PI*j/len)**2:(1-Math.exp(-t/att))*(m.a*Math.exp(-t/m.tau)+(m.a2||0)*Math.exp(-t/(m.tau2||1)))/m.a;
-        o[i0+j]+=m.a*e*Math.sin(w*j);}}
+        o[i0+j]+=m.a*e*Math.sin(ph);ph+=TAU*(m.f2?m.f2+(m.f-m.f2)*Math.exp(-t/m.glide):m.f)/r;}}
     // noise through a two-pole band-pass (RBJ cookbook), dying exponentially; a fixed seed, so a sound is the same each time
     let seed=12345;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x3fffffff-1;};
     for(const n of S.noise||[]){const i0=Math.round(n.t0*r),w0=TAU*n.f/r,al=Math.sin(w0)/(2*n.q),a0=1+al,b0=al/a0,b2=-al/a0,a1=-2*Math.cos(w0)/a0,a2=(1-al)/a0;
       let x1=0,x2=0,y1=0,y2=0;for(let j=0;i0+j<N&&j<7*n.tau*r;j++){const x=rnd()*Math.exp(-j/r/n.tau),y=b0*x+b2*x2-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;o[i0+j]+=n.a*y;}}
     // a first-order low-pass takes the edge off the top
-    const k=S.lp?1-Math.exp(-TAU*S.lp/r):1,out=new Float32Array(N);let y=0;
-    for(let i=0;i<N;i++){y+=k*(o[i]-y);out[i]=y*gain;}
+    const k=S.lp?1-Math.exp(-TAU*S.lp/r):1,d=S.drive||0,dn=d?Math.tanh(d):1,out=new Float32Array(N);let y=0;
+    for(let i=0;i<N;i++){y+=k*(o[i]-y);out[i]=(d?Math.tanh(d*y)/dn:y)*gain;}
     return out;
   }
 }
 
+// hitSamples — real racket hits, cut from a recording by tools/sound-samples.py (do not edit by hand). Freesound 338122, "Tennis Ball being hit" by jacklilley (CC0 1.0),
+// https://freesound.org/people/jacklilley/sounds/338122/ — public domain. 16-bit PCM at 22050 Hz, base64; softest first. Each with what it measures.
+const HIT_SAMPLES={source:"Freesound 338122, \"Tennis Ball being hit\" by jacklilley (CC0 1.0)",url:"https://freesound.org/people/jacklilley/sounds/338122/",rate:22050,clips:[
+ {at:7.858,peak:0.566,centroid:2304,dominant:1314,fall20ms:17.3,fall40ms:96.0,data:"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9//n/9X/0//R/+L/BAAAAOX///8SAO//0//U/87/3//0/+X/3v/e/9//1//T/+r/+//u//r/EQD1//n/FgAiAB0A8//a/93/+/8FAAoAJgAkADIAUQBZAEAALgAyACIAGwA1ACoAEgA2AC0AAgAAAAQAAgAEABEABAAAABwADgDy/+//AAACAPP/6//t/xQAHQD7/+T/5v8HAAgABQABAO7/6f/k//T/9/8EABcACQD8//L/7v/s//D/+//0/+X/5f/z//X/8/8AAPP/7/8BAAIABgACAA4ALwAtACUALAAoAC4AJwAgABUADwAgABAA9v/q/wMAGAAVAA4A9P/0//f//P///wEAJAAxACYAEgDv/+3//P8TAAkA6//4//f/8/8EAAkAAgAQAAgABgAIAPv/DAAKAAYAFAAWAAcACQAGAAQAAwDv/+//6//w//r/+f/x/+L/2v/V/9//7//9/wwAFAD6/+z/9P/3/wMA8f/s//H/8v/8/wIACAD+//j/8//y/wAABQACAP3/+/////3/9f/w//X/9f/4//3//v8KAAsABwADAAEABwARAAcACAATAAkAEAD8//b/BQD0//P/AgD9//X/+P/w//f//P/7//3/+f8GAAAA8f/z//r////z//X/9//5//7/BwAXAAcAAwAHAO//8/8EAAoADgALAP7/7//1//7//P/8//H/+f/8//r//v/8/wYAAQADAPn/8v/t/+n/+f///wMAAAAFAAoADgATABUAEwAEAP7/BAAKABQAHQAVAAoACQAKAAoABQD/////AAAEAAcAAQADAAYA///+/wMABwAKAAoAAwD///z/+f8AAAMA/f/4//r/+f/4//7/AAABAPv/9P/4//j//P/5//P//P/9//T/8P/1//z/AAD9//3/+//4//7//P/7////AQADAAIAAAD//////f/9//r//f8CAAgADwALAAcABAAEAAQABAACAPz//v8BAP//AAD///v/+f/8//3/AAAAAP7/AQAAAP7/AAACAP//+v/7//7/AgACAAEAAQAAAAEA/////wIAAwACAAAA/f/9/wAAAgABAPz/+//+////AAABAP////8AAAEAAAAAAAAA/////wAAAAAAAAEAAQAAAAAAAAABAAEAAAD/////AAAAAAAAAQAAAAAAAAAAAAAA"},
+ {at:11.74,peak:0.71,centroid:2340,dominant:1314,fall20ms:13.6,fall40ms:92.1,data:"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/v/3//r/DAAMAOP/5v/u/+H/6v/Z//P/AgD9/wMA7P/3/+3/zf/c/+f/7v/z/+//+v8HABUAHgAfAAwA/f/6/wUAHQAoADEAHgATABgA+//z//X/2//x/xUAFwAeABkA/v/g//j/FwAfADYANQAWAAEADgAcABwACwANADIAOgAyACoAJwAeAAYAEAAfADcANAAPAPD/6v8DAP//DgAUAAsA/f/Y/+j/FAAiABcACQD1/+r/9P8DABAAFQAQAAAA4v/v/woACgAFAPP/8/8CAAMA///4//X/7//x//v/9P/p/+v/AQATAPD/xf/C/9f//f8UABIAAgDw/+v/8v8BABAAKQAmABIAEgASAAoACgATABMACwALAA0ABQANAAkA/P8IAP7/7//y//X/DgAeAA8ACQAIAPz/8f8HAB4AFgABAOX/4v/x/wsAHAAWAAwA+f/x//L/+f8NAA4ABgD+/+f/5P/h/+b/8P/z/wgADAD9//D/7f/l/9j/5//+//b/3P/R/9r/6f/6/wsAFAAPAAQA+P/q//n/CAAGAAwAAQD2//H/7//2//7/AQAAAAIAAQD7//L/4v/g/+z/+v/8/wAAAADq//X/BwASABcA/P/v/+j/8f8KABgAGQAFAAEA/P/9/wIA+v/3//D/7v/z//P/7//w//r/9v/2//j/+v8FAPz/8P/y//7/BwAFAAMA+v/1//b/+/8LABYAEQD+//j/+P/8/wwAFgAXAA4ADAAKAP//+f/9/wUA///6//b/7v/y//r/AgD+//r//v8DAAUAAAAEAAQACAANAAwACAD8//3/AQAEAAsACwALAAgABwAIAAoADwANAAcAAgD7//v/AAD///3//v/9//z//f8FAAkACgAIAAcABwAGAAYABgAHAAIA/v/9//7/BAAJAAIA+P/z//b/AAAHAAkAAwACAAIAAAAAAAAA/P/6//v//P8BAAIA/v/7//7////+/wAAAAAAAP7//f8DAAYAAQD+//3//f8CAAoADgAHAAIAAQD///7//v8CAAIAAQD+//v//P/+/wAAAQACAAEAAgADAAMABQADAAAA///9////AAD+//////8AAAEAAgABAAAAAQABAAEAAAD+//7//v/+//////8AAAAAAAD///7///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},
+ {at:4.053,peak:0.921,centroid:2504,dominant:388,fall20ms:11.8,fall40ms:72.1,data:"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lv8NAHQAjABdAGYAcwCGAKMAeAAtAOT/5f8JACcAUwBSAC8AAADb/9v/+f8NAAMA3P+7/7H/oP+k/7P/vv+6/6H/if+X/8P/yv+y/5H/ef+B/4r/of+W/2z/hf+w/7r/s//J/+L/8P8JAPr/8f8EABEAHQAmADAANAAsACkAJgAuAEkATwAyABoAIABNAFkAMgAWABUASwBzAHkAcABUADwAIQA5AFkAQAAfAP//8f/0/wMAIABHAEcAEQDu/+j/DgAvADMAIQDz//r/GgAxADYAIQD6/9X/5f/0/+D/4f/Z/8L/2//3////AwD//+H/xP/T/97/5P/j/83/xf+6/8D/z//b/+X/z//B/8L/uP+8/8//6P/0/+z/8P/z//X/FAAZAA0AFwAaABYADgAhADoAKAAVABgAJgAZAAwABgD5//n//P8KABEADwAHAA8AGAAKAP7/4//f/+3/9P/u/9P/1P/l//b/AgAEAPv/9v8EAAgABQAHAP//9//7/+7/6f/3/wEACAD///3/6//q//3/+//5//D/DwAWAAIACwAFAAoAEQATABMACwAMAAQADQAVABYAKwAkABkAFwAKAAEABQAPABUAFgADAP7/BgAMABcAFgAFAPr///8AAAgAFQANAAUABgAKABsAIgAXAAMA/f8BAAQACwANAP3/+f/+//r/9v/r//n/CQAPABQAFAAZABMABAD0/+3/+P/+//r/+//5//b/9P/y/+7/9P/6/wAABAAHAA8AAwD7//b/AAAKAAQABQD3//X/+//+/wcABgAAAPn/+//5//z/BAAKAA0ABgD8//X/9f/9/wYACAACAP3/9//z//f/9v/0//b/8v/x//P/+P/9//f/9f/z//H/7//t/+//6v/b/9D/8f9HAFoA+/+x/+D/LwArAAcA+P/8//H/6P/7/wsADwAHAAAA/f///wUABgAEAAUACwAJAAkABgADAAYABAAHAAgABwAFAP///v////n/+P///wQABgAGAAgACAAAAPn/+f///wYABQACAAQACAAHAAMABAACAPz/+P/6//7/AAABAAAA///9//7//v/6//r/+f/5//v//f8AAP///v/9//3/AAD///3/+//8/////v////////////7//v///wAAAAD///////8AAAAAAQAAAAAAAAAAAAAA"}]};
+
 // TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court, the menu's notes.
-// The ball's sounds ring at measured frequencies (ImpactVoice; what each is made of and where each number comes from:
-// SoundData.js); the shoes and the menu are built from oscillators and filtered noise (design).
+// A racket hit is a real one, recorded (hitSamples.js). The bounce and the net ring at measured frequencies
+// (ImpactVoice; what each is made of and where each number comes from: SoundData.js); the shoes and the menu are built
+// from oscillators and filtered noise (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
   get voice(){return this.v||(this.v=new ImpactVoice(this.A.ac.sampleRate));}
   play(S,D,pan){this.A.play(this.voice.render(S,D.gain),pan,D.wet);}
-  // a racket hit (also used by tools/sound-check.js): the string bed rings at its measured modes, hard while the ball is
-  // on the strings and then as a quieter, slower ring; the ball leaves with one cycle at 250 Hz; a soft crack marks the
-  // impact. Pace makes it louder; spin quieter, with a brighter crack
-  static hitSound(power,spin=0){
-    const H=SOUND.hit,D=H.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),g=lerp(D.level[0],1,p)*(1-D.spinQuiet*s),c=H.contactMs/1000;
-    return{lp:D.lp,
-      modes:[...H.strings.map((f,i)=>({f,a:D.amps[i]*g,t0:0,tau:D.tau,a2:D.amps[i]*g*D.ring,tau2:D.tau2})),{f:H.ballHz,a:D.ball*g,t0:c,cycles:H.ballCycles}],
-      noise:[{t0:0,a:D.crack*g,f:lerp(D.crackHz[0],D.crackHz[1],s),q:.7,tau:D.crackTau}]};
-  }
   // a bounce: a cycle or two at 1 kHz, then the ball's 250 Hz thump with its overtones dying away, by impact speed
   static bounceSound(v,soft=1){
     const B=SOUND.bounce,D=B.design,g=clamp((v-1)/12,.08,1)*soft,hi=B.hiCycles/B.hiHz;
@@ -4235,7 +4273,16 @@ class TennisSfx{
     return mesh?{lp:D.lp,modes:[{f:D.meshHz,a:.6*g,t0:0,tau:D.meshTau}],noise:[{t0:0,a:g,f:D.meshNoise,q:.7,tau:D.meshTau}]}
       :{lp:D.lp,modes:D.tapeHz.map((f,i)=>({f,a:.3*g,t0:.002,tau:D.tapeTau*(1+i)})),noise:[{t0:0,a:.8*g,f:D.tapeNoise,q:1,tau:.002}]};
   }
-  hit(power,spin=0,stroke='fh',pan=0){this.play(TennisSfx.hitSound(power,spin),SOUND.hit.design,pan);}
+  // a racket hit: one of the recorded hits, softest to hardest by the shot's pace; pace sets its level and spin takes a
+  // little off it (Paté: flat louder than spun; the sizes design)
+  static hitClip(power,spin=0){
+    const D=SOUND.hit.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),n=HIT_SAMPLES.clips.length;
+    return{i:Math.min(n-1,Math.floor(p*n)),gain:D.gain*lerp(D.level[0],1,p)*(1-D.spinQuiet*s)};
+  }
+  hit(power,spin=0,stroke='fh',pan=0){
+    const h=TennisSfx.hitClip(power,spin),c=this.clips||(this.clips=[]);
+    this.A.playBuffer(c[h.i]||(c[h.i]=this.A.decode(HIT_SAMPLES.clips[h.i].data,HIT_SAMPLES.rate)),pan,SOUND.hit.design.wet,h.gain);
+  }
   bounce(v,pan=0,soft=1){this.play(TennisSfx.bounceSound(v,soft),SOUND.bounce.design,pan);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
   // rubber on acrylic when a player stops or cuts hard: a short rising chirp with a wobble
@@ -5465,6 +5512,7 @@ class Game{
     if(this.led.msgs&&this.tc<this.led.until)L.draw(this.led.msgs,this.led.hot);
     else L.draw([`${m.A.short} V ${m.B.short}`,this.venue.name.toUpperCase(),this.venue.tag||'SUMMER OF TENNIS']);}
   updateScreens(){
+    const R=this.R;this.stadium.screens.forEach((scr,i)=>scr.fit(this.stadium.screenPixels(i,R.camera,R.RW,R.RH)));
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;

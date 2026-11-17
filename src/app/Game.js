@@ -181,6 +181,7 @@ class Game{
     if(this.led.msgs&&this.tc<this.led.until)L.draw(this.led.msgs,this.led.hot);
     else L.draw([`${m.A.short} V ${m.B.short}`,this.venue.name.toUpperCase(),this.venue.tag||'SUMMER OF TENNIS']);}
   updateScreens(){
+    const R=this.R;this.stadium.screens.forEach((scr,i)=>scr.fit(this.stadium.screenPixels(i,R.camera,R.RW,R.RH)));
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
