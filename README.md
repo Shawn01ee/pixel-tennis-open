@@ -45,6 +45,13 @@ needs a network connection. Pick your player and opponent, then press **Walk out
 | X | Game speed |
 | V | Next camera view (Follow, Court, Behind, Stadium) |
 
+On a phone or tablet the same choices are buttons under the thumbs. **Hold** Drive, Flat, Slice, Lob or Drop,
+**slide** to aim (the target moves across the far court further than the thumb does), and **let go** to hit: the
+moment you let go is the shot's timing. A tap plays the shot to where your player was going anyway, and tapping the
+court also aims. To serve, tap Wide, Body or T, or hold Flat, Slice or Kick and slide into the box. Held sideways,
+Auto and speed sit under the left thumb and the shots under the right. **Quick between points** (in View, on by
+default on touch screens) plays the walks and ball kids between points at double speed.
+
 ## Build and test
 
 ```sh

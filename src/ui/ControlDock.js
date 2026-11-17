@@ -5,9 +5,11 @@ class ControlDock{
     this.g=game;
     $('shots').innerHTML=SHOT_KEYS.map(([k,l,s,,kb])=>`<button class="shot" id="sh-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>${s}</small></button>`).join('');
     $('serves').innerHTML=SERVE_KEYS.map(([k,l,s,,kb])=>`<button class="shot" id="sv-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>${s}</small></button>`).join('')+
-      '<span class="sep"></span>'+ZONE_KEYS.map(([k,l,,kb])=>`<button class="shot zone" id="zn-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>target</small></button>`).join('');
-    for(const[k]of SHOT_KEYS)$('sh-'+k).onclick=()=>game.shot(k);
-    for(const[k]of SERVE_KEYS)$('sv-'+k).onclick=()=>game.serve(k);
+      '<span class="sep"></span>'+ZONE_KEYS.map(([k,l,,kb])=>`<button class="shot zone" id="zn-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>serve here</small></button>`).join('');
+    // a press-and-release (TouchShot) has already played the shot; the click is for a keyboard's Enter on the button
+    const fresh=()=>!(game.touchShot&&game.touchShot.handled);
+    for(const[k]of SHOT_KEYS)$('sh-'+k).onclick=()=>{if(fresh())game.shot(k);};
+    for(const[k]of SERVE_KEYS)$('sv-'+k).onclick=()=>{if(fresh())game.serve(k);};
     for(const[k]of ZONE_KEYS)$('zn-'+k).onclick=()=>game.zone(k);
     $('auto').onclick=()=>game.toggleAuto();$('fast').onclick=()=>game.toggleFast();
   }

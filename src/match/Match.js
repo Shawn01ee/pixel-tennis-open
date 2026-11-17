@@ -80,11 +80,12 @@ class Match{
     C.target={x:clamp(x,-CT.SW+.15,CT.SW-.15),z:-H.s*clamp(Math.abs(z),1.0,CT.L-.15)};
     return true;
   }
-  setShot(k){
-    const C=this.control;C.shot=C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
+  // a second press of the same key takes the shot back; force (a press-and-release on a touch screen) always plays it
+  setShot(k,force=false){
+    const C=this.control;C.shot=!force&&C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
     const P=this.human;if(P&&P.plan&&P.swing&&C.decide){P.plan.shot=this.planner.chooseShot(P,P.plan);const sw=this.planner.swingFor(P,P.plan);P.swing.type=sw.type;P.swing.two=sw.two;}
   }
-  setServe(k){const C=this.control;C.serveType=C.serveType===k?null:k;}
+  setServe(k,force=false){const C=this.control;C.serveType=!force&&C.serveType===k?null:k;}
   setZone(k){const C=this.control;C.zone=k;C.target=null;}
   setAuto(on){this.control.auto=on;if(on)this.control.decide=null;}
 

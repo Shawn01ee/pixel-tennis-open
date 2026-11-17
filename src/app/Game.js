@@ -9,8 +9,9 @@ class Game{
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);$('cerSkip').onclick=()=>this.endCeremony();
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
-    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
-    this.title=new TitleScreen(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
+    this.quick=Prefs.get('quick',Prefs.touch);
+    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
@@ -41,15 +42,17 @@ class Game{
     this.sound.start();$('title').hidden=true;this.mainMenu.close();
     this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
-    this.say('Players walk out. Space toggles Auto.');
+    this.say(`Players walk out. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();
   }
+  // on a phone held upright, a reminder that the court is bigger sideways (once per match, gone after a few seconds)
+  rotateHint(){const el=$('rot');clearTimeout(this.rotT);el.hidden=!(Prefs.touch&&innerHeight>innerWidth);if(!el.hidden)this.rotT=setTimeout(()=>el.hidden=true,6000);}
   // ──────── tournament ────────
   startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
   playTour(){const t=this.tour;if(!t||!t.mine)return;
     const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
     this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
   startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.tourRun=t.run();this.tourFast=false;this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
-    this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
+    this.say(`${t.name}: ${t.opponent.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();}
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
   continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
@@ -79,15 +82,20 @@ class Game{
     $('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
-  shot(k){const m=this.match;if(m.human){m.setShot(k);this.dock.update(m);}}
-  serve(k){const m=this.match;if(m.human){m.setServe(k);this.dock.update(m);}}
+  shot(k,force=false){const m=this.match;if(m.human){m.setShot(k,force);this.dock.update(m);}}
+  serve(k,force=false){const m=this.match;if(m.human){m.setServe(k,force);this.dock.update(m);}}
   zone(k){const m=this.match;if(m.human&&this.dock.serving(m)){m.setZone(k);this.dock.update(m);}}
+  // a target on the court (x, z in metres); tick: the click sound, left out while a thumb slides the target along
+  aim(x,z,tick=true){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;if(tick&&this.sound.live)this.sound.sfx.click();this.dock.update(m);return true;}
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
-    if(m.aimAt(p.x,p.z)){if(this.sound.live)this.sound.sfx.click();this.dock.update(m);}
-    else if(m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
+    if(!this.aim(p.x,p.z)&&m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
   challenge(){const q=this.match.control.challenge;if(q)q.go=true;}
   toggleAuto(){const m=this.match;if(!m.human)return;m.setAuto(!m.control.auto);this.say(m.control.auto?'Auto on: your player picks every shot.':'Auto off: you pick the shot and the spot.');this.dock.update(m);}
   toggleFast(){this.speed=this.speed===3?1:3;this.dock.update(this.match);}
+  toggleQuick(){this.quick=!this.quick;Prefs.set('quick',this.quick);this.menu.update();this.say(this.quick?'Quick between points: the walks between points play at double speed.':'Quick between points off.');}
+  // between points of the person's match: nothing to decide and no ball in play, so the walks, the ball kids and the
+  // changeovers can run at double speed when the person has asked for it
+  get between(){const m=this.match,H=m.human,C=m.control;if(!H||m.stage!=='play'||m.live||C.serveWait||C.challenge)return false;return!(m.cue&&m.cue.who===H.idx&&!C.auto);}
   togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}
   toggleSound(){this.sound.toggle();this.menu.update();this.say(this.sound.on?'Sound on.':'Sound off.');}
   setCam(i){this.cam.setMode(i);this.menu.update();}
@@ -108,7 +116,7 @@ class Game{
   frame(now){
     requestAnimationFrame(t=>this.frame(t));
     const dt=clamp((now-this.last)/1000,0,.05);this.last=now;this.tc+=dt;
-    const m=this.match,goal=this.paused?0:(m.timeScale<1?m.timeScale:this.speed);
+    const m=this.match,goal=this.paused?0:(m.timeScale<1?m.timeScale:this.speed*(this.quick&&this.speed===1&&this.between?2:1));
     this.ts+=(goal-this.ts)*Math.min(1,dt*12);if(Math.abs(goal-this.ts)<.01)this.ts=goal;
     this.acc+=dt*this.ts;let n=0;while(this.acc>=DT&&n<60){m.tick();this.acc-=DT;n++;if(m.events.length>200)this.drain();}if(n===60)this.acc=0;
     this.alpha=clamp(this.acc/DT,0,1);
@@ -129,7 +137,7 @@ class Game{
     if(m.result&&m.human&&!this.resultShown&&m.t>this.resultAt){this.resultShown=true;this.results.open(m,this.stats.update(m));}
   }
   watchPerf(now){const p=this.perf;if(navigator.webdriver)return;p.a+=now-(p.p||now);p.p=now;if(++p.n===150){if(p.a/p.n>38&&this.R.perfStep<2){this.R.perfStep++;this.resize();}p.a=0;p.n=0;}}
-  resize(){this.R.resize();this.cam.update(0,this.focus(),true);}
+  resize(){this.R.resize();this.cam.update(0,this.focus(),true);if(innerWidth>innerHeight)$('rot').hidden=true;}
   drain(){
     // the match that plays behind the menus is scenery: no calls, tags or umpire, on screen or in the speakers
     const m=this.match,S=this.sound,demo=!m.human;
@@ -139,7 +147,10 @@ class Game{
       if(S.live){let pan=0;if(e.x!==undefined){const[sx]=this.R.project(e.x,e.y||0,e.z);pan=clamp(sx/innerWidth*2-1,-1,1)*.8;}S.event(e,pan);}
       switch(e.type){
         case'bounce':if(Court.inEnclosure(e.x,e.z))this.fx.dust(e.x,e.z,4,[0x9aa1b3,0x7bb8ea]);break;
-        case'hit':if(e.kind==='serve')for(let i=0;i<4;i++)this.fx.spark(e.x,e.y,e.z,N(.8),N(.8),N(.8),.14,0xfdf0a0);break;
+        case'hit':if(e.kind==='serve')for(let i=0;i<4;i++)this.fx.spark(e.x,e.y,e.z,N(.8),N(.8),N(.8),.14,0xfdf0a0);
+          // a perfectly timed shot: a burst of light at the racket, and a short buzz on a phone that can
+          if(e.timing==='Perfect'&&m.human&&e.who===m.human.idx){for(let i=0;i<10;i++)this.fx.spark(e.x,e.y,e.z,N(1.4),N(1.4)+.6,N(1.4),.2,0xf4d44a);try{navigator.vibrate&&navigator.vibrate(18);}catch(_){}}
+          break;
         case'net':this.net.hit(e.x,e.mesh?.9:.5);break;
         case'note':$('line').textContent=e.text;break;
         case'tag':this.labels.tag(e,m);break;
@@ -213,9 +224,10 @@ class Game{
     // where the person is sending the ball: a pulsing cross on the spot, inside a dashed oval that most such shots
     // land in (two standard deviations — smaller for an accurate player, larger on the stretch). Both stay until
     // the ball has landed, so the shot can be judged against them.
-    if(C.target){const sp=m.aimSpread();this.aim={x:C.target.x,z:C.target.z,hold:1.6,sp:sp||(this.aim&&this.aim.sp)||null};}
-    else if(this.aim){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.aim.hold=Math.min(this.aim.hold,.25);this.aim.hold-=1/60;if(this.aim.hold<=0)this.aim=null;}
-    if(this.aim){const a=this.aim,p=.42+(C.target?Math.sin(t*8)*.09:0);
+    const T=C.target||C.preview;
+    if(T){const sp=C.target?m.aimSpread():null;this.mark={x:T.x,z:T.z,hold:1.6,sp:sp||(this.mark&&this.mark.sp)||null};}
+    else if(this.mark){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.mark.hold=Math.min(this.mark.hold,.25);this.mark.hold-=1/60;if(this.mark.hold<=0)this.mark=null;}
+    if(this.mark){const a=this.mark,p=.42+(T?Math.sin(t*8)*.09:0);
       // a yellow cross with a dark edge so it reads against the blue court
       for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]]){B.box(a.x+x,.05,a.z+z,x?.5:.24,.03,z?.5:.24,0,0x1c1f2e);B.box(a.x+x,.07,a.z+z,x?.4:.14,.03,z?.4:.14,0,0xf4d44a);}
       B.box(a.x,.07,a.z,.14,.03,.14,0,0xf4f3ec);

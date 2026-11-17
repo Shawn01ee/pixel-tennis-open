@@ -59,7 +59,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 /* ── top-right tools ── */
 .tools{position:relative;display:flex;gap:4px;align-items:flex-start}
 .tools>button{min-height:30px}
-.pop{position:absolute;right:0;top:36px;width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
+.pop{position:absolute;right:0;top:calc(100% + 6px);width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
 .pop .lrn{margin:-4px 0 2px;color:var(--mute);font-size:15px}
 .pop h3{font:500 13px var(--display);margin:2px 0 5px;color:var(--sky);letter-spacing:.05em}
 .pop .row{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}.pop .row button{margin-left:-2px}.pop .row button:first-child{margin-left:0}
@@ -333,6 +333,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .res th{font:500 13px var(--display);color:var(--sky);text-align:left;padding:4px 0}.res th:last-child{text-align:right}
 .res td{padding:2px 0;border-top:2px solid var(--deep);color:var(--mute)}.res td:first-child,.res td:last-child{color:var(--chalk);width:30%}.res td:last-child{text-align:right}.res td:nth-child(2){text-align:center}
 .res .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#howto{z-index:10}.howc{width:min(620px,100%)}.howc h2{font:700 18px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 12px}.howc .ms-keys dd{font-size:17px;line-height:1.2}.howc .acts{display:flex;justify-content:flex-end;margin-top:14px}
 #pause .card{width:auto;text-align:center}#pause h2{font:700 26px var(--display);margin:0 0 6px}
 #nogl{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:var(--navy);z-index:9;font-size:22px}
 
@@ -341,12 +342,74 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .dock{flex-wrap:wrap;justify-content:center}.sep{display:none}
   .versus{grid-template-columns:1fr}.vs{justify-self:center}.opts{grid-template-columns:1fr}
 }
-@media (max-width:520px){
-  .sb{width:100%}.top{flex-direction:column-reverse;align-items:stretch}.tools{justify-content:flex-end}
-  #sbT td{font-size:19px}.brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,1fr)}
-  .shot{min-width:46px;padding:2px 4px}.auto{font-size:17px}
+/* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
+.shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
+.rot{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:5;background:#0e0f1ae6;color:var(--ice);padding:8px 12px 7px;font:700 11px/1.4 var(--display);letter-spacing:.08em;box-shadow:inset 0 0 0 2px var(--sky),3px 3px 0 #0009;pointer-events:none;text-align:center;white-space:nowrap}
+@media (max-width:520px),(max-height:520px){
+  .sb{width:auto;flex:0 1 330px;min-width:0}
+  .sb-h{padding:2px 6px 1px;font-size:10px}
+  #sbT td{font-size:17px;height:23px;padding:1px 0}
+  #sbT .nm .face,#sbT .cc{display:none}#sbT .seed{font-size:13px}#sbT .you{font-size:9px;margin-left:4px}
+  #sbT .sv{width:14px;padding-left:5px}#sbT .set,#sbT .cur{width:18px}#sbT .pt{width:40px;padding:0 4px 0 2px}#sbT .en{left:18px}
+  .sb-f{font-size:14px;min-height:15px;padding:0 6px 2px}.badge{font-size:10px;padding:2px 4px 1px}
+  .tools{flex-direction:column;gap:4px}.tools>button{min-height:28px;font-size:16px;padding:0 8px}
+  .brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,1fr)}
 }
-@media (max-height:520px) and (orientation:landscape){.caption{display:none}.shot small{display:none}.shot,.auto,#fast{min-height:36px}}
+@media (max-width:520px){
+  .hud{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .dock{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+  #auto{order:1;justify-content:center}#fast{order:2}
+  .dock>.grp{order:3;grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  #serves{grid-template-columns:repeat(3,minmax(0,1fr))}#serves .sep{display:none}
+  .dock .grp>button{margin:0}
+  .shot{min-width:0;min-height:56px;padding:2px}.shot .k{font-size:13px}
+  .auto,#fast{min-height:36px}
+  .prompt{min-width:0;width:100%}#promptT{font-size:12px}#promptS{font-size:16px}
+  .caption{font-size:16px}
+}
+@media (max-height:520px) and (orientation:landscape){
+  .caption{display:none}.shot small{display:none}
+  /* Auto and speed under the left thumb, the shots under the right; the court between them stays clickable */
+  .hud .dock{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:max(8px,env(safe-area-inset-bottom,0px));
+    display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:end;gap:6px;background:none;border:0;box-shadow:none;padding:0;pointer-events:none}
+  .dock>.sep,#serves .sep{display:none}.dock button{pointer-events:auto}
+  #auto{grid-column:1;grid-row:1}#fast{grid-column:1;grid-row:2}
+  .dock>.grp{grid-column:3;grid-row:1/3;display:grid;grid-template-columns:repeat(3,64px);gap:5px}
+  .dock .grp>button{margin:0}
+  .shot{min-width:0;min-height:50px;box-shadow:2px 2px 0 #0009}.shot .k{font-size:13px}
+  .auto,#fast{min-height:40px;box-shadow:2px 2px 0 #0009}
+  .mid{padding:0 214px 0 112px}
+  .prompt{min-width:0;width:100%;max-width:440px;padding:4px 8px 5px}#promptT{font-size:12px}#promptS{font-size:15px}
+}
+/* phones: the player select fits a screen — a short card for the highlighted player, small portraits, and the
+   settings and the button to go on held at the foot of the screen */
+@media(max-width:620px),(max-height:520px){
+  .fe{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  .m-side{display:none}.m-logo{margin-bottom:14px}.m-list button{padding:10px 12px}.m-list button small{font-size:16px;margin-top:4px}
+  .s-head{gap:8px;margin-bottom:8px}.s-head h1{font-size:15px}.s-back{font-size:11px;padding:0 8px}.s-mode{font-size:10px;padding:4px 6px 3px}
+  .s-hero{padding:10px}.h-top{gap:10px}.h-face{width:72px;height:83px}.h-rank{font-size:9px}
+  .h-id h2{font-size:16px;margin:2px 0 3px}.h-meta{font-size:14px}.h-style{font-size:15px;margin-top:4px}
+  .h-ovr b{font-size:30px}.h-ovr span{font-size:9px}
+  .h-bars{grid-template-columns:repeat(2,58px minmax(0,1fr) 22px);gap:4px 6px;margin-top:8px;font-size:15px}.h-bars i{height:7px}
+  .s-grid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:5px}
+  .s-card{padding:5px 2px 4px;gap:2px}.s-card .face{width:44px;height:51px}.s-card .c-name{font-size:9px}.s-card .c-rk{font-size:13px}
+  .fe>.s-foot{position:sticky;bottom:0;margin-top:10px;padding:8px 10px;gap:8px;z-index:2}
+  .s-opts{grid-template-columns:1fr;gap:5px}.s-opt{flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+  .s-opt small{display:none}.s-cyc{grid-template-columns:34px 140px 34px}
+  .s-foot .cta{width:100%}
+  .d-head{margin-bottom:8px}.d-sheet{padding:10px;overflow:visible}
+  .d-draw{grid-template-columns:1fr;min-width:0;gap:12px}.d-body{height:auto;gap:6px}.d-pair{gap:6px}.d-pair:after,.d-pair:before{display:none}
+  .d-note{padding:10px}.d-next{gap:8px;flex-wrap:wrap}.d-next .face.big{width:52px;height:60px}.d-next b{font-size:17px}.d-next span{font-size:15px}
+  .fe>.d-acts{position:sticky;bottom:0;padding:8px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(#0e0f1a00,#0e0f1af2 30%);z-index:2}
+  .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
+  .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
+  .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
+  #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
+}
+@media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
+  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(3,auto);gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
+  .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
 </style>
 </head>
 <body>
@@ -368,7 +431,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
         <h3>CAMERA</h3><div class="row" id="camRow"></div>
         <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
         <h3>SESSION</h3><div class="row" id="phaseRow"></div>
-        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">New match</button></div>
+        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">Main menu</button></div>
+        <div class="row"><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
         <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
       </section>
     </div>
@@ -390,6 +454,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     </div>
   </div>
 </div>
+<div id="rot" class="rot" hidden>⟳ TURN SIDEWAYS<br>FOR A BIGGER COURT</div>
 <div id="bub" class="bub" hidden></div>
 <div class="tagf" id="tag0" hidden></div><div class="tagf" id="tag1" hidden></div><div class="tagf cue" id="tagS" hidden></div>
 <div class="call" id="call" hidden></div>
@@ -431,6 +496,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
+<div class="overlay" id="howto" hidden><div class="card howc"><h2>HOW TO PLAY</h2><dl class="ms-keys" id="howB"></dl><div class="acts"><button class="cta" id="howX">Got it ▶</button></div></div></div>
 <div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script>

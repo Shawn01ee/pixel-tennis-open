@@ -59,7 +59,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 /* ── top-right tools ── */
 .tools{position:relative;display:flex;gap:4px;align-items:flex-start}
 .tools>button{min-height:30px}
-.pop{position:absolute;right:0;top:36px;width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
+.pop{position:absolute;right:0;top:calc(100% + 6px);width:min(330px,calc(100vw - 32px));padding:8px 10px;z-index:6}
 .pop .lrn{margin:-4px 0 2px;color:var(--mute);font-size:15px}
 .pop h3{font:500 13px var(--display);margin:2px 0 5px;color:var(--sky);letter-spacing:.05em}
 .pop .row{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}.pop .row button{margin-left:-2px}.pop .row button:first-child{margin-left:0}
@@ -333,6 +333,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 .res th{font:500 13px var(--display);color:var(--sky);text-align:left;padding:4px 0}.res th:last-child{text-align:right}
 .res td{padding:2px 0;border-top:2px solid var(--deep);color:var(--mute)}.res td:first-child,.res td:last-child{color:var(--chalk);width:30%}.res td:last-child{text-align:right}.res td:nth-child(2){text-align:center}
 .res .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+#howto{z-index:10}.howc{width:min(620px,100%)}.howc h2{font:700 18px var(--display);letter-spacing:.1em;color:var(--sky);margin:0 0 12px}.howc .ms-keys dd{font-size:17px;line-height:1.2}.howc .acts{display:flex;justify-content:flex-end;margin-top:14px}
 #pause .card{width:auto;text-align:center}#pause h2{font:700 26px var(--display);margin:0 0 6px}
 #nogl{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:var(--navy);z-index:9;font-size:22px}
 
@@ -341,12 +342,74 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   .dock{flex-wrap:wrap;justify-content:center}.sep{display:none}
   .versus{grid-template-columns:1fr}.vs{justify-self:center}.opts{grid-template-columns:1fr}
 }
-@media (max-width:520px){
-  .sb{width:100%}.top{flex-direction:column-reverse;align-items:stretch}.tools{justify-content:flex-end}
-  #sbT td{font-size:19px}.brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,1fr)}
-  .shot{min-width:46px;padding:2px 4px}.auto{font-size:17px}
+/* ── phones: a compact scoreboard, and the buttons where the thumbs are ── */
+.shot{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.shot.held{background:var(--ball);color:var(--navy)}.shot.held .k{color:var(--navy)}
+.rot{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:5;background:#0e0f1ae6;color:var(--ice);padding:8px 12px 7px;font:700 11px/1.4 var(--display);letter-spacing:.08em;box-shadow:inset 0 0 0 2px var(--sky),3px 3px 0 #0009;pointer-events:none;text-align:center;white-space:nowrap}
+@media (max-width:520px),(max-height:520px){
+  .sb{width:auto;flex:0 1 330px;min-width:0}
+  .sb-h{padding:2px 6px 1px;font-size:10px}
+  #sbT td{font-size:17px;height:23px;padding:1px 0}
+  #sbT .nm .face,#sbT .cc{display:none}#sbT .seed{font-size:13px}#sbT .you{font-size:9px;margin-left:4px}
+  #sbT .sv{width:14px;padding-left:5px}#sbT .set,#sbT .cur{width:18px}#sbT .pt{width:40px;padding:0 4px 0 2px}#sbT .en{left:18px}
+  .sb-f{font-size:14px;min-height:15px;padding:0 6px 2px}.badge{font-size:10px;padding:2px 4px 1px}
+  .tools{flex-direction:column;gap:4px}.tools>button{min-height:28px;font-size:16px;padding:0 8px}
+  .brand h1{font-size:26px}.picks{grid-template-columns:repeat(2,1fr)}
 }
-@media (max-height:520px) and (orientation:landscape){.caption{display:none}.shot small{display:none}.shot,.auto,#fast{min-height:36px}}
+@media (max-width:520px){
+  .hud{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .dock{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+  #auto{order:1;justify-content:center}#fast{order:2}
+  .dock>.grp{order:3;grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  #serves{grid-template-columns:repeat(3,minmax(0,1fr))}#serves .sep{display:none}
+  .dock .grp>button{margin:0}
+  .shot{min-width:0;min-height:56px;padding:2px}.shot .k{font-size:13px}
+  .auto,#fast{min-height:36px}
+  .prompt{min-width:0;width:100%}#promptT{font-size:12px}#promptS{font-size:16px}
+  .caption{font-size:16px}
+}
+@media (max-height:520px) and (orientation:landscape){
+  .caption{display:none}.shot small{display:none}
+  /* Auto and speed under the left thumb, the shots under the right; the court between them stays clickable */
+  .hud .dock{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:max(8px,env(safe-area-inset-bottom,0px));
+    display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:end;gap:6px;background:none;border:0;box-shadow:none;padding:0;pointer-events:none}
+  .dock>.sep,#serves .sep{display:none}.dock button{pointer-events:auto}
+  #auto{grid-column:1;grid-row:1}#fast{grid-column:1;grid-row:2}
+  .dock>.grp{grid-column:3;grid-row:1/3;display:grid;grid-template-columns:repeat(3,64px);gap:5px}
+  .dock .grp>button{margin:0}
+  .shot{min-width:0;min-height:50px;box-shadow:2px 2px 0 #0009}.shot .k{font-size:13px}
+  .auto,#fast{min-height:40px;box-shadow:2px 2px 0 #0009}
+  .mid{padding:0 214px 0 112px}
+  .prompt{min-width:0;width:100%;max-width:440px;padding:4px 8px 5px}#promptT{font-size:12px}#promptS{font-size:15px}
+}
+/* phones: the player select fits a screen — a short card for the highlighted player, small portraits, and the
+   settings and the button to go on held at the foot of the screen */
+@media(max-width:620px),(max-height:520px){
+  .fe{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  .m-side{display:none}.m-logo{margin-bottom:14px}.m-list button{padding:10px 12px}.m-list button small{font-size:16px;margin-top:4px}
+  .s-head{gap:8px;margin-bottom:8px}.s-head h1{font-size:15px}.s-back{font-size:11px;padding:0 8px}.s-mode{font-size:10px;padding:4px 6px 3px}
+  .s-hero{padding:10px}.h-top{gap:10px}.h-face{width:72px;height:83px}.h-rank{font-size:9px}
+  .h-id h2{font-size:16px;margin:2px 0 3px}.h-meta{font-size:14px}.h-style{font-size:15px;margin-top:4px}
+  .h-ovr b{font-size:30px}.h-ovr span{font-size:9px}
+  .h-bars{grid-template-columns:repeat(2,58px minmax(0,1fr) 22px);gap:4px 6px;margin-top:8px;font-size:15px}.h-bars i{height:7px}
+  .s-grid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:5px}
+  .s-card{padding:5px 2px 4px;gap:2px}.s-card .face{width:44px;height:51px}.s-card .c-name{font-size:9px}.s-card .c-rk{font-size:13px}
+  .fe>.s-foot{position:sticky;bottom:0;margin-top:10px;padding:8px 10px;gap:8px;z-index:2}
+  .s-opts{grid-template-columns:1fr;gap:5px}.s-opt{flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+  .s-opt small{display:none}.s-cyc{grid-template-columns:34px 140px 34px}
+  .s-foot .cta{width:100%}
+  .d-head{margin-bottom:8px}.d-sheet{padding:10px;overflow:visible}
+  .d-draw{grid-template-columns:1fr;min-width:0;gap:12px}.d-body{height:auto;gap:6px}.d-pair{gap:6px}.d-pair:after,.d-pair:before{display:none}
+  .d-note{padding:10px}.d-next{gap:8px;flex-wrap:wrap}.d-next .face.big{width:52px;height:60px}.d-next b{font-size:17px}.d-next span{font-size:15px}
+  .fe>.d-acts{position:sticky;bottom:0;padding:8px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(#0e0f1a00,#0e0f1af2 30%);z-index:2}
+  .d-acts button{flex:1;white-space:normal;min-height:44px}.d-acts .cta{font-size:14px;line-height:1.1;padding:4px 10px}
+  .cere{flex-wrap:wrap}.cere .face.big{width:72px;height:83px}
+  .howc .ms-keys{grid-template-columns:1fr;gap:0}.howc .ms-keys dd{margin-bottom:9px}
+  #bracket .d-note{order:1;margin:0 0 10px}#bracket .d-sheet{order:2}#bracket .d-acts{order:3}
+}
+@media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
+  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(3,auto);gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
+  .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
 </style>
 </head>
 <body>
@@ -368,7 +431,8 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
         <h3>CAMERA</h3><div class="row" id="camRow"></div>
         <div class="row"><button id="tl" aria-label="Turn left">⟲<kbd>Q</kbd></button><button id="tr" aria-label="Turn right">⟳<kbd>E</kbd></button></div>
         <h3>SESSION</h3><div class="row" id="phaseRow"></div>
-        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">New match</button></div>
+        <div class="row"><button id="snd" aria-pressed="false">Sound<kbd>M</kbd></button><button id="pauseB">Pause<kbd>P</kbd></button><button id="newB">Main menu</button></div>
+        <div class="row"><button id="quickB" aria-pressed="false" title="The walks, ball kids and changeovers between points at double speed">Quick between points</button></div>
         <h3>LEARNING</h3><div class="row"><button id="expB" title="Save what the computer players learned from your matches as a file">Export</button><button id="fgtB" title="Forget what was learned in this browser">Reset</button></div><p id="lrnN" class="lrn"></p>
       </section>
     </div>
@@ -390,6 +454,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
     </div>
   </div>
 </div>
+<div id="rot" class="rot" hidden>⟳ TURN SIDEWAYS<br>FOR A BIGGER COURT</div>
 <div id="bub" class="bub" hidden></div>
 <div class="tagf" id="tag0" hidden></div><div class="tagf" id="tag1" hidden></div><div class="tagf cue" id="tagS" hidden></div>
 <div class="call" id="call" hidden></div>
@@ -431,6 +496,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
   <div class="card res"><div id="resF" class="resf"></div><h1 id="resH">GAME, SET AND MATCH</h1><h2 id="resW"></h2><div class="line" id="resL"></div><table id="resT"></table>
     <div class="acts"><button id="resView">Watch the court</button><button id="resNew">New match</button><button class="cta" id="resAgain">Rematch</button></div></div>
 </div>
+<div class="overlay" id="howto" hidden><div class="card howc"><h2>HOW TO PLAY</h2><dl class="ms-keys" id="howB"></dl><div class="acts"><button class="cta" id="howX">Got it ▶</button></div></div></div>
 <div class="overlay" id="pause" hidden><div class="card"><h2>Paused</h2><p>Press P or the button to carry on.</p><button class="cta" id="resume">Resume</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script>
@@ -1369,12 +1435,14 @@ class ShotPlanner{
 
 // HumanControl — what the person at the screen has chosen: shot, target, serve, auto
 // what the person at the screen wants from their player. Movement and timing stay automatic.
+// preview: a serve target being slid into the box on a touch screen, drawn but not yet served to
+// holding: the shot or serve button held down on a touch screen, played when it is let go
 const SLOWMO=.25;
 class HumanControl{
-  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.shotAt=null;this.target=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;this.challenge=null;}
+  constructor(idx=-1){this.idx=idx;this.auto=false;this.shot=null;this.shotAt=null;this.target=null;this.preview=null;this.holding=null;this.zone=null;this.serveType=null;this.decide=null;this.serveWait=null;this.challenge=null;}
   is(P){return!!P&&P.idx===this.idx;}
   manual(P){return this.is(P)&&!this.auto;}
-  clear(){this.shot=null;this.target=null;this.zone=null;this.serveType=null;}
+  clear(){this.shot=null;this.target=null;this.preview=null;this.zone=null;this.serveType=null;}
   // the game slows while the player's shot is coming and no target has been picked
   get timeScale(){return this.decide&&!this.auto&&!this.target?SLOWMO:1;}
 }
@@ -1547,11 +1615,12 @@ class Match{
     C.target={x:clamp(x,-CT.SW+.15,CT.SW-.15),z:-H.s*clamp(Math.abs(z),1.0,CT.L-.15)};
     return true;
   }
-  setShot(k){
-    const C=this.control;C.shot=C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
+  // a second press of the same key takes the shot back; force (a press-and-release on a touch screen) always plays it
+  setShot(k,force=false){
+    const C=this.control;C.shot=!force&&C.shot===k?null:k;C.shotAt=C.shot?this.t:null;
     const P=this.human;if(P&&P.plan&&P.swing&&C.decide){P.plan.shot=this.planner.chooseShot(P,P.plan);const sw=this.planner.swingFor(P,P.plan);P.swing.type=sw.type;P.swing.two=sw.two;}
   }
-  setServe(k){const C=this.control;C.serveType=C.serveType===k?null:k;}
+  setServe(k,force=false){const C=this.control;C.serveType=!force&&C.serveType===k?null:k;}
   setZone(k){const C=this.control;C.zone=k;C.target=null;}
   setAuto(on){this.control.auto=on;if(on)this.control.decide=null;}
 
@@ -3636,6 +3705,16 @@ const SERVE_KEYS=[['flat','Flat','pace','KeyA','A'],['slice','Slice','swings wid
 const ZONE_KEYS=[['wide','Wide','Digit1','1'],['body','Body','Digit2','2'],['t','T','Digit3','3']];
 const WING={fh:'Forehand',bh:'Backhand',volley:'Volley',smash:'Smash'};
 
+// Prefs — small settings kept in this browser (localStorage), each read with a default when storage is unavailable
+class Prefs{
+  static KEY='pto.prefs';
+  static all(){try{return JSON.parse(localStorage.getItem(Prefs.KEY)||'{}')||{};}catch(_){return{};}}
+  static get(k,def){const v=Prefs.all()[k];return v===undefined?def:v;}
+  static set(k,v){try{const a=Prefs.all();a[k]=v;localStorage.setItem(Prefs.KEY,JSON.stringify(a));}catch(_){}}
+  // a touch screen as the main pointer: a phone or a tablet
+  static get touch(){try{return matchMedia('(pointer:coarse)').matches;}catch(_){return false;}}
+}
+
 // Scoreboard — the broadcast scoreboard
 class Scoreboard{
   constructor(){this.key='';}
@@ -3722,27 +3801,31 @@ class ReplayInset{
 }
 
 // DecisionPrompt — the prompt and timer while the game waits for the person
-// what the game is waiting for from the person, and how long is left
+// what the game is waiting for from the person, and how long is left; worded for the keys on a computer and for the
+// buttons on a touch screen
 class DecisionPrompt{
   constructor(){this.key='';}
   update(m){
-    const C=m.control,el=$('prompt'),H=m.human;let show=false,title='',sub='',frac=1,serve=false,chal=false;
-    if(H&&C.serveWait&&!C.auto){show=true;serve=true;title='YOUR SERVE';
-      const tp=C.serveType?SERVES[C.serveType].name:(C.serveWait.no===1?'Flat':'Kick');
-      sub=`${tp} · press 1 Wide · 2 Body · 3 T, or click the box`;frac=1-(m.t-C.serveWait.t0)/15;}
+    const C=m.control,el=$('prompt'),H=m.human,touch=Prefs.touch;let show=false,title='',sub='',frac=1,serve=false,chal=false;
+    if(H&&C.serveWait&&!C.auto){show=true;serve=true;title=C.serveWait.no===1?'YOUR SERVE':'SECOND SERVE';
+      const tp=C.serveType?SERVES[C.serveType].name:'Type: auto';
+      sub=C.holding&&SERVES[C.holding]?`${SERVES[C.holding].name} · slide into the box, let go to serve`:touch?`${tp} · tap Wide, Body or T, or slide a serve into the box`:`${tp} · press 1 Wide · 2 Body · 3 T, or click the box`;frac=1-(m.t-C.serveWait.t0)/15;}
     else if(H&&C.challenge){show=true;serve=true;chal=true;const q=C.challenge;title='CHALLENGE?';
-      sub=`Called ${q.out?'OUT':'IN'} · press C or tap here · ${q.left} left`;frac=clamp((q.until-m.t)/(q.until-q.t0),0,1);}
+      sub=`Called ${q.out?'OUT':'IN'} · ${touch?'tap here':'press C or click here'} · ${q.left} left`;frac=clamp((q.until-m.t)/(q.until-q.t0),0,1);}
     else if(H&&C.decide&&!C.auto){show=true;const d=C.decide;title=`YOUR SHOT · ${(WING[d.kind==='ground'?d.wing:d.kind]||'').toUpperCase()}`;
       const sh=C.shot?SHOT_KEYS.find(s=>s[0]===C.shot)[1]:null;
-      sub=C.target?(sh?`${sh} · aimed`:'Aimed · press the shot key as the ball arrives'):sh?`${sh} · now click the far court`:'Pick a shot (A–G), then click the far court';
+      const held=C.holding?(SHOT_KEYS.find(s=>s[0]===C.holding)||[])[1]:null;
+      if(held)sub=`${held} · ${C.target?'aimed · ':'slide to aim · '}let go in the green`;
+      else if(touch)sub=sh?`${sh}${C.target?' · aimed':''}`:C.target?'Aimed · tap a shot in the green':'Hold a shot, slide to aim, let go in the green';
+      else sub=C.target?(sh?`${sh} · aimed`:'Aimed · press the shot key in the green'):sh?`${sh} · now click the far court`:'Pick a shot (A S D F G), then click the far court';
       frac=clamp((d.tc-m.t)/Math.max(.2,d.tc-d.t0),0,1);}
     el.hidden=!show;$('slowfx').hidden=!(show&&!serve&&!C.target);
     if(!show)return;
     el.classList.toggle('serve',serve);el.classList.toggle('chal',chal);
     const k=title+sub;if(k!==this.key){this.key=k;$('promptT').textContent=title;$('promptS').textContent=sub;}
     $('promptBar').style.transform=`scaleX(${frac.toFixed(3)})`;
-    // the timing zones: the bar's end is the time left before contact; press the shot key while it is in the
-    // bright zone for Perfect, the pale one for Good
+    // the timing zones: the bar's end is the time left before contact; play the shot while it is in the bright zone
+    // for Perfect, the pale one for Good
     const z=$('promptZone'),g=$('promptGood'),timing=show&&!serve&&!C.shot;z.hidden=g.hidden=!timing;
     if(timing){const d=C.decide,T=Math.max(.2,d.tc-d.t0),pc=v=>(clamp(v/T,0,1)*100).toFixed(1)+'%';
       z.style.left=pc(.05);z.style.width=pc(.3);g.style.left=pc(.35);g.style.width=pc(Math.min(.35,Math.max(0,T-.35)));}
@@ -3756,9 +3839,11 @@ class ControlDock{
     this.g=game;
     $('shots').innerHTML=SHOT_KEYS.map(([k,l,s,,kb])=>`<button class="shot" id="sh-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>${s}</small></button>`).join('');
     $('serves').innerHTML=SERVE_KEYS.map(([k,l,s,,kb])=>`<button class="shot" id="sv-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>${s}</small></button>`).join('')+
-      '<span class="sep"></span>'+ZONE_KEYS.map(([k,l,,kb])=>`<button class="shot zone" id="zn-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>target</small></button>`).join('');
-    for(const[k]of SHOT_KEYS)$('sh-'+k).onclick=()=>game.shot(k);
-    for(const[k]of SERVE_KEYS)$('sv-'+k).onclick=()=>game.serve(k);
+      '<span class="sep"></span>'+ZONE_KEYS.map(([k,l,,kb])=>`<button class="shot zone" id="zn-${k}" aria-pressed="false" aria-keyshortcuts="${kb}"><span class="k">${l}<kbd>${kb}</kbd></span><small>serve here</small></button>`).join('');
+    // a press-and-release (TouchShot) has already played the shot; the click is for a keyboard's Enter on the button
+    const fresh=()=>!(game.touchShot&&game.touchShot.handled);
+    for(const[k]of SHOT_KEYS)$('sh-'+k).onclick=()=>{if(fresh())game.shot(k);};
+    for(const[k]of SERVE_KEYS)$('sv-'+k).onclick=()=>{if(fresh())game.serve(k);};
     for(const[k]of ZONE_KEYS)$('zn-'+k).onclick=()=>game.zone(k);
     $('auto').onclick=()=>game.toggleAuto();$('fast').onclick=()=>game.toggleFast();
   }
@@ -3776,6 +3861,62 @@ class ControlDock{
   }
 }
 
+// TouchShot — the shot and serve buttons as one gesture: press a shot, slide to aim, let go to hit
+// For a thumb on a phone, but a mouse works the same way. Pressing a shot button and sliding moves the target across
+// the far court — further than the thumb moves, so the thumb can stay down by the buttons — and letting go plays the
+// shot: the moment of letting go is the shot's timing, exactly as pressing its key is. Sliding sets the target, so,
+// as with a click on the court, it ends the slow motion: aiming is paid for in time. A tap without sliding plays the
+// shot to where the player was going anyway. The serve buttons slide into the service box instead, and letting go
+// serves; a tap only picks the serve.
+class TouchShot{
+  static SLOP=9;        // px a press may wander and still be a tap
+  static REACH=110;     // px of thumb travel that take the target across the full width of the far court
+  constructor(game){
+    this.g=game;this.d=null;this.tapUntil=0;
+    for(const[k]of SHOT_KEYS)this.bind($('sh-'+k),'shot',k);
+    for(const[k]of SERVE_KEYS)this.bind($('sv-'+k),'serve',k);
+  }
+  // a click that a press-and-release has already handled is not handled twice
+  get handled(){return performance.now()<this.tapUntil;}
+  bind(el,kind,k){
+    el.addEventListener('pointerdown',e=>{
+      if(e.button>0||this.d)return;const m=this.g.match;if(!m.human)return;
+      try{el.setPointerCapture(e.pointerId);}catch(_){}
+      this.d={el,kind,k,id:e.pointerId,x0:e.clientX,y0:e.clientY,moved:false,anchor:null,gain:1};el.classList.add('held');m.control.holding=k;
+    });
+    el.addEventListener('pointermove',e=>{const d=this.d;if(!d||d.id!==e.pointerId)return;
+      const dx=e.clientX-d.x0,dy=e.clientY-d.y0;if(!d.moved&&hyp(dx,dy)<TouchShot.SLOP)return;
+      if(!d.moved&&!this.start(d))return;d.moved=true;this.aim(d,d.anchor[0]+dx*d.gain,d.anchor[1]+dy*d.gain);});
+    const end=(e,cancel)=>{const d=this.d;if(!d||d.id!==e.pointerId)return;this.d=null;d.el.classList.remove('held');this.tapUntil=performance.now()+500;
+      const g=this.g,m=g.match,C=m.control;C.holding=null;if(cancel||!m.human){C.preview=null;return;}
+      if(d.kind==='shot')g.shot(d.k,true);
+      else{g.serve(d.k,true);if(d.moved&&C.preview){const p=C.preview;C.preview=null;g.aim(p.x,p.z);}}};
+    el.addEventListener('pointerup',e=>end(e,false));el.addEventListener('pointercancel',e=>end(e,true));
+  }
+  // the first slide: where on screen the target starts (the one already chosen, or the one the player had in
+  // mind), and how far the target moves for a pixel of thumb
+  start(d){
+    const m=this.g.match,H=m.human,C=m.control,R=this.g.R;if(!H)return false;
+    let s;
+    if(d.kind==='serve'){const c=m.cue;if(!c||c.who!==H.idx||m.live)return false;const b=c.box;s=C.target||{x:(b.x0+b.x1)/2,z:(b.z0+b.z1)/2};}
+    else{const S=H.plan&&H.plan.shot;s=C.target||(S?{x:S.t.x,z:-H.s*S.t.d}:{x:0,z:-H.s*(CT.L-3)});}
+    d.anchor=R.project(s.x,0,s.z);
+    const u=-H.s*(CT.L-3),a=R.project(-CT.SW,0,u),b=R.project(CT.SW,0,u);
+    d.gain=clamp(hyp(a[0]-b[0],a[1]-b[1])/TouchShot.REACH,1,3.2);
+    return true;
+  }
+  // the target under the moved point, held inside the far court (a rally ball) or the service box (a serve)
+  aim(d,sx,sy){
+    const g=this.g,m=g.match,H=m.human,C=m.control;if(!H)return;
+    const p=g.R.pick(sx,sy);
+    if(d.kind==='serve'){const c=m.cue;if(!c)return;const b=c.box,i=.15;
+      C.preview={x:clamp(p.x,b.x0+i,b.x1-i),z:clamp(p.z,b.z0+i,b.z1-i)};return;}
+    if(m.stage!=='play')return;
+    const u=clamp(-H.s*p.z,1.0,CT.L-.15),x=clamp(p.x,-CT.SW+.15,CT.SW-.15);
+    g.aim(x,-H.s*u,false);
+  }
+}
+
 // SettingsMenu — camera, session, sound and pause
 class SettingsMenu{
   constructor(game){
@@ -3785,7 +3926,7 @@ class SettingsMenu{
     CameraRig.MODES.forEach((n,i)=>$('cam-'+i).onclick=()=>game.setCam(i));
     for(const k in PHASES)$('ph-'+k).onclick=()=>game.setPhase(k);
     $('tl').onclick=()=>game.cam.turn(-1);$('tr').onclick=()=>game.cam.turn(1);
-    $('snd').onclick=()=>game.toggleSound();$('pauseB').onclick=()=>game.togglePause();$('newB').onclick=()=>game.openSetup();
+    $('snd').onclick=()=>game.toggleSound();$('pauseB').onclick=()=>game.togglePause();$('newB').onclick=()=>game.openSetup();$('quickB').onclick=()=>game.toggleQuick();
     // what the computer players learned from this person's matches: save it as a file, or forget it
     $('expB').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([Tactics.exportFile()],{type:'application/json'}));a.download='pixel-tennis-open-learning.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);};
     $('fgtB').onclick=()=>{Tactics.forget();Tactics.points=0;if(game.match)game.match.tactics.q=Tactics.load();this.update();game.say('Learning from your matches was reset.');};
@@ -3795,7 +3936,7 @@ class SettingsMenu{
   update(){
     const on=(id,v)=>{const e=$(id);if(e)e.setAttribute('aria-pressed',String(v));};
     CameraRig.MODES.forEach((n,i)=>on('cam-'+i,this.g.cam.mode===i));for(const k in PHASES)on('ph-'+k,this.g.R.phaseKey===k);
-    on('snd',this.g.sound.on);
+    on('snd',this.g.sound.on);on('quickB',this.g.quick);
     const t=`${Tactics.points} points learned from in this browser`;if($('lrnN').textContent!==t)$('lrnN').textContent=t;
   }
 }
@@ -3915,6 +4056,36 @@ class TitleScreen{
   start(){if(!this.on)return;this.g.sound.start();this.g.sfx('chime');$('title').hidden=true;this.g.mainMenu.open();}
 }
 
+// HowToPlay — the controls, in the words of the device in hand: buttons and slides on a touch screen, keys and
+// clicks on a computer. Shown as a card from the main menu, and beside the menu on a wide screen.
+class HowToPlay{
+  static TOUCH=[
+    ['SHOTS','Hold Drive, Flat, Slice, Lob or Drop, slide to aim (the yellow cross follows), let go to hit'],
+    ['TIMING','Let go while the bar ends in the bright green for Perfect: cleaner, a little faster, and tiredness does not show in it. Pale green is Good; too late is a mishit'],
+    ['SLOW MOTION','The game slows while your shot is coming. Aiming ends it, so aim late or aim early: your call'],
+    ['TAP THE COURT','Also aims: tap anywhere past the net'],
+    ['SERVE','Tap Wide, Body or T to serve there, or hold Flat, Slice or Kick and slide into the box'],
+    ['CHALLENGE','Tap the red prompt after a close call; three wrong ones per set'],
+    ['AUTO','Your player picks every shot; tap again to take over'],
+    ['CAMERA','Swipe across the court to turn it, pinch to zoom; View has the other cameras and quick walks between points'],
+  ];
+  static KEYS=[
+    ['A S D F G','Pick the shot as the ball comes: drive, flat, slice, lob, drop'],
+    ['Click','Aim it: the yellow cross, the circle shows how far it may stray. Or hold a shot button, slide and let go'],
+    ['Timing','Press the shot key in the bright green of the bar for a Perfect hit'],
+    ['1 2 3','Serve wide, body or T; A S D picks flat, slice or kick'],
+    ['C','Challenge a close line call'],
+    ['Space','Auto: your player chooses every shot'],
+    ['V · Q E','Camera views · turn the court'],
+    ['X · P · M','Fast-forward · pause · sound'],
+  ];
+  static html(touch=Prefs.touch){return(touch?HowToPlay.TOUCH:HowToPlay.KEYS).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');}
+  constructor(game){this.g=game;$('howX').onclick=()=>this.close();}
+  get on(){return!$('howto').hidden;}
+  open(){$('howB').innerHTML=HowToPlay.html();$('howto').hidden=false;$('howX').focus();}
+  close(){if(!this.on)return;$('howto').hidden=true;this.g.sfx('click');}
+}
+
 // MainMenu — tournament, exhibition, how to play; a preview of the highlighted choice beside the list
 class MainMenu{
   static ITEMS=[['tour','TOURNAMENT','Eight players, three rounds. Win three matches and lift the cup.'],
@@ -3929,7 +4100,7 @@ class MainMenu{
   close(){$('menu').hidden=true;}
   hi(i){if(i===this.i)return;this.i=i;this.g.sfx('click');this.render();}
   move(d){this.hi((this.i+d+MainMenu.ITEMS.length)%MainMenu.ITEMS.length);}
-  choose(){const k=MainMenu.ITEMS[this.i][0];if(k==='how')return;this.g.sfx('chime');this.close();this.g.setup.open(k);}
+  choose(){const k=MainMenu.ITEMS[this.i][0];this.g.sfx('chime');if(k==='how'){this.g.howto.open();return;}this.close();this.g.setup.open(k);}
   back(){this.g.sfx('click');this.close();this.g.title.open();}
   render(){
     $('mList').querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',String(i===this.i)));
@@ -3939,15 +4110,7 @@ class MainMenu{
     else if(k==='exh'){const pick=[...ROSTER].sort((a,b)=>a.rank-b.rank).slice(0,6);
       side.innerHTML=`<div class="ms-faces">${pick.map(p=>Portrait.img(p,'face ms-face')).join('')}</div><h3>ANY TWO PLAYERS</h3>
       <ul><li><b>${ROSTER.length}</b> players: today's best and the legends</li><li>Short set, full set or best of three</li><li>Day, twilight or night session</li><li>Opponent level: rookie, pro or legend</li></ul>`;}
-    else side.innerHTML=`<h3>HOW TO PLAY</h3><dl class="ms-keys">
-      <dt>A S D F G</dt><dd>Pick the shot as the ball comes: drive, flat, slice, lob, drop</dd>
-      <dt>Click</dt><dd>Aim it: the yellow cross, the circle shows how far it may stray</dd>
-      <dt>Timing</dt><dd>Press the shot key in the green zone of the bar for a Perfect hit</dd>
-      <dt>1 2 3</dt><dd>Serve wide, body or T; A S D picks flat, slice or kick</dd>
-      <dt>C</dt><dd>Challenge a close line call</dd>
-      <dt>Space</dt><dd>Auto: your player chooses every shot</dd>
-      <dt>V · Q E</dt><dd>Camera views · turn the court</dd>
-      <dt>X · P · M</dt><dd>Fast-forward · pause · sound</dd></dl>`;
+    else side.innerHTML=`<h3>HOW TO PLAY</h3><dl class="ms-keys">${HowToPlay.html()}</dl>`;
   }
 }
 
@@ -4142,6 +4305,7 @@ class Input{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       // the front end: title, menu, player select, versus, the draw
       if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
       if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);
@@ -4187,8 +4351,9 @@ class Game{
     this.net=new NetView(R.root,R.amb);this.fx=new Particles(R.root);this.ballView=new BallView(R.root);$('cerSkip').onclick=()=>this.endCeremony();
     this.cam=new CameraRig(R);this.sound=new SoundSystem();
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
-    this.dock=new ControlDock(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
-    this.title=new TitleScreen(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
+    this.quick=Prefs.get('quick',Prefs.touch);
+    this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
+    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
@@ -4219,15 +4384,17 @@ class Game{
     this.sound.start();$('title').hidden=true;this.mainMenu.close();
     this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
-    this.say('Players walk out. Space toggles Auto.');
+    this.say(`Players walk out. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();
   }
+  // on a phone held upright, a reminder that the court is bigger sideways (once per match, gone after a few seconds)
+  rotateHint(){const el=$('rot');clearTimeout(this.rotT);el.hidden=!(Prefs.touch&&innerHeight>innerWidth);if(!el.hidden)this.rotT=setTimeout(()=>el.hidden=true,6000);}
   // ──────── tournament ────────
   startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
   playTour(){const t=this.tour;if(!t||!t.mine)return;
     const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
     this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
   startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.tourRun=t.run();this.tourFast=false;this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
-    this.say(`${t.name}: ${t.opponent.name}. Space toggles Auto.`);}
+    this.say(`${t.name}: ${t.opponent.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();}
   // the person's match is finished: record it, play out the others, show the draw
   // (the interview comes first; the draw is settled behind it)
   continueTour(){const t=this.tour,m=this.match;if(!t||!m.result)return;this.results.close();
@@ -4257,15 +4424,20 @@ class Game{
     $('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
-  shot(k){const m=this.match;if(m.human){m.setShot(k);this.dock.update(m);}}
-  serve(k){const m=this.match;if(m.human){m.setServe(k);this.dock.update(m);}}
+  shot(k,force=false){const m=this.match;if(m.human){m.setShot(k,force);this.dock.update(m);}}
+  serve(k,force=false){const m=this.match;if(m.human){m.setServe(k,force);this.dock.update(m);}}
   zone(k){const m=this.match;if(m.human&&this.dock.serving(m)){m.setZone(k);this.dock.update(m);}}
+  // a target on the court (x, z in metres); tick: the click sound, left out while a thumb slides the target along
+  aim(x,z,tick=true){const m=this.match;if(!m.human||!m.aimAt(x,z))return false;if(tick&&this.sound.live)this.sound.sfx.click();this.dock.update(m);return true;}
   click(cx,cy){const m=this.match;if(!m.human)return;const p=this.R.pick(cx,cy);
-    if(m.aimAt(p.x,p.z)){if(this.sound.live)this.sound.sfx.click();this.dock.update(m);}
-    else if(m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
+    if(!this.aim(p.x,p.z)&&m.stage==='play')this.say(m.cue&&m.cue.who===m.human.idx?'Aim inside the service box.':'Aim at the far side of the net.');}
   challenge(){const q=this.match.control.challenge;if(q)q.go=true;}
   toggleAuto(){const m=this.match;if(!m.human)return;m.setAuto(!m.control.auto);this.say(m.control.auto?'Auto on: your player picks every shot.':'Auto off: you pick the shot and the spot.');this.dock.update(m);}
   toggleFast(){this.speed=this.speed===3?1:3;this.dock.update(this.match);}
+  toggleQuick(){this.quick=!this.quick;Prefs.set('quick',this.quick);this.menu.update();this.say(this.quick?'Quick between points: the walks between points play at double speed.':'Quick between points off.');}
+  // between points of the person's match: nothing to decide and no ball in play, so the walks, the ball kids and the
+  // changeovers can run at double speed when the person has asked for it
+  get between(){const m=this.match,H=m.human,C=m.control;if(!H||m.stage!=='play'||m.live||C.serveWait||C.challenge)return false;return!(m.cue&&m.cue.who===H.idx&&!C.auto);}
   togglePause(){this.paused=!this.paused;$('pause').hidden=!this.paused;}
   toggleSound(){this.sound.toggle();this.menu.update();this.say(this.sound.on?'Sound on.':'Sound off.');}
   setCam(i){this.cam.setMode(i);this.menu.update();}
@@ -4286,7 +4458,7 @@ class Game{
   frame(now){
     requestAnimationFrame(t=>this.frame(t));
     const dt=clamp((now-this.last)/1000,0,.05);this.last=now;this.tc+=dt;
-    const m=this.match,goal=this.paused?0:(m.timeScale<1?m.timeScale:this.speed);
+    const m=this.match,goal=this.paused?0:(m.timeScale<1?m.timeScale:this.speed*(this.quick&&this.speed===1&&this.between?2:1));
     this.ts+=(goal-this.ts)*Math.min(1,dt*12);if(Math.abs(goal-this.ts)<.01)this.ts=goal;
     this.acc+=dt*this.ts;let n=0;while(this.acc>=DT&&n<60){m.tick();this.acc-=DT;n++;if(m.events.length>200)this.drain();}if(n===60)this.acc=0;
     this.alpha=clamp(this.acc/DT,0,1);
@@ -4307,7 +4479,7 @@ class Game{
     if(m.result&&m.human&&!this.resultShown&&m.t>this.resultAt){this.resultShown=true;this.results.open(m,this.stats.update(m));}
   }
   watchPerf(now){const p=this.perf;if(navigator.webdriver)return;p.a+=now-(p.p||now);p.p=now;if(++p.n===150){if(p.a/p.n>38&&this.R.perfStep<2){this.R.perfStep++;this.resize();}p.a=0;p.n=0;}}
-  resize(){this.R.resize();this.cam.update(0,this.focus(),true);}
+  resize(){this.R.resize();this.cam.update(0,this.focus(),true);if(innerWidth>innerHeight)$('rot').hidden=true;}
   drain(){
     // the match that plays behind the menus is scenery: no calls, tags or umpire, on screen or in the speakers
     const m=this.match,S=this.sound,demo=!m.human;
@@ -4317,7 +4489,10 @@ class Game{
       if(S.live){let pan=0;if(e.x!==undefined){const[sx]=this.R.project(e.x,e.y||0,e.z);pan=clamp(sx/innerWidth*2-1,-1,1)*.8;}S.event(e,pan);}
       switch(e.type){
         case'bounce':if(Court.inEnclosure(e.x,e.z))this.fx.dust(e.x,e.z,4,[0x9aa1b3,0x7bb8ea]);break;
-        case'hit':if(e.kind==='serve')for(let i=0;i<4;i++)this.fx.spark(e.x,e.y,e.z,N(.8),N(.8),N(.8),.14,0xfdf0a0);break;
+        case'hit':if(e.kind==='serve')for(let i=0;i<4;i++)this.fx.spark(e.x,e.y,e.z,N(.8),N(.8),N(.8),.14,0xfdf0a0);
+          // a perfectly timed shot: a burst of light at the racket, and a short buzz on a phone that can
+          if(e.timing==='Perfect'&&m.human&&e.who===m.human.idx){for(let i=0;i<10;i++)this.fx.spark(e.x,e.y,e.z,N(1.4),N(1.4)+.6,N(1.4),.2,0xf4d44a);try{navigator.vibrate&&navigator.vibrate(18);}catch(_){}}
+          break;
         case'net':this.net.hit(e.x,e.mesh?.9:.5);break;
         case'note':$('line').textContent=e.text;break;
         case'tag':this.labels.tag(e,m);break;
@@ -4391,9 +4566,10 @@ class Game{
     // where the person is sending the ball: a pulsing cross on the spot, inside a dashed oval that most such shots
     // land in (two standard deviations — smaller for an accurate player, larger on the stretch). Both stay until
     // the ball has landed, so the shot can be judged against them.
-    if(C.target){const sp=m.aimSpread();this.aim={x:C.target.x,z:C.target.z,hold:1.6,sp:sp||(this.aim&&this.aim.sp)||null};}
-    else if(this.aim){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.aim.hold=Math.min(this.aim.hold,.25);this.aim.hold-=1/60;if(this.aim.hold<=0)this.aim=null;}
-    if(this.aim){const a=this.aim,p=.42+(C.target?Math.sin(t*8)*.09:0);
+    const T=C.target||C.preview;
+    if(T){const sp=C.target?m.aimSpread():null;this.mark={x:T.x,z:T.z,hold:1.6,sp:sp||(this.mark&&this.mark.sp)||null};}
+    else if(this.mark){const b=m.ball;if(!m.live||(b&&b.bc>0&&m.hitter===m.human))this.mark.hold=Math.min(this.mark.hold,.25);this.mark.hold-=1/60;if(this.mark.hold<=0)this.mark=null;}
+    if(this.mark){const a=this.mark,p=.42+(T?Math.sin(t*8)*.09:0);
       // a yellow cross with a dark edge so it reads against the blue court
       for(const[x,z]of[[p,0],[-p,0],[0,p],[0,-p]]){B.box(a.x+x,.05,a.z+z,x?.5:.24,.03,z?.5:.24,0,0x1c1f2e);B.box(a.x+x,.07,a.z+z,x?.4:.14,.03,z?.4:.14,0,0xf4d44a);}
       B.box(a.x,.07,a.z,.14,.03,.14,0,0xf4f3ec);

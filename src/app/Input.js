@@ -7,6 +7,7 @@ class Input{
       if(e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;const c=e.code;
       // the front end: title, menu, player select, versus, the draw
       if(g.title.on){g.title.start();e.preventDefault();return;}
+      if(g.howto.on){if(c==='Enter'||c==='Escape'||c==='Space'){g.howto.close();e.preventDefault();}return;}
       if(g.vs.on){if(c==='Enter'||c==='Space'){g.vs.go();e.preventDefault();}return;}
       if(g.mainMenu.on){const M=g.mainMenu;if(c==='ArrowUp'||c==='KeyW')M.move(-1);else if(c==='ArrowDown'||c==='KeyS')M.move(1);else if(c==='Enter'||c==='Space')M.choose();else if(c==='Escape')M.back();else return;e.preventDefault();return;}
       if(g.setup.on){const S=g.setup;if(c==='ArrowLeft'||c==='KeyA')S.move(-1,0);else if(c==='ArrowRight'||c==='KeyD')S.move(1,0);else if(c==='ArrowUp'||c==='KeyW')S.move(0,-1);else if(c==='ArrowDown'||c==='KeyS')S.move(0,1);
