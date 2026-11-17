@@ -3,60 +3,60 @@
  "points": 10,
  "attributes": {
   "serve": {
+   "won": 48.2,
+   "n": 336,
+   "eloPerPoint": -1.2,
+   "lo": -5,
+   "hi": 2.5
+  },
+  "power": {
+   "won": 46.7,
+   "n": 336,
+   "eloPerPoint": -2.3,
+   "lo": -6,
+   "hi": 1.4
+  },
+  "speed": {
+   "won": 57.7,
+   "n": 336,
+   "eloPerPoint": 5.4,
+   "lo": 1.7,
+   "hi": 9.3
+  },
+  "spin": {
    "won": 56,
    "n": 336,
    "eloPerPoint": 4.2,
    "lo": 0.4,
    "hi": 8
   },
-  "power": {
-   "won": 40.8,
-   "n": 336,
-   "eloPerPoint": -6.5,
-   "lo": -10.4,
-   "hi": -2.8
-  },
-  "speed": {
-   "won": 56.8,
-   "n": 336,
-   "eloPerPoint": 4.8,
-   "lo": 1.1,
-   "hi": 8.6
-  },
-  "spin": {
-   "won": 55.1,
-   "n": 336,
-   "eloPerPoint": 3.5,
-   "lo": -0.2,
-   "hi": 7.3
-  },
   "control": {
-   "won": 90.8,
+   "won": 93.5,
    "n": 336,
-   "eloPerPoint": 39.7,
-   "lo": 34.1,
-   "hi": 47.4
+   "eloPerPoint": 46.2,
+   "lo": 39.8,
+   "hi": 55.7
   },
   "accuracy": {
-   "won": 82.1,
+   "won": 84.8,
    "n": 336,
-   "eloPerPoint": 26.5,
-   "lo": 22,
-   "hi": 31.9
+   "eloPerPoint": 29.9,
+   "lo": 25.2,
+   "hi": 35.7
   },
   "touch": {
-   "won": 66.7,
+   "won": 60.7,
    "n": 336,
-   "eloPerPoint": 12,
-   "lo": 8.2,
-   "hi": 16.2
+   "eloPerPoint": 7.6,
+   "lo": 3.8,
+   "hi": 11.5
   },
   "stamina": {
-   "won": 55.4,
+   "won": 57.4,
    "n": 336,
-   "eloPerPoint": 3.7,
-   "lo": 0,
-   "hi": 7.5
+   "eloPerPoint": 5.2,
+   "lo": 1.5,
+   "hi": 9
   }
  }
 }

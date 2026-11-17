@@ -7,7 +7,7 @@ class ShotPlanner{
   // game's rally shots go where real ones do — 59.3% cross-court, 26.5% down the middle, 14.2% down the line
   // (Match Charting Project, hard courts since 2010, counted by its own rule: tools/directions.js;
   // tools/fit-directions.js)
-  static DIR={middle:8.700,line:0.028};
+  static DIR={middle:4.319,line:0.042};
   constructor(match){this.m=match;}
   want(P){const C=this.m.control;return C.is(P)?C.shot:null;}
   makePlan(P){

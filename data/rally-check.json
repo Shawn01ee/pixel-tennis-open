@@ -1,18 +1,18 @@
 {
  "game": {
-  "cross": 48.2,
-  "middle": 41.4,
-  "line": 10.4,
+  "cross": 59.5,
+  "middle": 27.7,
+  "line": 12.8,
   "overhead": 0.7,
-  "volley": 3.8,
-  "net": 16.7,
-  "winnerShare": 26.7,
-  "cycle": 4.62,
-  "cycleOver45": 46.6,
-  "distance": 11.9,
-  "gap": 1.297,
-  "rally": 5.22,
-  "points": 1554
+  "volley": 4.6,
+  "net": 17.6,
+  "winnerShare": 27.7,
+  "cycle": 5.22,
+  "cycleOver45": 58.1,
+  "distance": 12.9,
+  "gap": 1.325,
+  "rally": 5.16,
+  "points": 1517
  },
  "real": {
   "cross": 59.3,

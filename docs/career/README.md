@@ -72,11 +72,11 @@ where *E* is his Elo and *Ea* the roster player's peak. κ is fitted by `tools/f
 model, 0–1000 Elo below its peak, one 200 points below the other, play best-of-three matches; the target, fixed before
 any match was played, is Elo's **76.0%** for the stronger.
 
-Result (2026-11-17): **κ = 0.1009**. At the end:
+Result (2026-11-17): **κ = 0.1098**. At the end:
 
-- 200 points apart (the target): 75.9% against Elo's 76.0%: inside the measurement's ±4.6 points, over 336 matches.
-- 100 points apart: **69.9% against Elo's 64.0%: 5.9 points more than Elo, outside the measurement's ±4.9**, over 336 matches.
-- 400 points apart: 93.2% against Elo's 90.9%: inside the measurement's ±2.7 points, over 336 matches.
+- 200 points apart (the target): 73.2% against Elo's 76.0%: inside the measurement's ±4.7 points, over 336 matches.
+- 100 points apart: 64.3% against Elo's 64.0%: inside the measurement's ±5.1 points, over 336 matches.
+- 400 points apart: **95.2% against Elo's 90.9%: 4.3 points more than Elo, outside the measurement's ±2.3**, over 336 matches.
 
 Where a check falls outside its margin, the single exponential does not carry Elo's odds across the whole range; it is reported here as measured and not adjusted.
 
@@ -119,16 +119,16 @@ one wins into Elo (95% interval in brackets):
 
 | Bar | Trained copy won | Elo a point |
 |---|---|---|
-| Serve | 56% | **4.2** [0.4, 8] |
-| Power | 40.8% | **-6.5** [-10.4, -2.8] |
-| Speed | 56.8% | **4.8** [1.1, 8.6] |
-| Spin | 55.1% | 3.5 [-0.2, 7.3] |
-| Control | 90.8% | **39.7** [34.1, 47.4] |
-| Accuracy | 82.1% | **26.5** [22, 31.9] |
-| Touch | 66.7% | **12** [8.2, 16.2] |
-| Stamina | 55.4% | 3.7 [0, 7.5] |
+| Serve | 48.2% | -1.2 [-5, 2.5] |
+| Power | 46.7% | -2.3 [-6, 1.4] |
+| Speed | 57.7% | **5.4** [1.7, 9.3] |
+| Spin | 56% | **4.2** [0.4, 8] |
+| Control | 93.5% | **46.2** [39.8, 55.7] |
+| Accuracy | 84.8% | **29.9** [25.2, 35.7] |
+| Touch | 60.7% | **7.6** [3.8, 11.5] |
+| Stamina | 57.4% | **5.2** [1.5, 9] |
 
-Clearly worth training: serve, speed, control, accuracy, touch. **Clearly harmful in the game as it plays now: power** (kept as measured, not corrected). No clear effect either way at this sample: spin, stamina.
+Clearly worth training: speed, spin, control, accuracy, touch, stamina. No clear effect either way at this sample: serve, power.
 The training screen says the same for each bar. A simulated match counts each trained point at its measured value, or
 0 where that is below zero; on court, the bar itself does the work.
 

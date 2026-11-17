@@ -52,25 +52,25 @@ Nothing here was tuned: the courts are set from the measurements above and this 
 
 | | Hard: game | real | Clay: game | real | Grass: game | real |
 |---|---|---|---|---|---|---|
-| Aces (of serve points) | 9.5% [8.8–10.2] | 9.1% | **7.7% [7.1–8.3]** | 5.4% | 9.8% [9.1–10.7] | 10.6% |
-| Double faults | 3.4% [3–3.7] | 3.5% | 3.2% [2.9–3.8] | 3.2% | 3.6% [3–4.1] | 3.4% |
-| First serves in | 63.2% [61.9–64.2] | 62.5% | 63% [61.7–64.3] | 63% | 62.8% [61.6–64.3] | 64% |
-| Points won behind the first serve | 72.2% [71–73.8] | 73% | 70.2% [68.7–72] | 68.8% | 74.8% [73.2–76.4] | 75% |
-| Points won behind the second serve | **53.2% [51.1–55.4]** | 50.9% | 52% [49.8–54.4] | 50.2% | 54.9% [52.8–57.2] | 52.8% |
-| Net points (the project's own rule) | 12.4% [11.9–12.9] | 11.9% | **11.9% [11.3–12.5]** | 11.1% | **10.3% [9.7–10.8]** | 14.6% |
-| Winners per ball struck | 5.8% [5.5–6.1] | 5.9% | **7% [6.7–7.5]** | 6.1% | **5.3% [5–5.6]** | 7.1% |
-| Errors per ball struck | 17.2% [16.7–17.7] | 17.3% | **16.8% [16.3–17.3]** | 16% | **20.8% [20.3–21.4]** | 20.3% |
-| Shots per point | 4.77 [4.67–4.88] | 4.76 | **4.73 [4.62–4.82]** | 5.14 | **4.29 [4.2–4.38]** | 4.14 |
+| Aces (of serve points) | 8.9% [8.1–9.6] | 9.1% | **7.1% [6.5–7.8]** | 5.4% | 10.7% [10–11.5] | 10.6% |
+| Double faults | **3.1% [2.6–3.5]** | 3.5% | 3.3% [2.8–3.7] | 3.2% | 3.7% [3.1–4.2] | 3.4% |
+| First serves in | **64.3% [63.2–65.4]** | 62.5% | **64.3% [63.2–65.4]** | 63% | 63.5% [62.1–64.8] | 64% |
+| Points won behind the first serve | 73.2% [71.9–74.7] | 73% | **70.3% [69.1–71.9]** | 68.8% | **76.4% [75.2–77.5]** | 75% |
+| Points won behind the second serve | **53.8% [51.6–56.1]** | 50.9% | **52.7% [50.3–54.9]** | 50.2% | 54.1% [51.9–56.6] | 52.8% |
+| Net points (the project's own rule) | **12.6% [12–13.3]** | 11.9% | **11.9% [11.3–12.4]** | 11.1% | **10.1% [9.5–10.6]** | 14.6% |
+| Winners per ball struck | 5.8% [5.5–6.1] | 5.9% | **6.4% [6.2–6.8]** | 6.1% | **5.2% [4.9–5.5]** | 7.1% |
+| Errors per ball struck | 17.2% [16.6–17.8] | 17.3% | **17.3% [16.7–17.8]** | 16% | 20.3% [19.8–20.8] | 20.3% |
+| Shots per point | 4.82 [4.72–4.92] | 4.76 | **4.76 [4.68–4.87]** | 5.14 | **4.33 [4.26–4.41]** | 4.14 |
 
 How each surface differs from the hard court (reproduced when the game moves the same way, by at least half and at most
 twice the real change):
 
-- Aces: Clay -3.7 points real, -1.8 in the game (**not reproduced**); Grass +1.5 points real, +0.3 in the game (**not reproduced**).
-- Points won behind the first serve: Clay -4.2 points real, -2.0 in the game (**not reproduced**); Grass +2.0 points real, +2.6 in the game.
-- Shots per point: Clay +0.38 real, -0.04 in the game (**not reproduced**); Grass -0.62 real, -0.48 in the game.
-- Winners per ball struck: Clay +0.2 points real, +1.2 in the game (**not reproduced**); Grass +1.2 points real, -0.5 in the game (**not reproduced**).
+- Aces: Clay -3.7 points real, -1.8 in the game (**not reproduced**); Grass +1.5 points real, +1.8 in the game.
+- Points won behind the first serve: Clay -4.2 points real, -2.9 in the game; Grass +2.0 points real, +3.2 in the game.
+- Shots per point: Clay +0.38 real, -0.06 in the game (**not reproduced**); Grass -0.62 real, -0.49 in the game.
+- Winners per ball struck: Clay +0.2 points real, +0.6 in the game (**not reproduced**); Grass +1.2 points real, -0.6 in the game (**not reproduced**).
 
-Outside the interval: hard points won behind the second serve, clay aces (of serve points), clay net points (the project's own rule), clay winners per ball struck, clay errors per ball struck, clay shots per point, grass net points (the project's own rule), grass winners per ball struck, grass errors per ball struck, grass shots per point.
+Outside the interval: hard double faults, hard first serves in, hard points won behind the second serve, hard net points (the project's own rule), clay aces (of serve points), clay first serves in, clay points won behind the first serve, clay points won behind the second serve, clay net points (the project's own rule), clay winners per ball struck, clay errors per ball struck, clay shots per point, grass points won behind the first serve, grass net points (the project's own rule), grass winners per ball struck, grass shots per point.
 
 What the game does not have yet, and so cannot reproduce:
 

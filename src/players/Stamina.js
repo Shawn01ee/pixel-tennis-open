@@ -20,7 +20,7 @@ class Stamina{
   static FAST={tau:21.5};static SLOW={share:.4933,tau:388};
   // the work (J/kg of running, sum of stroke costs) of an average five-set match in this game, so that legs and arm
   // read 1 when one ends; measured by tools/stamina.js (set again whenever the way players move or hit changes)
-  static LEGS=48400;static ARM=1010;
+  static LEGS=58800;static ARM=1190;
   // a stroke costs the arm in proportion to the racket's kinetic energy, so to the square of the ball's speed; a
   // 30 m/s (108 km/h) groundstroke is 1
   static V_REF=30;

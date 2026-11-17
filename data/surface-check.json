@@ -26,49 +26,49 @@
  "surfaces": {
   "hard": {
    "matches": 84,
-   "points": 5766,
+   "points": 5397,
    "stats": {
     "ace": {
-     "game": 9.5,
-     "lo": 8.8,
-     "hi": 10.2,
+     "game": 8.9,
+     "lo": 8.1,
+     "hi": 9.6,
      "real": 9.1,
      "inside": true
     },
     "df": {
-     "game": 3.4,
-     "lo": 3,
-     "hi": 3.7,
+     "game": 3.1,
+     "lo": 2.6,
+     "hi": 3.5,
      "real": 3.5,
-     "inside": true
+     "inside": false
     },
     "firstIn": {
-     "game": 63.2,
-     "lo": 61.9,
-     "hi": 64.2,
+     "game": 64.3,
+     "lo": 63.2,
+     "hi": 65.4,
      "real": 62.5,
-     "inside": true
+     "inside": false
     },
     "firstWon": {
-     "game": 72.2,
-     "lo": 71,
-     "hi": 73.8,
+     "game": 73.2,
+     "lo": 71.9,
+     "hi": 74.7,
      "real": 73,
      "inside": true
     },
     "secondWon": {
-     "game": 53.2,
-     "lo": 51.1,
-     "hi": 55.4,
+     "game": 53.8,
+     "lo": 51.6,
+     "hi": 56.1,
      "real": 50.9,
      "inside": false
     },
     "net": {
-     "game": 12.4,
-     "lo": 11.9,
-     "hi": 12.9,
+     "game": 12.6,
+     "lo": 12,
+     "hi": 13.3,
      "real": 11.9,
-     "inside": true
+     "inside": false
     },
     "winners": {
      "game": 5.8,
@@ -79,15 +79,15 @@
     },
     "errors": {
      "game": 17.2,
-     "lo": 16.7,
-     "hi": 17.7,
+     "lo": 16.6,
+     "hi": 17.8,
      "real": 17.3,
      "inside": true
     },
     "rally": {
-     "game": 4.77,
-     "lo": 4.67,
-     "hi": 4.88,
+     "game": 4.82,
+     "lo": 4.72,
+     "hi": 4.92,
      "real": 4.76,
      "inside": true
     }
@@ -95,68 +95,68 @@
   },
   "clay": {
    "matches": 84,
-   "points": 5500,
+   "points": 5704,
    "stats": {
     "ace": {
-     "game": 7.7,
-     "lo": 7.1,
-     "hi": 8.3,
+     "game": 7.1,
+     "lo": 6.5,
+     "hi": 7.8,
      "real": 5.4,
      "inside": false
     },
     "df": {
-     "game": 3.2,
-     "lo": 2.9,
-     "hi": 3.8,
+     "game": 3.3,
+     "lo": 2.8,
+     "hi": 3.7,
      "real": 3.2,
      "inside": true
     },
     "firstIn": {
-     "game": 63,
-     "lo": 61.7,
-     "hi": 64.3,
+     "game": 64.3,
+     "lo": 63.2,
+     "hi": 65.4,
      "real": 63,
-     "inside": true
+     "inside": false
     },
     "firstWon": {
-     "game": 70.2,
-     "lo": 68.7,
-     "hi": 72,
+     "game": 70.3,
+     "lo": 69.1,
+     "hi": 71.9,
      "real": 68.8,
-     "inside": true
+     "inside": false
     },
     "secondWon": {
-     "game": 52,
-     "lo": 49.8,
-     "hi": 54.4,
+     "game": 52.7,
+     "lo": 50.3,
+     "hi": 54.9,
      "real": 50.2,
-     "inside": true
+     "inside": false
     },
     "net": {
      "game": 11.9,
      "lo": 11.3,
-     "hi": 12.5,
+     "hi": 12.4,
      "real": 11.1,
      "inside": false
     },
     "winners": {
-     "game": 7,
-     "lo": 6.7,
-     "hi": 7.5,
+     "game": 6.4,
+     "lo": 6.2,
+     "hi": 6.8,
      "real": 6.1,
      "inside": false
     },
     "errors": {
-     "game": 16.8,
-     "lo": 16.3,
-     "hi": 17.3,
+     "game": 17.3,
+     "lo": 16.7,
+     "hi": 17.8,
      "real": 16,
      "inside": false
     },
     "rally": {
-     "game": 4.73,
-     "lo": 4.62,
-     "hi": 4.82,
+     "game": 4.76,
+     "lo": 4.68,
+     "hi": 4.87,
      "real": 5.14,
      "inside": false
     }
@@ -164,68 +164,68 @@
   },
   "grass": {
    "matches": 84,
-   "points": 5473,
+   "points": 5330,
    "stats": {
     "ace": {
-     "game": 9.8,
-     "lo": 9.1,
-     "hi": 10.7,
+     "game": 10.7,
+     "lo": 10,
+     "hi": 11.5,
      "real": 10.6,
      "inside": true
     },
     "df": {
-     "game": 3.6,
-     "lo": 3,
-     "hi": 4.1,
+     "game": 3.7,
+     "lo": 3.1,
+     "hi": 4.2,
      "real": 3.4,
      "inside": true
     },
     "firstIn": {
-     "game": 62.8,
-     "lo": 61.6,
-     "hi": 64.3,
+     "game": 63.5,
+     "lo": 62.1,
+     "hi": 64.8,
      "real": 64,
      "inside": true
     },
     "firstWon": {
-     "game": 74.8,
-     "lo": 73.2,
-     "hi": 76.4,
+     "game": 76.4,
+     "lo": 75.2,
+     "hi": 77.5,
      "real": 75,
-     "inside": true
+     "inside": false
     },
     "secondWon": {
-     "game": 54.9,
-     "lo": 52.8,
-     "hi": 57.2,
+     "game": 54.1,
+     "lo": 51.9,
+     "hi": 56.6,
      "real": 52.8,
      "inside": true
     },
     "net": {
-     "game": 10.3,
-     "lo": 9.7,
-     "hi": 10.8,
+     "game": 10.1,
+     "lo": 9.5,
+     "hi": 10.6,
      "real": 14.6,
      "inside": false
     },
     "winners": {
-     "game": 5.3,
-     "lo": 5,
-     "hi": 5.6,
+     "game": 5.2,
+     "lo": 4.9,
+     "hi": 5.5,
      "real": 7.1,
      "inside": false
     },
     "errors": {
-     "game": 20.8,
-     "lo": 20.3,
-     "hi": 21.4,
+     "game": 20.3,
+     "lo": 19.8,
+     "hi": 20.8,
      "real": 20.3,
-     "inside": false
+     "inside": true
     },
     "rally": {
-     "game": 4.29,
-     "lo": 4.2,
-     "hi": 4.38,
+     "game": 4.33,
+     "lo": 4.26,
+     "hi": 4.41,
      "real": 4.14,
      "inside": false
     }
