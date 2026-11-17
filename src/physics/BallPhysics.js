@@ -62,10 +62,18 @@ class BallPhysics{
       // the finer the touch, plus a small hop — it dribbles on over (a let, if it lands in the box). One that catches
       // the front (centre below the tape's) is stopped and drops back on the hitter's side
       if(vn<0){const s=clamp(dy/rr,-1,1);
-        if(s>0){const k=lerp(NET_KEEP[0],NET_KEEP[1],s);b.vx*=k;b.vz*=k;b.vy=b.vy*k+NET_HOP*(1-s*.5);}
+        // (the hop comes from the tape's give, so a ball that only drops onto it at a walking pace barely hops)
+        if(s>0){const k=lerp(NET_KEEP[0],NET_KEEP[1],s),sp=Math.hypot(b.vy,b.vz);b.vx*=k;b.vz*=k;b.vy=b.vy*k+NET_HOP*(1-s*.5)*clamp(sp/4,0,1);}
         else{b.vx*=.15;b.vz*=-.05;b.vy=Math.max(b.vy*.2,0)+.3;}
         b.wx*=.5;b.wz*=.5;b.net|=HIT.TAPE;ev=HIT.TAPE;}
       b.y=hc+ny*(rr+1e-3);b.z=nz*(rr+1e-3);
+      // a ball that has come to rest on the tape cannot stay there: the tape is round and the net never still, so it
+      // rolls off the side it leans to, gravity pulling it along the curve (a dead-centre ball is nudged either way)
+      if(ny>0&&Math.hypot(b.vy,b.vz)<1.5){
+        const side=Math.abs(nz)>.02?Math.sign(nz):(R()<.5?-1:1),sn=Math.max(Math.abs(nz),.08),cs=Math.sqrt(1-sn*sn),dt=DT/6;
+        const n0=b.vy*cs+b.vz*side*sn;if(n0<0){b.vy-=n0*cs;b.vz-=n0*side*sn;}
+        b.vy+=-sn*9.81*sn*dt*6;b.vz+=side*cs*9.81*sn*dt*6;
+      }
       return ev;
     }
     return 0;
