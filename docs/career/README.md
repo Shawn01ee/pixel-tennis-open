@@ -1,8 +1,8 @@
 # Career
 
 A career of the player you make. He starts ranked **349**, with 150 points from last season, and goes
-as far as his results take him: Challengers, ATP 250s and 500s, Masters 1000s and the Pixel Tennis Open, the summer
-hard-court major. The ranking is the real one, the points are the real ones, and how strong the players around him are
+as far as his results take him: Challengers, ATP 250s and 500s, Masters 1000s and the four majors, on hard courts,
+clay and grass (the majors and their courts: docs/surfaces). The ranking is the real one, the points are the real ones, and how strong the players around him are
 comes from real ratings. What has no data behind it is marked **design**.
 
 *This page is written by `tools/career-doc.js` from the game's own files; the statements about the fit are worked out from
@@ -10,10 +10,11 @@ its measurements.*
 
 ## The year
 
-30 weeks of the hard-court year are played, in the shape of the real one: a January swing to the two-week major,
-February indoors, the two-week March Masters, the North American summer, the autumn in Asia and indoors. The clay and
-grass months and the off-season are skipped: the tour is elsewhere. 71 events: 1 Grand
-Slam, 6 Masters 1000, 9 ATP 500, 15 ATP 250 and 40
+48 weeks of the year are played, in the shape of the real one: a January hard-court swing to the first major,
+February indoors, the two-week March Masters, the clay spring to the clay major, a short grass season to the grass major,
+a few weeks of summer clay, the North American hard courts to the last major, the autumn in Asia and indoors. The
+off-season is skipped. 103 events (72 on hard courts, 21 on clay, 10 on grass):
+4 Grand Slams, 9 Masters 1000, 13 ATP 500, 23 ATP 250 and 54
 Challengers. Event names are invented. Each week you enter one event you are ranked high enough for, or train.
 
 | Category | Draw | Matches | Points: W / F / SF / QF / R16 | Entry cut-off | Best ranking that plays it |
@@ -97,6 +98,6 @@ choose the shots, and timing and aim can beat the odds: that is the game.
 ## Limits
 
 - The rest of the ranking does not move; nobody else wins or loses points.
-- Only hard courts, and one major: the clay and grass months and the other three majors are not in the game yet.
+- Matches decided by Elo use one rating for every surface; on court, the surface plays its part (docs/surfaces).
 - Draws have no qualifying, wild cards or byes; a Masters 1000 is a 64 draw.
 - The entry cut-offs below the Grand Slams, the ranking bands, the starting point and the growth are design.

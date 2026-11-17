@@ -13,12 +13,12 @@ const chk=g=>{const c=fit.check[g],d=c.game-c.elo,inside=Math.abs(d)<=c.margin;r
 const c100=chk(100),c200=chk(200),c400=chk(400);
 const verdict=c=>c.inside?`${pc(c.game)} against Elo's ${pc(c.elo)}: inside the measurement's ±${c.margin} points`:`**${pc(c.game)} against Elo's ${pc(c.elo)}: ${Math.abs(c.d).toFixed(1)} points ${c.d>0?'more':'fewer'} than Elo, outside the measurement's ±${c.margin}**`;
 const tierRows=Object.entries(T).map(([k,t])=>`| ${t.name} | ${t.draw} | ${t.sets===3?'best of five':'best of three'} | ${P[k].W} / ${P[k].F} / ${P[k].SF} / ${P[k].QF} / ${P[k].R16} | ${k==='gs'?'104 (rule)':t.cut>=9999?'none (design)':t.cut+' (design)'} | ${t.top} (design) |`).join('\n');
-const weeks=[...new Set(Calendar.EVENTS.map(e=>e.wk))].length,count=k=>Calendar.EVENTS.filter(e=>e.tier===k).length;
+const weeks=[...new Set(Calendar.EVENTS.flatMap(e=>[...Array(e.len)].map((_,i)=>e.wk+i)))].length,count=k=>Calendar.EVENTS.filter(e=>e.tier===k).length,surf=k=>Calendar.EVENTS.filter(e=>e.surface===k).length;
 const md=`# Career
 
 A career of the player you make. He starts ranked **${startRank}**, with ${startPts} points from last season, and goes
-as far as his results take him: Challengers, ATP 250s and 500s, Masters 1000s and the Pixel Tennis Open, the summer
-hard-court major. The ranking is the real one, the points are the real ones, and how strong the players around him are
+as far as his results take him: Challengers, ATP 250s and 500s, Masters 1000s and the four majors, on hard courts,
+clay and grass (the majors and their courts: docs/surfaces). The ranking is the real one, the points are the real ones, and how strong the players around him are
 comes from real ratings. What has no data behind it is marked **design**.
 
 *This page is written by \`tools/career-doc.js\` from the game's own files; the statements about the fit are worked out from
@@ -26,10 +26,11 @@ its measurements.*
 
 ## The year
 
-${weeks} weeks of the hard-court year are played, in the shape of the real one: a January swing to the two-week major,
-February indoors, the two-week March Masters, the North American summer, the autumn in Asia and indoors. The clay and
-grass months and the off-season are skipped: the tour is elsewhere. ${Calendar.EVENTS.length} events: ${count('gs')} Grand
-Slam, ${count('m1000')} Masters 1000, ${count('a500')} ATP 500, ${count('a250')} ATP 250 and ${Calendar.EVENTS.length-count('gs')-count('m1000')-count('a500')-count('a250')}
+${weeks} weeks of the year are played, in the shape of the real one: a January hard-court swing to the first major,
+February indoors, the two-week March Masters, the clay spring to the clay major, a short grass season to the grass major,
+a few weeks of summer clay, the North American hard courts to the last major, the autumn in Asia and indoors. The
+off-season is skipped. ${Calendar.EVENTS.length} events (${surf('hard')} on hard courts, ${surf('clay')} on clay, ${surf('grass')} on grass):
+${count('gs')} Grand Slams, ${count('m1000')} Masters 1000, ${count('a500')} ATP 500, ${count('a250')} ATP 250 and ${Calendar.EVENTS.length-count('gs')-count('m1000')-count('a500')-count('a250')}
 Challengers. Event names are invented. Each week you enter one event you are ranked high enough for, or train.
 
 | Category | Draw | Matches | Points: W / F / SF / QF / R16 | Entry cut-off | Best ranking that plays it |
@@ -106,7 +107,7 @@ choose the shots, and timing and aim can beat the odds: that is the game.
 ## Limits
 
 - The rest of the ranking does not move; nobody else wins or loses points.
-- Only hard courts, and one major: the clay and grass months and the other three majors are not in the game yet.
+- Matches decided by Elo use one rating for every surface; on court, the surface plays its part (docs/surfaces).
 - Draws have no qualifying, wild cards or byes; a Masters 1000 is a 64 draw.
 - The entry cut-offs below the Grand Slams, the ranking bands, the starting point and the growth are design.
 `;

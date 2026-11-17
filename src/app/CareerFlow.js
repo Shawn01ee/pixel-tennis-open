@@ -21,8 +21,8 @@ class CareerFlow{
     g.vs.open(me,opp,CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase(),sub,()=>this.startMatch(me,opp));
   }
   startMatch(me,opp){
-    const c=this.c,E=c.event,g=this.g;g.sound.start();this.active=true;g.venue=E.ev.name.toUpperCase();
-    g.last_={a:me,b:opp,human:0,format:MatchFormat.get(c.s.fmt),walkOn:true,final:E.lastRound};
+    const c=this.c,E=c.event,g=this.g;g.sound.start();this.active=true;const v=Venue.event(E.ev.name,E.ev.surface||'hard');if(v.phase)g.setPhase(v.phase);
+    g.last_={a:me,b:opp,human:0,format:MatchFormat.get(c.s.fmt),walkOn:true,final:E.lastRound,venue:v};
     g.startMatch(g.last_);g.results.close();g.cam.setMode(CameraRig.FOLLOW);g.cam.k=0;g.speed=1;
     g.say(`${E.ev.name}, ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}: ${opp.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);g.rotateHint();
   }
@@ -35,7 +35,7 @@ class CareerFlow{
   afterMatch(){
     const g=this.g,m=g.match,c=this.c,E=c.event;if(!m.result||!E)return;g.results.close();
     const won=m.result.winner===m.human,opp=E.opponent,big=E.lastRound||E.roundName==='SF'||(won&&opp[0]==='s')||['gs','m1000'].includes(E.ev.tier)&&E.d.round>=E.names.length-3;
-    const done=()=>{this.active=false;g.venue=null;c.matchDone(won,m.result.line);c.save();g.demo();this.screen.open();};
+    const done=()=>{this.active=false;c.matchDone(won,m.result.line);c.save();g.demo();this.screen.open();};
     const t={round:E.lastRound?2:E.roundName==='SF'?1:0,label:CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()};
     const talk=()=>big?g.interview.open(m,t,fans=>{c.s.fans+=fans;done();}):done();
     if(won&&E.lastRound)g.ceremony(talk);else talk();

@@ -6,16 +6,22 @@ A pixel-art tennis match in a 45° isometric stadium, running in the browser. Yo
 the shot and where it goes, and the player moves, times the swing and recovers on their own. An Auto mode plays the
 whole match for you.
 
-It is a career game in the making: the career (tour, growth, the real ranking) is playable on hard courts; clay,
-grass and the other three majors are still to come.
+It is a career game: your own player on the real ranking, through a whole year on hard courts, clay and grass, with
+four majors of the game's own.
 
 ## Play
 
 **Career**: make your own player (name, country, hand, backhand, looks) and model his game on one of the thirteen.
-He starts ranked 349 and climbs through Challengers, ATP 250s and 500s and the Masters 1000s to the Pixel Tennis Open.
+He starts ranked 349 and climbs through Challengers, ATP 250s and 500s and the Masters 1000s to the four majors.
 The ranking points are the ATP's, the rest of the ranking is the real one of 16 November 2026, and how strong every
 player is comes from real Elo ratings; your level rises with every match. Play each match on court, or simulate it by
 the Elo odds. How it all works, and what is real and what is design, is in **[docs/career](docs/career/README.md)**.
+
+**The four majors** are the game's own, in the spirit of the real four: the **Pixel Tennis Open** (January, a summer
+hard court), the **Terre Battue Open** (late May, red clay), the **Old Lawn Championships** (late June, grass, players
+in white) and the **Big City Open** (late August, a hard court under the lights). Each court is set from measurements
+of real courts (how much it slows the ball, how high it bounces), and the game is checked against the real tour on
+each surface, mismatches included: **[docs/surfaces](docs/surfaces/README.md)**.
 
 Two more modes: a **Tournament** (eight players, quarter-final to final, with an on-court interview after each of your
 matches) or a single **Exhibition match** against the opponent of your choice. The opponent level decides how much
@@ -81,6 +87,8 @@ node tools/fit-directions.js          # fits how often rally balls go down the m
 node tools/players-doc.js             # rewrites docs/players from the fit and the rally check
 node tools/fit-levels.js              # fits how a player's Elo reaches the court, against Elo's odds
 node tools/career-doc.js              # rewrites docs/career from the career's data and the level fit
+node tools/surface-check.js           # how the game plays on hard, clay and grass against the real tour on each
+node tools/surfaces-doc.js            # rewrites docs/surfaces from the courts' sources and the surface check
 ```
 
 Python 3 and Node are the only requirements; there are no packages to install.

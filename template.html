@@ -191,7 +191,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 @keyframes ping{to{inset:-12px;opacity:0}}
 .s-foot{width:min(1180px,100%);margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 12px}
 /* three settings in equal columns, each: label, a fixed-width stepper, two lines of description */
-.s-opts{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 22px;align-items:start}
+.s-opts{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 22px;align-items:start}
 .s-opt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}.s-opt>span{font:700 11px var(--display);letter-spacing:.12em;color:var(--sky)}
 .s-cyc{display:grid;grid-template-columns:34px 150px 34px;height:34px}.s-cyc button{min-height:0;height:34px;padding:0;font-size:15px}.s-cyc b{display:flex;align-items:center;justify-content:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--chalk);background:var(--ink);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);white-space:nowrap;overflow:hidden}
 .s-opt small{font-size:15px;line-height:1.2;color:var(--mute);min-height:2.4em;max-width:250px}
@@ -460,7 +460,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 }
 @media(max-width:620px){.ch-head{flex-wrap:wrap}.ch-stats{width:100%}.ch-stat{flex:1}.ce-list{grid-template-columns:1fr}}
 @media(max-height:520px) and (orientation:landscape){.s-main{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}.h-style{display:none}
-  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(3,auto);gap:4px 10px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
+  .fe>.s-foot{flex-wrap:nowrap}.s-opts{grid-template-columns:repeat(4,auto);gap:4px 8px}.s-opt{flex-direction:column;align-items:flex-start;gap:2px;width:auto}.s-opt>span{font-size:9px}
   .s-cyc{grid-template-columns:28px 104px 28px;height:30px}.s-cyc button{height:30px}.s-foot .cta{width:auto;font-size:15px}}
 </style>
 </head>
@@ -535,7 +535,7 @@ button[aria-pressed="true"] kbd{color:var(--deep)}
 <div class="fe vs-scr" id="vs" hidden><div class="vs-body" id="vsBody"></div><div class="fe-keys"><span><kbd>Enter</kbd> Start</span></div></div>
 <div class="fe" id="bracket" hidden>
   <div class="fe-shade"></div>
-  <header class="d-head"><div class="d-brand"><b>PIXEL TENNIS <em>OPEN</em></b><span>MEN'S SINGLES · CENTRE COURT</span></div><div class="d-stat"><span id="brFans" class="d-fans"></span><span id="brHead" class="d-round">QUARTER-FINALS</span></div></header>
+  <header class="d-head"><div class="d-brand"><b id="brBrand">PIXEL TENNIS <em>OPEN</em></b><span id="brSub">MEN'S SINGLES · CENTRE COURT</span></div><div class="d-stat"><span id="brFans" class="d-fans"></span><span id="brHead" class="d-round">QUARTER-FINALS</span></div></header>
   <section class="d-sheet panel"><div id="brCols" class="d-draw"></div></section>
   <section id="brNote" class="d-note panel"></section>
   <div class="d-acts"><button id="brQuit">Leave the tournament</button><button class="cta" id="brGo">Play ▶</button></div>

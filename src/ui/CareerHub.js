@@ -33,7 +33,7 @@ class CareerHub{
     if(E)return`<div class="ce-list"><button class="ce-card go" id="chCont"><span class="tier t-${E.ev.tier}">${E.tier.name.toUpperCase()}</span><b>${E.ev.name}</b><span>You are in the ${CAREER_DATA.ROUND_NAMES[E.roundName].toLowerCase()}.</span><em>Continue ▶</em></button></div>`;
     const evs=[...c.events].sort((a,b)=>(c.canEnter(b).ok?1:0)-(c.canEnter(a).ok?1:0)).map(ev=>{const T=CAREER_DATA.TIERS[ev.tier],can=c.canEnter(ev),P=CAREER_DATA.POINTS[ev.tier];
       return`<button class="ce-card${can.ok?'':' locked'}" ${can.ok?`data-enter="${ev.id}"`:'disabled'}><span class="tier t-${ev.tier}">${T.name.toUpperCase()}</span><b>${ev.name}</b>
-        <span>${T.draw} players · ${T.sets===3?'best of five':'best of three'}${ev.len>1?' · two weeks':''} · hard court</span><span>Champion <strong>+${P.W}</strong> · final +${P.F} · semi-final +${P.SF}</span>
+        <span>${T.draw} players · ${T.sets===3?'best of five':'best of three'}${ev.len>1?' · two weeks':''} · ${ev.surface} court</span><span>Champion <strong>+${P.W}</strong> · final +${P.F} · semi-final +${P.SF}</span>
         <em>${can.ok?'Enter ▶':can.why}</em></button>`;}).join('');
     const exp=c.expiring(4),def=exp.length?`<p class="ch-def">Points dropping off in the next four weeks: ${exp.map(r=>`${r.pts} (${r.name})`).join(', ')}.</p>`:'';
     return`<p class="ch-lead">Week ${c.week} of ${c.year}. Enter one event, or spend the week on the practice court.</p>${def}<div class="ce-list">${evs}

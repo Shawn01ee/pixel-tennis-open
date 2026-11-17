@@ -4,9 +4,10 @@
 class SetupScreen{
   static SESSION={day:'Midday sun, sharp shadows.',twilight:'Low sun, long shadows, the lights coming on.',night:'Under the floodlights.'};
   constructor(game){
-    this.g=game;this.a=2;this.b=1;this.fmt='one';this.level='pro';this.mode='tour';this.step=0;this.phase=game.R.phaseKey;
+    this.g=game;this.a=2;this.b=1;this.fmt='one';this.level='pro';this.mode='tour';this.step=0;this.phase=game.R.phaseKey;this.venue='pto';
     $('sBack').onclick=()=>this.back();$('walkOut').onclick=()=>this.go();
-    this.opts=[{k:'fmt',name:'FORMAT',list:()=>MatchFormat.MENU.map(f=>[f.key,f.name,f.desc])},
+    this.opts=[{k:'venue',name:'EVENT',list:()=>Venue.MAJORS.map(v=>[v.key,v.name,`${v.sub}: ${SURFACES[v.surface].name.toLowerCase()}${v.white?', players in white':''}${v.phase==='night'?', night sessions':''}.`])},
+      {k:'fmt',name:'FORMAT',list:()=>MatchFormat.MENU.map(f=>[f.key,f.name,f.desc])},
       {k:'phase',name:'SESSION',list:()=>Object.keys(PHASES).map(k=>[k,PHASES[k].name,SetupScreen.SESSION[k]||''])},
       {k:'level',name:'OPPONENTS',list:()=>Difficulty.ALL.map(d=>[d.key,d.name,d.desc])}];
     $('sOpts').innerHTML=this.opts.map((o,i)=>`<div class="s-opt"><span>${o.name}</span><div class="s-cyc"><button data-o="${i}" data-d="-1" aria-label="Previous ${o.name.toLowerCase()}">◀</button><b id="so-${o.k}"></b><button data-o="${i}" data-d="1" aria-label="Next ${o.name.toLowerCase()}">▶</button></div><small id="sd-${o.k}"></small></div>`).join('');
@@ -15,10 +16,12 @@ class SetupScreen{
   get on(){return!$('setup').hidden;}
   get sel(){return this.step===1?this.b:this.a;}
   set sel(i){if(this.step===1)this.b=i;else this.a=i;}
-  open(mode=this.mode){this.mode=mode;this.step=0;this.phase=this.g.R.phaseKey;this.render();$('setup').hidden=false;}
+  open(mode=this.mode){this.mode=mode;this.step=0;this.phase=this.g.R.phaseKey;const v=Venue.major(this.venue);if(this.g.venue!==v){this.g.venue=v;this.g.demo();}this.render();$('setup').hidden=false;}
   close(){$('setup').hidden=true;}
   cycle(i,d){const o=this.opts[i],L=o.list(),j=Math.max(0,L.findIndex(q=>q[0]===this[o.k])),n=L[(j+d+L.length)%L.length][0];
-    this[o.k]=n;if(o.k==='phase')this.g.setPhase(n);this.g.sfx('click');this.render();}
+    this[o.k]=n;if(o.k==='phase')this.g.setPhase(n);if(o.k==='venue')this.dress();this.g.sfx('click');this.render();}
+  // the stadium behind the screen turns into the chosen event's, its session with it
+  dress(){const v=Venue.major(this.venue);this.phase=v.phase;this.g.setPhase(v.phase);this.g.venue=v;this.g.demo();}
   pick(i){if(this.step===1&&i===this.a)return;if(this.sel!==i){this.sel=i;this.g.sfx('click');this.render();}}
   // arrow keys through the grid; when choosing an opponent your own player is stepped over
   move(dx,dy){
@@ -28,9 +31,9 @@ class SetupScreen{
   }
   go(){
     this.g.sfx('chime');
-    if(this.mode==='tour'){this.close();this.g.startTour(this.a,this.fmt,this.phase,this.level);return;}
+    if(this.mode==='tour'){this.close();this.g.startTour(this.a,this.fmt,this.phase,this.level,null,this.venue);return;}
     if(this.step===0){this.step=1;if(this.b===this.a)this.b=(this.a+1)%ROSTER.length;this.render();return;}
-    this.close();this.g.exhibition(this.a,this.b,this.fmt,this.phase,this.level);
+    this.close();this.g.exhibition(this.a,this.b,this.fmt,this.phase,this.level,this.venue);
   }
   back(){this.g.sfx('click');if(this.step===1){this.step=0;this.render();return;}this.close();this.g.mainMenu.open();}
   render(){

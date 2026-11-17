@@ -9,9 +9,10 @@ class Tournament{
     const rest=all.filter(p=>p.id!==me.id);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
     return[me,...rest.slice(0,7)].sort((a,b)=>a.rank-b.rank);
   }
-  constructor(me,format,level,roster=Tournament.field(me)){
+  // venue: where it is played (a Venue; the Pixel Tennis Open when none is given)
+  constructor(me,format,level,roster=Tournament.field(me),venue=null){
     const seeds=[...roster].sort((a,b)=>a.rank-b.rank),draw=Tournament.ORDER.map(i=>seeds[i]);this.seeds=seeds.map(p=>p.id);
-    this.me=me.id;this.format=format;this.level=level;this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
+    this.me=me.id;this.format=format;this.level=level;this.venue=venue||{name:'Pixel Tennis Open',surface:'hard'};this.roster=roster;this.round=0;this.champion=null;this.out=false;this.fans=0;
     // a slot: its two players, the winner, the score as a line and per set (from a's side), and while it is being
     // played in the background, the match itself (live)
     const slot=(a=null,b=null)=>({a,b,w:null,line:'',sets:null,live:null});this.version=0;
@@ -25,7 +26,7 @@ class Tournament{
   get mine(){if(this.out||this.over)return null;return this.rounds[this.round].find(m=>m.a===this.me||m.b===this.me)||null;}
   get opponent(){const m=this.mine;return m?this.player(m.a===this.me?m.b:m.a):null;}
   // the match configuration for the person's next match
-  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2};}
+  config(){const me=this.player(this.me),opp=this.opponent;return{a:me,b:Difficulty.apply(opp,this.level),human:0,format:this.format,walkOn:true,final:this.round===2,venue:this.venue.key?this.venue:undefined};}
   // the person's match is over. match: the finished Match, whose first player is the person
   record(won,match){const m=this.mine;if(!m)return;m.w=won?this.me:(m.a===this.me?m.b:m.a);this.score(m,match,m.a===this.me?0:1);if(!won)this.out=true;}
   // the score of a finished match into its slot, set by set from the slot's first player's side (ia: that player's
@@ -38,7 +39,7 @@ class Tournament{
     for(;;){
       for(const m of this.rounds[this.round]){
         if(m.w!=null||m.a==null||m.b==null||m.a===this.me||m.b===this.me)continue;
-        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format});m.live=sim;this.version++;let n=0;
+        const sim=new Match({a:this.player(m.a),b:this.player(m.b),format:this.format,surface:this.venue.surface||'hard'});m.live=sim;this.version++;let n=0;
         while(!(sim.stage==='over'&&sim.result)&&n<120*60*240){sim.tick();n++;sim.events.length=0;if(n%40===0)yield m;}
         m.w=sim.result?sim.result.winner.st.id:m.a;this.score(m,sim);yield m;
       }

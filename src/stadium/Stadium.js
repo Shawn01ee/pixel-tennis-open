@@ -12,10 +12,20 @@ class Stadium{
     this.led=new LedBoards();this.buildBoards();
     this.screens=[new BigScreen(),new BigScreen()];this.buildScreens(G);
     const st=new THREE.Mesh(G.build(),mats.lit);st.castShadow=true;st.receiveShadow=true;root.add(st);
+    this.mesh=st;this.base=st.geometry.getAttribute('color').array.slice();this.look=null;
     root.add(new THREE.Mesh(GL.build(),mats.glow));
     this.crowdMat=Shading.enhance(new THREE.MeshLambertMaterial({vertexColors:true}),false,CrowdMotion.shader);
     const cm=new THREE.Mesh(CR.build(),this.crowdMat);cm.receiveShadow=true;root.add(cm);
     this.crowdCount=CR.p.length/270;
+  }
+  // dress the stadium for a venue: its court, and the stands' blues swapped for the venue's colours (Venue.STANDS)
+  dress(venue){
+    if(this.court.venue!==venue){this.court.paint(venue);this.court.flush();}
+    if(this.look===venue.look)return;this.look=venue.look;
+    const map=venue.stands,a=this.mesh.geometry.getAttribute('color'),c=a.array,b=this.base;c.set(b);
+    if(map){const key=(r,g,bl)=>(Math.round(r*255)<<16)|(Math.round(g*255)<<8)|Math.round(bl*255),to={};for(const k in map)to[k]=hexc(map[k]);
+      for(let i=0;i<c.length;i+=3){const t=to[key(b[i],b[i+1],b[i+2])];if(t){c[i]=t[0];c[i+1]=t[1];c[i+2]=t[2];}}}
+    a.needsUpdate=true;
   }
   // points round the base rectangle with their outward normals; arcs at the corners
   static ringBase(){

@@ -6,6 +6,8 @@
 | `fit-report.json` | Each player's statistics in the game next to his real ones, and his numbers before and after the fit | `node tools/fit-players.js` |
 | `rally-check.json` | How points are played in the game (directions, overheads, net play, how points end, running) next to the real figures | `node tools/rally-check.js 24 data/rally-check.json` |
 | `rally-before.json` | The same for the version before the movement fix (commit 193b5ff), measured by the same tool | the same, run on that commit |
+| `mcp-surfaces.json` | The real tour on hard, clay and grass: every charted men's match since 2010 on each surface | `python3 -I tools/mcp_surfaces.py <clone of the project> data/mcp-surfaces.json` |
+| `surface-check.json` | How the game plays on each surface next to those figures, and each court's bounce measured as on a real court | `node tools/surface-check.js` |
 | `career/atp-ranking-points-2026-11-16.json` | The points of every place 1–500 on the official ATP singles ranking of 16 November 2026 (as listed by tennisexplorer.com) | collected by hand from the listing; ranks and points only |
 | `career/atp-elo-by-rank-2026-11-16.json` | Overall Elo and ATP rank of every player in Tennis Abstract's ATP Elo list, last updated 16 November 2026 | from tennisabstract.com/reports/atp_elo_ratings.html; ranks and ratings only |
 | `career/level-fit.json` | The fit of how a player's Elo reaches the court, and its checks against Elo's odds | `node tools/fit-levels.js` |

@@ -56,6 +56,7 @@
  "render/FigureRig.js",
  "render/Prizes.js",
  "stadium/PixelFont.js",
+ "stadium/Venue.js",
  "stadium/CourtSurface.js",
  "stadium/LedBoards.js",
  "stadium/BigScreen.js",

@@ -11,7 +11,7 @@ class Game{
     this.board=new Scoreboard();this.stats=new StatsPanel();this.labels=new WorldLabels();this.replay=new ReplayInset();this.prompt=new DecisionPrompt();$('prompt').onclick=()=>this.challenge();
     this.quick=Prefs.get('quick',Prefs.touch);
     this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
-    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=null;this.vs=new VersusScreen(this);this.feTurn=0;
+    this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=Venue.MAJORS[0];this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
     this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
@@ -33,23 +33,23 @@ class Game{
   sfx(k){const S=this.sound;if(!S.live)return;if(k==='click')S.sfx.click();else if(k==='chime')S.sfx.chime();else if(k==='slam'){S.sfx.hit(1,0,'serve',0);S.event({type:'crowd',kind:'applause',power:.7},0);}}
   // is a front-end screen up? The HUD hides behind it and the stadium camera turns slowly, a quarter at a time
   get frontEnd(){return this.title.on||this.mainMenu.on||this.setup.on||this.vs.on||this.flow.on||!$('bracket').hidden;}
-  exhibition(a,b,fmt,phase,level){this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level));}
+  exhibition(a,b,fmt,phase,level,venue='pto'){const v=Venue.major(venue);this.vs.open(ROSTER[a],ROSTER[b],'EXHIBITION',`${v.name} · ${MatchFormat.get(fmt).name} · ${PHASES[phase].name} · ${Difficulty.get(level).name}`,()=>this.play(a,b,fmt,phase,level,venue));}
   // ──────── matches ────────
   // two computer players behind the setup screen, on a loop
   demo(){const a=Math.floor(R()*ROSTER.length);let b=Math.floor(R()*ROSTER.length);if(b===a)b=(a+3)%ROSTER.length;
     this.startMatch({a:ROSTER[a],b:ROSTER[b],human:-1,format:MatchFormat.get('short'),loop:true});this.cam.setMode(CameraRig.STADIUM);}
-  play(a,b,fmt,phase,level='pro'){
+  play(a,b,fmt,phase,level='pro',venue='pto'){
     this.sound.start();$('title').hidden=true;this.mainMenu.close();
-    this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true};this.setPhase(phase);
+    this.last_={a:ROSTER[a],b:Difficulty.apply(ROSTER[b],level),human:0,format:MatchFormat.get(fmt),walkOn:true,venue:Venue.major(venue)};this.setPhase(phase);
     this.startMatch(this.last_);this.setup.close();this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`Players walk out. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();
   }
   // on a phone held upright, a reminder that the court is bigger sideways (once per match, gone after a few seconds)
   rotateHint(){const el=$('rot');clearTimeout(this.rotT);el.hidden=!(Prefs.touch&&innerHeight>innerWidth);if(!el.hidden)this.rotT=setTimeout(()=>el.hidden=true,6000);}
   // ──────── tournament ────────
-  startTour(a,fmt,phase,level,field){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined);this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
+  startTour(a,fmt,phase,level,field,venue='pto'){this.sound.start();this.tour=new Tournament(ROSTER[a],MatchFormat.get(fmt),level,field||undefined,Venue.major(venue));this.setPhase(phase);this.setup.close();this.results.close();this.bracket.open();}
   playTour(){const t=this.tour;if(!t||!t.mine)return;
-    const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
+    const round=['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round],sub=`${t.venue.name} · ${t.format.name} · ${PHASES[this.R.phaseKey].name} · ${Difficulty.get(t.level).name}`;
     this.vs.open(t.player(t.me),t.opponent,round,sub,()=>this.startTourMatch());}
   startTourMatch(){const t=this.tour;if(!t||!t.mine)return;this.sound.start();this.tourRun=t.run();this.tourFast=false;this.last_=t.config();this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);this.cam.k=0;this.speed=1;
     this.say(`${t.name}: ${t.opponent.name}. ${Prefs.touch?'Tap Auto':'Space'} lets your player choose every shot.`);this.rotateHint();}
@@ -76,11 +76,13 @@ class Game{
   rematch(){if(this.last_){this.startMatch(this.last_);this.results.close();this.cam.setMode(CameraRig.FOLLOW);}}
   // back to the front: the main menu over a match between two computer players
   // a career match left half-way is not recorded: the event waits on its screen for the match to be played again
-  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.venue=null;this.demo();this.mainMenu.open();}
+  openSetup(){this.results.close();if(this.paused)this.togglePause();this.flow.active=false;this.demo();this.mainMenu.open();}
+  // cfg.venue: where it is played (its surface, court and stands); the last venue when it has none
   startMatch(cfg){
     for(const b of this.bodies.values()){this.R.root.remove(b.mesh);b.dispose();}this.bodies.clear();
+    const v=cfg.venue||this.venue;this.venue=v;cfg.surface=v.surface;this.stadium.dress(v);
     this.match=new Match(cfg);this.acc=0;this.resultAt=0;this.resultShown=false;this.board.key='';this.screenKey='';
-    $('sbEv').textContent=this.venue||'PIXEL TENNIS OPEN';$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
+    $('sbEv').textContent=v.name.toUpperCase();$('line').textContent='';$('elc').hidden=true;this.labels.clear();this.led={until:0,msgs:null,hot:false};this.sound.voice.stop();
   }
   // ──────── commands from the dock, keys and clicks ────────
   shot(k,force=false){const m=this.match;if(m.human){m.setShot(k,force);this.dock.update(m);}}
@@ -159,7 +161,7 @@ class Game{
         case'replay':this.replay.show(e,m.t);break;
         case'ace':this.ledFlash(['ACE!',`${e.kmh} KM/H`,'ACE!'],3,true);break;
         case'bigPoint':this.ledFlash([e.label.toUpperCase(),e.label.toUpperCase()],5,true);break;
-        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),this.venue||'PIXEL TENNIS OPEN'],12,true);break;}
+        case'trophy':{const c=m.cer;this.fx.confetti(300,c.D.x,c.D.z,.45);this.confettiUntil=m.t+4;this.ledFlash(['CHAMPION',e.name.toUpperCase(),this.venue.name.toUpperCase()],12,true);break;}
         case'ceremonyEnd':this.endCeremony();break;
         case'matchOver':{const H=m.human;this.ledFlash(['GAME SET MATCH',e.winner.short.toUpperCase()],12,true);
           if(!H||e.winner===H)this.fx.confetti(220);this.resultAt=m.t+4.5;break;}
@@ -169,12 +171,12 @@ class Game{
   }
   updateLed(){const m=this.match,L=this.stadium.led;
     if(this.led.msgs&&this.tc<this.led.until)L.draw(this.led.msgs,this.led.hot);
-    else L.draw([`${m.A.short} V ${m.B.short}`,this.venue||'PIXEL TENNIS OPEN','SUMMER OF TENNIS']);}
+    else L.draw([`${m.A.short} V ${m.B.short}`,this.venue.name.toUpperCase(),this.venue.tag||'SUMMER OF TENNIS']);}
   updateScreens(){
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?'PIXEL TENNIS OPEN':crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+    const s={title:!sc?this.venue.name.toUpperCase():crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
       foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.players[sc.winner].short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
@@ -199,7 +201,7 @@ class Game{
       const set=this.stanceOf(a,t);
       if(g)g.update(v,dtSim,a.h/1.8,a.pose==='ready'?.26:a.mode==='play'||a.swing?.2:.12,a.mode==='play'&&!set?a.patter||0:0,set);
       return FigureRig.draw(B,v,Object.assign({t,c,look:lk,gait:g,body:this.bodyOf(a,c)},extra));};
-    for(const P of m.players){P._fit=P._fit||Outfits.player(P);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
+    for(const P of m.players){P._fit=P._fit||Outfits.player(P,this.venue.white);const hold=!!m.ball&&m.ball.mode==='held'&&m.ball.holder===P;
       const hold2=holdOf(P),hands=draw(P,P._fit,(m.live||P.pose==='ritual')&&P.path.length===0?look:null,{drink:sit(P)&&Math.sin(t*.5+P.idx)>.8,holding:hold,hold:hold2});
       if(hold2&&hands)this.props.push({what:hold2.what,hands,yaw:P.yaw});
       // a ball waiting to be served sits in the server's free hand, not inside the body

@@ -32,11 +32,12 @@ class BracketScreen{
         pairs(r).map(pr=>`<div class="d-pair${pr.length===1?' one':''}">${pr.map(m=>this.match(t,m)).join('')}</div>`).join('')}</div></div>`).join('')+
       `<div class="d-col d-champ"><h3>CHAMPION</h3><div class="d-body"><div class="d-cup${champ?' won':''}">${Trophy.img('trophy d-trophy')}${champ?`${Portrait.img(champ,'face d-face')}<b>${champ.short.toUpperCase()}</b><span>${champ.cc} · seed ${t.seed(champ.id)}</span>`:'<b>?</b><span>To be decided</span>'}</div></div></div>`;
     const me=t.player(t.me),opp=t.opponent,mine=champ&&champ.id===t.me,running=!!this.g.tourRun&&t.out&&!t.over;
+    $('brBrand').innerHTML=t.venue.name.toUpperCase().replace(/(\S+)$/,'<em>$1</em>');$('brSub').textContent=`MEN'S SINGLES · ${(t.venue.sub||'Centre Court').toUpperCase()}`;
     $('brHead').textContent=t.over?'CHAMPION CROWNED':t.name.toUpperCase();$('brFans').textContent=t.fans?`${t.fans}k fans`:'';
     $('bracket').classList.toggle('won',!!mine);
     let note;
     if(mine)note=this.ceremony(t,champ);
-    else if(champ)note=`<div class="d-next">${Trophy.img('trophy small')}${Portrait.img(champ,'face big')}<div><small>CHAMPION</small><b>${champ.name}</b><span>${t.out?`wins the Pixel Tennis Open. You went out in the ${this.lostIn(t)}.`:'wins the Pixel Tennis Open.'}</span></div></div>`;
+    else if(champ)note=`<div class="d-next">${Trophy.img('trophy small')}${Portrait.img(champ,'face big')}<div><small>CHAMPION</small><b>${champ.name}</b><span>${t.out?`wins the ${t.venue.name}. You went out in the ${this.lostIn(t)}.`:`wins the ${t.venue.name}.`}</span></div></div>`;
     else if(t.out)note=`<div class="d-next"><div><small>OUT IN THE ${this.lostIn(t).toUpperCase()}</small><b>The rest of the draw is being played</b><span>Watch the results come in, or fast-forward to the final.</span></div></div>`;
     else note=`<div class="d-next">${Portrait.img(me,'face big')}<i class="d-vs">VS</i>${Portrait.img(opp,'face big')}<div><small>NEXT · ${['QUARTER-FINAL','SEMI-FINAL','FINAL'][t.round]}</small><b>${opp.name}</b><span>${opp.cc} · seed ${t.seed(opp.id)} · ${opp.overall} OVR · ${opp.style}</span></div></div>`;
     if($('brNote').dataset.k!==note){$('brNote').innerHTML=note;$('brNote').dataset.k=note;}
@@ -44,14 +45,14 @@ class BracketScreen{
     $('brGo').disabled=running&&this.g.tourFast;
     $('bracket').hidden=false;
     if(mine&&!t.feted){t.feted=true;const s=this.g.sound;s.event({type:'crowd',kind:'roar',power:1},0);s.event({type:'crowd',kind:'applause',power:1},0);
-      s.voice.say(`Ladies and gentlemen, the champion of the Pixel Tennis Open: ${champ.name}!`);}
+      s.voice.say(`Ladies and gentlemen, the champion of the ${t.venue.name}: ${champ.name}!`);}
   }
   // the champion's panel when it is the person: the cup, the road to the title, confetti
   ceremony(t,p){
     const road=t.rounds.map((r,i)=>{const m=r.find(q=>q.a===t.me||q.b===t.me),o=t.player(m.a===t.me?m.b:m.a);return`<li><i>${['QF','SF','F'][i]}</i> d. ${o.short} <em>${m.line}</em></li>`;}).join('');
     const cols=['#f4d44a','#f4f3ec','#7bb8ea','#ff7a59','#7bd88f'],conf=Array.from({length:36},(_,i)=>`<i style="left:${(i*37+11)%100}%;background:${cols[i%5]};animation-delay:${-(i*.37%4).toFixed(2)}s;animation-duration:${(3+i%5*.45).toFixed(2)}s"></i>`).join('');
     return`<div class="cere"><div class="conf">${conf}</div><div class="cup">${Trophy.img()}<s></s><s></s><s></s></div>${Portrait.img(p,'face big')}
-      <div><small>CHAMPION</small><b>${p.name}</b><span>lifts the Pixel Tennis Open Cup${t.fans?` · ${t.fans}k fans`:''}</span><ul>${road}</ul></div></div>`;
+      <div><small>CHAMPION</small><b>${p.name}</b><span>lifts the ${t.venue.name} trophy${t.fans?` · ${t.fans}k fans`:''}</span><ul>${road}</ul></div></div>`;
   }
   lostIn(t){for(let i=0;i<3;i++)if(t.rounds[i].some(m=>(m.a===t.me||m.b===t.me)&&m.w!=null&&m.w!==t.me))return['quarter-finals','semi-finals','final'][i];return'draw';}
   go(){const t=this.g.tour;if(!t)return;
