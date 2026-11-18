@@ -3,19 +3,10 @@
 #   the preview (…-hq.mp3) linked on each sound's page, https://freesound.org/people/<user>/sounds/<id>/ (below)
 #   afconvert -f WAVE -d LEI16@44100 -c 1 <file>.mp3 <file>.wav
 #   python3 -I tools/grunt-samples.py <folder of the .wav files> src/audio/gruntSamples.js
-# Which grunts (where each starts, s; how long, ms), by rules fixed before measuring: a tennis grunt is a short shout at
-# the strike (Stappen et al. 2022: "a non-verbal screaming vocalisation made by tennis players ... when striking the
-# ball"), so only recordings of shouts, efforts and grunts — none of pain, groaning or moaning; each grunt's pitch
-# (median F0 over its voiced 30-ms frames) inside the range of men's tennis grunts measured on tour (234-395 Hz,
-# data/grunt-f0.json); at its loudest within 60 ms of starting, as a shout is; 120-400 ms long; clearly voiced and well
-# above the noise; at most two from any one man, at least 1.5 semitones apart, the most clearly voiced first. Nadal's
-# is the one in two parts, a low "ah" and then a higher "HAH!" (design: his own voice cannot be used; it is longer).
-# Checked again once cut: two whose pitch then read an octave away (Halgrimm's at 5.80 s, BaggoNotes' at 4.69 s) are
-# not clearly voiced after all and are left out; BaggoNotes' next is taken by the same rule, Halgrimm has no other.
-# randbsoundbites' at 2.98 s, once cut, reached its loudest only after 90 ms: his other, at 1.86 s, instead.
-# Each is cut from 20 ms before it starts to 30 ms after it ends (a fade over those 30 ms), high-passed at 60 Hz,
-# halved to 22.05 kHz behind a low-pass at 10 kHz, and set to the same loudness (RMS) as the others, the recordings
-# having been made at different levels.
+# Which grunts: the two the game's maker kept by ear (numbers 18 and 20) out of 28 public-domain candidates on a
+# listening page: men's exhale grunts, the short shouts then in the game, and long two-part ones; the rest were turned
+# down ("최악"). Each is cut from 20 ms before it starts to 30 ms after it ends (a fade over those 30 ms), high-passed
+# at 60 Hz, halved to 22.05 kHz behind a low-pass at 10 kHz, and set to the same loudness (RMS) as the other.
 import sys, os, wave, json, base64, numpy as np
 SRC = {
   '583259': ('RyanPBaskett', 'ah-hah!', 0), '218895': ('Halgrimm', 'human grunts 3', 0), '795440': ('randbsoundbites', 'Grunting', 0),
@@ -24,10 +15,7 @@ SRC = {
   '213232': ('unfa', 'Huh-haaa! (dry)', 0),
 }
 CUT = [  # key, recording, start (s), length (ms)
-  ('nadal', '583259', 0.86, 700),
-('b', '795440', 1.86, 152), ('c', '218895', 11.16, 174), ('d', '399626', 0.57, 278),
-  ('e', '171659', 7.53, 158), ('f', '718967', 8.78, 279), ('g', '770124', 6.03, 292), ('h', '517858', 1.37, 323),
-  ('i', '517848', 0.94, 153), ('j', '213232', 1.76, 316), ('k', '718967', 6.65, 167), ('l', '770124', 2.06, 257),
+  ('h', '517858', 1.37, 323), ('j', '213232', 1.76, 316),
 ]
 folder, out = sys.argv[1], sys.argv[2]
 def load(i):

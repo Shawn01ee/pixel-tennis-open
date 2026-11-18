@@ -9,7 +9,7 @@ then `node tools/sound-doc.js`).
 
 - **hitRec** — [soundreality, "Tennis Ball Hit", Pixabay 151257 (Pixabay Content License)](https://pixabay.com/sound-effects/tennis-ball-hit-151257/): one clean hit, chosen by ear by the game's maker
 - **bounceRec** — [freesound_community, "tennisballbounce", Pixabay 39028 (Pixabay Content License)](https://pixabay.com/sound-effects/tennisballbounce-39028/): a ball bounced on a hard floor, chosen with it
-- **gruntRec** — [Men's shouts and effort grunts from Freesound, all CC0 1.0: RyanPBaskett 583259, Halgrimm 218895, randbsoundbites 795440, SoundsForHim 399626, enmiller2 171659, BaggoNotes 718967, IENBA 770124, mf_gloom 517858 and 517848, unfa 213232](https://freesound.org/search/?q=male+grunt&f=license%3A%22Creative+Commons+0%22): twelve, cut by tools/grunt-samples.py
+- **gruntRec** — [Two men's attack grunts from Freesound, both CC0 1.0: mf_gloom 517858 ("TELV 152 Worker Attack grunt") and unfa 213232 ("Huh-haaa! (dry)", the "haaa")](https://freesound.org/search/?q=male+grunt&f=license%3A%22Creative+Commons+0%22): the two the game's maker kept by ear out of 28 candidates; cut by tools/grunt-samples.py
 - **stappen** — [Stappen et al. 2022, "Predicting Sex and Stroke Success – Computer-aided Player Grunt Analysis in Tennis Matches", arXiv 2202.09102](undefined): a tennis grunt is "a non-verbal screaming vocalisation made by tennis players ... when striking the ball"
 - **raine** — [Raine, Pisanski & Reby 2017, "Tennis grunts communicate acoustic cues to sex and contest outcome", Animal Behaviour 130:47-55; their dataset (figshare 23586057, CC BY 4.0)](https://sussex.figshare.com/articles/dataset/_strong_Dataset_Tennis_grunts_communicate_acoustic_cues_to_sex_and_contest_outcome_strong_/23586057): the pitch of 30 men's grunts on tour, and of about 23 grunts each from 7 men through a match (data/grunt-f0.json, tools/grunt-data.py)
 - **patent** — [US patent 5,908,361, "Automated tennis line calling system" (filed 1997)](https://patents.google.com/patent/US5908361A/en): how a bounce and a racket hit sound on court
@@ -67,27 +67,28 @@ the pitch of 30 men's grunts and of about 23 grunts each from 7 men through a ma
 | A serve's grunt over a groundstroke's | 1.2 semitones | not used: serves have no timing, so no grunt |
 | From the start of a match to its end | 1.42 semitones | not used |
 
-Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the long one in two parts, a low
-"ah" and then a higher "HAH!" (**design**). The first choice of grunts, groans among them, sounded like a moan ("우 우",
-the game's maker); these replaced them. Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
-by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
-energy of a full-pace hit (gain 0.48, **design**).
+Which voice is whose is **design** (the players' own voices cannot be used). Of 28 public-domain candidates on a
+listening page (men's exhale grunts, short shouts, long two-part grunts), the game's maker kept two by ear; every player
+is one of them, raised or lowered within the spread between men so no two are the same, and Nadal has the second as
+recorded until one of his own is chosen (**design**). Anyone outside the thirteen: one of the two by his id, raised or
+lowered by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
+energy of a full-pace hit (gain 0.43, **design**).
 
 | Player | Recording | Its pitch | Raised | Pitch in the game | Length | Inside 234–395 Hz |
 |---|---|---|---|---|---|---|
-| Novak Djokovic | Freesound 770124, clip g | 320 Hz | – | 320 Hz | 342 ms | yes |
-| Rafael Nadal | Freesound 583259, clip nadal | 252 Hz | – | 252 Hz | 750 ms | yes |
-| Carlos Alcaraz | Freesound 213232, clip j | 392 Hz | – | 392 Hz | 366 ms | yes |
-| Roger Federer | Freesound 171659, clip e | 292 Hz | – | 292 Hz | 208 ms | yes |
-| Jannik Sinner | Freesound 770124, clip l | 383 Hz | – | 383 Hz | 307 ms | yes |
-| Daniil Medvedev | Freesound 718967, clip k | 242 Hz | – | 242 Hz | 217 ms | yes |
-| Alexander Zverev | Freesound 218895, clip c | 284 Hz | – | 284 Hz | 224 ms | yes |
-| Alex de Minaur | Freesound 517848, clip i | 352 Hz | – | 352 Hz | 203 ms | yes |
-| Pete Sampras | Freesound 399626, clip d | 310 Hz | – | 310 Hz | 328 ms | yes |
-| Björn Borg | Freesound 795440, clip b | 263 Hz | – | 263 Hz | 202 ms | yes |
-| Andre Agassi | Freesound 517858, clip h | 315 Hz | – | 315 Hz | 373 ms | yes |
-| Andy Murray | Freesound 718967, clip f | 321 Hz | – | 321 Hz | 329 ms | yes |
-| John McEnroe | Freesound 795440, clip b | 263 Hz | +2.16 semitones | 298 Hz | 202 ms | yes |
+| Novak Djokovic | Freesound 517858, clip h | 315 Hz | +-0.43 semitones | 307 Hz | 373 ms | yes |
+| Rafael Nadal | Freesound 213232, clip j | 392 Hz | – | 392 Hz | 366 ms | yes |
+| Carlos Alcaraz | Freesound 213232, clip j | 392 Hz | +-0.36 semitones | 384 Hz | 366 ms | yes |
+| Roger Federer | Freesound 517858, clip h | 315 Hz | +0.43 semitones | 323 Hz | 373 ms | yes |
+| Jannik Sinner | Freesound 213232, clip j | 392 Hz | +-0.72 semitones | 376 Hz | 366 ms | yes |
+| Daniil Medvedev | Freesound 517858, clip h | 315 Hz | +-2.16 semitones | 278 Hz | 373 ms | yes |
+| Alexander Zverev | Freesound 517858, clip h | 315 Hz | +-1.3 semitones | 292 Hz | 373 ms | yes |
+| Alex de Minaur | Freesound 213232, clip j | 392 Hz | +-1.08 semitones | 368 Hz | 366 ms | yes |
+| Pete Sampras | Freesound 517858, clip h | 315 Hz | +1.3 semitones | 340 Hz | 373 ms | yes |
+| Björn Borg | Freesound 213232, clip j | 392 Hz | +-1.44 semitones | 361 Hz | 366 ms | yes |
+| Andre Agassi | Freesound 517858, clip h | 315 Hz | +2.16 semitones | 357 Hz | 373 ms | yes |
+| Andy Murray | Freesound 213232, clip j | 392 Hz | +-1.8 semitones | 353 Hz | 366 ms | yes |
+| John McEnroe | Freesound 213232, clip j | 392 Hz | +-2.16 semitones | 346 Hz | 366 ms | yes |
 
 ## How they got here
 

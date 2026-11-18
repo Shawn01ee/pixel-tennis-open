@@ -69,10 +69,11 @@ the pitch of ${GD.men} men's grunts and of about 23 grunts each from ${GD.within
 | A serve's grunt over a groundstroke's | ${GD.serveOverGroundSemitones.mean} semitones | not used: serves have no timing, so no grunt |
 | From the start of a match to its end | ${GD.matchStartToEndSemitones.mean} semitones | not used |
 
-Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the long one in two parts, a low
-"ah" and then a higher "HAH!" (**design**). The first choice of grunts, groans among them, sounded like a moan ("우 우",
-the game's maker); these replaced them. Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
-by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
+Which voice is whose is **design** (the players' own voices cannot be used). Of 28 public-domain candidates on a
+listening page (men's exhale grunts, short shouts, long two-part grunts), the game's maker kept two by ear; every player
+is one of them, raised or lowered within the spread between men so no two are the same, and Nadal has the second as
+recorded until one of his own is chosen (**design**). Anyone outside the thirteen: one of the two by his id, raised or
+lowered by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
 energy of a full-pace hit (gain ${SOUND.grunt.design.gain}, **design**).
 
 | Player | Recording | Its pitch | Raised | Pitch in the game | Length | Inside ${GD.gruntF0.min}–${GD.gruntF0.max} Hz |

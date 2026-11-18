@@ -12,10 +12,10 @@ const stars=[...Array(13).keys()].map(id=>({id,v:T.gruntVoice(id)}));
 const out=stars.filter(s=>pitch(s.v)<R[0]-1||pitch(s.v)>R[1]+1);
 check(!out.length,`the thirteen grunt between ${Math.round(Math.min(...stars.map(s=>pitch(s.v))))} and ${Math.round(Math.max(...stars.map(s=>pitch(s.v))))} Hz${out.length?'; outside: '+out.map(s=>s.id).join(', '):''}`);
 const keys=new Set(stars.map(s=>s.v.key+'/'+s.v.semi));check(keys.size===13,`the thirteen voices are all different (${keys.size})`);
-check(stars[1].v.key==='nadal'&&stars.filter(s=>s.v.key==='nadal').length===1,'Nadal alone has the grunt in two parts');
+check(stars.filter(s=>s.v.key===stars[1].v.key&&s.v.semi===stars[1].v.semi).length===1,'Nadal\'s voice is his alone');
 const gen=[];for(let id=900;id<1400;id++)gen.push(pitch(T.gruntVoice(id)));
 check(gen.every(f=>f>=R[0]-1&&f<=R[1]+1),`500 other players' grunts between ${Math.round(Math.min(...gen))} and ${Math.round(Math.max(...gen))} Hz`);
-const used=new Set();for(let id=900;id<1400;id++)used.add(T.gruntVoice(id).key);check(!used.has('nadal')&&used.size===GS.clips.length-1,`other players use the ${used.size} other recordings, never Nadal's`);
+const used=new Set();for(let id=900;id<1400;id++)used.add(T.gruntVoice(id).key);check(used.size===GS.clips.filter(c=>c.key!=='nadal').length,`other players use all ${used.size} recordings`);
 // in a match: the person presses the shot a fifth of a second before contact (Perfect), and the shot brings a grunt
 // in his own voice; the computer's shots and the person's other shots none
 {const{loadSim}=require('./load');const{Match,MatchFormat,ROSTER,rng}=loadSim(['Match','MatchFormat','ROSTER','rng']);rng.s=77;

@@ -4,7 +4,7 @@
 const SOUND_SOURCES={
   hitRec:'soundreality, "Tennis Ball Hit", Pixabay 151257 (Pixabay Content License) — one clean hit, chosen by ear by the game\'s maker',
   bounceRec:'freesound_community, "tennisballbounce", Pixabay 39028 (Pixabay Content License) — a ball bounced on a hard floor, chosen with it',
-  gruntRec:'Men\'s shouts and effort grunts from Freesound, all CC0 1.0: RyanPBaskett 583259, Halgrimm 218895, randbsoundbites 795440, SoundsForHim 399626, enmiller2 171659, BaggoNotes 718967, IENBA 770124, mf_gloom 517858 and 517848, unfa 213232 — twelve, cut by tools/grunt-samples.py',
+  gruntRec:'Two men\'s attack grunts from Freesound, both CC0 1.0: mf_gloom 517858 ("TELV 152 Worker Attack grunt") and unfa 213232 ("Huh-haaa! (dry)", the "haaa") — the two the game\'s maker kept by ear out of 28 candidates; cut by tools/grunt-samples.py',
   stappen:'Stappen et al. 2022, "Predicting Sex and Stroke Success – Computer-aided Player Grunt Analysis in Tennis Matches", arXiv 2202.09102 — a tennis grunt is "a non-verbal screaming vocalisation made by tennis players ... when striking the ball"',
   raine:'Raine, Pisanski & Reby 2017, "Tennis grunts communicate acoustic cues to sex and contest outcome", Animal Behaviour 130:47-55; their dataset (figshare 23586057, CC BY 4.0) — the pitch of 30 men\'s grunts on tour, and of about 23 grunts each from 7 men through a match (data/grunt-f0.json, tools/grunt-data.py)',
   patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
@@ -28,17 +28,18 @@ const SOUND={
   // Every court sounds like the Pixel Tennis Open (the hard court): a ball comes down slower on grass, so its bounces
   // average 2.2 dB quieter there; court lifts that back (measured by tools/sound-courts.js, 2026-11-18)
   bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12,court:{hard:1,clay:1,grass:1.29}}},
-  // a player's grunt on a perfectly timed shot: real men's shouts at an effort (gruntSamples.js) — a tennis grunt is a
-  // short shout at the strike (Stappen), so no moans or groans: loudest within 60 ms, 120–400 ms long — each with its
-  // pitch inside the range of men's tennis grunts measured on tour (Raine: 30 men, 234–395 Hz). Each of the thirteen
-  // has his own (which is whose: design, their own voices cannot be used); Nadal's is the long one in two parts, a low
-  // "ah" and then a higher "HAH!" (design); McEnroe's is Borg's raised by the spread between men. Anyone else: one of the
-  // eleven by his id, raised or lowered by up to that spread (2.16 semitones, one standard deviation over the 30 men),
-  // kept inside the measured range. Each grunt moves about the player's own pitch as men's grunts did through a match
-  // (1.89 semitones, one standard deviation, the median of 7 men; cut at two). The thirteen on average with the energy
-  // of a full-pace hit, rendered both ways in a browser; with the bounce's share of the stadium's echo (design)
+  // a player's grunt on a perfectly timed shot: one of the two men's grunts the game's maker kept by ear
+  // (gruntSamples.js), each with its pitch inside the range of men's tennis grunts measured on tour (Raine: 30 men,
+  // 234–395 Hz). Each of the thirteen is one of the two raised or lowered within the spread between men (2.16
+  // semitones, one standard deviation over the 30 men), spaced evenly so no two are the same, and kept inside the
+  // measured range (which is whose: design; their own voices cannot be used). Nadal has the "haaa" as recorded (design,
+  // until one of his own is chosen). Anyone else: one of the two by his id, raised or lowered by up to that spread. Each
+  // grunt moves about the player's own pitch as men's grunts did through a match (1.89 semitones, one standard
+  // deviation, the median of 7 men; cut at two). The thirteen on average with the energy of a full-pace hit, rendered
+  // both ways in a browser; with the bounce's share of the stadium's echo (design)
   grunt:{src:['gruntRec','stappen','raine'],range:[234,395],between:2.16,within:1.89,
-    design:{voice:{0:'g',1:'nadal',2:'j',3:'e',4:'l',5:'k',6:'c',7:'i',8:'d',9:'b',10:'h',11:'f',12:['b',2.16]},cut:2,gain:.48,wet:.12}},
+    design:{voice:{1:'j',0:['h',-.43],3:['h',.43],5:['h',-2.16],6:['h',-1.3],8:['h',1.3],10:['h',2.16],
+      2:['j',-.36],4:['j',-.72],7:['j',-1.08],9:['j',-1.44],11:['j',-1.8],12:['j',-2.16]},cut:2,gain:.43,wet:.12}},
   // the net: the patent only names it ("a whack"); the tape it calls less repeatable. All design
   net:{src:['patent'],design:{meshHz:110,meshTau:.03,meshNoise:600,tapeHz:[900,600],tapeTau:.02,tapeNoise:3000,lp:7000,meshGain:0.41,tapeGain:0.13,wet:.2}},
 };
