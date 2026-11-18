@@ -31,7 +31,7 @@ of what the computer players have learned is used against you.
 
 Matches are played to the Grand Slam rules, as at the Australian Open: sets of six games won by two, a 7-point
 tiebreak at 6–6, and a 10-point tiebreak at 6–6 in the deciding set. Choose **1 set**, **best of 3 sets**, **best of
-5 sets** (three sets to win, as in Grand Slam men's singles), or a single **10-point match tiebreak**. In a tournament the other matches are played out in full, in the same format, while you
+5 sets** (three sets to win, as in Grand Slam men's singles), or a single **tiebreak** (first to 7, by two, as at 6–6 in a set). In a tournament the other matches are played out in full, in the same format, while you
 play yours; the draw shows them live.
 
 The players' numbers are fitted to their real statistics. Aces, double faults, first serves in, return points won,
@@ -81,7 +81,7 @@ node tests/match-simulation.test.js   # whole matches, computer and scripted hum
 node tests/crowd.test.js              # crowd reactions (statistical; can fail on an unlucky seed)
 node tests/physics-realism.test.js    # ball flight and bounce against real-world figures
 node tests/stamina.test.js            # the fatigue model against the declines measured in long matches
-node tests/score.test.js              # Grand Slam scoring: tiebreaks, best of 3 and 5, the match tiebreak
+node tests/score.test.js              # Grand Slam scoring: tiebreaks, best of 3 and 5, the tiebreak mode
 node tests/career.test.js             # the career: Elo odds, the ranking, the points table, draws, 52 weeks, saving
 
 node tools/train.js 6                 # self-play: the computer players learn which tactics win, saved to src/players/learned.js

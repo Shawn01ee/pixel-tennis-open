@@ -1,5 +1,5 @@
 // Scoring to the Grand Slam rules: 7-point tiebreaks at 6–6, a 10-point tiebreak in the deciding set, and the
-// 10-point match tiebreak.  Run: node tests/score.test.js
+// tiebreak mode (the whole match one tiebreak, to 7 like a set's).  Run: node tests/score.test.js
 const{loadSim}=require('./load');
 const{Score,MatchFormat}=loadSim(['Score','MatchFormat']);
 let fails=0;const check=(ok,msg)=>{console.log(`${ok?'PASS':'FAIL'}  ${msg}`);if(!ok)fails++;};
@@ -25,7 +25,8 @@ const tiebreak=(s,w,n,m)=>{let ev;for(let i=0;i<m;i++){s.point(1-w);ev=s.point(w
   toSixAll(s);check(s.tbTarget===10,'best of 5: the fifth-set tiebreak is played to 10');const ev=tiebreak(s,1,10,7);
   check(ev.type==='match'&&s.winner===1,`best of 5: won in the fifth, written ${s.line(1)}`);}
 {const s=new Score(A,B,0,MatchFormat.get('tb'));
-  check(s.mode==='tb'&&s.tbTarget===10,'tiebreak mode: the match is one tiebreak to 10');
-  let ev;for(let i=0;i<9;i++){s.point(0);ev=s.point(1);}ev=s.point(0);check(!s.over&&s.pts[0]===10&&s.pts[1]===9,'tiebreak mode: 10–9 is not enough, it is won by two');
-  s.point(1);s.point(0);ev=s.point(0);check(ev.type==='match'&&s.winner===0&&s.line(0)==='12–10',`tiebreak mode: 12–10 wins it, written ${s.line(0)}`);}
+  check(s.mode==='tb'&&s.tbTarget===7,'tiebreak mode: the match is one tiebreak to 7, as at 6–6 in a set');
+  let ev;for(let i=0;i<6;i++){s.point(0);ev=s.point(1);}ev=s.point(0);check(!s.over&&s.pts[0]===7&&s.pts[1]===6,'tiebreak mode: 7–6 is not enough, it is won by two');
+  s.point(1);s.point(0);ev=s.point(0);check(ev.type==='match'&&s.winner===0&&s.line(0)==='9–7',`tiebreak mode: 9–7 wins it, written ${s.line(0)}`);}
+{const s=new Score(A,B,0,MatchFormat.get('tb'));let ev;for(let i=0;i<7;i++)ev=s.point(1);check(ev.type==='match'&&s.winner===1&&s.line(1)==='7–0','tiebreak mode: 7–0 wins it');}
 console.log(fails?`\n${fails} FAILED`:'\nall scoring checks passed');process.exitCode=fails?1:0;

@@ -8,7 +8,7 @@ class Scoreboard{
     const key=[sc.pts,sc.games,sc.sets,sc.server,sc.over,sc.mode,m.kmh,m.serveLabel,big&&big.label,m.control.idx,m.stage,...m.players.map(P=>Math.round(P.sta.energy*50))].join();
     if(key===this.key)return;this.key=key;
     $('sbT').innerHTML=this.rows(m,sc,big);
-    $('sbMode').textContent=sc.over?'Final':sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
+    $('sbMode').textContent=sc.over?'Final':sc.f.tbOnly?`Tiebreak · to ${sc.tbTarget}`:sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak to ${sc.tbTarget}`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
     const b=$('sbBadge');b.hidden=!big;if(big){b.textContent=big.label.toUpperCase();b.className='badge'+(big.kind==='set'?' set':big.kind==='match'?' match':'');}
     $('sbSpeed').innerHTML=m.kmh?`<b>${m.kmh}</b> km/h · ${m.serveKind} ${m.serveLabel}`:'';
   }

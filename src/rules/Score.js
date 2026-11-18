@@ -10,7 +10,7 @@ class Score{
   get total(){return this.pts[0]+this.pts[1];}
   get setNo(){return this.done.length+1;}
   get finalSet(){return this.sets[0]===this.f.sets-1&&this.sets[1]===this.f.sets-1;}
-  // 7 points, or 10 in the deciding set (and in a match tiebreak)
+  // 7 points, or 10 in the deciding set; a match that is one tiebreak goes to its format's decider (7)
   get tbTarget(){return this.f.tbOnly||this.finalSet?this.f.decider:this.f.tb;}
   get deuceCourt(){return this.total%2===0;}
   label(i){
@@ -80,7 +80,7 @@ class Score{
     return`${Score.PTNAME[a]}–${Score.PTNAME[b]}.`;
   }
   // "6–4 7–6(5)" from the winner's side or a fixed side
-  // a match tiebreak is written as its points: 10–8
+  // a match that is one tiebreak is written as its points: 7–5
   line(side=0){if(this.f.tbOnly)return this.done.map(d=>`${d.pts[side]}–${d.pts[1-side]}`).join(' ');
     return this.done.map(d=>`${d.g[side]}–${d.g[1-side]}${d.tb!=null?`(${d.tb})`:''}`).join(' ');}
 }
