@@ -7,6 +7,8 @@ class CareerHub{
   static EFFECT={serve:'+1.3 km/h on the first serve',power:'more pace off the ground',speed:'faster to the ball, quicker first step',spin:'+38 rpm of topspin',
     control:'1.7% fewer errors',accuracy:'lands closer to where you aim',touch:'2.7% fewer errors on drops, volleys, slices and lobs',stamina:'tires more slowly over a long match'};
   static FMTS=['tb','one','bo3'];
+  // a cup's height on the trophy shelf (px; the drawing is 54 tall): whole and half sizes keep its pixels even
+  static CUP={gs:54,m1000:54,a500:40,a250:40,c175:27,c125:27,c100:27,c75:27,c50:27};
   constructor(flow){this.f=flow;this.tab='week';
     $('chTabs').innerHTML=CareerHub.TABS.map(([k,n])=>`<button data-t="${k}" aria-pressed="false">${n}</button>`).join('');
     $('chTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{this.tab=b.dataset.t;this.f.g.sfx('click');this.render();});
@@ -80,11 +82,13 @@ class CareerHub{
   }
   record(){
     const c=this.c,s=c.s,stars=[...ROSTER].sort((a,b)=>a.rank-b.rank);
+    // the trophy cabinet: a cup for every title, on a shelf, bigger the bigger the event, gold for a major
+    const shelf=s.titles.length?`<div class="ch-shelf">${s.titles.map(t=>`<img src="${Trophy.url()}" alt="" class="t-${t.tier}" style="height:${CareerHub.CUP[t.tier]??27}px" title="${t.name} ${t.year}">`).join('')}</div>`:'';
     const titles=s.titles.length?s.titles.map(t=>`<li><i class="tier t-${t.tier}">${CAREER_DATA.TIERS[t.tier].short}</i>${t.name} <span>${t.year}</span></li>`).join(''):'<li class="none">No titles yet.</li>';
     const miles=Career.MILESTONES.map(([k,n])=>`<li class="${s.miles[k]?'done':''}">${s.miles[k]?'★':'☆'} ${n}</li>`).join('');
     const fmt=CareerHub.FMTS.map(k=>`<button data-fmt="${k}" aria-pressed="${s.fmt===k}">${MatchFormat.get(k).name}</button>`).join('');
     return`<div class="ch-rec"><div class="ch-box"><h3>RECORD</h3><p><b>${s.played.w}–${s.played.l}</b> in matches · best ranking <b>${WorldRanking.label(s.best)}</b> · ${s.titles.length} title${s.titles.length===1?'':'s'}${s.fans?` · ${s.fans}k fans`:''}</p>
-      <p>Level <b>${Math.round(c.level)}</b> Elo — the level of a player ranked about ${EloModel.rankAt(c.level)}. It rises with every match, more with wins, and with training.</p><h3>TITLES</h3><ul class="ch-titles">${titles}</ul></div>
+      <p>Level <b>${Math.round(c.level)}</b> Elo — the level of a player ranked about ${EloModel.rankAt(c.level)}. It rises with every match, more with wins, and with training.</p><h3>TITLES</h3>${shelf}<ul class="ch-titles">${titles}</ul></div>
       <div class="ch-box"><h3>THE THIRTEEN</h3><div class="ch-stars">${stars.map(p=>`<span class="${s.beat['s'+p.id]?'won':''}" title="${p.name}">${Portrait.img(p,'face')}<i>${p.short}</i></span>`).join('')}</div>
       <h3>MILESTONES</h3><ul class="ch-miles">${miles}</ul></div>
       <div class="ch-box"><h3>YOUR MATCHES</h3><p>Played as</p><div class="seg">${fmt}</div><p class="ch-small">Every other match on the tour is played to the real format, decided by the players' Elo ratings.</p>
