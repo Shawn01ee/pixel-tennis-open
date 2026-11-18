@@ -74,6 +74,7 @@
  "audio/ImpactVoice.js",
  "audio/hitSamples.js",
  "audio/bounceSamples.js",
+ "audio/gruntSamples.js",
  "audio/TennisSfx.js",
  "audio/CrowdAudio.js",
  "audio/Announcer.js",

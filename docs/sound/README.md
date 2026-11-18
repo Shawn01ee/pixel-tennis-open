@@ -1,7 +1,7 @@
 # Sounds
 
-The racket hit and the bounce are real recordings; the net and the menu's notes are made in the game (**design**). The
-players' feet make no sound: the game's maker had them taken out.
+The racket hit, the bounce and the players' grunts are real recordings; the net and the menu's notes are made in the
+game (**design**). The players' feet make no sound: the game's maker had them taken out.
 Every number below is read from `src/audio/SoundData.js` and `data/sound-check.json` (`node tools/sound-check.js`,
 then `node tools/sound-doc.js`).
 
@@ -9,6 +9,8 @@ then `node tools/sound-doc.js`).
 
 - **hitRec** — [soundreality, "Tennis Ball Hit", Pixabay 151257 (Pixabay Content License)](https://pixabay.com/sound-effects/tennis-ball-hit-151257/): one clean hit, chosen by ear by the game's maker
 - **bounceRec** — [freesound_community, "tennisballbounce", Pixabay 39028 (Pixabay Content License)](https://pixabay.com/sound-effects/tennisballbounce-39028/): a ball bounced on a hard floor, chosen with it
+- **gruntRec** — [Men's effort grunts from Freesound, all CC0 1.0: SnowFightStudios 643670, salemaudio 803168, sketchygio 144907, BranndyBottle 464684, samrad20 874593, InfrawaveSound 524558, ale-batec 511023](https://freesound.org/search/?q=male+grunt&f=license%3A%22Creative+Commons+0%22): twelve, cut by tools/grunt-samples.py
+- **raine** — [Raine, Pisanski & Reby 2017, "Tennis grunts communicate acoustic cues to sex and contest outcome", Animal Behaviour 130:47-55; their dataset (figshare 23586057, CC BY 4.0)](https://sussex.figshare.com/articles/dataset/_strong_Dataset_Tennis_grunts_communicate_acoustic_cues_to_sex_and_contest_outcome_strong_/23586057): the pitch of 30 men's grunts on tour, and of about 23 grunts each from 7 men through a match (data/grunt-f0.json, tools/grunt-data.py)
 - **patent** — [US patent 5,908,361, "Automated tennis line calling system" (filed 1997)](https://patents.google.com/patent/US5908361A/en): how a bounce and a racket hit sound on court
 - **pate** — [Paté et al. 2024, Vibration 7(4):47, abstract](https://www.mdpi.com/2571-631X/7/4/47): flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little
 
@@ -46,6 +48,42 @@ One of 4 recorded bounces, softest to hardest by how fast the ball comes down, i
 | 0.248 | 386 Hz | 199 Hz | 75% / 11% / 13% / 0% | 9.3 ms | 35 ms |
 | 0.259 | 393 Hz | 199 Hz | 73% / 11% / 15% / 0% | 9.2 ms | 30.9 ms |
 | 0.282 | 507 Hz | 199 Hz | 67% / 9% / 23% / 1% | 8.5 ms | 31.2 ms |
+
+## A player's grunt
+
+On a perfectly timed shot the player grunts. The grunts are real men's effort grunts (all CC0 1.0, from Freesound),
+cut by `tools/grunt-samples.py`; how men grunt on tour is from Raine, Pisanski & Reby (2017), whose dataset gives
+the pitch of 30 men's grunts and of about 23 grunts each from 7 men through a match
+(`tools/grunt-data.py` → `data/grunt-f0.json`; the players there are anonymous).
+
+| From the data (men) | Value | In the game |
+|---|---|---|
+| Grunt pitch, lowest to highest player | 234–395 Hz (median 304) | the range voices are kept inside: yes |
+| Spread between men (one standard deviation) | 2.16 semitones | how far a shared recording is raised or lowered: yes |
+| A man's grunts about his own pitch through a match | 1.89 semitones (median of 7) | each grunt, at random, cut at 2: yes |
+| A serve's grunt over a groundstroke's | 1.2 semitones | not used: serves have no timing, so no grunt |
+| From the start of a match to its end | 1.42 semitones | not used |
+
+Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the one in two parts, a lower
+"uh" then a rising "AH" (**design**). Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
+by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
+energy of a full-pace hit (gain 0.44, **design**).
+
+| Player | Recording | Its pitch | Raised | Pitch in the game | Length | Inside 234–395 Hz |
+|---|---|---|---|---|---|---|
+| Novak Djokovic | Freesound 803168, clip long | 322 Hz | – | 322 Hz | 756 ms | yes |
+| Rafael Nadal | Freesound 643670, clip nadal | 262 Hz | – | 262 Hz | 543 ms | yes |
+| Carlos Alcaraz | Freesound 511023, clip i | 396 Hz | – | 396 Hz | 246 ms | **no** (+1 Hz, the pitch tracker's rounding) |
+| Roger Federer | Freesound 524558, clip d | 253 Hz | – | 253 Hz | 211 ms | yes |
+| Jannik Sinner | Freesound 874593, clip c | 356 Hz | – | 356 Hz | 424 ms | yes |
+| Daniil Medvedev | Freesound 803168, clip g | 260 Hz | – | 260 Hz | 434 ms | yes |
+| Alexander Zverev | Freesound 464684, clip b | 288 Hz | – | 288 Hz | 483 ms | yes |
+| Alex de Minaur | Freesound 643670, clip f | 347 Hz | – | 347 Hz | 321 ms | yes |
+| Pete Sampras | Freesound 643670, clip e | 266 Hz | – | 266 Hz | 319 ms | yes |
+| Björn Borg | Freesound 803168, clip h | 288 Hz | – | 288 Hz | 272 ms | yes |
+| Andre Agassi | Freesound 144907, clip a | 361 Hz | – | 361 Hz | 366 ms | yes |
+| Andy Murray | Freesound 511023, clip j | 342 Hz | – | 342 Hz | 260 ms | yes |
+| John McEnroe | Freesound 524558, clip d | 253 Hz | +2.16 semitones | 287 Hz | 211 ms | yes |
 
 ## How they got here
 

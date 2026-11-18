@@ -453,7 +453,7 @@ class Match{
     P.swing.C={x:b.x,y:b.y,z:b.z};
     const S=p.shot,tgt={x:S.t.x,y:0,z:-P.s*S.t.d};let aimed=false;
     if(human&&C.target&&C.target.z*P.s<0){tgt.x=C.target.x;tgt.z=C.target.z;aimed=true;}
-    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;if(tq===Match.TIMING.perfect)P.ms.perfect++;
+    const tq=human&&!C.auto&&C.shot&&C.shotAt!=null?Match.timing(this.t-C.shotAt):null;if(tq===Match.TIMING.perfect){P.ms.perfect++;this.ev('grunt',{x:P.x,y:1.5,z:P.z,who:P.idx,voice:P.st.id});}
     if(human){C.target=null;C.shot=null;C.shotAt=null;}
     const inc=hyp(b.vx,b.vz),pace=clamp((inc-14)/24,0,1),srv=this.isServe;
     // the shot wanted, held to what this swing can physically give this ball

@@ -2,16 +2,17 @@
 // written descriptions of real ones. Read from src/audio/SoundData.js and data/sound-check.json.
 //   node tools/sound-check.js && node tools/sound-doc.js
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..');
-const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(ROOT,'src','audio','SoundData.js'),'utf8')+';this.API={SOUND,SOUND_SOURCES};',ctx);
+const ctx=vm.createContext({Math});vm.runInContext(['core/MathUtil.js','audio/SoundData.js','audio/gruntSamples.js','audio/TennisSfx.js'].map(f=>fs.readFileSync(path.join(ROOT,'src',f),'utf8')).join('\n')+';this.API={SOUND,SOUND_SOURCES,GRUNT_SAMPLES,TennisSfx};',ctx);
+const{GRUNT_SAMPLES:GS,TennisSfx:TS}=ctx.API,GD=JSON.parse(fs.readFileSync(path.join(ROOT,'data','grunt-f0.json'),'utf8')),{ROSTER}=require(path.join(ROOT,'tests','load')).loadSim(['ROSTER']);
 const{SOUND,SOUND_SOURCES:SRC}=ctx.API,chk=JSON.parse(fs.readFileSync(path.join(ROOT,'data','sound-check.json'),'utf8'));
 const URL={hitRec:'https://pixabay.com/sound-effects/tennis-ball-hit-151257/',bounceRec:'https://pixabay.com/sound-effects/tennisballbounce-39028/',
-  patent:'https://patents.google.com/patent/US5908361A/en',pate:'https://www.mdpi.com/2571-631X/7/4/47'};
-const HD=SOUND.hit.design,yes=b=>b?'yes':'**no**',H=chk.hits,B=chk.bounces,h=chk.hit;
+  patent:'https://patents.google.com/patent/US5908361A/en',gruntRec:'https://freesound.org/search/?q=male+grunt&f=license%3A%22Creative+Commons+0%22',raine:'https://sussex.figshare.com/articles/dataset/_strong_Dataset_Tennis_grunts_communicate_acoustic_cues_to_sex_and_contest_outcome_strong_/23586057',pate:'https://www.mdpi.com/2571-631X/7/4/47'};
+const HD=SOUND.hit.design,yes=b=>b?'yes':'**no**',R=b=>b?'yes':'**no**',H=chk.hits,B=chk.bounces,h=chk.hit;
 const row=r=>`| ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.low}% / ${r.body}% / ${r.mid}% / ${r.high}% | ${r.fall20ms} ms | ${r.fall40ms} ms |`;
 const md=`# Sounds
 
-The racket hit and the bounce are real recordings; the net and the menu's notes are made in the game (**design**). The
-players' feet make no sound: the game's maker had them taken out.
+The racket hit, the bounce and the players' grunts are real recordings; the net and the menu's notes are made in the
+game (**design**). The players' feet make no sound: the game's maker had them taken out.
 Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\` (\`node tools/sound-check.js\`,
 then \`node tools/sound-doc.js\`).
 
@@ -50,6 +51,31 @@ One of ${B.length} recorded bounces, softest to hardest by how fast the ball com
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
 ${B.map(row).join('\n')}
+
+## A player's grunt
+
+On a perfectly timed shot the player grunts. The grunts are real men's effort grunts (all CC0 1.0, from Freesound),
+cut by \`tools/grunt-samples.py\`; how men grunt on tour is from Raine, Pisanski & Reby (2017), whose dataset gives
+the pitch of ${GD.men} men's grunts and of about 23 grunts each from ${GD.withinMen} men through a match
+(\`tools/grunt-data.py\` → \`data/grunt-f0.json\`; the players there are anonymous).
+
+| From the data (men) | Value | In the game |
+|---|---|---|
+| Grunt pitch, lowest to highest player | ${GD.gruntF0.min}–${GD.gruntF0.max} Hz (median ${GD.gruntF0.median}) | the range voices are kept inside: ${R(SOUND.grunt.range[0]===GD.gruntF0.min&&SOUND.grunt.range[1]===GD.gruntF0.max)} |
+| Spread between men (one standard deviation) | ${GD.spreadSemitones.sd} semitones | how far a shared recording is raised or lowered: ${R(SOUND.grunt.between===GD.spreadSemitones.sd)} |
+| A man's grunts about his own pitch through a match | ${GD.withinPlayerSdSemitones.median} semitones (median of ${GD.withinMen}) | each grunt, at random, cut at ${SOUND.grunt.design.cut}: ${R(SOUND.grunt.within===GD.withinPlayerSdSemitones.median)} |
+| A serve's grunt over a groundstroke's | ${GD.serveOverGroundSemitones.mean} semitones | not used: serves have no timing, so no grunt |
+| From the start of a match to its end | ${GD.matchStartToEndSemitones.mean} semitones | not used |
+
+Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the one in two parts, a lower
+"uh" then a rising "AH" (**design**). Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
+by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
+energy of a full-pace hit (gain ${SOUND.grunt.design.gain}, **design**).
+
+| Player | Recording | Its pitch | Raised | Pitch in the game | Length | Inside ${GD.gruntF0.min}–${GD.gruntF0.max} Hz |
+|---|---|---|---|---|---|---|
+${ROSTER.map(p=>{const v=TS.gruntVoice(p.id),c=GS.clips.find(x=>x.key===v.key),f=Math.round(c.f0*2**(v.semi/12)),ok=f>=GD.gruntF0.min&&f<=GD.gruntF0.max;
+  return`| ${p.name} | ${c.src.split(',')[0]}, clip ${c.key} | ${c.f0} Hz | ${v.semi?'+'+v.semi+' semitones':'–'} | ${f} Hz | ${c.ms} ms | ${ok?'yes':'**no** ('+(f-GD.gruntF0.max>0?'+':'')+(f>GD.gruntF0.max?f-GD.gruntF0.max:f-GD.gruntF0.min)+' Hz, the pitch tracker\'s rounding)'} |`;}).join('\n')}
 
 ## How they got here
 

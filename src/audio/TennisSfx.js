@@ -1,6 +1,6 @@
 // TennisSfx — the sounds of the game itself: strings, bounces, the net, the menu's notes.
 // The racket hit and the bounce are real recordings (hitSamples.js, bounceSamples.js; where they come from:
-// SoundData.js). The net rings at made-up frequencies (ImpactVoice, design); the menu's notes are built from
+// SoundData.js), and so are the players' grunts (gruntSamples.js). The net rings at made-up frequencies (ImpactVoice, design); the menu's notes are built from
 // oscillators (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
@@ -28,6 +28,18 @@ class TennisSfx{
     return{i:Math.min(n-1,Math.floor(g*n)),gain:D.gain*g*(D.court[court]??1)};
   }
   bounce(v,pan=0,soft=1,court='hard'){const b=TennisSfx.bounceClip(v,soft,court);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
+  // a player's grunt (id: his profile's): his voice — a recorded grunt and how far it is raised (semitones) — and, each
+  // time, a little higher or lower about it, as a man's grunts are through a match (SoundData.js)
+  static gruntVoice(id){
+    const G=SOUND.grunt,v=G.design.voice[id];if(v!=null)return Array.isArray(v)?{key:v[0],semi:v[1]}:{key:v,semi:0};
+    const pool=GRUNT_SAMPLES.clips.filter(c=>c.key!=='nadal'),c=pool[Math.floor(hash2(id*7.31,1.7)*pool.length)],st=f=>12*Math.log2(f/c.f0);
+    return{key:c.key,semi:clamp((hash2(id*3.17,9.2)*2-1)*G.between,st(G.range[0]),st(G.range[1]))};
+  }
+  static normal(){return Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());}
+  grunt(id,pan=0){
+    const G=SOUND.grunt,D=G.design,v=TennisSfx.gruntVoice(id),i=GRUNT_SAMPLES.clips.findIndex(c=>c.key===v.key),w=clamp(TennisSfx.normal()*G.within,-D.cut*G.within,D.cut*G.within);
+    this.A.playBuffer(this.buf(GRUNT_SAMPLES,i),pan,D.wet,D.gain,2**((v.semi+w)/12));
+  }
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
   // two tones that say "your turn"
   chime(){const A=this.A,t=A.now,o=A.out(0,.15,.6);A.tone(o,t,{f:880,peak:.07,rel:.22});A.tone(o,t+.14,{f:660,peak:.07,rel:.3});}

@@ -1,4 +1,4 @@
-// SoundSystem — turns match events into sound: the ball and strings, the crowd and the voices (the players' feet are
+// SoundSystem — turns match events into sound: the ball and strings, the players' grunts, the crowd and the voices (the players' feet are
 // silent, as the game's maker asked)
 // Starts on the first click (browsers only allow sound after a gesture); M mutes and unmutes.
 class SoundSystem{
@@ -16,6 +16,7 @@ class SoundSystem{
       // and the last little hops silent, so a ball coming to rest does not rattle (design)
       case'thud':if(e.v>=1)S.bounce(e.v,pan,.3);break;
       case'net':S.net(e.mesh,e.v,pan);break;
+      case'grunt':S.grunt(e.voice,pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
       case'say':if(e.who==='ump')this.voice.say(e.text);break;
