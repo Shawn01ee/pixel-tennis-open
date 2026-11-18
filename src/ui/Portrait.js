@@ -27,10 +27,11 @@ class Portrait{
     const face=(x,y)=>y>=y0&&y<=y1&&x>=x0+inset(y)&&x<=x1-inset(y);
     for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(face(x,y))px(x,y,x>=x1-1-inset(y)+1&&x===x1-inset(y)?skD:x===x0+inset(y)&&y<y0+8?skL:skin);
     for(let y=ey-1;y<=ey+1;y++){px(x0-1,y,skin);px(x1+1,y,skD);}
-    // eyes, brows, nose, mouth — set from the middle of the face, so a long (narrow) face keeps two eyes apart with
-    // the bridge of the nose between them, as a wider one does
+    // eyes, brows, nose, mouth — set from the middle of the face. On a long (narrow) face two-pixel eyes, white outside
+    // and iris inside, sat crowded at the nose; there each eye is three pixels, the iris in the middle, out to the edges
     const bc=mix(hair,INK,f.brow>1?.55:.3),cx=(x0+x1)>>1;
-    px(cx-2,ey,0xf4f3ec);px(cx-1,ey,f.eye);px(cx+2,ey,f.eye);px(cx+3,ey,0xf4f3ec);
+    if(long){px(cx-3,ey,0xf4f3ec,3,1);px(cx-2,ey,f.eye);px(cx+2,ey,0xf4f3ec,3,1);px(cx+3,ey,f.eye);}
+    else{px(cx-2,ey,0xf4f3ec);px(cx-1,ey,f.eye);px(cx+2,ey,f.eye);px(cx+3,ey,0xf4f3ec);}
     px(cx-3,ey-2,bc,3,1);px(cx+2,ey-2,bc,3,1);if(f.brow>1){px(cx-2,ey-3,bc,2,1);px(cx+2,ey-3,bc,2,1);}
     px(cx+1,ey+1,skD,1,3);px(cx,ey+3,skD);
     px(cx-1,ey+5,0x8a4338,4,1);px(cx,ey+6,skD,2,1);
