@@ -17,23 +17,24 @@ be shared on their own; they live only inside the game's files (`src/audio/hitSa
 
 ## How they are cut
 
-`tools/sound-samples.py` takes each from 3 ms before its peak to where its own sound has died away — the hit to 24 ms
-after, each bounce to 40 ms — with a high-pass at 40 Hz for rumble only, 22.05 kHz, and a fade at the end. After that
-both recordings carry the room they were made in: the hit's rattles on at −18 to −30 dB for a third of a second, the
-bounce's echo comes back at about 100 ms; heard after every shot as a "ta-da-dak" (the game's maker), so they are left
-out and the stadium's echo gives the space instead. Nothing else is changed: level, spectrum and the decay up to the
-cut are the recording's; cutting the tails took 0.5 dB of energy off the hit and 0.1 dB off a bounce, the peaks none.
+`tools/sound-samples.py` takes each from 3 ms before its peak — the hit to 400 ms after, keeping its own short room
+tail, as the game's maker approved it; each bounce to 40 ms, where it has died away (the recording room's echo comes
+back at about 100 ms, a second "tak"; cutting it took 0.1 dB of energy off a bounce, the peak none) — with a high-pass
+at 40 Hz for rumble only, 22.05 kHz, and a fade at the end. Nothing else is changed: level, spectrum and decay are the
+recording's.
 
 ## A racket hit
 
 Pace sets its level (45–100%, **design**); spin takes up to 15% off it (Paté: flat louder than spun;
-the size **design**). The stadium's echo takes 14% of it (**design**). It is played lower and heavier than recorded, as the game's maker asked, but not slowed: the first 6 ms — the snap —
-as recorded, the ring after it about 2.8 semitones lower (drawn out by 1/0.85, so its strongest frequency
-sounds at about 851 Hz), with everything below 400 Hz lifted 3 dB (**design**). As recorded:
+the size **design**). It takes less of the stadium's echo than the other sounds, having its own tail (**design**). It
+is played a little lower and heavier than recorded, as the game's maker asked: 10% slower (so its strongest
+frequency sounds at about 892 Hz), with everything below 400 Hz lifted 3 dB (**design**). This is the hit
+the game's maker approved by ear; a lower pitch with the speed kept, and the hit cut short of its tail, were tried after
+it and taken back. As recorded:
 
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
-| 1.004 | 1175 Hz | 1001 Hz | 1% / 31% / 65% / 4% | 8.8 ms | 20.3 ms |
+| 1.004 | 1308 Hz | 991 Hz | 2% / 37% / 54% / 7% | 8.8 ms | 346.6 ms |
 
 ## A bounce
 
@@ -63,7 +64,7 @@ each stretch, from the moment the sound starts:
 | Every ball sound reaches its level within 1 ms | hit 0.14 ms; bounces 0.23, 1.81, 1, 0.41 ms | **no** |
 | A hit: ~1 kHz for 4 ms → 250 Hz → ~1 kHz | 400 → 1050 → 990 Hz | **no** |
 | A bounce: ~1 kHz for 2 ms → 250 Hz | 1160 → 200 Hz; 350 → 190 Hz; 1360 → 200 Hz; 1240 → 200 Hz | 3 of 4 |
-| A flat hit is louder than a spun one (pate) | level 0.56 against 0.476 | yes |
+| A flat hit is louder than a spun one (pate) | level 0.55 against 0.468 | yes |
 
 Most bounces follow the patent; the hit does not — it starts lower (400 Hz) and is at 1 kHz
 after that. The recordings are kept as they are.

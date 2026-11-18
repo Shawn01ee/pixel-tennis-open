@@ -3,8 +3,7 @@
 # automated downloads), used under the Pixabay Content License: free to use in a game, no credit needed, never to be
 # shared on their own — they live only inside the game's files.
 #   hit     "Tennis Ball Hit" by soundreality, Pixabay 151257 (soundreality-tennis-ball-hit-151257.mp3): one clean hit,
-#           cut 24 ms after its peak: from 30 ms on, the recording's room rattles on at -18 to -30 dB for a third of a
-#           second, a 'ta-da-dak' after every shot
+#           with its own room tail (as the game's maker approved it)
 #   bounce  "tennisballbounce" by freesound_community, Pixabay 39028 (freesound_community-tennisballbounce-39028.mp3):
 #           a ball bounced on a hard floor; the four strong bounces are kept (the weak ones are second bounces),
 #           each cut 40 ms after its peak: by then it has died to -30 dB, and the room's echo comes back at about 100 ms
@@ -17,7 +16,7 @@
 #   python3 -I tools/sound-samples.py bounce <decoded wav> src/audio/bounceSamples.js
 import sys, wave, base64, json, numpy as np
 KIND = {
-  'hit': dict(name='HIT_SAMPLES', after=.024, fade=.012, keep=.5, source='Pixabay 151257, "Tennis Ball Hit" by soundreality (Pixabay Content License)',
+  'hit': dict(name='HIT_SAMPLES', after=.40, fade=.08, keep=.5, source='Pixabay 151257, "Tennis Ball Hit" by soundreality (Pixabay Content License)',
               url='https://pixabay.com/sound-effects/tennis-ball-hit-151257/'),
   'bounce': dict(name='BOUNCE_SAMPLES', after=.04, fade=.015, keep=.7, source='Pixabay 39028, "tennisballbounce" by freesound_community (Pixabay Content License)',
               url='https://pixabay.com/sound-effects/tennisballbounce-39028/'),

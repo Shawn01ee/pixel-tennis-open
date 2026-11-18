@@ -20,11 +20,7 @@ class TennisSfx{
     const D=SOUND.hit.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),n=HIT_SAMPLES.clips.length;
     return{i:Math.min(n-1,Math.floor(p*n)),gain:D.gain*lerp(D.level[0],1,p)*(1-D.spinQuiet*s)};
   }
-  hit(power,spin=0,stroke='fh',pan=0){
-    const h=TennisSfx.hitClip(power,spin),D=SOUND.hit.design,c=this.low||(this.low=new Map()),k=HIT_SAMPLES.clips[h.i];
-    if(!c.has(k))c.set(k,D.pitch<1?this.A.lowered(this.buf(HIT_SAMPLES,h.i),D.pitch,D.keepMs):this.buf(HIT_SAMPLES,h.i));
-    this.A.playBuffer(c.get(k),pan,D.wet,h.gain,1,D.filter);
-  }
+  hit(power,spin=0,stroke='fh',pan=0){const h=TennisSfx.hitClip(power,spin),D=SOUND.hit.design;this.A.playBuffer(this.buf(HIT_SAMPLES,h.i),pan,D.wet,h.gain,D.rate,D.filter);}
   // a bounce: one of the recorded bounces, softest to hardest by how fast the ball comes down, its level by the same
   // (design); a ball dropped dead (soft) at half
   static bounceClip(v,soft=1,court='hard'){

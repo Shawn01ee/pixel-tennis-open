@@ -3,14 +3,14 @@
  "hits": [
   {
    "peak": 1.004,
-   "centroid": 1175,
-   "dominant": 1001,
-   "low": 1,
-   "body": 31,
-   "mid": 65,
-   "high": 4,
+   "centroid": 1308,
+   "dominant": 991,
+   "low": 2,
+   "body": 37,
+   "mid": 54,
+   "high": 7,
    "fall20ms": 8.8,
-   "fall40ms": 20.3,
+   "fall40ms": 346.6,
    "onsetMs": 0.14,
    "parts": [
     400,
@@ -92,8 +92,8 @@
  ],
  "hit": {
   "flatLouder": true,
-  "flatGain": 0.56,
-  "spunGain": 0.476
+  "flatGain": 0.55,
+  "spunGain": 0.468
  },
  "onsetOk": false
 }

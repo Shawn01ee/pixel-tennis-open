@@ -14,12 +14,11 @@ const SOUND={
   onsetMs:{src:['patent'],v:1},
   // a racket hit: a real one, the game maker's pick by ear after every made-up hit (a thump, a beep, a wood block, a
   // tick) and two other recordings (close and clacky; outdoor serves) fell short. Cut by tools/sound-samples.py into
-  // hitSamples.js — the crack alone, 24 ms after its peak (the recording's room rattled on after it), with the stadium's
-  // echo for the space around it (design). Lower and heavier than
-  // recorded, as the game's maker asked, but not slowed: the first 6 ms (the snap) as recorded, the ring after it about
-  // three semitones lower (drawn out 1/0.85), everything below 400 Hz lifted 3 dB (design).
+  // hitSamples.js with its own room tail kept, so it takes less of the stadium's echo (design). Played a little lower
+  // and heavier than recorded — 10% slower, everything below 400 Hz lifted 3 dB — as the game's maker asked, and kept
+  // as they approved it ("경쾌하고 좋은데") after a lower pitch and a hit cut short were tried (design).
   // Flat louder than spun (Paté, on serves: direction only); the level by pace: design
-  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.56,wet:.14,pitch:.85,keepMs:6,filter:{type:'lowshelf',f:400,db:3}}},
+  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.55,wet:.06,rate:.9,filter:{type:'lowshelf',f:400,db:3}}},
   // a bounce: real ones from the recording chosen with the hit (bounceSamples.js), by impact speed; checked against
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Each cut 40 ms after its peak, before the recording room's echo comes back. Level by impact speed: design
