@@ -351,19 +351,22 @@ class Match{
     this.lost(H);this.rec();return{w:1-hi};
   }
   // Line calls. A serve that fails to cross is called "Net", a ball that lands outside "Out" (or "Fault" on serve).
-  // The line judges are human: within a few centimetres of a line they sometimes get it wrong, and the player the
-  // call went against may challenge it. The ball mark then settles it.
-  static LINE={near:.04,miss:.45,ask:.15,time:3.2,eye:.02,sure:.008,challenges:3};
+  // The line judges are human, as Mather (2008, Proc R Soc B 275:1645, 1473 challenges on the ATP tour) measured them:
+  // each sees where the ball landed with a Gaussian error of 32 mm at the baseline and service line and 14 mm at the
+  // side and centre lines; a player sees it with 46 and 26 mm. A player challenges when what he saw disagrees with the
+  // call, for a ball within 100 mm of the line (94% of real challenges); on tour 39.3% of challenges were upheld.
+  static LINE={judge:{long:.032,wide:.014},player:{long:.046,wide:.026},near:.10,time:3.2,challenges:3};
   *wantsReview(P,c){
     const C=this.control,J=Match.LINE;
-    if(Math.abs(c.m)>J.ask)return false;
+    if(Math.abs(c.m)>J.near)return false;
+    // what the player saw: only a call that looked wrong to him is worth a challenge, his or the computer's
+    const seen=c.m+N(J.player[c.line]);if(c.out?seen<0:seen>=0)return false;
     if(C.manual(P)){
       C.challenge={t0:this.t,until:this.t+J.time,out:c.out,left:P.chal,go:false};this.ev('serveWait',{});
       while(this.t<C.challenge.until&&!C.challenge.go)yield;
       const go=C.challenge.go;C.challenge=null;return go;
     }
-    // the others go by what they think they saw
-    const seen=c.m+N(J.eye);return(c.out?seen>J.sure:seen<-J.sure)&&R()<.85;
+    return true;
   }
   *review(r){
     const c=this.lastCall;this.lastCall=null;
@@ -408,8 +411,9 @@ class Match{
       if(b.net&HIT.TAPE){this.ev('tag',{who:hi,text:'Net cord',strong:true});this.mood.netCord();}
       const m=this.isServe?Court.signedBox(b.lbx,b.lbz,sgn(-this.serveX)):Court.signedIn(b.lbx,b.lbz);
       if(Math.abs(m)<.045)this.mood.closeCall(m);
-      const J=Match.LINE,wrong=Math.abs(m)<J.near&&R()<J.miss*(1-Math.abs(m)/J.near),out=(m<0)!==wrong;if(wrong)this.stats.wrongCalls++;
-      this.lastCall={m,out,by:hi,x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)};
+      // the line judge calls what he saw: the true mark, off by his error at that line
+      const line=Court.nearLine(b.lbx,b.lbz,this.isServe,sgn(-this.serveX)),out=m+N(Match.LINE.judge[line])<0;if((m<0)!==out)this.stats.wrongCalls++;
+      this.lastCall={m,out,line,by:hi,x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,serve:this.isServe,side:sgn(-this.serveX)};
       if(out){
         this.ev('call',{text:this.isServe?'FAULT':'OUT',x:b.lbx,z:b.lbz});
         if(this.isServe)return{fault:true};

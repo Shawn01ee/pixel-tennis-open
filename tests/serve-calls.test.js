@@ -3,7 +3,7 @@
 const{loadSim}=require('./load');
 const{Match,ROSTER,MatchFormat}=loadSim(['Match','ROSTER','MatchFormat']);
 let fails=0;const check=(ok,msg)=>{console.log(`${ok?'PASS':'FAIL'}  ${msg}`);if(!ok)fails++;};
-Match.LINE.miss=0;            // perfect line judges: no overturned calls to replay the point
+Match.LINE.judge={long:0,wide:0};   // perfect line judges: no overturned calls to replay the point
 let points=0,lets=0,letThenFault=0,dfs=0,netCalls=0,netOutsideServe=0,netThenLet=0,netThenFault=0,wrongNo=0,wrongDF=0,tapeNoCall=0;
 for(let k=0;k<26;k++){
   const m=new Match({a:ROSTER[k%13],b:ROSTER[(k*5+3)%13],format:MatchFormat.get('short')});

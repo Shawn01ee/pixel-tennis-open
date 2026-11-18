@@ -7,5 +7,7 @@ class Court{
   static signedIn(x,z){return Math.min(CT.SW-Math.abs(x),CT.L-Math.abs(z))+BALL.R*.6;}
   // > 0 inside the service box on the sx side (sign of x), on either end
   static signedBox(x,z,sx){return Math.min(CT.SVC-Math.abs(z),CT.SW-Math.abs(x),x*sx)+BALL.R*.6;}
+  // which line a bounce is judged against: 'long' (baseline or service line) or 'wide' (side line or centre line)
+  static nearLine(x,z,serve,sx){return serve?(CT.SVC-Math.abs(z)<Math.min(CT.SW-Math.abs(x),x*sx)?'long':'wide'):(CT.L-Math.abs(z)<CT.SW-Math.abs(x)?'long':'wide');}
   static inEnclosure(x,z,m=0){return Math.abs(x)<CT.FX-m&&Math.abs(z)<CT.FZ-m;}
 }
