@@ -8,6 +8,8 @@ class MainMenu{
     $('mList').innerHTML=MainMenu.ITEMS.map(([,t,d],i)=>`<button data-i="${i}"><i aria-hidden="true">▶</i><b>${t}</b><small>${d}</small></button>`).join('');
     $('mList').querySelectorAll('button').forEach(b=>{b.onmouseenter=()=>this.hi(+b.dataset.i);b.onclick=()=>{this.hi(+b.dataset.i);this.choose();};});
   }
+  // "A, b or c", read from the game's own lists (formats, sessions, levels) so the preview never falls behind them
+  static list(names){const n=names.map((x,i)=>i?x.toLowerCase():x);return n.length>1?n.slice(0,-1).join(', ')+' or '+n[n.length-1]:n.join('');}
   get on(){return!$('menu').hidden;}
   open(){this.render();$('menu').hidden=false;}
   close(){$('menu').hidden=true;}
@@ -25,7 +27,7 @@ class MainMenu{
       <ul>${Venue.MAJORS.map(v=>`<li><b>${v.month}</b> ${v.name}: ${SURFACES[v.surface].name.toLowerCase()}${v.white?', players in white':''}${v.phase==='night'?', under the lights':''}</li>`).join('')}<li><b>8</b> players, seeded; an interview after every match, a ceremony for the champion</li></ul>`;
     else if(k==='exh'){const pick=[...ROSTER].sort((a,b)=>a.rank-b.rank).slice(0,6);
       side.innerHTML=`<div class="ms-faces">${pick.map(p=>Portrait.img(p,'face ms-face')).join('')}</div><h3>ANY TWO PLAYERS</h3>
-      <ul><li><b>${ROSTER.length}</b> players: today's best and the legends</li><li>Short set, full set or best of three</li><li>Day, twilight or night session</li><li>Opponent level: rookie, pro or legend</li></ul>`;}
+      <ul><li><b>${ROSTER.length}</b> players: today's best and the legends</li><li>${MainMenu.list(MatchFormat.MENU.map(f=>f.name))}</li><li>${MainMenu.list(Object.values(PHASES).map(p=>p.name))} session</li><li>Opponent level: ${MainMenu.list(Difficulty.ALL.map(d=>d.name)).toLowerCase()}</li></ul>`;}
     else side.innerHTML=`<h3>HOW TO PLAY</h3><dl class="ms-keys">${HowToPlay.html()}</dl>`;
   }
 }
