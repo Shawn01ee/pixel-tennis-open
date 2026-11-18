@@ -54,8 +54,10 @@ ${B.map(row).join('\n')}
 
 ## A player's grunt
 
-On a perfectly timed shot the player grunts. The grunts are real men's effort grunts (all CC0 1.0, from Freesound),
-cut by \`tools/grunt-samples.py\`; how men grunt on tour is from Raine, Pisanski & Reby (2017), whose dataset gives
+On a perfectly timed shot the player grunts. A tennis grunt is "a non-verbal screaming vocalisation made by tennis
+players ... when striking the ball" (Stappen et al. 2022), a short shout, so the grunts are real men's shouts at an
+effort (all CC0 1.0, from Freesound) — no moans or groans: each at its loudest within 60 ms of starting, 120–400 ms
+long — cut by \`tools/grunt-samples.py\`. How men grunt on tour is from Raine, Pisanski & Reby (2017), whose dataset gives
 the pitch of ${GD.men} men's grunts and of about 23 grunts each from ${GD.withinMen} men through a match
 (\`tools/grunt-data.py\` → \`data/grunt-f0.json\`; the players there are anonymous).
 
@@ -67,8 +69,9 @@ the pitch of ${GD.men} men's grunts and of about 23 grunts each from ${GD.within
 | A serve's grunt over a groundstroke's | ${GD.serveOverGroundSemitones.mean} semitones | not used: serves have no timing, so no grunt |
 | From the start of a match to its end | ${GD.matchStartToEndSemitones.mean} semitones | not used |
 
-Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the one in two parts, a lower
-"uh" then a rising "AH" (**design**). Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
+Which voice is whose is **design** (the players' own voices cannot be used). Nadal's is the long one in two parts, a low
+"ah" and then a higher "HAH!" (**design**). The first choice of grunts, groans among them, sounded like a moan ("우 우",
+the game's maker); these replaced them. Anyone outside the thirteen: one of the other recordings by his id, raised or lowered
 by up to the spread between men and kept inside the measured range (**design**). The thirteen on average carry the
 energy of a full-pace hit (gain ${SOUND.grunt.design.gain}, **design**).
 
