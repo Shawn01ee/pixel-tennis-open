@@ -49,8 +49,8 @@ next to real Grand Slam five-setters, is in **[docs/stamina](docs/stamina/README
 The ☰ Menu (or Esc) pauses a match: step out of a career match and come back to it later, retire, or leave.
 
 The racket hit and the bounce are real recordings (Pixabay, chosen by ear), the hit's level by the shot's pace and the
-bounce by how hard the ball lands; so are the players' shoes, which squeak on a hard court, slide on clay and brush the
-grass on grass: **[docs/sound](docs/sound/README.md)**.
+bounce by how hard the ball lands; so are the players' feet — their running steps, and a squeak on a hard court, a
+slide on clay and a scuff of grass when they stop hard: **[docs/sound](docs/sound/README.md)**.
 
 Play at <https://shawn01ee.github.io/pixel-tennis-open/>, or open `dist/pixel-tennis-open.html` in a desktop browser. It is a single file; it loads three.js from a CDN, so it
 needs a network connection. Pick your player and opponent, then press **Walk out**.

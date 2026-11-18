@@ -15,6 +15,7 @@ class SoundSystem{
       case'net':S.net(e.mesh,e.v,pan);break;
       case'squeak':S.shoe(e.surf==='grass'?'grass':'hard',e.a,pan);break;
       case'slide':S.shoe('clay',e.a,pan);break;
+      case'step':S.step(e.surf||'hard',e.v,pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
       case'say':if(e.who==='ump')this.voice.say(e.text);break;

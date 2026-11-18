@@ -1,6 +1,6 @@
 // TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court, the menu's notes.
 // The racket hit and the bounce are real recordings (hitSamples.js, bounceSamples.js; where they come from:
-// SoundData.js), and so are the players' shoes, a different one on each court. The net rings at made-up frequencies
+// SoundData.js), and so are the players' feet — running steps and hard stops, different on each court. The net rings at made-up frequencies
 // (ImpactVoice, design); the menu's notes are built from oscillators (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
@@ -33,12 +33,21 @@ class TennisSfx{
   }
   bounce(v,pan=0,soft=1){const b=TennisSfx.bounceClip(v,soft);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
-  // a player's shoes as he stops or cuts hard: a squeak on a hard court, a slide on clay, a brush of grass (a, 0–1: how
-  // hard the stop)
+  // a player's feet, each court its own (real recordings, SoundData.js): one of the court's sounds at random, a little
+  // faster or slower each time so they never repeat exactly
+  feet(set,D,level,pan){
+    const Z=SOUND.feet,i=Math.floor(Math.random()*set.clips.length),rate=1+(Math.random()-.5)*Z.vary;
+    this.A.playBuffer(this.buf(set,i),pan,D.wet,D.gain*level,rate,D.filter||null);
+  }
+  // a hard stop or cut: a squeak on a hard court, a slide on clay, a scuff of grass (a, 0–1: how hard the stop)
   shoe(court,a=1,pan=0){
-    const S={hard:SQUEAK_SAMPLES,clay:SLIDE_SAMPLES,grass:GRASS_SAMPLES}[court]||SQUEAK_SAMPLES,Z=SOUND.shoe,D=Z[court]||Z.hard;
-    const i=Math.floor(Math.random()*S.clips.length),rate=1+(Math.random()-.5)*Z.vary;
-    this.A.playBuffer(this.buf(S,i),pan,D.wet,D.gain*lerp(Z.level[0],Z.level[1],clamp(a,0,1)),rate,D.filter||null);
+    const Z=SOUND.feet,D=Z.stop[court]||Z.stop.hard;
+    this.feet({hard:SHOE_HARD_STOP,clay:SHOE_CLAY_STOP,grass:SHOE_GRASS_STOP}[court]||SHOE_HARD_STOP,D,lerp(Z.level[0],1,clamp(a,0,1)),pan);
+  }
+  // a running step, louder the faster the player runs (v, m/s)
+  step(court,v=4,pan=0){
+    const Z=SOUND.feet,D=Z.step[court]||Z.step.hard;
+    this.feet({hard:SHOE_HARD_STEP,clay:SHOE_CLAY_STEP,grass:SHOE_GRASS_STEP}[court]||SHOE_HARD_STEP,D,lerp(Z.level[0],1,clamp((v-1.6)/6,0,1)),pan);
   }
   // two tones that say "your turn"
   chime(){const A=this.A,t=A.now,o=A.out(0,.15,.6);A.tone(o,t,{f:880,peak:.07,rel:.22});A.tone(o,t+.14,{f:660,peak:.07,rel:.3});}

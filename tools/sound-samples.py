@@ -5,28 +5,39 @@
 #   hit     "Tennis Ball Hit" by soundreality, Pixabay 151257 (soundreality-tennis-ball-hit-151257.mp3): one clean hit
 #   bounce  "tennisballbounce" by freesound_community, Pixabay 39028 (freesound_community-tennisballbounce-39028.mp3):
 #           a ball bounced on a hard floor; the four strong bounces are kept (the weak ones are second bounces)
-# And the players' shoes, one recording for each court, all public domain (Freesound, CC0 1.0), downloaded by script:
-#   squeak  hard court: "Rubber Shoe Squeak" by baidonovan, Freesound 187343 — a rubber sole squeaking on a floor
-#   slide   clay court: "Boots Gravel Feet Slide 1_5" by Joao_Janz, Freesound 504383 — a foot sliding on gravel (a clay
-#           court is crushed brick; a recording of a real clay match, Freesound 479289, was too noisy to cut slides from)
-#   grass   grass court: "Footsteps Grass" by HenKonen, Freesound 682128 — the four strongest steps
+# And the players' feet on each court, all public domain (Freesound, CC0 1.0), downloaded by script: a step for running
+# and a sound for a hard stop or cut.
+#   hardStep   "Footsteps, Tile, Male Tennis Shoes, Fast Pace" by SpliceSound, Freesound 170501 — tennis shoes, six steps
+#   hardStop   "Basketball noises singular Person" by whi1ter1ce, Freesound 708054 — the two squeaks (a sports court)
+#   clayStep   "Footsteps Gravel Running-Stop" by KikeVilaplana, Freesound 436525 — the three steps that are not clipped
+#              (a clay court is crushed brick; its stop at 3.5 s is clipped, so the stop is:)
+#   clayStop   "Boots Gravel Feet Slide 1_5" by Joao_Janz, Freesound 504383 — a foot sliding on gravel (a recording of a
+#              real clay match, Freesound 479289, was too noisy to cut slides from)
+#   grassStep  "running on wet grass" by saangosu, Freesound 781080 — eight steps
+#   grassStop  the same recording's three strongest steps
 # Each MP3 decoded to 44.1 kHz mono 16-bit WAV first (on a Mac: afconvert -f WAVE -d LEI16@44100 -c 1 in.mp3 out.wav).
 # Each sound: from 3 ms before its peak to the length below after it, a high-pass at 40 Hz (rumble only), halved to
 # 22.05 kHz behind a low-pass at 10 kHz, a fade over the last part. Nothing else is changed: level, spectrum and decay
 # are the recording's. Also measures each one, for docs/sound.
 #   python3 -I tools/sound-samples.py hit <decoded wav> src/audio/hitSamples.js
 #   python3 -I tools/sound-samples.py bounce <decoded wav> src/audio/bounceSamples.js
-#   python3 -I tools/sound-samples.py squeak|slide|grass <decoded wav> src/audio/<kind>Samples.js
+#   python3 -I tools/sound-samples.py hardStep|hardStop|clayStep|clayStop|grassStep|grassStop <decoded wav> src/audio/shoe<Kind>.js
 import sys, wave, base64, json, numpy as np
 KIND = {
   'hit': dict(name='HIT_SAMPLES', after=.40, fade=.08, keep=.5, source='Pixabay 151257, "Tennis Ball Hit" by soundreality (Pixabay Content License)',
               url='https://pixabay.com/sound-effects/tennis-ball-hit-151257/'),
-  'squeak': dict(name='SQUEAK_SAMPLES', mode='event', pad=.01, fade=.03, keep=.5, minLen=.08, source='Freesound 187343, "Rubber Shoe Squeak" by baidonovan (CC0 1.0)',
-              url='https://freesound.org/people/baidonovan/sounds/187343/'),
-  'slide': dict(name='SLIDE_SAMPLES', mode='event', pad=.02, fade=.06, keep=.5, minLen=.15, source='Freesound 504383, "Boots Gravel Feet Slide 1_5" by Joao_Janz (CC0 1.0)',
+  'hardStep': dict(name='SHOE_HARD_STEP', mode='event', pad=.01, fade=.02, keep=.6, minLen=.02, source='Freesound 170501, "Footsteps, Tile, Male Tennis Shoes, Fast Pace" by SpliceSound (CC0 1.0)',
+              url='https://freesound.org/people/SpliceSound/sounds/170501/'),
+  'hardStop': dict(name='SHOE_HARD_STOP', mode='event', pad=.01, fade=.015, keep=0, minLen=.02, pick=[.66, 3.78], source='Freesound 708054, "Basketball noises singular Person" by whi1ter1ce (CC0 1.0)',
+              url='https://freesound.org/people/whi1ter1ce/sounds/708054/'),
+  'clayStep': dict(name='SHOE_CLAY_STEP', mode='event', pad=.01, fade=.02, keep=0, minLen=.02, pick=[2.46, 2.80, 4.32], source='Freesound 436525, "Footsteps Gravel Running-Stop" by KikeVilaplana (CC0 1.0)',
+              url='https://freesound.org/people/KikeVilaplana/sounds/436525/'),
+  'clayStop': dict(name='SHOE_CLAY_STOP', mode='event', pad=.02, fade=.06, keep=.5, minLen=.15, source='Freesound 504383, "Boots Gravel Feet Slide 1_5" by Joao_Janz (CC0 1.0)',
               url='https://freesound.org/people/Joao_Janz/sounds/504383/'),
-  'grass': dict(name='GRASS_SAMPLES', mode='event', pad=.02, fade=.06, keep=.7, minLen=.15, source='Freesound 682128, "Footsteps Grass" by HenKonen (CC0 1.0)',
-              url='https://freesound.org/people/HenKonen/sounds/682128/'),
+  'grassStep': dict(name='SHOE_GRASS_STEP', mode='event', pad=.01, fade=.03, keep=.3, minLen=.05, source='Freesound 781080, "running on wet grass" by saangosu (CC0 1.0)',
+              url='https://freesound.org/people/saangosu/sounds/781080/'),
+  'grassStop': dict(name='SHOE_GRASS_STOP', mode='event', pad=.01, fade=.03, keep=.55, minLen=.05, source='Freesound 781080, "running on wet grass" by saangosu (CC0 1.0)',
+              url='https://freesound.org/people/saangosu/sounds/781080/'),
   'bounce': dict(name='BOUNCE_SAMPLES', after=.16, fade=.04, keep=.7, source='Pixabay 39028, "tennisballbounce" by freesound_community (Pixabay Content License)',
               url='https://pixabay.com/sound-effects/tennisballbounce-39028/'),
 }
@@ -52,6 +63,7 @@ if K.get('mode') == 'event':
             if (j - i) / r >= K['minLen']: spans.append((i, j))
             i = j + int(.1 * r)
         else: i += 1
+    if K.get('pick'): spans = [(i, j) for i, j in spans if any(abs(i / r - t) < .06 for t in K['pick'])]
     top = max(np.abs(x[i:j]).max() for i, j in spans); spans = [(i, j) for i, j in spans if np.abs(x[i:j]).max() >= K['keep'] * top]
     hits = [i + int(np.argmax(np.abs(x[i:j]))) for i, j in spans]
 def fir(cut, n=101):  # windowed-sinc low-pass

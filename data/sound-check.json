@@ -96,22 +96,170 @@
   "spunGain": 0.476
  },
  "onsetOk": false,
- "shoes": {
-  "hard": [
+ "feet": {
+  "hard step": [
    {
-    "peak": 0.177,
-    "centroid": 2395,
-    "dominant": 2083,
-    "low": 0,
-    "body": 0,
-    "mid": 91,
-    "high": 9,
-    "fall20ms": 41.4,
-    "fall40ms": 124.9,
-    "ms": 154
+    "peak": 0.269,
+    "centroid": 1390,
+    "dominant": 129,
+    "low": 27,
+    "body": 41,
+    "mid": 12,
+    "high": 20,
+    "fall20ms": 9.3,
+    "fall40ms": 32.6,
+    "ms": 54
+   },
+   {
+    "peak": 0.273,
+    "centroid": 873,
+    "dominant": 156,
+    "low": 29,
+    "body": 42,
+    "mid": 24,
+    "high": 4,
+    "fall20ms": 10.7,
+    "fall40ms": 21.5,
+    "ms": 44
+   },
+   {
+    "peak": 0.285,
+    "centroid": 1077,
+    "dominant": 393,
+    "low": 18,
+    "body": 51,
+    "mid": 20,
+    "high": 11,
+    "fall20ms": 8.9,
+    "fall40ms": 21,
+    "ms": 43
+   },
+   {
+    "peak": 0.292,
+    "centroid": 881,
+    "dominant": 156,
+    "low": 25,
+    "body": 49,
+    "mid": 21,
+    "high": 5,
+    "fall20ms": 8.1,
+    "fall40ms": 22,
+    "ms": 44
+   },
+   {
+    "peak": 0.318,
+    "centroid": 817,
+    "dominant": 178,
+    "low": 23,
+    "body": 54,
+    "mid": 20,
+    "high": 3,
+    "fall20ms": 7.4,
+    "fall40ms": 21.9,
+    "ms": 45
+   },
+   {
+    "peak": 0.363,
+    "centroid": 2037,
+    "dominant": 140,
+    "low": 24,
+    "body": 27,
+    "mid": 15,
+    "high": 34,
+    "fall20ms": 11.5,
+    "fall40ms": 27.1,
+    "ms": 48
+   },
+   {
+    "peak": 0.409,
+    "centroid": 965,
+    "dominant": 156,
+    "low": 41,
+    "body": 38,
+    "mid": 13,
+    "high": 8,
+    "fall20ms": 7.3,
+    "fall40ms": 34.5,
+    "ms": 58
+   },
+   {
+    "peak": 0.456,
+    "centroid": 836,
+    "dominant": 43,
+    "low": 44,
+    "body": 37,
+    "mid": 13,
+    "high": 6,
+    "fall20ms": 8.5,
+    "fall40ms": 80.5,
+    "ms": 201
    }
   ],
-  "clay": [
+  "hard stop": [
+   {
+    "peak": 0.043,
+    "centroid": 3613,
+    "dominant": 2805,
+    "low": 0,
+    "body": 11,
+    "mid": 41,
+    "high": 47,
+    "fall20ms": 28.2,
+    "fall40ms": 36,
+    "ms": 53
+   },
+   {
+    "peak": 0.061,
+    "centroid": 3085,
+    "dominant": 2503,
+    "low": 0,
+    "body": 1,
+    "mid": 77,
+    "high": 22,
+    "fall20ms": 13.2,
+    "fall40ms": 23.3,
+    "ms": 53
+   }
+  ],
+  "clay step": [
+   {
+    "peak": 0.565,
+    "centroid": 851,
+    "dominant": 754,
+    "low": 11,
+    "body": 70,
+    "mid": 18,
+    "high": 1,
+    "fall20ms": 23.4,
+    "fall40ms": 31.5,
+    "ms": 53
+   },
+   {
+    "peak": 0.579,
+    "centroid": 1516,
+    "dominant": 2013,
+    "low": 15,
+    "body": 19,
+    "mid": 61,
+    "high": 5,
+    "fall20ms": 22.1,
+    "fall40ms": 47.3,
+    "ms": 78
+   },
+   {
+    "peak": 0.643,
+    "centroid": 1717,
+    "dominant": 1938,
+    "low": 2,
+    "body": 20,
+    "mid": 73,
+    "high": 5,
+    "fall20ms": 10.5,
+    "fall40ms": 28.3,
+    "ms": 74
+   }
+  ],
+  "clay stop": [
    {
     "peak": 0.064,
     "centroid": 1501,
@@ -125,54 +273,140 @@
     "ms": 331
    }
   ],
-  "grass": [
+  "grass step": [
    {
-    "peak": 0.682,
-    "centroid": 4273,
-    "dominant": 1545,
+    "peak": 0.091,
+    "centroid": 2069,
+    "dominant": 1669,
     "low": 2,
-    "body": 12,
-    "mid": 39,
-    "high": 48,
-    "fall20ms": 50,
-    "fall40ms": 114.3,
-    "ms": 307
-   },
-   {
-    "peak": 0.846,
-    "centroid": 4287,
-    "dominant": 43,
-    "low": 6,
-    "body": 9,
-    "mid": 39,
-    "high": 46,
-    "fall20ms": 164.9,
-    "fall40ms": 207.1,
-    "ms": 299
-   },
-   {
-    "peak": 0.848,
-    "centroid": 4163,
-    "dominant": 1513,
-    "low": 0,
-    "body": 10,
+    "body": 26,
     "mid": 49,
-    "high": 41,
-    "fall20ms": 66.7,
-    "fall40ms": 169.9,
-    "ms": 284
+    "high": 22,
+    "fall20ms": 62.7,
+    "fall40ms": 85.9,
+    "ms": 132
    },
    {
-    "peak": 0.861,
-    "centroid": 4577,
-    "dominant": 587,
+    "peak": 0.116,
+    "centroid": 2433,
+    "dominant": 2358,
+    "low": 2,
+    "body": 16,
+    "mid": 57,
+    "high": 26,
+    "fall20ms": 49.4,
+    "fall40ms": 75.2,
+    "ms": 153
+   },
+   {
+    "peak": 0.127,
+    "centroid": 2548,
+    "dominant": 2239,
     "low": 1,
-    "body": 11,
-    "mid": 37,
-    "high": 50,
-    "fall20ms": 70,
-    "fall40ms": 241.1,
-    "ms": 354
+    "body": 18,
+    "mid": 40,
+    "high": 41,
+    "fall20ms": 53.5,
+    "fall40ms": 69.7,
+    "ms": 145
+   },
+   {
+    "peak": 0.137,
+    "centroid": 2392,
+    "dominant": 1863,
+    "low": 1,
+    "body": 23,
+    "mid": 41,
+    "high": 35,
+    "fall20ms": 36.8,
+    "fall40ms": 78.6,
+    "ms": 139
+   },
+   {
+    "peak": 0.139,
+    "centroid": 2094,
+    "dominant": 834,
+    "low": 2,
+    "body": 34,
+    "mid": 39,
+    "high": 25,
+    "fall20ms": 53.5,
+    "fall40ms": 62.7,
+    "ms": 111
+   },
+   {
+    "peak": 0.185,
+    "centroid": 2214,
+    "dominant": 1841,
+    "low": 1,
+    "body": 21,
+    "mid": 55,
+    "high": 23,
+    "fall20ms": 21.7,
+    "fall40ms": 46.5,
+    "ms": 152
+   },
+   {
+    "peak": 0.235,
+    "centroid": 2295,
+    "dominant": 2342,
+    "low": 1,
+    "body": 19,
+    "mid": 56,
+    "high": 24,
+    "fall20ms": 39.6,
+    "fall40ms": 76,
+    "ms": 114
+   },
+   {
+    "peak": 0.302,
+    "centroid": 2229,
+    "dominant": 700,
+    "low": 2,
+    "body": 22,
+    "mid": 53,
+    "high": 23,
+    "fall20ms": 3.4,
+    "fall40ms": 103.7,
+    "ms": 132
+   }
+  ],
+  "grass stop": [
+   {
+    "peak": 0.185,
+    "centroid": 2214,
+    "dominant": 1841,
+    "low": 1,
+    "body": 21,
+    "mid": 55,
+    "high": 23,
+    "fall20ms": 21.7,
+    "fall40ms": 46.5,
+    "ms": 152
+   },
+   {
+    "peak": 0.235,
+    "centroid": 2295,
+    "dominant": 2342,
+    "low": 1,
+    "body": 19,
+    "mid": 56,
+    "high": 24,
+    "fall20ms": 39.6,
+    "fall40ms": 76,
+    "ms": 114
+   },
+   {
+    "peak": 0.302,
+    "centroid": 2229,
+    "dominant": 700,
+    "low": 2,
+    "body": 22,
+    "mid": 53,
+    "high": 23,
+    "fall20ms": 3.4,
+    "fall40ms": 103.7,
+    "ms": 132
    }
   ]
  }

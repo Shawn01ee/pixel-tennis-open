@@ -38,6 +38,6 @@ class Player extends Agent{
     // a hard stop or cut squeaks the shoes on a hard court, brushes the grass on grass; on clay the feet slide
     const acc=hyp(this.vx-pvx,this.vz-pvz)/dt;this.squeakT=(this.squeakT||0)-dt;
     if(acc>L.brake*.7&&before>1.4&&this.squeakT<=0){this.squeakT=.35;m.ev(surf.slide?'slide':'squeak',{x:this.x,z:this.z,v:before,a:acc/L.brake,surf:surf.key});}
-    if(spd>1.6){this.lastStep+=spd*dt;if(this.lastStep>.85){this.lastStep=0;m.ev('step',{x:this.x,z:this.z,v:spd,slide:surf.slide&&before-spd>L.brake*.6*dt});}}
+    if(spd>1.6){this.lastStep+=spd*dt;if(this.lastStep>.85){this.lastStep=0;m.ev('step',{x:this.x,z:this.z,v:spd,slide:surf.slide&&before-spd>L.brake*.6*dt,surf:surf.key});}}
   }
 }

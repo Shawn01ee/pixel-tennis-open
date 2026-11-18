@@ -4,9 +4,9 @@
 const SOUND_SOURCES={
   hitRec:'soundreality, "Tennis Ball Hit", Pixabay 151257 (Pixabay Content License) — one clean hit, chosen by ear by the game\'s maker',
   bounceRec:'freesound_community, "tennisballbounce", Pixabay 39028 (Pixabay Content License) — a ball bounced on a hard floor, chosen with it',
-  squeakRec:'baidonovan, "Rubber Shoe Squeak", Freesound 187343 (CC0 1.0) — a rubber sole squeaking on a floor',
-  slideRec:'Joao_Janz, "Boots Gravel Feet Slide 1_5", Freesound 504383 (CC0 1.0) — a foot sliding on gravel; a recording of a real clay match (Freesound 479289) was too noisy to cut slides from',
-  grassRec:'HenKonen, "Footsteps Grass", Freesound 682128 (CC0 1.0) — steps in grass',
+  hardFeet:'SpliceSound, "Footsteps, Tile, Male Tennis Shoes, Fast Pace", Freesound 170501, and whi1ter1ce, "Basketball noises singular Person", Freesound 708054 (both CC0 1.0) — tennis shoes running; the squeaks of a sports court',
+  clayFeet:'KikeVilaplana, "Footsteps Gravel Running-Stop", Freesound 436525, and Joao_Janz, "Boots Gravel Feet Slide 1_5", Freesound 504383 (both CC0 1.0) — running on gravel (the steps that are not clipped); a foot sliding on gravel. A recording of a real clay match (Freesound 479289) was too noisy to cut from',
+  grassFeet:'saangosu, "running on wet grass", Freesound 781080 (CC0 1.0) — running steps on grass',
   patent:'US patent 5,908,361, "Automated tennis line calling system" (filed 1997) — how a bounce and a racket hit sound on court',
   pate:'Paté et al. 2024, Vibration 7(4):47, abstract — flat serves sound louder and have a lower spectral centroid than kick serves; the racket matters little',
 };
@@ -26,12 +26,13 @@ const SOUND={
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Level by impact speed: design
   bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12}},
-  // a player's shoes when he stops or cuts hard, each court its own: a squeak on a hard court, a slide on clay, a
-  // brush of grass. Real recordings (squeakSamples.js, slideSamples.js, grassSamples.js); one picked at random and
-  // played a little faster or slower each time so they do not repeat exactly, louder the harder the stop; grass with
-  // its crackling top softened. All of that design; each at the energy of the game's first shoe sound
-  shoe:{src:['squeakRec','slideRec','grassRec'],vary:.08,level:[.5,1],
-    hard:{gain:.66,wet:.25},clay:{gain:.77,wet:.2},grass:{gain:.24,wet:.2,filter:{type:'lowpass',f:5000,q:.7}}},
+  // a player's feet, each court its own: running steps, and a hard stop or cut — a squeak on a hard court, a slide on
+  // clay, a scuff of grass (shoe*.js, cut by tools/sound-samples.py). One at random, played a little faster or slower
+  // each time; steps louder the faster the run, stops the harder the stop; grass with its crackling top softened. All
+  // design; a stop at the energy of the game's first shoe sound, a step 10 dB under it
+  feet:{src:['hardFeet','clayFeet','grassFeet'],vary:.08,level:[.5,1],
+    stop:{hard:{gain:2.58,wet:.25},clay:{gain:.77,wet:.2},grass:{gain:.75,wet:.2,filter:{type:'lowpass',f:5000,q:.7}}},
+    step:{hard:{gain:.32,wet:.15},clay:{gain:.04,wet:.15},grass:{gain:.26,wet:.15,filter:{type:'lowpass',f:5000,q:.7}}}},
   // the net: the patent only names it ("a whack"); the tape it calls less repeatable. All design
   net:{src:['patent'],design:{meshHz:110,meshTau:.03,meshNoise:600,tapeHz:[900,600],tapeTau:.02,tapeNoise:3000,lp:7000,meshGain:0.41,tapeGain:0.13,wet:.2}},
 };
