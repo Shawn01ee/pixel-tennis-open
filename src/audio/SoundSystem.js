@@ -1,4 +1,5 @@
-// SoundSystem — turns match events into sound: the ball and strings, shoes, the crowd and the voices
+// SoundSystem — turns match events into sound: the ball and strings, the crowd and the voices (the players' feet are
+// silent, as the game's maker asked)
 // Starts on the first click (browsers only allow sound after a gesture); M mutes and unmutes.
 class SoundSystem{
   constructor(){this.A=new AudioEngine();this.sfx=new TennisSfx(this.A);this.crowd=new CrowdAudio(this.A);this.voice=new Announcer();this.on=false;}
@@ -11,11 +12,10 @@ class SoundSystem{
     switch(e.type){
       case'hit':S.hit(clamp((e.v-10)/42,0,1),e.spin||0,e.kind==='serve'?'serve':e.stroke||e.kind,pan);break;
       case'bounce':S.bounce(e.v,pan,1,e.surf);break;
-      case'thud':S.bounce(e.v,pan,.5);break;
+      // a loose ball's bounces after the point, a ball bounced before a serve or fed by a ball kid: quieter than a rally's,
+      // and the last little hops silent, so a ball coming to rest does not rattle (design)
+      case'thud':if(e.v>=1)S.bounce(e.v,pan,.3);break;
       case'net':S.net(e.mesh,e.v,pan);break;
-      case'squeak':S.shoe(e.surf==='grass'?'grass':'hard',e.a,pan);break;
-      case'slide':S.shoe('clay',e.a,pan);break;
-      case'step':S.step(e.surf||'hard',e.v,pan);break;
       case'serveWait':S.chime();break;
       case'crowd':if(C[e.kind])C[e.kind](e.power);break;
       case'say':if(e.who==='ump')this.voice.say(e.text);break;
