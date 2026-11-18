@@ -107,6 +107,7 @@
  "ui/CareerEventScreen.js",
  "app/Input.js",
  "app/CareerFlow.js",
+ "app/FrameWatch.js",
  "app/Game.js",
  "app/main.js"
 ]

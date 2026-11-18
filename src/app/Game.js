@@ -13,7 +13,7 @@ class Game{
     this.dock=new ControlDock(this);this.touchShot=new TouchShot(this);this.menu=new SettingsMenu(this);this.pauseMenu=new PauseMenu(this);this.setup=new SetupScreen(this);this.results=new ResultScreen(this);this.bracket=new BracketScreen(this);this.interview=new InterviewScreen(this);this.tour=null;
     this.title=new TitleScreen(this);this.howto=new HowToPlay(this);this.mainMenu=new MainMenu(this);this.flow=new CareerFlow(this);this.venue=Venue.MAJORS[0];this.vs=new VersusScreen(this);this.feTurn=0;
     this.speed=1;this.ts=1;this.paused=false;this.tc=0;this.acc=0;this.last=performance.now();this.lastHud=0;
-    this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.perf={a:0,n:0,p:0};this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
+    this.led={until:0,msgs:null,hot:false};this.crowd={clap:0,up:0};this.look={x:0,z:0};this.frames=new FrameWatch(s=>{this.R.perfStep=s;this.resize();});this.screenKey='';this.gaits=new WeakMap();this.bodies=new Map();this.alpha=1;
     this.demo();this.title.open();
     this.input=new Input(this);
         addEventListener('resize',()=>this.resize());this.resize();
@@ -147,7 +147,8 @@ class Game{
     if(now-this.lastHud>90){this.lastHud=now;this.board.update(m);this.statRows=this.stats.update(m);this.dock.update(m);this.menu.update();this.updateScreens();}
     if(m.result&&m.human&&!this.resultShown&&m.t>this.resultAt){this.resultShown=true;this.results.open(m,this.stats.update(m));}
   }
-  watchPerf(now){const p=this.perf;if(navigator.webdriver)return;p.a+=now-(p.p||now);p.p=now;if(++p.n===150){if(p.a/p.n>38&&this.R.perfStep<2){this.R.perfStep++;this.resize();}p.a=0;p.n=0;}}
+  // the picture's sharpness follows how smoothly the device draws (FrameWatch); not under automated browsers, which are slow
+  watchPerf(now){if(!navigator.webdriver)this.frames.tick(now);}
   resize(){this.R.resize();this.cam.update(0,this.focus(),true);if(innerWidth>innerHeight)$('rot').hidden=true;}
   drain(){
     // the match that plays behind the menus is scenery: no calls, tags or umpire, on screen or in the speakers
