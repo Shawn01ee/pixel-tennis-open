@@ -27,11 +27,11 @@ class TennisSfx{
   }
   // a bounce: one of the recorded bounces, softest to hardest by how fast the ball comes down, its level by the same
   // (design); a ball dropped dead (soft) at half
-  static bounceClip(v,soft=1){
+  static bounceClip(v,soft=1,court='hard'){
     const D=SOUND.bounce.design,g=clamp((v-1)/12,.08,1)*soft,n=BOUNCE_SAMPLES.clips.length;
-    return{i:Math.min(n-1,Math.floor(g*n)),gain:D.gain*g};
+    return{i:Math.min(n-1,Math.floor(g*n)),gain:D.gain*g*(D.court[court]??1)};
   }
-  bounce(v,pan=0,soft=1){const b=TennisSfx.bounceClip(v,soft);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
+  bounce(v,pan=0,soft=1,court='hard'){const b=TennisSfx.bounceClip(v,soft,court);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
   // a player's feet, each court its own (real recordings, SoundData.js): one of the court's sounds at random, a little
   // faster or slower each time so they never repeat exactly

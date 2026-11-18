@@ -401,7 +401,7 @@ class Match{
   }
   judge(b){
     const H=this.hitter,hi=H.idx;
-    this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
+    this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy),surf:this.surface.key});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
         // a serve that does not get over is a fault (called Fault, whether or not it clipped the tape on the way);

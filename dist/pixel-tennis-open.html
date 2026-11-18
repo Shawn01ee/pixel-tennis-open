@@ -2076,7 +2076,7 @@ class Match{
   }
   judge(b){
     const H=this.hitter,hi=H.idx;
-    this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy)});
+    this.ev('bounce',{x:b.lbx,z:b.lbz,vx:b.lvx,vz:b.lvz,v:Math.abs(b.vy),surf:this.surface.key});
     if(b.bc===1){
       if(sgn(b.lbz)===H.s){
         // a serve that does not get over is a fault (called Fault, whether or not it clipped the tape on the way);
@@ -4249,7 +4249,9 @@ const SOUND={
   // a bounce: real ones from the recording chosen with the hit (bounceSamples.js), by impact speed; checked against
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Level by impact speed: design
-  bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12}},
+  // Every court sounds like the Pixel Tennis Open (the hard court): a ball comes down slower on grass, so its bounces
+  // average 2.2 dB quieter there; court lifts that back (measured by tools/sound-courts.js, 2026-11-18)
+  bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12,court:{hard:1,clay:1,grass:1.29}}},
   // a player's feet, each court its own: running steps, and a hard stop or cut — a squeak on a hard court, a slide on
   // clay, a scuff of grass (shoe*.js, cut by tools/sound-samples.py). One at random, played a little faster or slower
   // each time; steps louder the faster the run, stops the harder the stop; grass with its crackling top softened. All
@@ -4386,11 +4388,11 @@ class TennisSfx{
   }
   // a bounce: one of the recorded bounces, softest to hardest by how fast the ball comes down, its level by the same
   // (design); a ball dropped dead (soft) at half
-  static bounceClip(v,soft=1){
+  static bounceClip(v,soft=1,court='hard'){
     const D=SOUND.bounce.design,g=clamp((v-1)/12,.08,1)*soft,n=BOUNCE_SAMPLES.clips.length;
-    return{i:Math.min(n-1,Math.floor(g*n)),gain:D.gain*g};
+    return{i:Math.min(n-1,Math.floor(g*n)),gain:D.gain*g*(D.court[court]??1)};
   }
-  bounce(v,pan=0,soft=1){const b=TennisSfx.bounceClip(v,soft);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
+  bounce(v,pan=0,soft=1,court='hard'){const b=TennisSfx.bounceClip(v,soft,court);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
   // a player's feet, each court its own (real recordings, SoundData.js): one of the court's sounds at random, a little
   // faster or slower each time so they never repeat exactly
@@ -4510,7 +4512,7 @@ class SoundSystem{
     if(!this.live)return;const S=this.sfx,C=this.crowd;
     switch(e.type){
       case'hit':S.hit(clamp((e.v-10)/42,0,1),e.spin||0,e.kind==='serve'?'serve':e.stroke||e.kind,pan);break;
-      case'bounce':S.bounce(e.v,pan);break;
+      case'bounce':S.bounce(e.v,pan,1,e.surf);break;
       case'thud':S.bounce(e.v,pan,.5);break;
       case'net':S.net(e.mesh,e.v,pan);break;
       case'squeak':S.shoe(e.surf==='grass'?'grass':'hard',e.a,pan);break;

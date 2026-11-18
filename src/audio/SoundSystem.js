@@ -10,7 +10,7 @@ class SoundSystem{
     if(!this.live)return;const S=this.sfx,C=this.crowd;
     switch(e.type){
       case'hit':S.hit(clamp((e.v-10)/42,0,1),e.spin||0,e.kind==='serve'?'serve':e.stroke||e.kind,pan);break;
-      case'bounce':S.bounce(e.v,pan);break;
+      case'bounce':S.bounce(e.v,pan,1,e.surf);break;
       case'thud':S.bounce(e.v,pan,.5);break;
       case'net':S.net(e.mesh,e.v,pan);break;
       case'squeak':S.shoe(e.surf==='grass'?'grass':'hard',e.a,pan);break;

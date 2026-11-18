@@ -25,7 +25,9 @@ const SOUND={
   // a bounce: real ones from the recording chosen with the hit (bounceSamples.js), by impact speed; checked against
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Level by impact speed: design
-  bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12}},
+  // Every court sounds like the Pixel Tennis Open (the hard court): a ball comes down slower on grass, so its bounces
+  // average 2.2 dB quieter there; court lifts that back (measured by tools/sound-courts.js, 2026-11-18)
+  bounce:{src:['bounceRec','patent'],hiHz:1000,loHz:250,design:{gain:2.04,wet:.12,court:{hard:1,clay:1,grass:1.29}}},
   // a player's feet, each court its own: running steps, and a hard stop or cut — a squeak on a hard court, a slide on
   // clay, a scuff of grass (shoe*.js, cut by tools/sound-samples.py). One at random, played a little faster or slower
   // each time; steps louder the faster the run, stops the harder the stop; grass with its crackling top softened. All
