@@ -1,100 +1,76 @@
-// Writes docs/sound/README.md: what each sound of the ball is made of, where every number comes from, and how the
-// rendered sounds measure against their sources. Read from src/audio/SoundData.js and data/sound-check.json.
+// Writes docs/sound/README.md: where each sound of the ball comes from, what it measures, and how it compares with
+// written descriptions of real ones. Read from src/audio/SoundData.js and data/sound-check.json.
 //   node tools/sound-check.js && node tools/sound-doc.js
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..');
 const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(ROOT,'src','audio','SoundData.js'),'utf8')+';this.API={SOUND,SOUND_SOURCES};',ctx);
 const{SOUND,SOUND_SOURCES:SRC}=ctx.API,chk=JSON.parse(fs.readFileSync(path.join(ROOT,'data','sound-check.json'),'utf8'));
-const URL={recording:'https://freesound.org/people/jamesdrake89/sounds/662266/',games:'https://freesound.org/people/kletton97/sounds/710041/',patent:'https://patents.google.com/patent/US5908361A/en',russell:'https://www.acs.psu.edu/drussell/Demos/tennis/tennis-1.html',
-  hamori:'https://forum.tennisplayer.net/forum/tennisplayer/95194-contact-at-10-000-frames-per-second?p=95519',
-  pate:'https://www.mdpi.com/2571-631X/7/4/47',banwell:'https://consensus.app/papers/details/w:df397d76-ac02-4a3d-bb07-bb70d99c6b0e/'};
-const HD=SOUND.hit.design,B=SOUND.bounce,BD=B.design,yes=b=>b?'yes':'**no**',h=chk.hit,b=chk.bounce,R=chk.hits,ms=x=>+(x*1000).toFixed(1);
+const URL={hitRec:'https://pixabay.com/sound-effects/tennis-ball-hit-151257/',bounceRec:'https://pixabay.com/sound-effects/tennisballbounce-39028/',
+  patent:'https://patents.google.com/patent/US5908361A/en',pate:'https://www.mdpi.com/2571-631X/7/4/47'};
+const HD=SOUND.hit.design,yes=b=>b?'yes':'**no**',H=chk.hits,B=chk.bounces,h=chk.hit;
+const row=r=>`| ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.low}% / ${r.body}% / ${r.mid}% / ${r.high}% | ${r.fall20ms} ms | ${r.fall40ms} ms |`;
 const md=`# Sounds
 
-A racket hit is a real one, recorded; the bounce and the net are built from how real ones sound. Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\` (\`node tools/sound-check.js\`,
-then \`node tools/sound-doc.js\`). A value with no data behind it is marked **design**.
+The racket hit and the bounce are real recordings; the net, the shoes and the menu are made in the game (**design**).
+Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\` (\`node tools/sound-check.js\`,
+then \`node tools/sound-doc.js\`).
 
 ## Sources
 
 ${Object.keys(SRC).map(k=>`- **${k}** — [${SRC[k].split(' — ')[0]}](${URL[k]})${SRC[k].includes(' — ')?': '+SRC[k].split(' — ').slice(1).join(' — '):''}`).join('\n')}
 
-Two papers could not be read in full (the publishers refused the download); only their abstracts are used, so from
-them the game takes directions, never sizes: Paté et al. (flat louder and darker than kick) and Banwell (a quick
-impulsive part, then a quieter, slower ring from the string bed; short sounds are preferred).
+The two recordings are used under the Pixabay Content License: free to use in a game, no credit required, never to be
+shared on their own. They live only inside the game's files (\`src/audio/hitSamples.js\`, \`bounceSamples.js\`).
+
+## How they are cut
+
+\`tools/sound-samples.py\` takes each from 3 ms before its peak — the hit to 400 ms after, keeping its own short room
+tail; each bounce to 160 ms — with a high-pass at 40 Hz for rumble only, 22.05 kHz, and a fade at the end. Nothing else
+is changed: level, spectrum and decay are the recording's.
 
 ## A racket hit
 
-Six serves cut from a recording made outdoors ([Freesound 662266](https://freesound.org/people/jamesdrake89/sounds/662266/),
-public domain) by \`tools/sound-samples.py\`: from 3 ms before each peak to 160 ms after, a high-pass at 80 Hz for wind
-and traffic, 22.05 kHz, a 30-ms fade. Nothing else is changed. A shot plays one of them by its pace, softest to
-hardest, and pace sets the level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté:
-flat louder than spun; the size **design**).
+Pace sets its level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté: flat louder than spun;
+the size **design**). It takes less of the stadium's echo than the other sounds, having its own tail (**design**). It
+is played a little lower and heavier than recorded, as the game's maker asked: ${Math.round((1-HD.rate)*100)}% slower (so its strongest
+frequency sounds at about ${Math.round(H[0].dominant*HD.rate)} Hz), with everything below ${HD.shelf.f} Hz lifted ${HD.shelf.db} dB (**design**). As recorded:
 
-Why these: measured over each hit's first 60 ms, they carry 38–70% of their energy between 300 Hz and 1 kHz and about
-1% above 3 kHz — the balance of the public-domain tennis hits made for games they were set against
-([710041](https://freesound.org/people/kletton97/sounds/710041/), [709678](https://freesound.org/people/rvdw2004/sounds/709678/),
-[412863](https://freesound.org/people/gprosser/sounds/412863/): 42–92% and up to 16%). The recording the game used first
-([338122](https://freesound.org/people/jacklilley/sounds/338122/), closer and brighter: 27–36% and 13–22%) sounded hard
-and clacky.
-
-| Hit | Peak | Spectral centroid | Strongest | −20 dB after | −40 dB after |
+| Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
-${R.map((r,i)=>`| ${i+1} of ${R.length} | ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.fall20ms} ms | ${r.fall40ms} ms |`).join('\n')}
-
-Made-up hits came first, and each sounded like something else: the first a low thump with an echo (a window shutting),
-then square waves on a model of the NES's sound chip (a crackling beep), the string bed's measured modes struck as
-tones (a wood block), a noise pop (a thin tick), a falling tone over noise. All of them followed the line-calling
-patent's description of a hit; the recording does not (below).
-
-## How the other sounds are made
-
-Each is a sum of vibrations, each a sine at its frequency dying away at its own rate, plus a short burst of filtered
-noise for the moment of impact, softened by a gentle low-pass (\`src/audio/ImpactVoice.js\`).
+${H.map(row).join('\n')}
 
 ## A bounce
 
-> "A ball bounce begins with one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles
-> at about 250 Hertz, with some higher harmonics, leading to the audible downshifting "thump" sound" — patent
+One of ${B.length} recorded bounces, softest to hardest by how fast the ball comes down, its level by the same (**design**).
 
-| Part | Value | Source |
+| Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
+|---|---|---|---|---|---|
+${B.map(row).join('\n')}
+
+## How they got here
+
+Every made-up hit sounded like something else: a low thump with an echo (a window shutting), square waves on a model
+of the NES's sound chip (a crackling beep), a racket's measured string modes struck as tones (a wood block), a noise
+pop (a thin tick), a falling tone over noise. Then two public-domain recordings from Freesound: a close one (hard and
+clacky) and outdoor serves. The game's maker then chose these two by ear.
+
+## Measured against the line-calling patent
+
+The patent (filed 1997) describes the sounds its microphones picked up around a court. The strongest frequency of
+each stretch, from the moment the sound starts:
+
+| Claim | In the recordings | Holds |
 |---|---|---|
-| Start | ${B.hiCycles} cycles at ${B.hiHz} Hz, at full strength from the first | patent |
-| Thump | ${B.loHz} Hz and its overtones ${BD.overtones.map(([k,a,t])=>`×${k} (${Math.round(a*100)}%, ${ms(t)} ms)`).join(', ')} dying away | patent (pitch, harmonics); sizes and decays **design** |
-| Level | with the speed the ball lands at | **design** |
+| Every ball sound reaches its level within ${SOUND.onsetMs.v} ms | hit ${H.map(r=>r.onsetMs).join(', ')} ms; bounces ${B.map(r=>r.onsetMs).join(', ')} ms | ${yes(chk.onsetOk)} |
+| A hit: ~1 kHz for 4 ms → 250 Hz → ~1 kHz | ${H.map(r=>r.parts.join(' → ')+' Hz').join('; ')} | ${H.every(r=>r.patentLike)?'yes':'**no**'} |
+| A bounce: ~1 kHz for 2 ms → 250 Hz | ${B.map(r=>r.parts.join(' → ')+' Hz').join('; ')} | ${B.filter(r=>r.patentLike).length} of ${B.length} |
+| A flat hit is louder than a spun one (pate) | level ${h.flatGain} against ${h.spunGain} | ${yes(h.flatLouder)} |
 
-The patent finds no difference between surfaces, and the game has none.
-
-## The net, shoes and the menu
-
-The patent only names the net's sound ("a whack") and calls the tape's less repeatable: both are **design**, made the
-same way. The squeak of shoes, the slide on clay and the menu's two notes are the game's first versions, kept as they
-were (**design**). Setting a target makes no sound.
+Most bounces follow the patent; the hit does not — it starts lower (${H.map(r=>r.parts[0]).join(', ')} Hz) and is at 1 kHz
+after that. The recordings are kept as they are.
 
 ## Loudness
 
-Each ball sound's gain (**design**) gives it the same energy as the game's first version of it, rendered both ways in
-a browser and compared — so the mix is as it was, only the sounds are different in kind. The hit is the exception: 4 dB
-stronger than the first version, for more punch.
-
-## Measured: do the sounds come out as their sources describe?
-
-The strongest frequency of each part from its spectrum; the recorded hits from the moment each starts.
-
-| Claim | Source | In the game | Holds |
-|---|---|---|---|
-| Every ball sound reaches its level within ${SOUND.onsetMs.v} ms | patent | hits ${R.map(r=>r.onsetMs).join(', ')} ms; bounce ${b.onsetMs} ms | ${yes(chk.onsetOk)} |
-| A hit goes ~1 kHz → 250 Hz → ~1 kHz (first 4 ms, next 4, next 20) | patent | ${R.map(r=>r.parts.join(' → ')+' Hz').join('; ')} | ${R.every(r=>r.patentLike)?'yes':'**no — the recording does not**'} |
-| A bounce goes ~1 kHz → 250 Hz | patent | ${b.parts.first} → ${b.parts.thump} Hz | ${yes(b.downshift)} |
-| A flat hit is louder than a spun one | pate | level ${h.flatGain} against ${h.spunGain} | ${yes(h.flatLouder)} |
-
-The recorded hits start low (${Math.min(...R.map(r=>r.parts[0]))}–${Math.max(...R.map(r=>r.parts[0]))} Hz) and rise, rather than the patent's 1 kHz first${(()=>{const n=R.filter(r=>r.onsetMs>=SOUND.onsetMs.v).length;return n?`; and ${n===1?"one of them takes":n+" of them take"} a little over a millisecond to reach half their peak`:'';})()}. The recording is the real thing, so the game keeps it; the patent described the
-hits its microphones picked up around a court in the 1990s, with the rackets and balls of the day.
-
-## Where the sources and the game part, and what was tried
-
-- **Spin on every stroke.** Paté et al. compared flat and kick serves; the game applies the louder-when-flat direction
-  to every stroke (not the darker sound: a recording is played as it is).
-- **One recording.** All six hits are one player's serves, on one court, with one racket.
-- **The bounce's first build failed its check.** Built as a smooth pulse, its kilohertz rose too slowly: its level came
-  only with the thump, 2.3 ms in. It now starts at full strength.
+Each recording's gain (**design**) is set against the game's first version of the same sound, rendered both ways in a
+browser: the bounce at the same energy, the hit 4 dB stronger, for punch.
 `;
 fs.mkdirSync(path.join(ROOT,'docs','sound'),{recursive:true});fs.writeFileSync(path.join(ROOT,'docs','sound','README.md'),md);console.log('written docs/sound/README.md');

@@ -71,9 +71,11 @@ class AudioEngine{
     for(let i=0;i<n;i++){let v=s.charCodeAt(2*i)|s.charCodeAt(2*i+1)<<8;if(v>32767)v-=65536;d[i]=v/32768;}
     return b;
   }
-  playBuffer(buf,pan=0,wet=.1,gain=1){
-    const ac=this.ac,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;g.gain.value=gain;
-    s.connect(g).connect(this.out(pan,wet,buf.duration+.3));s.start(this.now);
+  // rate below 1 plays it lower and longer; shelf {f, db} lifts (or cuts) everything below f
+  playBuffer(buf,pan=0,wet=.1,gain=1,rate=1,shelf=null){
+    const ac=this.ac,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;s.playbackRate.value=rate;g.gain.value=gain;
+    let n=s;if(shelf){const f=ac.createBiquadFilter();f.type='lowshelf';f.frequency.value=shelf.f;f.gain.value=shelf.db;n=n.connect(f);}
+    n.connect(g).connect(this.out(pan,wet,buf.duration/rate+.3));s.start(this.now);
   }
   // a burst of noise through a filter, shaped by an attack and an exponential release
   burst(dest,t,{type='bandpass',f=1000,q=1,peak=.3,att=.002,rel=.05,pink=false,f2=null}){

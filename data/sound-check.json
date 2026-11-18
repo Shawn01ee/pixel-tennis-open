@@ -2,103 +2,98 @@
  "rate": 48000,
  "hits": [
   {
-   "peak": 0.302,
-   "centroid": 1366,
-   "dominant": 807,
-   "fall20ms": 7.5,
-   "fall40ms": 42,
-   "onsetMs": 0.77,
+   "peak": 1.004,
+   "centroid": 1308,
+   "dominant": 991,
+   "low": 2,
+   "body": 37,
+   "mid": 54,
+   "high": 7,
+   "fall20ms": 8.8,
+   "fall40ms": 346.6,
+   "onsetMs": 0.14,
    "parts": [
-    360,
-    900,
-    570
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.316,
-   "centroid": 1450,
-   "dominant": 1001,
-   "fall20ms": 8.6,
-   "fall40ms": 33.7,
-   "onsetMs": 1.18,
-   "parts": [
-    350,
-    980,
-    560
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.353,
-   "centroid": 1350,
-   "dominant": 937,
-   "fall20ms": 6.9,
-   "fall40ms": 51.8,
-   "onsetMs": 0.41,
-   "parts": [
-    340,
-    910,
-    560
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.381,
-   "centroid": 1491,
-   "dominant": 872,
-   "fall20ms": 7.4,
-   "fall40ms": 47,
-   "onsetMs": 0.68,
-   "parts": [
-    370,
-    850,
-    580
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.492,
-   "centroid": 1586,
-   "dominant": 969,
-   "fall20ms": 7.3,
-   "fall40ms": 32.8,
-   "onsetMs": 0.59,
-   "parts": [
-    370,
-    960,
-    550
-   ],
-   "patentLike": false
-  },
-  {
-   "peak": 0.497,
-   "centroid": 1385,
-   "dominant": 1034,
-   "fall20ms": 15.1,
-   "fall40ms": 76.7,
-   "onsetMs": 0.36,
-   "parts": [
-    380,
-    980,
-    580
+    400,
+    1050,
+    990
    ],
    "patentLike": false
   }
  ],
+ "bounces": [
+  {
+   "peak": 0.244,
+   "centroid": 445,
+   "dominant": 210,
+   "low": 77,
+   "body": 7,
+   "mid": 14,
+   "high": 1,
+   "fall20ms": 11.2,
+   "fall40ms": 61.8,
+   "onsetMs": 0.23,
+   "parts": [
+    1160,
+    200
+   ],
+   "patentLike": true
+  },
+  {
+   "peak": 0.248,
+   "centroid": 404,
+   "dominant": 215,
+   "low": 76,
+   "body": 9,
+   "mid": 15,
+   "high": 0,
+   "fall20ms": 9.3,
+   "fall40ms": 77.8,
+   "onsetMs": 1.81,
+   "parts": [
+    350,
+    190
+   ],
+   "patentLike": false
+  },
+  {
+   "peak": 0.259,
+   "centroid": 387,
+   "dominant": 188,
+   "low": 76,
+   "body": 9,
+   "mid": 14,
+   "high": 0,
+   "fall20ms": 9.2,
+   "fall40ms": 77.5,
+   "onsetMs": 1,
+   "parts": [
+    1360,
+    200
+   ],
+   "patentLike": true
+  },
+  {
+   "peak": 0.282,
+   "centroid": 482,
+   "dominant": 194,
+   "low": 71,
+   "body": 7,
+   "mid": 20,
+   "high": 1,
+   "fall20ms": 8.5,
+   "fall40ms": 69.9,
+   "onsetMs": 0.41,
+   "parts": [
+    1240,
+    200
+   ],
+   "patentLike": true
+  }
+ ],
  "hit": {
   "flatLouder": true,
-  "flatGain": 1.33,
-  "spunGain": 1.131
- },
- "bounce": {
-  "onsetMs": 0.17,
-  "parts": {
-   "first": 980,
-   "thump": 250
-  },
-  "downshift": true,
-  "lengthMs": 39.1
+  "flatGain": 0.55,
+  "spunGain": 0.468
  },
  "onsetOk": false
 }
