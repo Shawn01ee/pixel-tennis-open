@@ -18,7 +18,7 @@ class CareerEventScreen{
     const big=seeds.map(([k,s])=>{const p=prof(k),out=!alive.has(k)||d.done&&d.champion!==k;return`<li class="${out?'out':''}">[${s}] ${p.name} <span>${d.champion===k?'champion':out?'out':'in'}</span></li>`;}).join('');
     let next;
     if(over){const res=E.result,ch=d.champion,cp=prof(ch);
-      next=`<div class="d-next">${ch==='me'?Trophy.img('trophy small'):''}${Portrait.img(cp,'face big')}<div><small>${ch==='me'?'CHAMPION':`OUT IN THE ${CAREER_DATA.ROUND_NAMES[res.round].toUpperCase()}`}</small>
+      next=`<div class="d-next">${ch==='me'?Trophy.img('trophy small',Trophy.keyFor(ev.tier,ev.name)):''}${Portrait.img(cp,'face big')}<div><small>${ch==='me'?'CHAMPION':`OUT IN THE ${CAREER_DATA.ROUND_NAMES[res.round].toUpperCase()}`}</small>
         <b>${ch==='me'?`You win the ${ev.name}!`:`${cp.name} wins the ${ev.name}`}</b><span>+${res.pts} ranking points · ranking after the event: ${WorldRanking.label(WorldRanking.rankOf(c.rankPoints+res.pts))}</span></div></div>`;}
     else{const o=E.opponent,p=prof(o),pw=EloModel.win(c.strength-E.elo(o),T.sets);
       next=`<div class="d-next">${Portrait.img(c.profile(),'face big')}<i class="d-vs">VS</i>${Portrait.img(p,'face big')}<div><small>${CAREER_DATA.ROUND_NAMES[E.roundName].toUpperCase()}${E.lastRound?'':` · ${E.names.length-d.round-1} more to the title`}</small>

@@ -82,8 +82,8 @@ class CareerHub{
   }
   record(){
     const c=this.c,s=c.s,stars=[...ROSTER].sort((a,b)=>a.rank-b.rank);
-    // the trophy cabinet: a cup for every title, on a shelf, bigger the bigger the event, gold for a major
-    const shelf=s.titles.length?`<div class="ch-shelf">${s.titles.map(t=>`<img src="${Trophy.url()}" alt="" class="t-${t.tier}" style="height:${CareerHub.CUP[t.tier]??27}px" title="${t.name} ${t.year}">`).join('')}</div>`:'';
+    // the trophy cabinet: every title's own cup (Trophy), on a shelf, bigger the bigger the event
+    const shelf=s.titles.length?`<div class="ch-shelf">${s.titles.map(t=>`<img src="${Trophy.url(Trophy.keyFor(t.tier,t.name))}" alt="" class="t-${t.tier}" style="height:${CareerHub.CUP[t.tier]??27}px" title="${t.name} ${t.year}">`).join('')}</div>`:'';
     const titles=s.titles.length?s.titles.map(t=>`<li><i class="tier t-${t.tier}">${CAREER_DATA.TIERS[t.tier].short}</i>${t.name} <span>${t.year}</span></li>`).join(''):'<li class="none">No titles yet.</li>';
     const miles=Career.MILESTONES.map(([k,n])=>`<li class="${s.miles[k]?'done':''}">${s.miles[k]?'★':'☆'} ${n}</li>`).join('');
     const fmt=CareerHub.FMTS.map(k=>`<button data-fmt="${k}" aria-pressed="${s.fmt===k}">${MatchFormat.get(k).name}</button>`).join('');
