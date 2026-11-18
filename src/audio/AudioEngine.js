@@ -71,6 +71,15 @@ class AudioEngine{
     for(let i=0;i<n;i++){let v=s.charCodeAt(2*i)|s.charCodeAt(2*i+1)<<8;if(v>32767)v-=65536;d[i]=v/32768;}
     return b;
   }
+  // a recording with its ring lowered but its attack as recorded: the first keepMs play at their own speed (the snap),
+  // the rest is drawn out by 1/ratio, which lowers its pitch (a lower ring dies a little slower, as a real one would).
+  // The two meet at the same point of the waveform, so there is no click
+  lowered(buf,ratio,keepMs){
+    const src=buf.getChannelData(0),R=buf.sampleRate,k=Math.min(src.length,Math.round(keepMs/1000*R)),n=k+Math.ceil((src.length-k)/ratio);
+    const b=this.ac.createBuffer(1,n,R),d=b.getChannelData(0);
+    for(let i=0;i<n;i++){if(i<k){d[i]=src[i];continue;}const t=k+(i-k)*ratio,j=Math.floor(t),f=t-j;d[i]=(src[j]||0)*(1-f)+(src[j+1]||0)*f;}
+    return b;
+  }
   // rate below 1 plays it lower and longer; filter {type, f, db, q} shapes it (a low shelf lifts the lows, a low-pass
   // softens the top)
   playBuffer(buf,pan=0,wet=.1,gain=1,rate=1,filter=null){

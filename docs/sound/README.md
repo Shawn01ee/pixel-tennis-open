@@ -29,8 +29,9 @@ is changed: level, spectrum and decay are the recording's.
 
 Pace sets its level (45–100%, **design**); spin takes up to 15% off it (Paté: flat louder than spun;
 the size **design**). It takes less of the stadium's echo than the other sounds, having its own tail (**design**). It
-is played a little lower and heavier than recorded, as the game's maker asked: 15% slower (so its strongest
-frequency sounds at about 842 Hz), with everything below 400 Hz lifted 3 dB (**design**). As recorded:
+is played lower and heavier than recorded, as the game's maker asked, but not slowed: the first 6 ms — the snap —
+as recorded, the ring after it about 2.8 semitones lower (drawn out by 1/0.85, so its strongest frequency
+sounds at about 842 Hz), with everything below 400 Hz lifted 3 dB (**design**). As recorded:
 
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
@@ -81,7 +82,7 @@ each stretch, from the moment the sound starts:
 | Every ball sound reaches its level within 1 ms | hit 0.14 ms; bounces 0.23, 1.81, 1, 0.41 ms | **no** |
 | A hit: ~1 kHz for 4 ms → 250 Hz → ~1 kHz | 400 → 1050 → 990 Hz | **no** |
 | A bounce: ~1 kHz for 2 ms → 250 Hz | 1160 → 200 Hz; 350 → 190 Hz; 1360 → 200 Hz; 1240 → 200 Hz | 3 of 4 |
-| A flat hit is louder than a spun one (pate) | level 0.53 against 0.451 | yes |
+| A flat hit is louder than a spun one (pate) | level 0.56 against 0.476 | yes |
 
 Most bounces follow the patent; the hit does not — it starts lower (400 Hz) and is at 1 kHz
 after that. The recordings are kept as they are.

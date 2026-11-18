@@ -17,10 +17,11 @@ const SOUND={
   onsetMs:{src:['patent'],v:1},
   // a racket hit: a real one, the game maker's pick by ear after every made-up hit (a thump, a beep, a wood block, a
   // tick) and two other recordings (close and clacky; outdoor serves) fell short. Cut by tools/sound-samples.py into
-  // hitSamples.js with its own room tail kept, so it takes less of the stadium's echo (design). Played a little lower
-  // and heavier than recorded — 15% slower, everything below 400 Hz lifted 3 dB — as the game's maker asked (design).
+  // hitSamples.js with its own room tail kept, so it takes less of the stadium's echo (design). Lower and heavier than
+  // recorded, as the game's maker asked, but not slowed: the first 6 ms (the snap) as recorded, the ring after it about
+  // three semitones lower (drawn out 1/0.85), everything below 400 Hz lifted 3 dB (design).
   // Flat louder than spun (Paté, on serves: direction only); the level by pace: design
-  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.53,wet:.06,rate:.85,filter:{type:'lowshelf',f:400,db:3}}},
+  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.56,wet:.06,pitch:.85,keepMs:6,filter:{type:'lowshelf',f:400,db:3}}},
   // a bounce: real ones from the recording chosen with the hit (bounceSamples.js), by impact speed; checked against
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Level by impact speed: design

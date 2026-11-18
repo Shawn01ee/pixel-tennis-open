@@ -33,8 +33,9 @@ is changed: level, spectrum and decay are the recording's.
 
 Pace sets its level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté: flat louder than spun;
 the size **design**). It takes less of the stadium's echo than the other sounds, having its own tail (**design**). It
-is played a little lower and heavier than recorded, as the game's maker asked: ${Math.round((1-HD.rate)*100)}% slower (so its strongest
-frequency sounds at about ${Math.round(H[0].dominant*HD.rate)} Hz), with everything below ${HD.filter.f} Hz lifted ${HD.filter.db} dB (**design**). As recorded:
+is played lower and heavier than recorded, as the game's maker asked, but not slowed: the first ${HD.keepMs} ms — the snap —
+as recorded, the ring after it about ${(-12*Math.log2(HD.pitch)).toFixed(1)} semitones lower (drawn out by 1/${HD.pitch}, so its strongest frequency
+sounds at about ${Math.round(H[0].dominant*HD.pitch)} Hz), with everything below ${HD.filter.f} Hz lifted ${HD.filter.db} dB (**design**). As recorded:
 
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
