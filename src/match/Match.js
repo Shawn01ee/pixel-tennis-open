@@ -192,13 +192,20 @@ class Match{
     while(!k){yield* this.wait(.35);
       let bd=1e9;for(const q of this.kids){if(q.busy)continue;const d=hyp(q.x-b.x,q.z-b.z);if(d<bd){bd=d;k=q;}}
       if(!b.rolling&&Math.hypot(b.vx,b.vz)>4)k=null;}
-    // ball kids sprint: out to the ball and straight back, so the court is clear before the next serve
+    // ball kids sprint: out to the ball and straight back, so the court is clear before the next serve. The ball may still
+    // be rolling, so the kid keeps heading for where it is now, and stops just short of it, facing it, where the hand
+    // meets it as the kid bends (BallKid.REACH); bends down, takes it, straightens up with it in hand, and runs it home
     k.busy=true;yield* this.wait(.1);
-    yield* this.goW(k,b.x,b.z,6.8);
-    k.pose='pick';yield* this.wait(.2);
-    const i=this.loose.indexOf(b);if(i>=0)this.loose.splice(i,1);
+    const R=BallKid.REACH;
+    for(let n=0;n<60;n++){const dx=b.x-k.x,dz=b.z-k.z,d=hyp(dx,dz);if(d<R+.12)break;
+      this.go(k,b.x-dx/d*R,b.z-dz/d*R,6.8);const until=this.t+.15;while(this.t<until&&k.path.length)yield;}
+    k.path.length=0;k.yaw=Math.atan2(b.x-k.x,b.z-k.z);
+    k.pose='pick';yield* this.wait(BallKid.BEND);
+    b.mode='carried';b.carrier=k;b.vx=b.vy=b.vz=0;
+    yield* this.wait(BallKid.RISE);
     k.pose='stand';
     yield* this.goW(k,k.hx,k.hz,6.4);
+    const i=this.loose.indexOf(b);if(i>=0)this.loose.splice(i,1);
     k.rest();
   }
   // a one-bounce feed: gravity and the court's restitution, nothing else

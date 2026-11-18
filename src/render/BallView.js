@@ -16,7 +16,7 @@ class BallView{
     if(b&&b.mode==='held'&&held)[bx,by,bz]=held;
     if(b&&b.y>-1){this.m.visible=true;this.m.position.set(bx,by,bz);this.m.scale.setScalar(size);this.m.rotation.set(t*9,t*7,0);
       this.dot.visible=by>.25;this.dot.position.set(bx,.03,bz);this.dot.scale.setScalar(size*.9);}else{this.m.visible=false;this.dot.visible=false;}
-    for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){m.visible=true;m.position.set(q.x,q.y,q.z);m.scale.setScalar(size*.9);}else m.visible=false;}
+    for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){const p=q.mode==='carried'&&q.drawAt?q.drawAt:[q.x,q.y,q.z];m.visible=true;m.position.set(p[0],p[1],p[2]);m.scale.setScalar(size*.9);}else m.visible=false;}
     const live=b&&Math.hypot(b.vx,b.vz)>9&&match.live;this.trail.visible=!!live;this.trail.material.size=match.isServe?2:1;this.trail.material.color.setHex(match.isServe?0xf4d44a:0xfdf0a0);
     if(live){for(let i=this.TR-1;i>0;i--){P[i*3]=P[(i-1)*3];P[i*3+1]=P[(i-1)*3+1];P[i*3+2]=P[(i-1)*3+2];}P[0]=bx;P[1]=by;P[2]=bz;this.trG.attributes.position.needsUpdate=true;}
     else if(b)for(let i=0;i<this.TR;i++){P[i*3]=b.x;P[i*3+1]=b.y;P[i*3+2]=b.z;}

@@ -892,7 +892,7 @@ class Trajectory{
 // MatchFormat — match formats, played to the Grand Slam rules (as at the Australian Open):
 // sets of six games won by two, a 7-point tiebreak at 6–6, and in the deciding set a 10-point tiebreak at 6–6.
 // games: games to win a set · sets: sets to win the match · tb: tiebreak points · decider: tiebreak points in the
-// deciding set · tbOnly: the whole match is one tiebreak (a 10-point match tiebreak)
+// deciding set · tbOnly: the whole match is one tiebreak (to decider points: 7, as at 6–6 in a set)
 class MatchFormat{
   constructor(key,name,desc,games,sets,{tb=7,decider=10,tbOnly=false,menu=true}={}){Object.assign(this,{key,name,desc,games,sets,tb,decider,tbOnly,menu});}
   static get(k){return MatchFormat.ALL.find(f=>f.key===k)||MatchFormat.ALL[0];}
@@ -903,7 +903,7 @@ MatchFormat.ALL=[
   new MatchFormat('one','1 set','One set: first to 6 games by two; at 6–6 a 10-point tiebreak.',6,1),
   new MatchFormat('bo3','Best of 3 sets','Two sets to win; 7-point tiebreaks at 6–6, a 10-point tiebreak in the third.',6,2),
   new MatchFormat('bo5','Best of 5 sets','Three sets to win, as in Grand Slam men\'s singles: 7-point tiebreaks at 6–6, a 10-point tiebreak in the fifth.',6,3),
-  new MatchFormat('tb','Tiebreak','One 10-point match tiebreak: first to 10, by two clear points.',0,1,{tbOnly:true}),
+  new MatchFormat('tb','Tiebreak','One tiebreak, as at 6–6 in a set: first to 7, by two clear points.',0,1,{tbOnly:true,decider:7}),
   // for self-play and tests: a quick set to four games, 7-point tiebreak at 4–4
   new MatchFormat('short','Short set','One set to 4 games, tiebreak at 4–4',4,1,{decider:7,menu:false}),
 ];
@@ -920,7 +920,7 @@ class Score{
   get total(){return this.pts[0]+this.pts[1];}
   get setNo(){return this.done.length+1;}
   get finalSet(){return this.sets[0]===this.f.sets-1&&this.sets[1]===this.f.sets-1;}
-  // 7 points, or 10 in the deciding set (and in a match tiebreak)
+  // 7 points, or 10 in the deciding set; a match that is one tiebreak goes to its format's decider (7)
   get tbTarget(){return this.f.tbOnly||this.finalSet?this.f.decider:this.f.tb;}
   get deuceCourt(){return this.total%2===0;}
   label(i){
@@ -990,7 +990,7 @@ class Score{
     return`${Score.PTNAME[a]}–${Score.PTNAME[b]}.`;
   }
   // "6–4 7–6(5)" from the winner's side or a fixed side
-  // a match tiebreak is written as its points: 10–8
+  // a match that is one tiebreak is written as its points: 7–5
   line(side=0){if(this.f.tbOnly)return this.done.map(d=>`${d.pts[side]}–${d.pts[1-side]}`).join(' ');
     return this.done.map(d=>`${d.g[side]}–${d.g[1-side]}${d.tb!=null?`(${d.tb})`:''}`).join(' ');}
 }
@@ -1612,6 +1612,9 @@ class Umpire extends Agent{constructor(){super(UMP.x,UMP.z,{y:UMP.seat,pose:'sit
 
 // BallKid — a ball kid with a home position
 class BallKid extends Agent{
+  // how far in front of the feet the hand reaches the court when the kid bends to pick up (FigureRig's pick pose, 0.34 m),
+  // and how long the bend down and the rise back up take (design)
+  static REACH=.34;static BEND=.28;static RISE=.24;
   constructor(x,z,i){super(x,z,{hx:x,hz:z,h:1.42,kid:i});this.rest();}
   rest(){this.pose='crouch';this.look='ball';this.busy=false;this.yaw=Math.abs(this.hz)>9?(this.hz>0?PI:0):-PI/2;}
 }
@@ -1862,13 +1865,20 @@ class Match{
     while(!k){yield* this.wait(.35);
       let bd=1e9;for(const q of this.kids){if(q.busy)continue;const d=hyp(q.x-b.x,q.z-b.z);if(d<bd){bd=d;k=q;}}
       if(!b.rolling&&Math.hypot(b.vx,b.vz)>4)k=null;}
-    // ball kids sprint: out to the ball and straight back, so the court is clear before the next serve
+    // ball kids sprint: out to the ball and straight back, so the court is clear before the next serve. The ball may still
+    // be rolling, so the kid keeps heading for where it is now, and stops just short of it, facing it, where the hand
+    // meets it as the kid bends (BallKid.REACH); bends down, takes it, straightens up with it in hand, and runs it home
     k.busy=true;yield* this.wait(.1);
-    yield* this.goW(k,b.x,b.z,6.8);
-    k.pose='pick';yield* this.wait(.2);
-    const i=this.loose.indexOf(b);if(i>=0)this.loose.splice(i,1);
+    const R=BallKid.REACH;
+    for(let n=0;n<60;n++){const dx=b.x-k.x,dz=b.z-k.z,d=hyp(dx,dz);if(d<R+.12)break;
+      this.go(k,b.x-dx/d*R,b.z-dz/d*R,6.8);const until=this.t+.15;while(this.t<until&&k.path.length)yield;}
+    k.path.length=0;k.yaw=Math.atan2(b.x-k.x,b.z-k.z);
+    k.pose='pick';yield* this.wait(BallKid.BEND);
+    b.mode='carried';b.carrier=k;b.vx=b.vy=b.vz=0;
+    yield* this.wait(BallKid.RISE);
     k.pose='stand';
     yield* this.goW(k,k.hx,k.hz,6.4);
+    const i=this.loose.indexOf(b);if(i>=0)this.loose.splice(i,1);
     k.rest();
   }
   // a one-bounce feed: gravity and the court's restitution, nothing else
@@ -4085,7 +4095,7 @@ class BallView{
     if(b&&b.mode==='held'&&held)[bx,by,bz]=held;
     if(b&&b.y>-1){this.m.visible=true;this.m.position.set(bx,by,bz);this.m.scale.setScalar(size);this.m.rotation.set(t*9,t*7,0);
       this.dot.visible=by>.25;this.dot.position.set(bx,.03,bz);this.dot.scale.setScalar(size*.9);}else{this.m.visible=false;this.dot.visible=false;}
-    for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){m.visible=true;m.position.set(q.x,q.y,q.z);m.scale.setScalar(size*.9);}else m.visible=false;}
+    for(let i=0;i<this.loose.length;i++){const q=match.loose[i],m=this.loose[i];if(q){const p=q.mode==='carried'&&q.drawAt?q.drawAt:[q.x,q.y,q.z];m.visible=true;m.position.set(p[0],p[1],p[2]);m.scale.setScalar(size*.9);}else m.visible=false;}
     const live=b&&Math.hypot(b.vx,b.vz)>9&&match.live;this.trail.visible=!!live;this.trail.material.size=match.isServe?2:1;this.trail.material.color.setHex(match.isServe?0xf4d44a:0xfdf0a0);
     if(live){for(let i=this.TR-1;i>0;i--){P[i*3]=P[(i-1)*3];P[i*3+1]=P[(i-1)*3+1];P[i*3+2]=P[(i-1)*3+2];}P[0]=bx;P[1]=by;P[2]=bz;this.trG.attributes.position.needsUpdate=true;}
     else if(b)for(let i=0;i<this.TR;i++){P[i*3]=b.x;P[i*3+1]=b.y;P[i*3+2]=b.z;}
@@ -4536,7 +4546,7 @@ class Scoreboard{
     const key=[sc.pts,sc.games,sc.sets,sc.server,sc.over,sc.mode,m.kmh,m.serveLabel,big&&big.label,m.control.idx,m.stage,...m.players.map(P=>Math.round(P.sta.energy*50))].join();
     if(key===this.key)return;this.key=key;
     $('sbT').innerHTML=this.rows(m,sc,big);
-    $('sbMode').textContent=sc.over?'Final':sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
+    $('sbMode').textContent=sc.over?'Final':sc.f.tbOnly?`Tiebreak · to ${sc.tbTarget}`:sc.mode==='tb'?`Set ${sc.setNo} · Tiebreak to ${sc.tbTarget}`:sc.f.sets>1?`Set ${sc.setNo}`:sc.f.name;
     const b=$('sbBadge');b.hidden=!big;if(big){b.textContent=big.label.toUpperCase();b.className='badge'+(big.kind==='set'?' set':big.kind==='match'?' match':'');}
     $('sbSpeed').innerHTML=m.kmh?`<b>${m.kmh}</b> km/h · ${m.serveKind} ${m.serveLabel}`:'';
   }
@@ -5633,7 +5643,7 @@ class Game{
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?this.venue.name.toUpperCase():crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+    const s={title:!sc?this.venue.name.toUpperCase():crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.f.tbOnly?`TIEBREAK · ${sc.tbTarget}`:sc.mode==='tb'?`TIEBREAK · ${sc.tbTarget}`:`SET ${sc.setNo}`,hot:!!big,
       foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.players[sc.winner].short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
@@ -5663,7 +5673,9 @@ class Game{
       if(hold2&&hands)this.props.push({what:hold2.what,hands,yaw:P.yaw});
       // a ball waiting to be served sits in the server's free hand, not inside the body
       if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
-    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});});
+    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});
+      // a ball the kid has picked up is drawn in the hand that reached for it (the right: FigureRig's first arm)
+      for(const b of m.loose)if(b.carrier===k)b.drawAt=hands?[hands[0][0],hands[0][1]+.03,hands[0][2]]:null;});
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
   }

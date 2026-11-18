@@ -186,7 +186,7 @@ class Game{
     const m=this.match,sc=m.score,big=m.stage==='play'&&m.big&&sc&&!sc.over?m.big:null;
     const cer=m.stage==='ceremony'&&m.cer,crowned=cer&&cer.trophy==='W';
     const key=sc?[sc.pts,sc.games,sc.sets,sc.server,sc.over,m.kmh,big&&big.label,m.stage,crowned].join():'pre';if(key===this.screenKey)return;this.screenKey=key;
-    const s={title:!sc?this.venue.name.toUpperCase():crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.mode==='tb'?'TIEBREAK':`SET ${sc.setNo}`,hot:!!big,
+    const s={title:!sc?this.venue.name.toUpperCase():crowned?'CHAMPION':cer?'CEREMONY':sc.over?'FINAL':sc.f.tbOnly?`TIEBREAK · ${sc.tbTarget}`:sc.mode==='tb'?`TIEBREAK · ${sc.tbTarget}`:`SET ${sc.setNo}`,hot:!!big,
       foot:cer?(crowned?m.result.winner.short.toUpperCase():'TROPHY'):big?big.label:sc&&sc.over?`${m.players[sc.winner].short} WINS`:m.kmh?`SERVE ${m.kmh} KM/H`:'PIXEL TENNIS OPEN',
       rows:m.players.map((P,i)=>({name:P.short,cc:P.st.cc,col:P.st.look.shirt,serve:sc&&sc.server===i&&!sc.over,
         sets:sc?[...sc.done.map(d=>d.g[i]),...(sc.over?[]:[sc.games[i]])]:[],pt:sc?(sc.over?(sc.winner===i?'W':''):sc.label(i)):''}))};
@@ -216,7 +216,9 @@ class Game{
       if(hold2&&hands)this.props.push({what:hold2.what,hands,yaw:P.yaw});
       // a ball waiting to be served sits in the server's free hand, not inside the body
       if(hold&&hands)this.heldAt=[hands[1][0],hands[1][1]+.045,hands[1][2]];}
-    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});});
+    m.kids.forEach((k,i)=>{const h=holdOf(k),hands=draw(k,Outfits.KID[i%2],k.look==='ball'?look:(k.look&&k.look!=='ball'?k.look:null),{hold:h});if(h&&hands)this.props.push({what:h.what,hands,yaw:k.yaw});
+      // a ball the kid has picked up is drawn in the hand that reached for it (the right: FigureRig's first arm)
+      for(const b of m.loose)if(b.carrier===k)b.drawAt=hands?[hands[0][0],hands[0][1]+.03,hands[0][2]]:null;});
     draw(m.ump,Outfits.UMP,m.ump.y>1?look:null);
     function sit(P){return P.pose==='sit';}
   }
