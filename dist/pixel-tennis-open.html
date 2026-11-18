@@ -4766,7 +4766,10 @@ class Portrait{
       case'thin':  for(let y=y0-2;y<y0;y++)for(let x=x0+1;x<=x1-1;x++)px(x,y,y===y0-2&&(x===x0+1||x===x1-1)?0x1a2c5c:x===x0+1?skL:skin);
                    for(let x=x0+2;x<=x1-2;x+=2)H_(x,y0-2,mix(skin,hair,.6));for(let y=y0-1;y<=y0+4;y++){H_(x0-1,y,y<y0+1?hL:hair);H_(x1+1,y,hD);}H_(x0,y0-1);H_(x1,y0-1,hD);H_(x0,y0);H_(x1,y0,hD);break;
     }
-    if(band!=null&&(f.hair==='bandana'||f.hair==='wavy'||f.hair==='long'||f.hair==='curly')){const by=y0;px(x0-1,by,band,x1-x0+3,f.hair==='bandana'?2:1);px(x0-1,by+(f.hair==='bandana'?1:0),mix(band,0x000000,.18),x1-x0+3,1);
+    // a headband over any hair (or none) along the hairline, its right end in shadow as the face's is; a bandana is two
+    // rows deep, the lower in shadow, with its knot
+    if(band!=null){const by=y0,bD=mix(band,0x000000,.18),deep=f.hair==='bandana';
+      px(x0-1,by,band,x1-x0+3,1);px(x1-1,by,bD,3,1);if(deep)px(x0-1,by+1,bD,x1-x0+3,1);
       if(f.hair==='bandana'){px(x1+2,by+1,band,2,1);px(x1+3,by+2,band,1,2);px(x1+2,by+3,mix(band,0x000000,.18));}}
     return cv;
   }
