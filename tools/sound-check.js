@@ -6,9 +6,9 @@
 //   node tools/sound-check.js [wav folder]
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..'),SRC=path.join(ROOT,'src');
 const ctx=vm.createContext({Math,console,Float32Array,Float64Array,Uint8Array,Object,Array,JSON});
-vm.runInContext(['core/constants.js','core/MathUtil.js','audio/SoundData.js','audio/ImpactVoice.js','audio/hitSamples.js','audio/bounceSamples.js','audio/TennisSfx.js'].map(f=>fs.readFileSync(path.join(SRC,f),'utf8')).join('\n')
-  +'\n;this.API={SOUND,ImpactVoice,TennisSfx,HIT_SAMPLES,BOUNCE_SAMPLES};',ctx);
-const{SOUND,ImpactVoice,TennisSfx,HIT_SAMPLES,BOUNCE_SAMPLES}=ctx.API,RATE=48000,voice=new ImpactVoice(RATE),WAV=process.argv[2];
+vm.runInContext(['core/constants.js','core/MathUtil.js','audio/SoundData.js','audio/ImpactVoice.js','audio/hitSamples.js','audio/bounceSamples.js','audio/squeakSamples.js','audio/slideSamples.js','audio/grassSamples.js','audio/TennisSfx.js'].map(f=>fs.readFileSync(path.join(SRC,f),'utf8')).join('\n')
+  +'\n;this.API={SOUND,ImpactVoice,TennisSfx,HIT_SAMPLES,BOUNCE_SAMPLES,SQUEAK_SAMPLES,SLIDE_SAMPLES,GRASS_SAMPLES};',ctx);
+const{SOUND,ImpactVoice,TennisSfx,HIT_SAMPLES,BOUNCE_SAMPLES,SQUEAK_SAMPLES,SLIDE_SAMPLES,GRASS_SAMPLES}=ctx.API,RATE=48000,voice=new ImpactVoice(RATE),WAV=process.argv[2];
 const render=(S,D)=>voice.render(S,D.gain);
 // the strongest frequency (Hz) in a stretch of the sound, from a zero-padded DFT, between 100 Hz and 4 kHz
 function peakHz(x,a,b,R=RATE){const s=x.slice(Math.round(a*R),Math.round(b*R)),m=s.reduce((q,v)=>q+v,0)/s.length;let best=0,bf=0;
@@ -38,9 +38,12 @@ out.bounces=measure(BOUNCE_SAMPLES,'bounce',[0,2,22]).map(h=>({...h,patentLike:n
 const D=SOUND.hit.design,hf=TennisSfx.hitClip(1,0),hs=TennisSfx.hitClip(1,1);
 out.hit={flatLouder:hf.gain>hs.gain,flatGain:+hf.gain.toFixed(3),spunGain:+hs.gain.toFixed(3)};
 out.onsetOk=[...out.hits,...out.bounces].every(h=>h.onsetMs<SOUND.onsetMs.v);
+// the shoes, one court each: measured as they are (nothing in the sources to set them against)
+out.shoes=Object.fromEntries([['hard',SQUEAK_SAMPLES],['clay',SLIDE_SAMPLES],['grass',GRASS_SAMPLES]].map(([k,S])=>[k,S.clips.map(({data,at,...c})=>({...c,ms:Math.round(Buffer.from(data,'base64').length/2/S.rate*1000)}))]));
 fs.writeFileSync(path.join(ROOT,'data','sound-check.json'),JSON.stringify(out,null,1));
 const yes=b=>b?'yes':'**NO**';
 for(const h of out.hits)console.log(`recorded hit: peak ${h.peak}, onset ${h.onsetMs} ms, centroid ${h.centroid} Hz, strongest ${h.dominant} Hz, -20 dB in ${h.fall20ms} ms, -40 dB in ${h.fall40ms} ms; ${h.parts.join(' → ')} Hz (as the patent hears a hit: ${yes(h.patentLike)})`);
 console.log(`flat louder than spun: ${yes(out.hit.flatLouder)}`);
 for(const h of out.bounces)console.log(`recorded bounce: peak ${h.peak}, onset ${h.onsetMs} ms, centroid ${h.centroid} Hz, strongest ${h.dominant} Hz, below 300 Hz ${h.low}%, -20 dB in ${h.fall20ms} ms; ${h.parts.join(' → ')} Hz (as the patent hears a bounce: ${yes(h.patentLike)})`);
+for(const k in out.shoes)for(const c of out.shoes[k])console.log(`shoe on ${k}: ${c.ms} ms, peak ${c.peak}, centroid ${c.centroid} Hz, strongest ${c.dominant} Hz, energy ${c.low}/${c.body}/${c.mid}/${c.high}%`);
 console.log('written data/sound-check.json');

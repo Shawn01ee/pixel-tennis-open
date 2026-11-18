@@ -71,10 +71,11 @@ class AudioEngine{
     for(let i=0;i<n;i++){let v=s.charCodeAt(2*i)|s.charCodeAt(2*i+1)<<8;if(v>32767)v-=65536;d[i]=v/32768;}
     return b;
   }
-  // rate below 1 plays it lower and longer; shelf {f, db} lifts (or cuts) everything below f
-  playBuffer(buf,pan=0,wet=.1,gain=1,rate=1,shelf=null){
+  // rate below 1 plays it lower and longer; filter {type, f, db, q} shapes it (a low shelf lifts the lows, a low-pass
+  // softens the top)
+  playBuffer(buf,pan=0,wet=.1,gain=1,rate=1,filter=null){
     const ac=this.ac,s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;s.playbackRate.value=rate;g.gain.value=gain;
-    let n=s;if(shelf){const f=ac.createBiquadFilter();f.type='lowshelf';f.frequency.value=shelf.f;f.gain.value=shelf.db;n=n.connect(f);}
+    let n=s;if(filter){const f=ac.createBiquadFilter();f.type=filter.type;f.frequency.value=filter.f;if(filter.db!=null)f.gain.value=filter.db;if(filter.q!=null)f.Q.value=filter.q;n=n.connect(f);}
     n.connect(g).connect(this.out(pan,wet,buf.duration/rate+.3));s.start(this.now);
   }
   // a burst of noise through a filter, shaped by an attack and an exponential release

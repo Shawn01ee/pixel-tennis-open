@@ -35,9 +35,9 @@ class Player extends Agent{
     // adjustment steps: short quick steps closing on the ball and while waiting for it, a lighter patter between
     // shots; the feet set for the last fifth of a second before contact
     this.patter=(tc>.2?(d<1.3?1:0):tc<0&&m.live&&!this.swing?.45:0)*S.accel;
-    // a hard stop or cut squeaks the shoes on a hard court; on clay the feet slide
+    // a hard stop or cut squeaks the shoes on a hard court, brushes the grass on grass; on clay the feet slide
     const acc=hyp(this.vx-pvx,this.vz-pvz)/dt;this.squeakT=(this.squeakT||0)-dt;
-    if(acc>L.brake*.7&&before>1.4&&this.squeakT<=0){this.squeakT=.35;m.ev(surf.slide?'slide':'squeak',{x:this.x,z:this.z,v:before,a:acc/L.brake});}
+    if(acc>L.brake*.7&&before>1.4&&this.squeakT<=0){this.squeakT=.35;m.ev(surf.slide?'slide':'squeak',{x:this.x,z:this.z,v:before,a:acc/L.brake,surf:surf.key});}
     if(spd>1.6){this.lastStep+=spd*dt;if(this.lastStep>.85){this.lastStep=0;m.ev('step',{x:this.x,z:this.z,v:spd,slide:surf.slide&&before-spd>L.brake*.6*dt});}}
   }
 }

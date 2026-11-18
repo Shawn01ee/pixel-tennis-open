@@ -4,13 +4,14 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),ROOT=path.join(__dirname,'..');
 const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(ROOT,'src','audio','SoundData.js'),'utf8')+';this.API={SOUND,SOUND_SOURCES};',ctx);
 const{SOUND,SOUND_SOURCES:SRC}=ctx.API,chk=JSON.parse(fs.readFileSync(path.join(ROOT,'data','sound-check.json'),'utf8'));
-const URL={hitRec:'https://pixabay.com/sound-effects/tennis-ball-hit-151257/',bounceRec:'https://pixabay.com/sound-effects/tennisballbounce-39028/',
+const URL={squeakRec:'https://freesound.org/people/baidonovan/sounds/187343/',slideRec:'https://freesound.org/people/Joao_Janz/sounds/504383/',grassRec:'https://freesound.org/people/HenKonen/sounds/682128/',hitRec:'https://pixabay.com/sound-effects/tennis-ball-hit-151257/',bounceRec:'https://pixabay.com/sound-effects/tennisballbounce-39028/',
   patent:'https://patents.google.com/patent/US5908361A/en',pate:'https://www.mdpi.com/2571-631X/7/4/47'};
 const HD=SOUND.hit.design,yes=b=>b?'yes':'**no**',H=chk.hits,B=chk.bounces,h=chk.hit;
 const row=r=>`| ${r.peak} | ${r.centroid} Hz | ${r.dominant} Hz | ${r.low}% / ${r.body}% / ${r.mid}% / ${r.high}% | ${r.fall20ms} ms | ${r.fall40ms} ms |`;
 const md=`# Sounds
 
-The racket hit and the bounce are real recordings; the net, the shoes and the menu are made in the game (**design**).
+The racket hit, the bounce and the players' shoes (a different one on each court) are real recordings; the net and the
+menu's notes are made in the game (**design**).
 Every number below is read from \`src/audio/SoundData.js\` and \`data/sound-check.json\` (\`node tools/sound-check.js\`,
 then \`node tools/sound-doc.js\`).
 
@@ -18,8 +19,9 @@ then \`node tools/sound-doc.js\`).
 
 ${Object.keys(SRC).map(k=>`- **${k}** — [${SRC[k].split(' — ')[0]}](${URL[k]})${SRC[k].includes(' — ')?': '+SRC[k].split(' — ').slice(1).join(' — '):''}`).join('\n')}
 
-The two recordings are used under the Pixabay Content License: free to use in a game, no credit required, never to be
-shared on their own. They live only inside the game's files (\`src/audio/hitSamples.js\`, \`bounceSamples.js\`).
+The hit and the bounce are used under the Pixabay Content License: free to use in a game, no credit required, never to
+be shared on their own; they live only inside the game's files (\`src/audio/hitSamples.js\`, \`bounceSamples.js\`). The
+shoes are public domain (Freesound, CC0 1.0).
 
 ## How they are cut
 
@@ -32,7 +34,7 @@ is changed: level, spectrum and decay are the recording's.
 Pace sets its level (${Math.round(HD.level[0]*100)}–100%, **design**); spin takes up to ${Math.round(HD.spinQuiet*100)}% off it (Paté: flat louder than spun;
 the size **design**). It takes less of the stadium's echo than the other sounds, having its own tail (**design**). It
 is played a little lower and heavier than recorded, as the game's maker asked: ${Math.round((1-HD.rate)*100)}% slower (so its strongest
-frequency sounds at about ${Math.round(H[0].dominant*HD.rate)} Hz), with everything below ${HD.shelf.f} Hz lifted ${HD.shelf.db} dB (**design**). As recorded:
+frequency sounds at about ${Math.round(H[0].dominant*HD.rate)} Hz), with everything below ${HD.filter.f} Hz lifted ${HD.filter.db} dB (**design**). As recorded:
 
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
@@ -45,6 +47,18 @@ One of ${B.length} recorded bounces, softest to hardest by how fast the ball com
 | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz | −20 dB after | −40 dB after |
 |---|---|---|---|---|---|
 ${B.map(row).join('\n')}
+
+## The shoes
+
+When a player stops or cuts hard, his shoes sound as the court makes them: a rubber squeak on a hard court, a slide on
+clay, a brush of grass on grass. One of each court's recordings is picked at random and played up to ${Math.round(SOUND.shoe.vary*50)}% faster or slower,
+so they do not repeat exactly, louder the harder the stop (**design**); on grass the crackling top above ${SOUND.shoe.grass.filter.f/1000} kHz is
+softened (**design**). Each court's at the energy of the game's first shoe sound. The clay slide is a foot sliding on
+gravel: a recording of a real clay match was too noisy to cut slides from.
+
+| Court | Length | Peak | Spectral centroid | Strongest | Energy below 300 Hz / 300 Hz–1 kHz / 1–3 kHz / above 3 kHz |
+|---|---|---|---|---|---|
+${Object.entries(chk.shoes).flatMap(([k,cs])=>cs.map(c=>`| ${k} | ${c.ms} ms | ${c.peak} | ${c.centroid} Hz | ${c.dominant} Hz | ${c.low}% / ${c.body}% / ${c.mid}% / ${c.high}% |`)).join('\n')}
 
 ## How they got here
 

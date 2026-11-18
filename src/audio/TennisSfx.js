@@ -1,7 +1,7 @@
 // TennisSfx — the sounds of the game itself: strings, bounces, the net, shoes on a hard court, the menu's notes.
 // The racket hit and the bounce are real recordings (hitSamples.js, bounceSamples.js; where they come from:
-// SoundData.js). The net rings at made-up frequencies (ImpactVoice, design); the shoes and the menu are built from
-// oscillators and filtered noise (design).
+// SoundData.js), and so are the players' shoes, a different one on each court. The net rings at made-up frequencies
+// (ImpactVoice, design); the menu's notes are built from oscillators (design).
 class TennisSfx{
   constructor(A){this.A=A;this.v=null;}
   get voice(){return this.v||(this.v=new ImpactVoice(this.A.ac.sampleRate));}
@@ -20,7 +20,7 @@ class TennisSfx{
     const D=SOUND.hit.design,p=clamp(power,0,1),s=clamp(Math.abs(spin),0,1),n=HIT_SAMPLES.clips.length;
     return{i:Math.min(n-1,Math.floor(p*n)),gain:D.gain*lerp(D.level[0],1,p)*(1-D.spinQuiet*s)};
   }
-  hit(power,spin=0,stroke='fh',pan=0){const h=TennisSfx.hitClip(power,spin),D=SOUND.hit.design;this.A.playBuffer(this.buf(HIT_SAMPLES,h.i),pan,D.wet,h.gain,D.rate,D.shelf);}
+  hit(power,spin=0,stroke='fh',pan=0){const h=TennisSfx.hitClip(power,spin),D=SOUND.hit.design;this.A.playBuffer(this.buf(HIT_SAMPLES,h.i),pan,D.wet,h.gain,D.rate,D.filter);}
   // a bounce: one of the recorded bounces, softest to hardest by how fast the ball comes down, its level by the same
   // (design); a ball dropped dead (soft) at half
   static bounceClip(v,soft=1){
@@ -29,18 +29,13 @@ class TennisSfx{
   }
   bounce(v,pan=0,soft=1){const b=TennisSfx.bounceClip(v,soft);this.A.playBuffer(this.buf(BOUNCE_SAMPLES,b.i),pan,SOUND.bounce.design.wet,b.gain);}
   net(mesh,v,pan=0){const D=SOUND.net.design;this.play(TennisSfx.netSound(mesh,v),{gain:mesh?D.meshGain:D.tapeGain,wet:D.wet},pan);}
-  // rubber on acrylic when a player stops or cuts hard: a short rising chirp with a wobble
-  squeak(a=1,pan=0){
-    const A=this.A,ac=A.ac,t=A.now,o=A.out(pan,.25,.4),d=.07+Math.random()*.08,f=2300+Math.random()*700,g=clamp(.03+a*.03,.03,.09);
-    const s=ac.createOscillator(),lfo=ac.createOscillator(),lg=ac.createGain(),eg=ac.createGain();
-    s.type='sawtooth';s.frequency.setValueAtTime(f,t);s.frequency.linearRampToValueAtTime(f*1.35,t+d*.6);s.frequency.linearRampToValueAtTime(f*1.2,t+d);
-    lfo.frequency.value=38+Math.random()*20;lg.gain.value=90;lfo.connect(lg).connect(s.frequency);
-    const hp=ac.createBiquadFilter();hp.type='bandpass';hp.frequency.value=f*1.2;hp.Q.value=2;
-    eg.gain.setValueAtTime(0,t);eg.gain.linearRampToValueAtTime(g,t+.01);eg.gain.setValueAtTime(g,t+d*.7);eg.gain.exponentialRampToValueAtTime(.0005,t+d);
-    s.connect(hp).connect(eg).connect(o);s.start(t);lfo.start(t);s.stop(t+d+.05);lfo.stop(t+d+.05);
+  // a player's shoes as he stops or cuts hard: a squeak on a hard court, a slide on clay, a brush of grass (a, 0–1: how
+  // hard the stop)
+  shoe(court,a=1,pan=0){
+    const S={hard:SQUEAK_SAMPLES,clay:SLIDE_SAMPLES,grass:GRASS_SAMPLES}[court]||SQUEAK_SAMPLES,Z=SOUND.shoe,D=Z[court]||Z.hard;
+    const i=Math.floor(Math.random()*S.clips.length),rate=1+(Math.random()-.5)*Z.vary;
+    this.A.playBuffer(this.buf(S,i),pan,D.wet,D.gain*lerp(Z.level[0],Z.level[1],clamp(a,0,1)),rate,D.filter||null);
   }
-  // feet sliding on clay
-  slide(pan=0){const A=this.A,t=A.now,o=A.out(pan,.2,.5);A.burst(o,t,{type:'lowpass',f:1400,f2:350,q:.8,peak:.12,att:.02,rel:.28,pink:true});}
   // two tones that say "your turn"
   chime(){const A=this.A,t=A.now,o=A.out(0,.15,.6);A.tone(o,t,{f:880,peak:.07,rel:.22});A.tone(o,t+.14,{f:660,peak:.07,rel:.3});}
   click(){const A=this.A,t=A.now,o=A.out(0,.05,.2);A.tone(o,t,{f:1200,f2:900,peak:.05,rel:.04});}
