@@ -4217,9 +4217,9 @@ const SOUND={
   // a racket hit: a real one, the game maker's pick by ear after every made-up hit (a thump, a beep, a wood block, a
   // tick) and two other recordings (close and clacky; outdoor serves) fell short. Cut by tools/sound-samples.py into
   // hitSamples.js with its own room tail kept, so it takes less of the stadium's echo (design). Played a little lower
-  // and heavier than recorded — 10% slower, everything below 400 Hz lifted 3 dB — as the game's maker asked (design).
+  // and heavier than recorded — 15% slower, everything below 400 Hz lifted 3 dB — as the game's maker asked (design).
   // Flat louder than spun (Paté, on serves: direction only); the level by pace: design
-  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.55,wet:.06,rate:.9,filter:{type:'lowshelf',f:400,db:3}}},
+  hit:{src:['hitRec','pate'],design:{level:[.45,1],spinQuiet:.15,gain:.53,wet:.06,rate:.85,filter:{type:'lowshelf',f:400,db:3}}},
   // a bounce: real ones from the recording chosen with the hit (bounceSamples.js), by impact speed; checked against
   // the patent's "one or two cycles of sinusoid at about one kilohertz followed by several decaying cycles at about 250
   // Hertz". Level by impact speed: design
