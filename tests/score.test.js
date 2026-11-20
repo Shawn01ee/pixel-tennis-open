@@ -10,7 +10,7 @@ const toSixAll=s=>{for(let i=0;i<6;i++){game(s,s.server);game(s,s.server);}};
 // a tiebreak won by w, reaching n points to m (the loser's points), alternating until the loser's count is in
 const tiebreak=(s,w,n,m)=>{let ev;for(let i=0;i<m;i++){s.point(1-w);ev=s.point(w);}for(let i=m;i<n;i++)ev=s.point(w);return ev;};
 {const s=new Score(A,B,0,MatchFormat.get('one'));toSixAll(s);
-  check(s.mode==='tb'&&s.tbTarget===10,'1 set: at 6–6 the tiebreak is played to 10 (the deciding set)');
+  check(s.mode==='tb'&&s.tbTarget===7,'1 set: at 6–6 the tiebreak is played to 7, as in any set (10 only in the deciding set of a best of three or five)');
   const ev=tiebreak(s,0,10,8);check(ev.type==='match'&&s.line(0)==='7–6(8)',`1 set: won 7–6 on a 10–8 tiebreak, written ${s.line(0)}`);}
 {const s=new Score(A,B,0,MatchFormat.get('bo3'));toSixAll(s);
   check(s.tbTarget===7,'best of 3: a first-set tiebreak is played to 7');
