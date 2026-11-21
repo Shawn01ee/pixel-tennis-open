@@ -343,5 +343,28 @@
    "Murray": 49.3,
    "McEnroe": 51.6
   }
+ },
+ {
+  "date": "2026-11-21",
+  "round": 36,
+  "points": 236093,
+  "overall": 54.1,
+  "sets": 76.9,
+  "evalPoints": 3350,
+  "players": {
+   "Djokovic": 53.6,
+   "Nadal": 59.5,
+   "Alcaraz": 54.7,
+   "Federer": 52.9,
+   "Sinner": 56.7,
+   "Medvedev": 54.8,
+   "Zverev": 52.3,
+   "de Minaur": 52.3,
+   "Sampras": 52.3,
+   "Borg": 56.4,
+   "Agassi": 54.2,
+   "Murray": 52.8,
+   "McEnroe": 52.2
+  }
  }
 ]

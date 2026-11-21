@@ -9,8 +9,8 @@ by playing. This page is the record of that learning. It is rebuilt by `tools/tr
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="learning-dark.svg"><img src="learning-light.svg" alt="Learning curve: share of points trained players win against untrained twins, by rounds of self-play"></picture>
 
-After **32 rounds** of self-play (209,056 points), a trained player wins **53.4% of points** and
-**73.1% of sets** against an untrained copy of itself — same serve, same speed, same strokes, only the decisions
+After **36 rounds** of self-play (236,093 points), a trained player wins **54.1% of points** and
+**76.9% of sets** against an untrained copy of itself — same serve, same speed, same strokes, only the decisions
 differ. Before any training the same measurement gave 50.9% (50% is the expected value; the rest is noise in
 a sample of 2,505 points).
 
@@ -33,6 +33,7 @@ a sample of 2,505 points).
 | 2026-11-18 | 24 | 156,630 | 53.6% | 71.8% | 3,430 |
 | 2026-11-20 | 28 | 182,927 | 55.2% | 82.1% | 3,177 |
 | 2026-11-20 | 32 | 209,056 | 53.4% | 73.1% | 3,448 |
+| 2026-11-21 | 36 | 236,093 | 54.1% | 76.9% | 3,350 |
 
 Each row is one measurement. A single measurement of all players is good to about ±1 percentage point; one player's
 bar in the second chart rests on far fewer points and is good to about ±3.
@@ -62,122 +63,122 @@ bar in the second chart rests on far fewer points and is good to about ±3.
 What each player came to prefer and to avoid. The number is how far the tactic's learned value sits above or below
 the average of the other choices in the same situation.
 
-<details><summary><b>Djokovic</b> — 58% of points against the untrained twin</summary>
+<details><summary><b>Djokovic</b> — 53.6% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, backhand | pass down the line | +0.56 |
-| Opponent at the net, forehand | pass down the line | +0.55 |
-| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.45 |
-| Forehand rally, opponent in the middle, hurried | heavy and deep down the middle | +0.39 |
+| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.48 |
+| Forehand rally, opponent in the middle, hurried | heavy and deep down the middle | +0.46 |
+| Short ball, opponent in the middle | sharp angle | +0.43 |
+| Opponent at the net, forehand | pass down the line | +0.41 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Opponent at the net, backhand | low at the feet | -0.55 |
-| Opponent at the net, forehand | low at the feet | -0.38 |
-| Return of a second serve | down the line | -0.36 |
+| Opponent at the net, backhand | low at the feet | -0.56 |
+| Short ball, opponent in the middle | approach and come in | -0.48 |
+| Return of a second serve | cross-court | -0.40 |
 
 </details>
 
-<details><summary><b>Nadal</b> — 52% of points against the untrained twin</summary>
+<details><summary><b>Nadal</b> — 59.5% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, forehand | pass down the line | +0.50 |
-| Backhand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.48 |
-| First ball after own serve, backhand | heavy and deep down the middle | +0.44 |
-| Forehand rally, opponent covering cross-court, hurried | heavy and deep down the middle | +0.43 |
+| Opponent at the net, forehand | pass down the line | +0.68 |
+| Short ball, opponent in the middle | cross-court | +0.45 |
+| Forehand rally, opponent in the middle, hurried | heavy and deep down the middle | +0.44 |
+| Backhand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.41 |
 
 | Situation | Avoids | Value |
 |---|---|---|
+| Return of a second serve against a serve-and-volleyer | low at the feet | -0.45 |
 | Opponent at the net, forehand | low at the feet | -0.44 |
-| Short ball, opponent caught on the line side | approach and come in | -0.43 |
-| Second serve type, right court | slice | -0.42 |
+| First ball after own serve, backhand | drop shot | -0.41 |
 
 </details>
 
-<details><summary><b>Alcaraz</b> — 56.3% of points against the untrained twin</summary>
+<details><summary><b>Alcaraz</b> — 54.7% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Short ball, opponent covering cross-court | drop shot | +0.77 |
+| Short ball, opponent covering cross-court | drop shot | +0.70 |
+| Forehand rally, opponent in the middle | drop shot | +0.70 |
 | Short ball, opponent covering cross-court | sharp angle | +0.66 |
-| Forehand rally, opponent in the middle | drop shot | +0.66 |
-| Short ball, opponent in the middle | drop shot | +0.60 |
+| Short ball, opponent in the middle | drop shot | +0.66 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Short ball, opponent covering cross-court | hard into the open court | -0.57 |
+| Short ball, opponent in the middle | approach and come in | -0.52 |
 | Short ball, opponent covering cross-court | down the line | -0.51 |
-| First ball after own serve, forehand | cross-court | -0.44 |
+| Forehand rally, opponent in the middle | hard into the open court | -0.47 |
 
 </details>
 
-<details><summary><b>Federer</b> — 50.9% of points against the untrained twin</summary>
+<details><summary><b>Federer</b> — 52.9% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Short ball, opponent in the middle | sharp angle | +0.37 |
-| Second serve type, left court | kick | +0.34 |
-| Short ball, opponent caught on the line side | sharp angle | +0.33 |
-| Forehand rally, opponent in the middle | slice | +0.33 |
+| First ball after own serve, backhand | cross-court | +0.51 |
+| Short ball, opponent in the middle | sharp angle | +0.46 |
+| Short ball, opponent covering cross-court | sharp angle | +0.46 |
+| Short ball, opponent caught on the line side | cross-court | +0.42 |
 
 | Situation | Avoids | Value |
 |---|---|---|
 | Short ball, opponent caught on the line side | approach and come in | -0.55 |
-| Opponent at the net, forehand | low at the feet | -0.38 |
-| Return of a second serve | down the line | -0.34 |
+| Short ball, opponent in the middle | approach and come in | -0.48 |
+| Second serve placement, left court | down the T | -0.37 |
 
 </details>
 
-<details><summary><b>Sinner</b> — 53.8% of points against the untrained twin</summary>
+<details><summary><b>Sinner</b> — 56.7% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, backhand | pass down the line | +0.43 |
-| Short ball, opponent caught on the line side | cross-court | +0.38 |
-| Short ball, opponent in the middle | cross-court | +0.36 |
-| Short ball, opponent covering cross-court | cross-court | +0.35 |
+| Opponent at the net, forehand | pass down the line | +0.53 |
+| Short ball, opponent covering cross-court | cross-court | +0.52 |
+| Forehand rally, opponent covering cross-court, hurried | heavy and deep down the middle | +0.36 |
+| Short ball, opponent caught on the line side | sharp angle | +0.33 |
 
 | Situation | Avoids | Value |
 |---|---|---|
+| Short ball, opponent caught on the line side | approach and come in | -0.46 |
+| Opponent at the net, forehand | low at the feet | -0.43 |
 | Return of a second serve against a serve-and-volleyer | low at the feet | -0.41 |
-| Opponent at the net, backhand | low at the feet | -0.37 |
-| Short ball, opponent caught on the line side | approach and come in | -0.31 |
 
 </details>
 
-<details><summary><b>Medvedev</b> — 54.3% of points against the untrained twin</summary>
-
-| Situation | Prefers | Value |
-|---|---|---|
-| Opponent at the net, forehand | pass down the line | +0.51 |
-| Opponent at the net, backhand | pass down the line | +0.49 |
-| Second serve type, left court | kick | +0.38 |
-| Return of a second serve | safe and deep | +0.36 |
-
-| Situation | Avoids | Value |
-|---|---|---|
-| Opponent at the net, backhand | low at the feet | -0.49 |
-| Short ball, opponent caught on the line side | down the line | -0.42 |
-| Opponent at the net, forehand | low at the feet | -0.39 |
-
-</details>
-
-<details><summary><b>Zverev</b> — 51.8% of points against the untrained twin</summary>
+<details><summary><b>Medvedev</b> — 54.8% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
 | Opponent at the net, forehand | pass down the line | +0.55 |
-| Opponent at the net, backhand | pass down the line | +0.46 |
-| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.38 |
-| Short ball, opponent covering cross-court | cross-court | +0.38 |
+| Opponent at the net, backhand | pass down the line | +0.48 |
+| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.44 |
+| Short ball, opponent covering cross-court | cross-court | +0.44 |
+
+| Situation | Avoids | Value |
+|---|---|---|
+| Opponent at the net, backhand | low at the feet | -0.58 |
+| Return of a second serve | down the line | -0.46 |
+| Short ball, opponent caught on the line side | down the line | -0.45 |
+
+</details>
+
+<details><summary><b>Zverev</b> — 52.3% of points against the untrained twin</summary>
+
+| Situation | Prefers | Value |
+|---|---|---|
+| Opponent at the net, backhand | pass down the line | +0.49 |
+| Short ball, opponent caught on the line side | cross-court | +0.45 |
+| Opponent at the net, forehand | pass down the line | +0.44 |
+| Short ball, opponent covering cross-court | cross-court | +0.41 |
 
 | Situation | Avoids | Value |
 |---|---|---|
 | Opponent at the net, forehand | low at the feet | -0.49 |
+| Short ball, opponent caught on the line side | approach and come in | -0.46 |
 | Opponent at the net, backhand | low at the feet | -0.44 |
-| Return of a second serve against a serve-and-volleyer | low at the feet | -0.40 |
 
 </details>
 
@@ -185,101 +186,101 @@ the average of the other choices in the same situation.
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, backhand | pass down the line | +0.53 |
-| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.46 |
-| First ball after own serve, forehand | heavy and deep down the middle | +0.42 |
-| Backhand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.42 |
+| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.49 |
+| Return of a second serve | heavy and deep down the middle | +0.49 |
+| Backhand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.44 |
+| Opponent at the net, backhand | pass down the line | +0.43 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Opponent at the net, forehand | low at the feet | -0.51 |
-| Forehand rally, opponent covering cross-court | down the line | -0.47 |
-| First ball after own serve, backhand | down the line | -0.43 |
+| First ball after own serve, backhand | down the line | -0.47 |
+| Forehand rally, opponent covering cross-court | down the line | -0.45 |
+| Opponent at the net, forehand | low at the feet | -0.41 |
 
 </details>
 
-<details><summary><b>Sampras</b> — 56.6% of points against the untrained twin</summary>
+<details><summary><b>Sampras</b> — 52.3% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Forehand rally, opponent in the middle | drop shot | +0.34 |
-| Short ball, opponent in the middle | sharp angle | +0.33 |
-| Second serve type, left court | kick | +0.32 |
-| Return of a first serve against a serve-and-volleyer | lob | +0.32 |
+| Forehand rally, opponent in the middle | drop shot | +0.33 |
+| Short ball, opponent covering cross-court | cross-court | +0.32 |
+| Forehand rally, opponent caught on the line side | drop shot | +0.30 |
+| Return of a first serve against a serve-and-volleyer | lob | +0.29 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Opponent at the net, forehand | low at the feet | -0.34 |
-| First ball after own serve, forehand | hard into the open court | -0.33 |
-| Forehand rally, opponent covering cross-court | hard into the open court | -0.32 |
-
-</details>
-
-<details><summary><b>Borg</b> — 55.1% of points against the untrained twin</summary>
-
-| Situation | Prefers | Value |
-|---|---|---|
-| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.50 |
-| Opponent at the net, backhand | pass down the line | +0.49 |
-| Opponent at the net, forehand | pass down the line | +0.48 |
-| First ball after own serve, forehand | heavy and deep down the middle | +0.38 |
-
-| Situation | Avoids | Value |
-|---|---|---|
-| Opponent at the net, forehand | low at the feet | -0.44 |
+| Opponent at the net, forehand | low at the feet | -0.39 |
 | Second serve placement, left court | down the T | -0.38 |
-| Short ball, opponent caught on the line side | down the line | -0.38 |
+| Forehand rally, opponent covering cross-court | hard into the open court | -0.35 |
 
 </details>
 
-<details><summary><b>Agassi</b> — 53.7% of points against the untrained twin</summary>
+<details><summary><b>Borg</b> — 56.4% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, backhand | pass down the line | +0.58 |
-| Opponent at the net, forehand | pass down the line | +0.50 |
-| Forehand rally, opponent covering cross-court, hurried | heavy and deep down the middle | +0.39 |
-| Opponent at the net, forehand | cross-court pass | +0.38 |
+| Forehand rally, opponent caught on the line side, hurried | heavy and deep down the middle | +0.55 |
+| Opponent at the net, forehand | pass down the line | +0.49 |
+| Return of a second serve | safe and deep | +0.43 |
+| Forehand rally, opponent covering cross-court, hurried | behind the opponent | +0.43 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Opponent at the net, backhand | low at the feet | -0.63 |
+| Opponent at the net, forehand | low at the feet | -0.49 |
+| Second serve placement, right court | down the T | -0.36 |
+| Opponent at the net, backhand | low at the feet | -0.35 |
+
+</details>
+
+<details><summary><b>Agassi</b> — 54.2% of points against the untrained twin</summary>
+
+| Situation | Prefers | Value |
+|---|---|---|
+| Forehand rally, opponent covering cross-court, hurried | heavy and deep down the middle | +0.52 |
+| Forehand rally, opponent in the middle, hurried | heavy and deep down the middle | +0.47 |
+| Opponent at the net, backhand | pass down the line | +0.39 |
+| Opponent at the net, forehand | pass down the line | +0.39 |
+
+| Situation | Avoids | Value |
+|---|---|---|
+| Opponent at the net, backhand | low at the feet | -0.53 |
+| Second serve placement, right court | down the T | -0.42 |
+| Return of a second serve against a serve-and-volleyer | low at the feet | -0.41 |
+
+</details>
+
+<details><summary><b>Murray</b> — 52.8% of points against the untrained twin</summary>
+
+| Situation | Prefers | Value |
+|---|---|---|
+| Opponent at the net, forehand | pass down the line | +0.60 |
+| Opponent at the net, backhand | pass down the line | +0.58 |
+| First ball after own serve, forehand | heavy and deep down the middle | +0.49 |
+| Forehand rally, opponent caught on the line side | heavy and deep down the middle | +0.46 |
+
+| Situation | Avoids | Value |
+|---|---|---|
 | Opponent at the net, forehand | low at the feet | -0.52 |
-| Second serve placement, right court | down the T | -0.50 |
+| Return of a second serve against a serve-and-volleyer | low at the feet | -0.46 |
+| Return of a second serve | cross-court | -0.40 |
 
 </details>
 
-<details><summary><b>Murray</b> — 49.3% of points against the untrained twin</summary>
+<details><summary><b>McEnroe</b> — 52.2% of points against the untrained twin</summary>
 
 | Situation | Prefers | Value |
 |---|---|---|
-| Opponent at the net, forehand | pass down the line | +0.65 |
-| Opponent at the net, backhand | pass down the line | +0.58 |
-| Forehand rally, opponent in the middle, hurried | heavy and deep down the middle | +0.46 |
-| Backhand rally, opponent covering cross-court | heavy and deep down the middle | +0.41 |
+| Short ball, opponent covering cross-court | drop shot | +0.78 |
+| Forehand rally, opponent in the middle | drop shot | +0.46 |
+| Backhand rally, opponent covering cross-court | drop shot | +0.44 |
+| Forehand rally, opponent in the middle | slice | +0.42 |
 
 | Situation | Avoids | Value |
 |---|---|---|
-| Opponent at the net, forehand | low at the feet | -0.55 |
-| Return of a second serve against a serve-and-volleyer | low at the feet | -0.47 |
-| Return of a second serve | cross-court | -0.44 |
-
-</details>
-
-<details><summary><b>McEnroe</b> — 51.6% of points against the untrained twin</summary>
-
-| Situation | Prefers | Value |
-|---|---|---|
-| Short ball, opponent covering cross-court | drop shot | +0.82 |
-| Forehand rally, opponent in the middle | drop shot | +0.45 |
-| Forehand rally, opponent caught on the line side | drop shot | +0.37 |
-| Backhand rally, opponent covering cross-court | drop shot | +0.37 |
-
-| Situation | Avoids | Value |
-|---|---|---|
-| Forehand rally, opponent in the middle | cross-court | -0.34 |
-| Forehand rally, opponent covering cross-court | cross-court | -0.33 |
-| First ball after own serve, backhand | hard into the open court | -0.32 |
+| Short ball, opponent covering cross-court | hard into the open court | -0.43 |
+| Short ball, opponent covering cross-court | down the line | -0.38 |
+| Backhand rally, opponent covering cross-court | cross-court | -0.35 |
 
 </details>
 
