@@ -5,7 +5,7 @@ situation it was played in, the choice made and whether it won the point. This p
 steps — look at it, find its structure, model it, then test the models honestly on data they have not seen. It is
 rebuilt by `tools/analysis/collect.js` and `tools/analysis/analyze.js`.
 
-**The data:** 59,660 shots from 312 short sets of self-play (every
+**The data:** 61,071 shots from 312 short sets of self-play (every
 player against every other, twice). Each row: 16 numbers describing the situation (how stretched the
 hitter is, contact height, incoming pace and spin, both players' positions, where the shot is aimed relative to the
 opponent, the rally length, the ratings involved), the stroke, the tactic chosen, and the label — whether the hitter
@@ -14,9 +14,9 @@ went on to win the point (46.4% of rows).
 ## What it found
 
 - **The learning generalises.** Tactics learned from scratch win +4.3 points more than untrained play against opponents met in training, and +5.8 against opponents never met (4-fold cross-validation over players).
-- **Situation predicts the point better than chance, not by much.** On unseen matches a decision tree is right 62.2% of the time (macro-F1 0.612) against 53.8% for always guessing the hitter wins; the most informative single facts are tactic chosen, shots so far, opponent distance from net.
-- **Measured play recovers the real styles.** K-means on 14 style measures puts the counterpunchers together and the offensive baseliners together (adjusted Rand 0.211 against the known labels); KNN guesses 5 of 13 players' styles from their play alone.
-- **Net play is out of balance.** A pass down the line wins 56.2% of its points, a plain volley only 55.1% and a smash 79.3%; on tour the player at the net wins most of those points and a smash nearly always does. This is why serve-and-volley players struggle in the game, and it is the next thing to fix.
+- **Situation predicts the point better than chance, not by much.** On unseen matches a decision tree is right 60.7% of the time (macro-F1 0.602) against 53.7% for always guessing the hitter wins; the most informative single facts are tactic chosen, shots so far, power rating.
+- **Measured play recovers the real styles.** K-means on 14 style measures puts the counterpunchers together and the offensive baseliners together (adjusted Rand 0.211 against the known labels); KNN guesses 6 of 13 players' styles from their play alone.
+- **Net play is out of balance.** A pass down the line wins 56.5% of its points, a plain volley only 53.6% and a smash 78.5%; on tour the player at the net wins most of those points and a smash nearly always does. This is why serve-and-volley players struggle in the game, and it is the next thing to fix.
 
 ## 1. Looking at the data
 
@@ -32,82 +32,81 @@ cut into eight equal-count bins first):
 
 | Feature | r |
 |---|---|
-| hitter distance from net | -0.123 |
-| control rating | +0.120 |
-| return of serve | -0.116 |
-| opponent control rating | -0.114 |
-| incoming topspin | -0.110 |
-| incoming pace | -0.104 |
-| power rating | -0.081 |
-| opponent speed rating | -0.074 |
-| how stretched | -0.063 |
-| spin rating | +0.053 |
-| shots so far | +0.029 |
-| contact height | +0.017 |
-| accuracy rating | -0.016 |
-| opponent distance from net | +0.013 |
-| aim distance from opponent | +0.012 |
-| opponent at the net | +0.004 |
+| hitter distance from net | -0.129 |
+| return of serve | -0.119 |
+| incoming topspin | -0.116 |
+| incoming pace | -0.113 |
+| control rating | +0.111 |
+| opponent control rating | -0.106 |
+| power rating | -0.079 |
+| how stretched | -0.070 |
+| opponent speed rating | -0.066 |
+| spin rating | +0.047 |
+| shots so far | +0.030 |
+| accuracy rating | -0.020 |
+| contact height | +0.019 |
+| aim distance from opponent | +0.017 |
+| opponent distance from net | +0.012 |
+| opponent at the net | +0.001 |
 
 **Features that move together** (|r| ≥ 0.4), so a model gains little from having both:
 
 - opponent distance from net ↔ opponent at the net: r = -0.92
-- incoming pace ↔ incoming topspin: r = 0.84
+- incoming pace ↔ incoming topspin: r = 0.83
 - power rating ↔ control rating: r = -0.74
 - incoming pace ↔ return of serve: r = 0.74
 - incoming topspin ↔ return of serve: r = 0.67
 - how stretched ↔ incoming pace: r = 0.58
-- incoming topspin ↔ hitter distance from net: r = 0.49
+- incoming topspin ↔ hitter distance from net: r = 0.47
 - how stretched ↔ return of serve: r = 0.44
 - opponent speed rating ↔ opponent control rating: r = 0.43
-- contact height ↔ return of serve: r = 0.43
-- return of serve ↔ shots so far: r = -0.40
+- contact height ↔ return of serve: r = 0.41
 
 **Win rate by tactic** (training rows):
 
 | Tactic | Shots | Hitter wins the point |
 |---|---|---|
-| smash | 323 | 79.3% |
-| putaway | 1,210 | 75.0% |
-| dropvolley | 373 | 64.6% |
-| passline | 1,700 | 56.2% |
-| volley | 885 | 55.1% |
-| angle | 3,402 | 52.0% |
-| deep | 18,881 | 49.2% |
-| drop | 523 | 47.0% |
-| behind | 2,943 | 46.8% |
-| open | 3,060 | 45.3% |
-| cross | 11,675 | 44.8% |
-| safe | 5,374 | 40.0% |
-| approach | 1,604 | 39.2% |
-| passcross | 890 | 39.2% |
-| slice | 4,760 | 37.6% |
-| line | 1,177 | 33.3% |
-| lob | 563 | 24.9% |
-| dip | 317 | 19.6% |
+| smash | 362 | 78.5% |
+| putaway | 1,317 | 71.5% |
+| dropvolley | 394 | 61.2% |
+| passline | 1,785 | 56.5% |
+| volley | 1,059 | 53.6% |
+| angle | 3,629 | 53.2% |
+| deep | 18,543 | 49.0% |
+| drop | 516 | 48.1% |
+| behind | 2,940 | 47.1% |
+| cross | 11,498 | 45.5% |
+| open | 3,126 | 45.1% |
+| approach | 1,817 | 42.6% |
+| passcross | 1,047 | 40.1% |
+| line | 1,161 | 38.8% |
+| slice | 5,027 | 37.9% |
+| safe | 5,808 | 37.8% |
+| lob | 636 | 27.2% |
+| dip | 406 | 23.9% |
 
 **Feature selection.** Keeping only the *m* features with the most mutual information, a depth-5 tree scores
 (5-fold cross-validation on the training set, macro-F1):
 
 | Features kept | Macro-F1 | Accuracy |
 |---|---|---|
-| 3 | 0.512 ± 0.028 | 57.5% |
-| 6 | 0.574 ± 0.021 | 58.1% |
-| 9 | 0.570 ± 0.015 | 59.2% |
-| 12 ← used | 0.585 ± 0.019 | 59.8% |
-| 18 | 0.584 ± 0.020 | 59.8% |
+| 3 | 0.540 ± 0.032 | 56.3% |
+| 6 | 0.571 ± 0.020 | 58.3% |
+| 9 | 0.554 ± 0.026 | 58.8% |
+| 12 ← used | 0.577 ± 0.019 | 59.4% |
+| 18 | 0.576 ± 0.020 | 59.3% |
 
-Kept: tactic chosen, shots so far, opponent distance from net, power rating, control rating, incoming topspin, opponent control rating, return of serve, hitter distance from net, incoming pace, opponent speed rating, stroke.
+Kept: tactic chosen, shots so far, power rating, opponent distance from net, incoming topspin, return of serve, control rating, hitter distance from net, opponent control rating, incoming pace, spin rating, opponent speed rating.
 
 ## 2. Structure: the players' styles
 
 Each player's play is summed up in 14 measures taken from the matches, not from the ratings: attack, steady, defend, net, touch, pass, depth, rally, aces, df, serveWon, returnWon, winners, errors
 (shares of shots by kind, average distance from the net, rally length, serve and return points won, winners and
-errors per point). Standardised, then **PCA**: the first two components hold 53.8% and
-12.6% of the variance.
+errors per point). Standardised, then **PCA**: the first two components hold 49.2% and
+15.1% of the variance.
 
-- PC1: steady +0.35, rally +0.34, depth +0.33, returnWon +0.33
-- PC2: errors +0.54, aces +0.43, attack +0.35, winners +0.35
+- PC1: steady +0.36, depth +0.35, rally +0.35, net −0.34
+- PC2: aces +0.50, errors +0.44, attack +0.38, df +0.34
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="styles-dark.svg"><img src="styles-light.svg" alt="Players on the first two principal components, coloured by K-means cluster"></picture>
 
@@ -115,10 +114,10 @@ errors per point). Standardised, then **PCA**: the first two components hold 53.
 
 | k | Silhouette | Agreement with the known styles (adjusted Rand) |
 |---|---|---|
-| 2 ← chosen | 0.428 | 0.211 |
-| 3 | 0.260 | 0.410 |
-| 4 | 0.169 | 0.283 |
-| 5 | 0.184 | 0.256 |
+| 2 ← chosen | 0.393 | 0.211 |
+| 3 | 0.223 | 0.188 |
+| 4 | 0.230 | 0.196 |
+| 5 | 0.247 | 0.153 |
 
 - **Cluster 1:** Sampras (serve and volley), McEnroe (serve and volley)
 - **Cluster 2:** Djokovic (offensive baseliner), Nadal (offensive baseliner), Alcaraz (all-court), Federer (all-court), Sinner (offensive baseliner), Medvedev (counterpuncher), Zverev (offensive baseliner), de Minaur (counterpuncher), Borg (counterpuncher), Agassi (offensive baseliner), Murray (counterpuncher)
@@ -127,23 +126,23 @@ The known styles are the tennis world's labels: serve and volley (Sampras, McEnr
 offensive baseliner (Djokovic, Nadal, Sinner, Agassi, Zverev) and counterpuncher (Murray, Medvedev, de Minaur, Borg).
 
 **KNN, leave-one-out:** each player's style predicted from the three most similar other players (distance-weighted
-vote, measures standardised): **5 of 13** right (38.5%).
+vote, measures standardised): **6 of 13** right (46.2%).
 
 | Player | Known style | Predicted from play | Most similar player |
 |---|---|---|---|
-| Djokovic | offensive baseliner | offensive baseliner | de Minaur |
+| Djokovic | offensive baseliner | offensive baseliner | Agassi |
 | Nadal | offensive baseliner | offensive baseliner | Agassi |
-| Alcaraz | all-court | all-court | Federer |
+| Alcaraz | all-court | offensive baseliner ✗ | Sinner |
 | Federer | all-court | offensive baseliner ✗ | Zverev |
-| Sinner | offensive baseliner | offensive baseliner | Agassi |
+| Sinner | offensive baseliner | offensive baseliner | Zverev |
 | Medvedev | counterpuncher | offensive baseliner ✗ | Zverev |
-| Zverev | offensive baseliner | all-court ✗ | Federer |
+| Zverev | offensive baseliner | offensive baseliner | Sinner |
 | de Minaur | counterpuncher | offensive baseliner ✗ | Djokovic |
 | Sampras | serve and volley | all-court ✗ | Federer |
-| Borg | counterpuncher | offensive baseliner ✗ | Nadal |
-| Agassi | offensive baseliner | offensive baseliner | Sinner |
-| Murray | counterpuncher | offensive baseliner ✗ | de Minaur |
-| McEnroe | serve and volley | all-court ✗ | Sampras |
+| Borg | counterpuncher | offensive baseliner ✗ | Agassi |
+| Agassi | offensive baseliner | offensive baseliner | Djokovic |
+| Murray | counterpuncher | offensive baseliner ✗ | Djokovic |
+| McEnroe | serve and volley | serve and volley | Sampras |
 
 ## 3. Models: can a shot's situation predict the point?
 
@@ -151,46 +150,46 @@ Task: from one shot's situation and choice, predict whether its hitter wins the 
 features kept above:
 
 - **Decision tree** (CART, Gini impurity, leaves of at least 60 shots). Depth by cross-validation:
-depth 2: 0.514 · depth 3: 0.558 · depth 4: 0.557 · depth 6: 0.589 · depth 8: 0.596 · depth 10: 0.592 · depth 12: 0.593 · depth 14: 0.591 → **depth 8**.
+depth 2: 0.476 · depth 3: 0.516 · depth 4: 0.535 · depth 6: 0.585 · depth 8: 0.587 · depth 10: 0.590 · depth 12: 0.590 · depth 14: 0.590 → **depth 10**.
 - **KNN** (z-scored features, scaling fitted on each training fold only, distance-weighted vote; up to 5,000
-training rows per fold to keep the Θ(n²) cost reasonable). k by cross-validation: k=5: 0.553 · k=15: 0.573 · k=45: 0.581 · k=95: 0.582
-→ **k = 45**.
+training rows per fold to keep the Θ(n²) cost reasonable). k by cross-validation: k=5: 0.561 · k=15: 0.576 · k=45: 0.578 · k=95: 0.581
+→ **k = 95**.
 
 What a depth-3 tree on every feature learns (training set):
 
 ```
-47391 shots, 46%
-  if isReturn ≤ 0.50: 38028 shots, 49%
-    if oppControl ≤ 76.00: 7936 shots, 61%
-      if oppDepth ≤ 3.84: → hitter wins 45% (864 shots)
-      else: → hitter wins 63% (7072 shots)
-    else: 30092 shots, 46%
-      if depth ≤ 7.39: → hitter wins 71% (1514 shots)
-      else: → hitter wins 45% (28578 shots)
-  else: 9363 shots, 35%
-    if gap ≤ 2.13: 6153 shots, 40%
-      if inPace ≤ 16.73: → hitter wins 45% (2668 shots)
-      else: → hitter wins 36% (3485 shots)
-    else: 3210 shots, 27%
-      if oppControl ≤ 68.50: → hitter wins 38% (456 shots)
-      else: → hitter wins 25% (2754 shots)
+50049 shots, 46%
+  if inSpin ≤ 4.51: 40087 shots, 49%
+    if oppControl ≤ 76.00: 9231 shots, 60%
+      if power ≤ 87.00: → hitter wins 63% (7098 shots)
+      else: → hitter wins 50% (2133 shots)
+    else: 30856 shots, 46%
+      if power ≤ 91.50: → hitter wins 48% (25935 shots)
+      else: → hitter wins 34% (4921 shots)
+  else: 9962 shots, 35%
+    if gap ≤ 2.10: 6700 shots, 38%
+      if oppControl ≤ 68.50: → hitter wins 50% (916 shots)
+      else: → hitter wins 36% (5784 shots)
+    else: 3262 shots, 27%
+      if inPace ≤ 18.59: → hitter wins 34% (1240 shots)
+      else: → hitter wins 23% (2022 shots)
 ```
 
-Most important features of the chosen tree (share of the impurity it removes): power 16.3%, depth 15.3%, oppControl 13.6%, isReturn 13.3%, oppDepth 7.1%, oppSpeed 6.9%, gap 6.3%, control 3.9%.
+Most important features of the chosen tree (share of the impurity it removes): inSpin 14.5%, depth 14.5%, oppControl 14.1%, power 11.4%, oppSpeed 7.5%, oppDepth 7.1%, gap 6.0%, spin 4.2%.
 
 ## 4. Evaluation on unseen matches
 
-**Split.** Shots of one match share players and conditions, so the split is by match: 20.6% of
+**Split.** Shots of one match share players and conditions, so the split is by match: 18.0% of
 rows (62 whole matches) are held out as the **test set** and used once, at the end.
 Everything above — feature selection, depth, k — was chosen by **5-fold cross-validation inside the training set**,
 also grouped by match.
 
 | Model (test set) | Accuracy | Precision | Recall | F1 | Macro-F1 |
 |---|---|---|---|---|---|
-| Always "the hitter wins" (baseline) | 53.8% | 0.0% | 0.0% | 0.000 | 0.350 |
-| Tactic only (its training win rate) | 56.9% | 61.1% | 18.4% | 0.283 | 0.488 |
-| Decision tree, depth 8 | 62.2% | 61.1% | 50.0% | 0.550 | 0.612 |
-| KNN, k = 45 | 61.9% | 60.7% | 49.3% | 0.544 | 0.608 |
+| Always "the hitter wins" (baseline) | 53.7% | 0.0% | 0.0% | 0.000 | 0.350 |
+| Tactic only (its training win rate) | 56.0% | 57.9% | 18.2% | 0.277 | 0.480 |
+| Decision tree, depth 10 | 60.7% | 58.1% | 53.7% | 0.558 | 0.602 |
+| KNN, k = 95 | 60.0% | 59.0% | 44.2% | 0.505 | 0.584 |
 
 Positive class: the hitter wins the point.
 
@@ -198,12 +197,12 @@ Positive class: the hitter wins the point.
 
 | Model | True positive | False negative | False positive | True negative |
 |---|---|---|---|---|
-| Tactic only | 1045 | 4619 | 664 | 5941 |
-| Decision tree | 2833 | 2831 | 1804 | 4801 |
-| KNN | 2790 | 2874 | 1803 | 4802 |
+| Tactic only | 927 | 4173 | 673 | 5249 |
+| Decision tree | 2737 | 2363 | 1972 | 3950 |
+| KNN | 2252 | 2848 | 1566 | 4356 |
 
-**Reading it.** The models beat the baseline by 8.4 points of accuracy:
-a single shot's situation does carry information about the point — chiefly tactic chosen, shots so far, opponent distance from net — but
+**Reading it.** The models beat the baseline by 6.9 points of accuracy:
+a single shot's situation does carry information about the point — chiefly tactic chosen, shots so far, power rating — but
 tennis points are long chains of shots, and most of the outcome is decided later. That is the honest ceiling for
 this task, and it is why the players learn from whole points rather than from single shots.
 
